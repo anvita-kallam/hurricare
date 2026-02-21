@@ -114,7 +114,7 @@ export default function SimulationEngine() {
       // Show narrative pop-up when hurricane is selected
       setNarrativePopup({
         title: `Hurricane ${selectedHurricane.name} - ${selectedHurricane.year}`,
-        message: `You are now the humanitarian response coordinator for ${selectedHurricane.name}, a Category ${selectedHurricane.max_category} storm that affected ${selectedHurricane.affected_countries.join(', ')}.\n\n${selectedHurricane.estimated_population_affected.toLocaleString()} people were impacted. Your mission: allocate limited resources to save lives and reduce suffering.\n\nYou have a fixed budget based on actual historical funding. Make every dollar count.`,
+        message: `You are now the humanitarian response coordinator for ${selectedHurricane.name}, a Category ${selectedHurricane.max_category} storm that affected ${selectedHurricane.affected_countries.join(', ')}. ${selectedHurricane.estimated_population_affected.toLocaleString()} people were impacted. Your mission: allocate limited resources to save lives and reduce suffering. You have a fixed budget based on actual historical funding. Make every dollar count.`,
         type: 'story'
       })
       
@@ -247,7 +247,7 @@ export default function SimulationEngine() {
       // Show narrative pop-up about user plan completion
       setNarrativePopup({
         title: 'Your Response Plan Complete',
-        message: `You've allocated $${getTotalAllocated().toLocaleString()} across ${regions.length} affected regions.\n\nYour plan prioritizes specific humanitarian clusters in each region. Now let's see how an AI-optimized plan would allocate the same resources based on UN humanitarian principles.`,
+        message: `You've allocated $${getTotalAllocated().toLocaleString()} across ${regions.length} affected regions. Your plan prioritizes specific humanitarian clusters in each region. Now let's see how an AI-optimized plan would allocate the same resources based on UN humanitarian principles.`,
         type: 'success'
       })
       
@@ -294,7 +294,7 @@ export default function SimulationEngine() {
       // Show narrative pop-up about ML plan
       setNarrativePopup({
         title: 'AI-Optimized Response Plan Generated',
-        message: `The AI has analyzed the crisis using United Nations humanitarian principles:\n\n• Humanity: Prioritizing life-saving interventions\n• Neutrality: Allocating without bias\n• Impartiality: Based on need alone\n• Equity: Fair distribution across regions\n• Sustainability: Long-term recovery focus\n\nCompare your plan with this optimized allocation.`,
+        message: `The AI has analyzed the crisis using United Nations humanitarian principles: • Humanity: Prioritizing life-saving interventions • Neutrality: Allocating without bias • Impartiality: Based on need alone • Equity: Fair distribution across regions • Sustainability: Long-term recovery focus. Compare your plan with this optimized allocation.`,
         type: 'info'
       })
       
@@ -338,7 +338,7 @@ export default function SimulationEngine() {
       // Show narrative pop-up about real-world response
       setNarrativePopup({
         title: 'Historical Response Revealed',
-        message: `This is how ${selectedHurricane.name} was actually handled in ${selectedHurricane.year}.\n\nReal-world humanitarian response faces constraints you might not see: political pressures, logistics bottlenecks, security challenges, and competing priorities.\n\nCompare your plan, the AI's ideal plan, and what actually happened.`,
+        message: `This is how ${selectedHurricane.name} was actually handled in ${selectedHurricane.year}. Real-world humanitarian response faces constraints you might not see: political pressures, logistics bottlenecks, security challenges, and competing priorities. Compare your plan, the AI's ideal plan, and what actually happened.`,
         type: 'warning'
       })
       
@@ -845,7 +845,7 @@ export default function SimulationEngine() {
                   if (userPlan && mlPlan && realPlan) {
                     setNarrativePopup({
                       title: 'Final Analysis: The Complete Picture',
-                      message: `You've seen three different approaches to responding to ${selectedHurricane?.name}:\n\n1. YOUR PLAN: Your strategic allocation based on your judgment\n2. AI IDEAL PLAN: Optimized allocation using UN humanitarian principles\n3. REAL-WORLD: How the crisis was actually handled historically\n\nExplore the metrics, visualizations, and insights below. What can we learn from these comparisons?`,
+                      message: `You've seen three different approaches to responding to ${selectedHurricane?.name}: 1. YOUR PLAN: Your strategic allocation based on your judgment 2. AI IDEAL PLAN: Optimized allocation using UN humanitarian principles 3. REAL-WORLD: How the crisis was actually handled historically. Explore the metrics, visualizations, and insights below. What can we learn from these comparisons?`,
                       type: 'story'
                     })
                   }
