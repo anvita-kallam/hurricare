@@ -69,20 +69,20 @@ export default function ProjectTable() {
   }
   
   return (
-    <div className="bg-white rounded-lg shadow-lg p-4 h-full flex flex-col">
-      <h2 className="text-xl font-bold mb-4">Project Analysis</h2>
+    <div className="bg-black/40 backdrop-blur-sm rounded-lg border border-cyan-500/30 p-4 h-full flex flex-col glow-cyan">
+      <h2 className="text-xl font-bold mb-4 text-glow-cyan">Project Analysis</h2>
       
       <div className="mb-4 flex gap-4 flex-wrap">
         <div>
-          <label className="block text-sm font-medium mb-1">Filter by Cluster</label>
+          <label className="block text-sm font-medium mb-1 text-cyan-200">Filter by Cluster</label>
           <select
             value={filterCluster}
             onChange={(e) => setFilterCluster(e.target.value)}
-            className="border rounded px-2 py-1"
+            className="border border-cyan-500/30 rounded px-2 py-1 bg-black/60 text-cyan-200 focus:border-cyan-400 focus:glow-cyan"
           >
-            <option value="">All Clusters</option>
+            <option value="" className="bg-black">All Clusters</option>
             {clusters.map(cluster => (
-              <option key={cluster} value={cluster}>{cluster}</option>
+              <option key={cluster} value={cluster} className="bg-black">{cluster}</option>
             ))}
           </select>
         </div>
@@ -93,52 +93,52 @@ export default function ProjectTable() {
             id="flagged-only"
             checked={showOnlyFlagged}
             onChange={(e) => setShowOnlyFlagged(e.target.checked)}
-            className="w-4 h-4"
+            className="w-4 h-4 accent-cyan-500"
           />
-          <label htmlFor="flagged-only" className="text-sm">Show only flagged</label>
+          <label htmlFor="flagged-only" className="text-sm text-cyan-200">Show only flagged</label>
         </div>
         
-        <div className="text-sm text-gray-600">
+        <div className="text-sm text-cyan-300/80">
           Showing {sortedProjects.length} of {projects.length} projects
         </div>
       </div>
       
       <div className="overflow-auto flex-1">
         <table className="w-full text-sm">
-          <thead className="bg-gray-100 sticky top-0">
+          <thead className="bg-cyan-500/20 border-b border-cyan-500/30 sticky top-0">
             <tr>
               <th 
-                className="px-2 py-2 text-left cursor-pointer hover:bg-gray-200"
+                className="px-2 py-2 text-left cursor-pointer text-cyan-200 hover:text-cyan-100 hover:bg-cyan-500/20 transition"
                 onClick={() => handleSort('project_id')}
               >
                 Project ID {sortField === 'project_id' && (sortDirection === 'asc' ? '↑' : '↓')}
               </th>
               <th 
-                className="px-2 py-2 text-left cursor-pointer hover:bg-gray-200"
+                className="px-2 py-2 text-left cursor-pointer text-cyan-200 hover:text-cyan-100 hover:bg-cyan-500/20 transition"
                 onClick={() => handleSort('cluster')}
               >
                 Cluster {sortField === 'cluster' && (sortDirection === 'asc' ? '↑' : '↓')}
               </th>
               <th 
-                className="px-2 py-2 text-right cursor-pointer hover:bg-gray-200"
+                className="px-2 py-2 text-right cursor-pointer text-cyan-200 hover:text-cyan-100 hover:bg-cyan-500/20 transition"
                 onClick={() => handleSort('budget_usd')}
               >
                 Budget (USD) {sortField === 'budget_usd' && (sortDirection === 'asc' ? '↑' : '↓')}
               </th>
               <th 
-                className="px-2 py-2 text-right cursor-pointer hover:bg-gray-200"
+                className="px-2 py-2 text-right cursor-pointer text-cyan-200 hover:text-cyan-100 hover:bg-cyan-500/20 transition"
                 onClick={() => handleSort('beneficiaries')}
               >
                 Beneficiaries {sortField === 'beneficiaries' && (sortDirection === 'asc' ? '↑' : '↓')}
               </th>
               <th 
-                className="px-2 py-2 text-right cursor-pointer hover:bg-gray-200"
+                className="px-2 py-2 text-right cursor-pointer text-cyan-200 hover:text-cyan-100 hover:bg-cyan-500/20 transition"
                 onClick={() => handleSort('budget_per_beneficiary')}
               >
                 $/Beneficiary {sortField === 'budget_per_beneficiary' && (sortDirection === 'asc' ? '↑' : '↓')}
               </th>
-              <th className="px-2 py-2 text-left">Pooled Fund</th>
-              <th className="px-2 py-2 text-left">Status</th>
+              <th className="px-2 py-2 text-left text-cyan-200">Pooled Fund</th>
+              <th className="px-2 py-2 text-left text-cyan-200">Status</th>
             </tr>
           </thead>
           <tbody>
@@ -151,34 +151,34 @@ export default function ProjectTable() {
               return (
                 <tr
                   key={project.project_id}
-                  className={`border-b hover:bg-gray-50 ${
-                    flagInfo ? (flagInfo.flag_type === 'high_outlier' ? 'bg-red-50' : 'bg-yellow-50') : ''
+                  className={`border-b border-cyan-500/10 hover:bg-cyan-500/10 transition ${
+                    flagInfo ? (flagInfo.flag_type === 'high_outlier' ? 'bg-red-500/20' : 'bg-yellow-500/20') : ''
                   }`}
                 >
-                  <td className="px-2 py-2">{project.project_id}</td>
-                  <td className="px-2 py-2">{project.cluster}</td>
-                  <td className="px-2 py-2 text-right">
+                  <td className="px-2 py-2 text-cyan-200">{project.project_id}</td>
+                  <td className="px-2 py-2 text-cyan-300">{project.cluster}</td>
+                  <td className="px-2 py-2 text-right text-cyan-200">
                     ${project.budget_usd.toLocaleString(undefined, { maximumFractionDigits: 0 })}
                   </td>
-                  <td className="px-2 py-2 text-right">
+                  <td className="px-2 py-2 text-right text-cyan-200">
                     {project.beneficiaries.toLocaleString()}
                   </td>
-                  <td className="px-2 py-2 text-right">
+                  <td className="px-2 py-2 text-right text-cyan-200">
                     ${budgetPerBeneficiary.toFixed(2)}
                   </td>
                   <td className="px-2 py-2">
                     {project.pooled_fund ? (
-                      <span className="text-green-600 font-semibold">Yes</span>
+                      <span className="text-green-400 font-semibold glow-green">Yes</span>
                     ) : (
-                      <span className="text-gray-400">No</span>
+                      <span className="text-cyan-400/60">No</span>
                     )}
                   </td>
                   <td className="px-2 py-2">
                     {flagInfo && (
                       <span className={`text-xs px-2 py-1 rounded ${
                         flagInfo.flag_type === 'high_outlier' 
-                          ? 'bg-red-200 text-red-800' 
-                          : 'bg-yellow-200 text-yellow-800'
+                          ? 'bg-red-500/30 text-red-300 glow' 
+                          : 'bg-yellow-500/30 text-yellow-300 glow'
                       }`}>
                         {flagInfo.flag_type === 'high_outlier' ? 'High' : 'Low'}
                       </span>

@@ -67,17 +67,17 @@ export default function AllocationPanel() {
   
   if (!selectedHurricane) {
     return (
-      <div className="bg-white rounded-lg shadow-lg p-4">
-        <h2 className="text-xl font-bold mb-4">Allocation Simulator</h2>
-        <p className="text-gray-500">Select a hurricane to begin simulation</p>
+      <div className="bg-black/40 backdrop-blur-sm rounded-lg border border-cyan-500/30 p-4 glow-cyan">
+        <h2 className="text-xl font-bold mb-4 text-glow-cyan">Allocation Simulator</h2>
+        <p className="text-cyan-300/80">Select a hurricane to begin simulation</p>
       </div>
     )
   }
   
   return (
-    <div className="bg-white rounded-lg shadow-lg p-4 h-full flex flex-col">
-      <h2 className="text-xl font-bold mb-4">Allocation Simulator</h2>
-      <div className="text-sm text-gray-600 mb-4">
+    <div className="bg-black/40 backdrop-blur-sm rounded-lg border border-cyan-500/30 p-4 h-full flex flex-col glow-cyan">
+      <h2 className="text-xl font-bold mb-4 text-glow-cyan">Allocation Simulator</h2>
+      <div className="text-sm text-cyan-300/80 mb-4">
         Adjust budget allocations per region and simulate impact
       </div>
       
@@ -88,19 +88,19 @@ export default function AllocationPanel() {
           const maxBudget = cov ? cov.estimated_need_budget * 1.5 : 10000000
           
           return (
-            <div key={region} className="border rounded p-3">
+            <div key={region} className="border border-cyan-500/30 rounded p-3 bg-black/40 backdrop-blur-sm glow-cyan">
               <div className="flex justify-between items-center mb-2">
                 <div>
-                  <div className="font-semibold">{region}</div>
+                  <div className="font-semibold text-cyan-200">{region}</div>
                   {cov && (
-                    <div className="text-xs text-gray-600">
+                    <div className="text-xs text-cyan-300/70">
                       Current: ${cov.pooled_fund_budget.toLocaleString()} • 
                       Need: ${cov.estimated_need_budget.toLocaleString()} • 
                       Coverage: {(cov.coverage_ratio * 100).toFixed(1)}%
                     </div>
                   )}
                 </div>
-                <div className="text-sm font-medium">
+                <div className="text-sm font-medium text-cyan-200">
                   ${currentBudget.toLocaleString()}
                 </div>
               </div>
@@ -111,9 +111,9 @@ export default function AllocationPanel() {
                 step={maxBudget / 100}
                 value={currentBudget}
                 onChange={(e) => handleAllocationChange(region, parseFloat(e.target.value))}
-                className="w-full"
+                className="w-full accent-cyan-500"
               />
-              <div className="flex justify-between text-xs text-gray-500 mt-1">
+              <div className="flex justify-between text-xs text-cyan-400/60 mt-1">
                 <span>$0</span>
                 <span>${maxBudget.toLocaleString()}</span>
               </div>
@@ -125,7 +125,7 @@ export default function AllocationPanel() {
       <button
         onClick={runSimulation}
         disabled={loading}
-        className="w-full bg-blue-600 text-white py-2 px-4 rounded hover:bg-blue-700 disabled:bg-gray-400"
+        className="w-full bg-cyan-600 text-white py-2 px-4 rounded hover:bg-cyan-700 disabled:bg-gray-600 disabled:text-gray-400 glow-cyan transition-all font-semibold"
       >
         {loading ? 'Running Simulation...' : 'Run Simulation'}
       </button>
