@@ -163,6 +163,45 @@ function App() {
   
   return (
     <>
+      {/* Confirmation Dialog */}
+      {showConfirmDialog && pendingHurricane && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-sm">
+          <div className="bg-black/90 border-2 border-cyan-500/50 rounded-lg p-6 max-w-md mx-4 glow-cyan">
+            <h2 className="text-2xl font-bold text-glow-cyan font-orbitron mb-4">
+              Start Simulation
+            </h2>
+            {cinematicHurricane && (
+              <div className="text-cyan-200 font-exo mb-6 space-y-2">
+                <p>You are about to enter the simulation for:</p>
+                <p className="text-xl font-bold text-cyan-100">
+                  {cinematicHurricane.name} ({cinematicHurricane.year})
+                </p>
+                <p className="text-sm text-cyan-300/80">
+                  Category {cinematicHurricane.max_category} • {cinematicHurricane.estimated_population_affected.toLocaleString()} affected
+                </p>
+                <p className="text-sm text-cyan-400/70 mt-4">
+                  A brief cinematic will play showing the hurricane's progression.
+                </p>
+              </div>
+            )}
+            <div className="flex gap-4">
+              <button
+                onClick={handleConfirmSimulation}
+                className="flex-1 px-4 py-2 rounded bg-cyan-600 hover:bg-cyan-500 text-white font-semibold font-orbitron transition"
+              >
+                Enter Simulation
+              </button>
+              <button
+                onClick={handleCancelSimulation}
+                className="flex-1 px-4 py-2 rounded bg-gray-700 hover:bg-gray-600 text-gray-200 font-semibold font-exo transition"
+              >
+                Cancel
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+      
       {/* Cinematic Intro */}
       {isCinematicPlaying && cinematicHurricane && (
         <CinematicIntro
