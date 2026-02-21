@@ -928,5 +928,1087 @@
       "Haiti"
     ],
     "estimated_population_affected": 2000000
+  },
+  {
+    "id": "cyclone_nargis_2008",
+    "name": "Cyclone Nargis",
+    "year": 2008,
+    "max_category": 4,
+    "track": [
+      {
+        "lat": 10.5,
+        "lon": 88.2,
+        "wind": 65
+      },
+      {
+        "lat": 12.8,
+        "lon": 90.5,
+        "wind": 90
+      },
+      {
+        "lat": 14.5,
+        "lon": 92.8,
+        "wind": 120
+      },
+      {
+        "lat": 15.8,
+        "lon": 94.2,
+        "wind": 140
+      },
+      {
+        "lat": 16.5,
+        "lon": 95.5,
+        "wind": 135
+      },
+      {
+        "lat": 17.2,
+        "lon": 96.8,
+        "wind": 100
+      }
+    ],
+    "affected_countries": [
+      "Myanmar",
+      "Bangladesh",
+      "India"
+    ],
+    "estimated_population_affected": 2400000
+  },
+  {
+    "id": "cyclone_pam_2015",
+    "name": "Cyclone Pam",
+    "year": 2015,
+    "max_category": 5,
+    "track": [
+      {
+        "lat": -10.5,
+        "lon": 165.2,
+        "wind": 75
+      },
+      {
+        "lat": -12.8,
+        "lon": 167.5,
+        "wind": 110
+      },
+      {
+        "lat": -14.5,
+        "lon": 168.8,
+        "wind": 150
+      },
+      {
+        "lat": -15.8,
+        "lon": 170.2,
+        "wind": 165
+      },
+      {
+        "lat": -16.5,
+        "lon": 171.5,
+        "wind": 160
+      },
+      {
+        "lat": -17.2,
+        "lon": 172.8,
+        "wind": 120
+      }
+    ],
+    "affected_countries": [
+      "Vanuatu",
+      "Fiji",
+      "New Caledonia"
+    ],
+    "estimated_population_affected": 250000
+  },
+  {
+    "id": "typhoon_mangkhut_2018",
+    "name": "Typhoon Mangkhut",
+    "year": 2018,
+    "max_category": 5,
+    "track": [
+      {
+        "lat": 12.5,
+        "lon": 140.2,
+        "wind": 85
+      },
+      {
+        "lat": 14.8,
+        "lon": 135.5,
+        "wind": 120
+      },
+      {
+        "lat": 17.2,
+        "lon": 130.8,
+        "wind": 160
+      },
+      {
+        "lat": 19.5,
+        "lon": 125.2,
+        "wind": 180
+      },
+      {
+        "lat": 21.8,
+        "lon": 120.5,
+        "wind": 175
+      },
+      {
+        "lat": 23.5,
+        "lon": 115.8,
+        "wind": 140
+      },
+      {
+        "lat": 25.2,
+        "lon": 110.5,
+        "wind": 100
+      }
+    ],
+    "affected_countries": [
+      "Philippines",
+      "China",
+      "Hong Kong",
+      "Taiwan"
+    ],
+    "estimated_population_affected": 6500000
+  },
+  {
+    "id": "cyclone_idai_2019",
+    "name": "Cyclone Idai",
+    "year": 2019,
+    "max_category": 4,
+    "track": [
+      {
+        "lat": -12.5,
+        "lon": 40.2,
+        "wind": 65
+      },
+      {
+        "lat": -14.8,
+        "lon": 38.5,
+        "wind": 90
+      },
+      {
+        "lat": -17.2,
+        "lon": 36.8,
+        "wind": 120
+      },
+      {
+        "lat": -19.5,
+        "lon": 35.2,
+        "wind": 140
+      },
+      {
+        "lat": -20.8,
+        "lon": 34.5,
+        "wind": 135
+      },
+      {
+        "lat": -21.5,
+        "lon": 33.8,
+        "wind": 100
+      }
+    ],
+    "affected_countries": [
+      "Mozambique",
+      "Malawi",
+      "Zimbabwe"
+    ],
+    "estimated_population_affected": 3000000
+  },
+  {
+    "id": "typhoon_goni_2020",
+    "name": "Typhoon Goni",
+    "year": 2020,
+    "max_category": 5,
+    "track": [
+      {
+        "lat": 10.2,
+        "lon": 135.5,
+        "wind": 75
+      },
+      {
+        "lat": 12.5,
+        "lon": 132.8,
+        "wind": 110
+      },
+      {
+        "lat": 14.8,
+        "lon": 130.2,
+        "wind": 150
+      },
+      {
+        "lat": 16.5,
+        "lon": 127.5,
+        "wind": 195
+      },
+      {
+        "lat": 13.2,
+        "lon": 123.8,
+        "wind": 195
+      },
+      {
+        "lat": 14.5,
+        "lon": 120.2,
+        "wind": 160
+      },
+      {
+        "lat": 16.2,
+        "lon": 117.5,
+        "wind": 120
+      }
+    ],
+    "affected_countries": [
+      "Philippines",
+      "Vietnam"
+    ],
+    "estimated_population_affected": 2400000
+  },
+  {
+    "id": "cyclone_amphan_2020",
+    "name": "Cyclone Amphan",
+    "year": 2020,
+    "max_category": 5,
+    "track": [
+      {
+        "lat": 8.5,
+        "lon": 85.2,
+        "wind": 75
+      },
+      {
+        "lat": 10.8,
+        "lon": 87.5,
+        "wind": 110
+      },
+      {
+        "lat": 13.2,
+        "lon": 89.8,
+        "wind": 150
+      },
+      {
+        "lat": 15.5,
+        "lon": 88.2,
+        "wind": 165
+      },
+      {
+        "lat": 18.2,
+        "lon": 89.5,
+        "wind": 140
+      },
+      {
+        "lat": 20.5,
+        "lon": 88.8,
+        "wind": 100
+      }
+    ],
+    "affected_countries": [
+      "India",
+      "Bangladesh",
+      "Sri Lanka"
+    ],
+    "estimated_population_affected": 4500000
+  },
+  {
+    "id": "cyclone_freddy_2023",
+    "name": "Cyclone Freddy",
+    "year": 2023,
+    "max_category": 5,
+    "track": [
+      {
+        "lat": -10.2,
+        "lon": 55.5,
+        "wind": 65
+      },
+      {
+        "lat": -12.5,
+        "lon": 48.8,
+        "wind": 90
+      },
+      {
+        "lat": -15.2,
+        "lon": 42.2,
+        "wind": 130
+      },
+      {
+        "lat": -17.8,
+        "lon": 38.5,
+        "wind": 150
+      },
+      {
+        "lat": -19.5,
+        "lon": 35.8,
+        "wind": 145
+      },
+      {
+        "lat": -20.8,
+        "lon": 34.2,
+        "wind": 120
+      }
+    ],
+    "affected_countries": [
+      "Mozambique",
+      "Madagascar",
+      "Malawi"
+    ],
+    "estimated_population_affected": 1800000
+  },
+  {
+    "id": "typhoon_meranti_2016",
+    "name": "Typhoon Meranti",
+    "year": 2016,
+    "max_category": 5,
+    "track": [
+      {
+        "lat": 12.8,
+        "lon": 138.5,
+        "wind": 85
+      },
+      {
+        "lat": 15.2,
+        "lon": 135.8,
+        "wind": 120
+      },
+      {
+        "lat": 17.5,
+        "lon": 132.2,
+        "wind": 160
+      },
+      {
+        "lat": 19.8,
+        "lon": 128.5,
+        "wind": 185
+      },
+      {
+        "lat": 22.2,
+        "lon": 125.8,
+        "wind": 180
+      },
+      {
+        "lat": 24.5,
+        "lon": 120.2,
+        "wind": 140
+      }
+    ],
+    "affected_countries": [
+      "Philippines",
+      "Taiwan",
+      "China"
+    ],
+    "estimated_population_affected": 3200000
+  },
+  {
+    "id": "cyclone_winston_2016",
+    "name": "Cyclone Winston",
+    "year": 2016,
+    "max_category": 5,
+    "track": [
+      {
+        "lat": -12.2,
+        "lon": 175.5,
+        "wind": 75
+      },
+      {
+        "lat": -14.5,
+        "lon": 177.8,
+        "wind": 110
+      },
+      {
+        "lat": -16.8,
+        "lon": 179.2,
+        "wind": 150
+      },
+      {
+        "lat": -18.2,
+        "lon": 178.5,
+        "wind": 185
+      },
+      {
+        "lat": -17.5,
+        "lon": 177.2,
+        "wind": 180
+      },
+      {
+        "lat": -16.2,
+        "lon": 175.8,
+        "wind": 140
+      }
+    ],
+    "affected_countries": [
+      "Fiji",
+      "Tonga",
+      "Vanuatu"
+    ],
+    "estimated_population_affected": 540000
+  },
+  {
+    "id": "typhoon_hagibis_2019",
+    "name": "Typhoon Hagibis",
+    "year": 2019,
+    "max_category": 5,
+    "track": [
+      {
+        "lat": 13.5,
+        "lon": 140.8,
+        "wind": 75
+      },
+      {
+        "lat": 16.2,
+        "lon": 138.2,
+        "wind": 110
+      },
+      {
+        "lat": 19.5,
+        "lon": 135.5,
+        "wind": 150
+      },
+      {
+        "lat": 22.8,
+        "lon": 132.8,
+        "wind": 180
+      },
+      {
+        "lat": 28.5,
+        "lon": 139.2,
+        "wind": 160
+      },
+      {
+        "lat": 35.2,
+        "lon": 140.5,
+        "wind": 100
+      }
+    ],
+    "affected_countries": [
+      "Japan",
+      "Philippines"
+    ],
+    "estimated_population_affected": 10000000
+  },
+  {
+    "id": "cyclone_yarin_2023",
+    "name": "Cyclone Yarin",
+    "year": 2023,
+    "max_category": 4,
+    "track": [
+      {
+        "lat": -8.5,
+        "lon": 110.2,
+        "wind": 65
+      },
+      {
+        "lat": -10.8,
+        "lon": 112.5,
+        "wind": 90
+      },
+      {
+        "lat": -13.2,
+        "lon": 114.8,
+        "wind": 120
+      },
+      {
+        "lat": -15.5,
+        "lon": 116.2,
+        "wind": 140
+      },
+      {
+        "lat": -17.8,
+        "lon": 117.5,
+        "wind": 135
+      }
+    ],
+    "affected_countries": [
+      "Australia",
+      "Indonesia"
+    ],
+    "estimated_population_affected": 450000
+  },
+  {
+    "id": "typhoon_jebi_2018",
+    "name": "Typhoon Jebi",
+    "year": 2018,
+    "max_category": 5,
+    "track": [
+      {
+        "lat": 12.2,
+        "lon": 138.5,
+        "wind": 75
+      },
+      {
+        "lat": 15.5,
+        "lon": 136.8,
+        "wind": 110
+      },
+      {
+        "lat": 19.2,
+        "lon": 134.2,
+        "wind": 150
+      },
+      {
+        "lat": 24.5,
+        "lon": 135.8,
+        "wind": 175
+      },
+      {
+        "lat": 30.2,
+        "lon": 135.5,
+        "wind": 160
+      },
+      {
+        "lat": 34.5,
+        "lon": 135.2,
+        "wind": 120
+      }
+    ],
+    "affected_countries": [
+      "Japan",
+      "South Korea"
+    ],
+    "estimated_population_affected": 3200000
+  },
+  {
+    "id": "cyclone_fani_2019",
+    "name": "Cyclone Fani",
+    "year": 2019,
+    "max_category": 5,
+    "track": [
+      {
+        "lat": 8.5,
+        "lon": 88.2,
+        "wind": 75
+      },
+      {
+        "lat": 11.2,
+        "lon": 87.5,
+        "wind": 110
+      },
+      {
+        "lat": 14.5,
+        "lon": 86.8,
+        "wind": 150
+      },
+      {
+        "lat": 18.2,
+        "lon": 85.5,
+        "wind": 165
+      },
+      {
+        "lat": 20.5,
+        "lon": 86.2,
+        "wind": 140
+      },
+      {
+        "lat": 22.8,
+        "lon": 87.5,
+        "wind": 100
+      }
+    ],
+    "affected_countries": [
+      "India",
+      "Bangladesh",
+      "Sri Lanka"
+    ],
+    "estimated_population_affected": 2800000
+  },
+  {
+    "id": "typhoon_lekima_2019",
+    "name": "Typhoon Lekima",
+    "year": 2019,
+    "max_category": 5,
+    "track": [
+      {
+        "lat": 13.5,
+        "lon": 135.8,
+        "wind": 75
+      },
+      {
+        "lat": 16.2,
+        "lon": 133.2,
+        "wind": 110
+      },
+      {
+        "lat": 19.5,
+        "lon": 130.5,
+        "wind": 150
+      },
+      {
+        "lat": 22.8,
+        "lon": 127.8,
+        "wind": 180
+      },
+      {
+        "lat": 26.5,
+        "lon": 123.2,
+        "wind": 160
+      },
+      {
+        "lat": 30.2,
+        "lon": 120.5,
+        "wind": 120
+      }
+    ],
+    "affected_countries": [
+      "China",
+      "Taiwan",
+      "Philippines"
+    ],
+    "estimated_population_affected": 5200000
+  },
+  {
+    "id": "cyclone_taau_2016",
+    "name": "Cyclone Taau",
+    "year": 2016,
+    "max_category": 4,
+    "track": [
+      {
+        "lat": -10.2,
+        "lon": 165.5,
+        "wind": 65
+      },
+      {
+        "lat": -12.5,
+        "lon": 167.8,
+        "wind": 90
+      },
+      {
+        "lat": -15.2,
+        "lon": 170.2,
+        "wind": 130
+      },
+      {
+        "lat": -17.8,
+        "lon": 172.5,
+        "wind": 140
+      },
+      {
+        "lat": -19.5,
+        "lon": 174.8,
+        "wind": 120
+      }
+    ],
+    "affected_countries": [
+      "Samoa",
+      "Tonga",
+      "Fiji"
+    ],
+    "estimated_population_affected": 180000
+  },
+  {
+    "id": "typhoon_rammasun_2014",
+    "name": "Typhoon Rammasun",
+    "year": 2014,
+    "max_category": 5,
+    "track": [
+      {
+        "lat": 11.5,
+        "lon": 138.2,
+        "wind": 75
+      },
+      {
+        "lat": 14.2,
+        "lon": 135.5,
+        "wind": 110
+      },
+      {
+        "lat": 17.5,
+        "lon": 132.8,
+        "wind": 150
+      },
+      {
+        "lat": 20.8,
+        "lon": 129.2,
+        "wind": 180
+      },
+      {
+        "lat": 22.5,
+        "lon": 108.5,
+        "wind": 160
+      },
+      {
+        "lat": 24.2,
+        "lon": 110.8,
+        "wind": 120
+      }
+    ],
+    "affected_countries": [
+      "Philippines",
+      "China",
+      "Vietnam"
+    ],
+    "estimated_population_affected": 3800000
+  },
+  {
+    "id": "cyclone_phailin_2013",
+    "name": "Cyclone Phailin",
+    "year": 2013,
+    "max_category": 5,
+    "track": [
+      {
+        "lat": 9.5,
+        "lon": 92.2,
+        "wind": 75
+      },
+      {
+        "lat": 12.2,
+        "lon": 90.5,
+        "wind": 110
+      },
+      {
+        "lat": 15.5,
+        "lon": 88.8,
+        "wind": 150
+      },
+      {
+        "lat": 18.2,
+        "lon": 87.2,
+        "wind": 165
+      },
+      {
+        "lat": 19.8,
+        "lon": 85.5,
+        "wind": 140
+      },
+      {
+        "lat": 21.5,
+        "lon": 84.2,
+        "wind": 100
+      }
+    ],
+    "affected_countries": [
+      "India",
+      "Myanmar",
+      "Thailand"
+    ],
+    "estimated_population_affected": 12000000
+  },
+  {
+    "id": "typhoon_haikui_2012",
+    "name": "Typhoon Haikui",
+    "year": 2012,
+    "max_category": 4,
+    "track": [
+      {
+        "lat": 14.2,
+        "lon": 135.5,
+        "wind": 75
+      },
+      {
+        "lat": 17.5,
+        "lon": 132.8,
+        "wind": 110
+      },
+      {
+        "lat": 20.8,
+        "lon": 130.2,
+        "wind": 140
+      },
+      {
+        "lat": 24.2,
+        "lon": 127.5,
+        "wind": 150
+      },
+      {
+        "lat": 28.5,
+        "lon": 121.8,
+        "wind": 120
+      }
+    ],
+    "affected_countries": [
+      "China",
+      "Taiwan",
+      "Philippines"
+    ],
+    "estimated_population_affected": 2800000
+  },
+  {
+    "id": "cyclone_ocha_2015",
+    "name": "Cyclone Ocha",
+    "year": 2015,
+    "max_category": 4,
+    "track": [
+      {
+        "lat": -8.5,
+        "lon": 115.2,
+        "wind": 65
+      },
+      {
+        "lat": -11.2,
+        "lon": 117.5,
+        "wind": 90
+      },
+      {
+        "lat": -14.5,
+        "lon": 119.8,
+        "wind": 120
+      },
+      {
+        "lat": -17.8,
+        "lon": 121.2,
+        "wind": 140
+      },
+      {
+        "lat": -20.5,
+        "lon": 122.5,
+        "wind": 130
+      }
+    ],
+    "affected_countries": [
+      "Australia",
+      "Indonesia"
+    ],
+    "estimated_population_affected": 320000
+  },
+  {
+    "id": "typhoon_chanthu_2021",
+    "name": "Typhoon Chanthu",
+    "year": 2021,
+    "max_category": 5,
+    "track": [
+      {
+        "lat": 12.8,
+        "lon": 138.5,
+        "wind": 75
+      },
+      {
+        "lat": 15.5,
+        "lon": 136.8,
+        "wind": 110
+      },
+      {
+        "lat": 18.2,
+        "lon": 134.2,
+        "wind": 150
+      },
+      {
+        "lat": 21.5,
+        "lon": 131.5,
+        "wind": 180
+      },
+      {
+        "lat": 25.2,
+        "lon": 127.8,
+        "wind": 175
+      },
+      {
+        "lat": 28.5,
+        "lon": 125.2,
+        "wind": 140
+      },
+      {
+        "lat": 31.8,
+        "lon": 121.5,
+        "wind": 100
+      }
+    ],
+    "affected_countries": [
+      "Philippines",
+      "China",
+      "Taiwan",
+      "South Korea"
+    ],
+    "estimated_population_affected": 4200000
+  },
+  {
+    "id": "cyclone_elena_2024",
+    "name": "Cyclone Elena",
+    "year": 2024,
+    "max_category": 4,
+    "track": [
+      {
+        "lat": -10.5,
+        "lon": 45.2,
+        "wind": 65
+      },
+      {
+        "lat": -13.2,
+        "lon": 43.5,
+        "wind": 90
+      },
+      {
+        "lat": -16.5,
+        "lon": 41.8,
+        "wind": 120
+      },
+      {
+        "lat": -19.2,
+        "lon": 40.2,
+        "wind": 140
+      },
+      {
+        "lat": -21.5,
+        "lon": 38.8,
+        "wind": 135
+      }
+    ],
+    "affected_countries": [
+      "Madagascar",
+      "Mozambique",
+      "Comoros"
+    ],
+    "estimated_population_affected": 850000
+  },
+  {
+    "id": "typhoon_doksuri_2023",
+    "name": "Typhoon Doksuri",
+    "year": 2023,
+    "max_category": 5,
+    "track": [
+      {
+        "lat": 11.5,
+        "lon": 128.2,
+        "wind": 75
+      },
+      {
+        "lat": 14.2,
+        "lon": 125.5,
+        "wind": 110
+      },
+      {
+        "lat": 17.5,
+        "lon": 122.8,
+        "wind": 150
+      },
+      {
+        "lat": 20.8,
+        "lon": 119.2,
+        "wind": 180
+      },
+      {
+        "lat": 24.2,
+        "lon": 117.5,
+        "wind": 170
+      },
+      {
+        "lat": 28.5,
+        "lon": 118.2,
+        "wind": 140
+      },
+      {
+        "lat": 32.2,
+        "lon": 118.5,
+        "wind": 100
+      }
+    ],
+    "affected_countries": [
+      "Philippines",
+      "China",
+      "Taiwan"
+    ],
+    "estimated_population_affected": 5800000
+  },
+  {
+    "id": "cyclone_ilona_2024",
+    "name": "Cyclone Ilona",
+    "year": 2024,
+    "max_category": 3,
+    "track": [
+      {
+        "lat": -12.2,
+        "lon": 125.5,
+        "wind": 55
+      },
+      {
+        "lat": -14.5,
+        "lon": 127.8,
+        "wind": 75
+      },
+      {
+        "lat": -17.2,
+        "lon": 130.2,
+        "wind": 100
+      },
+      {
+        "lat": -19.5,
+        "lon": 132.5,
+        "wind": 110
+      },
+      {
+        "lat": -21.8,
+        "lon": 134.8,
+        "wind": 95
+      }
+    ],
+    "affected_countries": [
+      "Australia",
+      "Timor-Leste"
+    ],
+    "estimated_population_affected": 250000
+  },
+  {
+    "id": "typhoon_saola_2023",
+    "name": "Typhoon Saola",
+    "year": 2023,
+    "max_category": 5,
+    "track": [
+      {
+        "lat": 13.2,
+        "lon": 135.5,
+        "wind": 75
+      },
+      {
+        "lat": 16.5,
+        "lon": 132.8,
+        "wind": 110
+      },
+      {
+        "lat": 19.8,
+        "lon": 130.2,
+        "wind": 150
+      },
+      {
+        "lat": 23.2,
+        "lon": 127.5,
+        "wind": 180
+      },
+      {
+        "lat": 26.5,
+        "lon": 123.8,
+        "wind": 175
+      },
+      {
+        "lat": 22.8,
+        "lon": 114.2,
+        "wind": 140
+      }
+    ],
+    "affected_countries": [
+      "Philippines",
+      "China",
+      "Hong Kong",
+      "Taiwan"
+    ],
+    "estimated_population_affected": 4800000
+  },
+  {
+    "id": "cyclone_tej_2023",
+    "name": "Cyclone Tej",
+    "year": 2023,
+    "max_category": 4,
+    "track": [
+      {
+        "lat": 10.5,
+        "lon": 55.2,
+        "wind": 65
+      },
+      {
+        "lat": 13.2,
+        "lon": 57.5,
+        "wind": 90
+      },
+      {
+        "lat": 16.5,
+        "lon": 59.8,
+        "wind": 120
+      },
+      {
+        "lat": 19.2,
+        "lon": 61.2,
+        "wind": 140
+      },
+      {
+        "lat": 21.5,
+        "lon": 62.8,
+        "wind": 135
+      }
+    ],
+    "affected_countries": [
+      "Oman",
+      "Yemen",
+      "Somalia"
+    ],
+    "estimated_population_affected": 1200000
   }
 ]

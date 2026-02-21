@@ -53,3 +53,100 @@ ike_2008,Cuba,0.809616357,429002
 gustav_2008,Louisiana,0.7132103532,334315
 gustav_2008,Mississippi,0.7975387994,322462
 gustav_2008,Cuba,0.7046504767,286102
+cyclone_nargis_2008,Ayeyarwady,0.9232480074,671184
+cyclone_nargis_2008,Yangon,0.8032847757,1150766
+cyclone_nargis_2008,Bago,0.9149349447,461741
+cyclone_nargis_2008,Mon,0.8384587091,492870
+cyclone_pam_2015,Shefa,0.7885144396,302738
+cyclone_pam_2015,Tafea,0.840237328,204600
+cyclone_pam_2015,Malampa,0.8633522333,393021
+typhoon_mangkhut_2018,Cagayan,0.8298209084,444955
+typhoon_mangkhut_2018,Ilocos Norte,0.8347789405,688587
+typhoon_mangkhut_2018,Hong Kong,0.7877957965,573884
+typhoon_mangkhut_2018,Guangdong,0.7909772941,384887
+cyclone_idai_2019,Sofala,0.7858386735,768544
+cyclone_idai_2019,Manica,0.8177743446,613289
+cyclone_idai_2019,Zambezia,0.8636998229,641244
+cyclone_idai_2019,Chimanimani,0.8147188733,420902
+typhoon_goni_2020,Albay,0.9204097272,953808
+typhoon_goni_2020,Camarines Sur,0.8007274759,993790
+typhoon_goni_2020,Quezon,0.8948580479,811006
+typhoon_goni_2020,Bicol,0.8747080089,617256
+cyclone_amphan_2020,West Bengal,0.8710745045,586716
+cyclone_amphan_2020,Odisha,0.8483573583,733639
+cyclone_amphan_2020,Bangladesh,0.8263216241,1004609
+cyclone_amphan_2020,Kolkata,0.9206634257,997496
+cyclone_freddy_2023,Nampula,0.838931866,474436
+cyclone_freddy_2023,Zambezia,0.7598499525,677523
+cyclone_freddy_2023,Blantyre,0.8116020291,584638
+cyclone_freddy_2023,Chikwawa,0.8449601645,303832
+typhoon_meranti_2016,Batanes,0.9062661213,872615
+typhoon_meranti_2016,Cagayan,0.9132437277,674303
+typhoon_meranti_2016,Taiwan,0.8613095679,652147
+typhoon_meranti_2016,Fujian,0.9015713705,416329
+cyclone_winston_2016,Viti Levu,0.7056261722,121524
+cyclone_winston_2016,Vanua Levu,0.7331170809,214494
+cyclone_winston_2016,Tonga,0.7834906069,301399
+typhoon_hagibis_2019,Tokyo,0.9129485856,1695445
+typhoon_hagibis_2019,Kanagawa,0.8887009992,1059142
+typhoon_hagibis_2019,Chiba,0.8847235448,1676635
+typhoon_hagibis_2019,Ibaraki,0.8791304572,1907068
+cyclone_yarin_2023,Western Australia,0.6846591007,371857
+cyclone_yarin_2023,Northern Territory,0.7629585161,329116
+cyclone_yarin_2023,Java,0.7361652624,291013
+typhoon_jebi_2018,Osaka,0.7947942931,690320
+typhoon_jebi_2018,Kyoto,0.7520888527,1160874
+typhoon_jebi_2018,Hyogo,0.865207914,1159382
+typhoon_jebi_2018,Kobe,0.8058646383,1021714
+cyclone_fani_2019,Odisha,0.7877477144,881168
+cyclone_fani_2019,West Bengal,0.7873584201,630529
+cyclone_fani_2019,Andhra Pradesh,0.8674095811,975812
+cyclone_fani_2019,Bangladesh,0.8893557621,612190
+typhoon_lekima_2019,Zhejiang,0.8774288016,514322
+typhoon_lekima_2019,Shanghai,0.8205905577,736142
+typhoon_lekima_2019,Jiangsu,0.7741256532,611513
+typhoon_lekima_2019,Taiwan,0.8391395993,357926
+cyclone_taau_2016,Upolu,0.7888189751,234653
+cyclone_taau_2016,Savaii,0.7215430458,351790
+cyclone_taau_2016,Tongatapu,0.7755615267,217771
+typhoon_rammasun_2014,Albay,0.7484520555,629590
+typhoon_rammasun_2014,Camarines Sur,0.8035273793,673092
+typhoon_rammasun_2014,Hainan,0.7299031386,551629
+typhoon_rammasun_2014,Guangxi,0.8592238021,311647
+cyclone_phailin_2013,Odisha,0.8421773973,855366
+cyclone_phailin_2013,Andhra Pradesh,0.9275625922,925954
+cyclone_phailin_2013,West Bengal,0.9038977805,1069395
+cyclone_phailin_2013,Myanmar,0.903997274,1384445
+typhoon_haikui_2012,Zhejiang,0.7840928866,511893
+typhoon_haikui_2012,Shanghai,0.777841763,639372
+typhoon_haikui_2012,Jiangsu,0.739304149,428570
+typhoon_haikui_2012,Taiwan,0.8713390631,618024
+cyclone_ocha_2015,Western Australia,0.7366831427,482566
+cyclone_ocha_2015,Northern Territory,0.7484961925,425545
+cyclone_ocha_2015,Bali,0.7031799792,282972
+typhoon_chanthu_2021,Cagayan,0.8924148377,706013
+typhoon_chanthu_2021,Batanes,0.8559807716,1053096
+typhoon_chanthu_2021,Shanghai,0.8868627772,797376
+typhoon_chanthu_2021,Jiangsu,0.7711249046,800951
+typhoon_chanthu_2021,Seoul,0.8754791296,647992
+cyclone_elena_2024,Antsiranana,0.6975865713,285891
+cyclone_elena_2024,Toamasina,0.7398727142,164024
+cyclone_elena_2024,Nampula,0.8448448999,241942
+cyclone_elena_2024,Comoros,0.7321019419,380340
+typhoon_doksuri_2023,Fujian,0.8667506371,1088071
+typhoon_doksuri_2023,Zhejiang,0.88986572,1136019
+typhoon_doksuri_2023,Jiangsu,0.8114653597,1007819
+typhoon_doksuri_2023,Beijing,0.8137590146,671582
+typhoon_doksuri_2023,Cagayan,0.8451685112,1103994
+cyclone_ilona_2024,Western Australia,0.7646438057,471428
+cyclone_ilona_2024,Northern Territory,0.8364179876,151203
+cyclone_ilona_2024,Dili,0.71153254,250948
+typhoon_saola_2023,Fujian,0.9103766232,906880
+typhoon_saola_2023,Guangdong,0.9092988815,1000345
+typhoon_saola_2023,Hong Kong,0.8748352783,673273
+typhoon_saola_2023,Taiwan,0.8640923364,832863
+typhoon_saola_2023,Batanes,0.9085591191,1050745
+cyclone_tej_2023,Dhofar,0.8454246027,601189
+cyclone_tej_2023,Al Wusta,0.8721522282,929720
+cyclone_tej_2023,Hadramaut,0.7998013084,963748
+cyclone_tej_2023,Somaliland,0.8551158396,477254
