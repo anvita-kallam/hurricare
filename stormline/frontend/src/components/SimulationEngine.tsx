@@ -38,12 +38,6 @@ interface SimulationPlan {
   explanation?: string
 }
 
-interface AffectedRegion {
-  admin1: string
-  severity_index: number
-  people_in_need: number
-}
-
 // Standard humanitarian clusters/causes
 const CLUSTERS = [
   'Emergency Shelter and NFI',
@@ -55,7 +49,7 @@ const CLUSTERS = [
 ] as const
 
 export default function SimulationEngine() {
-  const { selectedHurricane, coverage, projects } = useStore()
+  const { selectedHurricane, coverage, projects, setLastSimulationScore, setLeaderboardOpen } = useStore()
   const [stage, setStage] = useState<1 | 2 | 3 | 'comparison'>(1)
   // Cluster-based allocations per region: { region: { cluster: budget } }
   const [clusterAllocations, setClusterAllocations] = useState<Record<string, Record<string, number>>>({})
@@ -226,6 +220,10 @@ export default function SimulationEngine() {
           allocations: completeAllocations
         })
         setSimulationResult(simRes.data)
+        const score = simRes.data?.impact_score
+        if (typeof score === 'number') {
+          setLastSimulationScore(score)
+        }
       } catch (error) {
         console.error('Error running simulation:', error)
       }
@@ -307,31 +305,6 @@ export default function SimulationEngine() {
       }
       
       setStage(3)
-    } catch (error) {
-      console.error('Error loading real-world plan:', error)
-    } finally {
-      setLoading(false)
-    }
-  }
-
-  const loadRealWorldPlan = async () => {
-    if (!selectedHurricane) return
-    
-    setLoading(true)
-    try {
-      const res = await axios.get(`${API_BASE}/simulation/stage3/real-world/${selectedHurricane.id}`)
-      setRealPlan(res.data)
-      
-      // Generate mismatch analysis
-      if (mlPlan) {
-        const mismatchRes = await axios.post(`${API_BASE}/simulation/mismatch-analysis`, {
-          ideal_plan: mlPlan,
-          real_plan: res.data
-        })
-        setMismatchAnalysis(mismatchRes.data)
-      }
-      
-      setStage('comparison')
     } catch (error) {
       console.error('Error loading real-world plan:', error)
     } finally {
@@ -522,7 +495,15 @@ export default function SimulationEngine() {
 
             {simulationResult && (
               <div className="mt-4 p-4 bg-cyan-500/10 border border-cyan-500/30 rounded space-y-3 glow-cyan backdrop-blur-sm">
-                <h3 className="font-semibold mb-2 text-glow-cyan font-orbitron">Budget Simulation Results</h3>
+                <div className="flex justify-between items-center mb-2">
+                  <h3 className="font-semibold text-glow-cyan font-orbitron">Budget Simulation Results</h3>
+                  <button
+                    onClick={() => setLeaderboardOpen(true)}
+                    className="px-3 py-1.5 rounded bg-yellow-500/30 hover:bg-yellow-500/50 text-yellow-200 text-xs font-semibold font-orbitron border border-yellow-500/50"
+                  >
+                    Submit to Leaderboard
+                  </button>
+                </div>
                 
                 {/* Overall Impact Score */}
                 <div className="pb-2 border-b border-cyan-500/30">
