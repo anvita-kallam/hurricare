@@ -76,6 +76,13 @@ interface Store {
   isCinematicPlaying: boolean
   cinematicCompleted: boolean
   narrativePopup: NarrativePopup | null
+  showComparisonPage: boolean
+  comparisonData: {
+    userPlan: any
+    mlPlan: any
+    realPlan: any
+    mismatchAnalysis: any
+  } | null
   
   setHurricanes: (hurricanes: Hurricane[]) => void
   setSelectedHurricane: (hurricane: Hurricane | null) => void
@@ -90,6 +97,8 @@ interface Store {
   setCinematicPlaying: (playing: boolean) => void
   setCinematicCompleted: (completed: boolean) => void
   setNarrativePopup: (popup: NarrativePopup | null) => void
+  setShowComparisonPage: (show: boolean) => void
+  setComparisonData: (data: { userPlan: any; mlPlan: any; realPlan: any; mismatchAnalysis: any } | null) => void
 }
 
 export const useStore = create<Store>((set) => ({
@@ -106,6 +115,8 @@ export const useStore = create<Store>((set) => ({
   isCinematicPlaying: false,
   cinematicCompleted: false,
   narrativePopup: null,
+  showComparisonPage: false,
+  comparisonData: null,
   
   setHurricanes: (hurricanes) => set({ hurricanes }),
   setSelectedHurricane: (hurricane) => set({ selectedHurricane: hurricane }),
@@ -120,4 +131,6 @@ export const useStore = create<Store>((set) => ({
   setCinematicPlaying: (isCinematicPlaying) => set({ isCinematicPlaying }),
   setCinematicCompleted: (cinematicCompleted) => set({ cinematicCompleted }),
   setNarrativePopup: (narrativePopup) => set({ narrativePopup }),
+  setShowComparisonPage: (showComparisonPage) => set({ showComparisonPage }),
+  setComparisonData: (comparisonData) => set({ comparisonData }),
 }))

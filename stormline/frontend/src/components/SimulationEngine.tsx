@@ -61,7 +61,7 @@ interface SimulationEngineProps {
 }
 
 export default function SimulationEngine({ onStartSimulation }: SimulationEngineProps = {}) {
-  const { selectedHurricane, coverage, projects, setLastSimulationScore, setLeaderboardOpen, cinematicCompleted, setCinematicCompleted, isCinematicPlaying, setCinematicPlaying, setSelectedHurricane } = useStore()
+  const { selectedHurricane, coverage, projects, setLastSimulationScore, setLeaderboardOpen, cinematicCompleted, setCinematicCompleted, isCinematicPlaying, setCinematicPlaying, setSelectedHurricane, setShowComparisonPage, setComparisonData } = useStore()
   const [stage, setStage] = useState<1 | 2 | 3 | 'comparison'>(1)
   // Cluster-based allocations per region: { region: { cluster: budget } }
   const [clusterAllocations, setClusterAllocations] = useState<Record<string, Record<string, number>>>({})
@@ -886,13 +886,14 @@ export default function SimulationEngine({ onStartSimulation }: SimulationEngine
               <button
                 onClick={() => {
                   if (userPlan && mlPlan && realPlan) {
-                    setNarrativePopup({
-                      title: 'Final Analysis: The Complete Picture',
-                      message: `You've seen three different approaches to responding to ${selectedHurricane?.name}: 1. YOUR PLAN: Your strategic allocation based on your judgment 2. AI IDEAL PLAN: Optimized allocation using UN humanitarian principles 3. REAL-WORLD: How the crisis was actually handled historically. Explore the metrics, visualizations, and insights below. What can we learn from these comparisons?`,
-                      type: 'story'
+                    setComparisonData({
+                      userPlan,
+                      mlPlan,
+                      realPlan,
+                      mismatchAnalysis
                     })
+                    setShowComparisonPage(true)
                   }
-                  setStage('comparison')
                 }}
                 disabled={!mismatchAnalysis}
                 className="w-full mt-4 bg-gradient-to-r from-purple-600 to-pink-600 text-white py-3 px-4 rounded hover:from-purple-700 hover:to-pink-700 disabled:bg-gray-600 disabled:text-gray-400 glow-purple transition-all font-semibold font-orbitron text-lg"
