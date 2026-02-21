@@ -51,7 +51,7 @@ export default function SimulationEngine() {
   const [userAllocations, setUserAllocations] = useState<Record<string, number>>({})
   const [totalBudget, setTotalBudget] = useState(50000000)
   const [responseWindow, setResponseWindow] = useState(72)
-  const [, setUserPlan] = useState<SimulationPlan | null>(null)
+  const [userPlan, setUserPlan] = useState<SimulationPlan | null>(null)
   const [mlPlan, setMlPlan] = useState<SimulationPlan | null>(null)
   const [realPlan, setRealPlan] = useState<SimulationPlan | null>(null)
   const [mismatchAnalysis, setMismatchAnalysis] = useState<any>(null)
