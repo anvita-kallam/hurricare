@@ -328,8 +328,21 @@ export default function CinematicIntro({
         </Suspense>
       </Canvas>
       
+      {/* Exit button */}
+      {(state.phase === 'playing' || state.phase === 'fadeIn') && state.isPlaying && (
+        <button
+          onClick={handleExitAnimation}
+          className="absolute top-8 right-8 px-6 py-3 rounded-lg bg-red-600/80 hover:bg-red-600 text-white font-bold font-orbitron text-lg transition glow-red z-50"
+          style={{
+            boxShadow: '0 0 20px rgba(220, 38, 38, 0.5)'
+          }}
+        >
+          Exit Animation
+        </button>
+      )}
+      
       {/* Time overlay */}
-      {state.phase === 'playing' && (
+      {state.phase === 'playing' && state.isPlaying && (
         <div className="absolute top-8 left-8 text-white font-orbitron text-2xl">
           T+{Math.floor(state.currentTime)} {Math.floor(state.currentTime) === 1 ? 'Hour' : 'Hours'}
         </div>
