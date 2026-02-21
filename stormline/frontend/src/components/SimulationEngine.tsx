@@ -713,8 +713,8 @@ export default function SimulationEngine({ onStartSimulation }: SimulationEngine
               <div className="space-y-4">
                 {mlPlan.explanation && (
                   <div className="bg-gradient-to-r from-cyan-500/20 to-blue-500/20 border border-cyan-500/30 p-4 rounded text-sm text-cyan-100 font-exo glow-cyan">
-                    <div className="font-semibold mb-2 text-cyan-200 font-orbitron">AI Optimization Summary</div>
-                    {mlPlan.explanation}
+                    <div className="font-semibold mb-2 text-cyan-200 font-orbitron">Ideal Response Plan</div>
+                    <div className="whitespace-pre-line leading-relaxed">{mlPlan.explanation}</div>
                   </div>
                 )}
                 
