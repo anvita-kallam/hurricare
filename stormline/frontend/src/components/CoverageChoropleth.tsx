@@ -14,21 +14,21 @@ export default function CoverageChoropleth() {
   // For now, we'll just show a legend/indicator
   
   return (
-    <div className="absolute top-4 right-4 bg-white bg-opacity-90 p-3 rounded shadow-lg z-10">
-      <div className="text-sm font-semibold mb-2">Overlay Active</div>
+    <div className="absolute top-4 right-4 bg-black/80 backdrop-blur-sm border border-cyan-500/30 p-3 rounded glow-cyan z-10">
+      <div className="text-sm font-semibold mb-2 text-glow-cyan">Overlay Active</div>
       {showSeverityOverlay && (
-        <div className="text-xs mb-1">
-          <span className="inline-block w-3 h-3 bg-red-500 mr-1"></span>
+        <div className="text-xs mb-1 text-cyan-200">
+          <span className="inline-block w-3 h-3 bg-red-500 mr-1 rounded glow"></span>
           Severity Index
         </div>
       )}
       {showCoverageOverlay && (
-        <div className="text-xs">
-          <span className="inline-block w-3 h-3 bg-blue-500 mr-1"></span>
+        <div className="text-xs text-cyan-200">
+          <span className="inline-block w-3 h-3 bg-cyan-500 mr-1 rounded glow-cyan"></span>
           Coverage Ratio
         </div>
       )}
-      <div className="text-xs text-gray-500 mt-2">
+      <div className="text-xs text-cyan-300/70 mt-2">
         {selectedHurricane ? `Showing: ${selectedHurricane.name}` : 'All hurricanes'}
       </div>
     </div>

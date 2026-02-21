@@ -21,13 +21,14 @@ export default function Globe() {
   const controlsRef = useRef<any>(null)
   
   return (
-    <div className="w-full h-full">
+    <div className="w-full h-full bg-black">
       <Canvas camera={{ position: [0, 0, 3], fov: 50 }}>
         <Suspense fallback={null}>
-          <ambientLight intensity={0.5} />
-          <directionalLight position={[5, 5, 5]} intensity={1} />
+          <ambientLight intensity={0.3} />
+          <directionalLight position={[5, 5, 5]} intensity={1.2} />
+          <pointLight position={[-5, -5, -5]} intensity={0.5} color="#00bcd4" />
           <Earth />
-          <Stars radius={300} depth={60} count={20000} factor={7} fade speed={1} />
+          <Stars radius={500} depth={100} count={30000} factor={8} fade speed={0.5} />
           <HurricaneLayer />
           <OrbitControls
             ref={controlsRef}
