@@ -224,6 +224,59 @@ class SimulationEngine:
         result = self.db.execute(query, [hurricane_id]).fetchone()
         return result[0] if result else None
     
+    def parse_ideal_plan_allocations(self, ideal_plan_text: str) -> Dict[str, Dict[str, float]]:
+        """
+        Parse ideal plan text to extract cluster-level allocations.
+        Returns: {cluster: {'budget': float, 'people': int}}
+        """
+        if not ideal_plan_text:
+            return {}
+        
+        allocations = {}
+        lines = ideal_plan_text.split('\n')
+        
+        for line in lines:
+            line = line.strip()
+            # Look for lines like "- Education: Support 450,361 people with a budget of $13,774,515."
+            if line.startswith('-') and 'Support' in line and 'people' in line and 'budget' in line:
+                try:
+                    # Extract cluster name (before colon)
+                    if ':' in line:
+                        cluster_part = line.split(':')[0].replace('-', '').strip()
+                        
+                        # Extract people number
+                        people_match = None
+                        if 'Support' in line:
+                            support_part = line.split('Support')[1].split('people')[0].strip()
+                            # Remove commas and convert
+                            people_str = support_part.replace(',', '').replace('.', '')
+                            try:
+                                people_match = int(people_str)
+                            except:
+                                pass
+                        
+                        # Extract budget (after $)
+                        budget_match = None
+                        if '$' in line:
+                            budget_part = line.split('$')[1].split('.')[0].strip()
+                            # Remove commas and convert
+                            budget_str = budget_part.replace(',', '').replace('.', '')
+                            try:
+                                budget_match = float(budget_str)
+                            except:
+                                pass
+                        
+                        if cluster_part and people_match is not None and budget_match is not None:
+                            allocations[cluster_part] = {
+                                'budget': budget_match,
+                                'people': people_match
+                            }
+                except Exception as e:
+                    # Skip lines that don't match the pattern
+                    continue
+        
+        return allocations
+    
     def stage_two_ml_ideal_plan(
         self,
         hurricane_id: str,
@@ -239,79 +292,53 @@ class SimulationEngine:
         if not regions:
             raise ValueError(f"No regions found for hurricane {hurricane_id}")
         
-        # Prepare optimization inputs
         n_regions = len(regions)
-        people_in_need = np.array([r["people_in_need"] for r in regions])
-        severity = np.array([r["severity_index"] for r in regions])
         
-        # Vulnerability score (higher severity = higher vulnerability)
-        vulnerability = severity * people_in_need
-        
-        # Equity score (inverse of current coverage to favor underfunded areas)
-        # Get current coverage for equity calculation
-        current_coverage = self._get_current_coverage(hurricane_id, [r["admin1"] for r in regions])
-        equity_scores = 1.0 / (current_coverage + 0.1)  # Inverse, avoid division by zero
-        
-        # Ensure minimum allocation per region (at least 1% of budget per region, minimum $10,000)
-        min_allocation_per_region = max(total_budget * 0.01 / n_regions, 10000)
-        total_min_allocation = min_allocation_per_region * n_regions
-        
-        # If minimum allocations exceed budget, scale them down proportionally
-        if total_min_allocation > total_budget:
-            min_allocation_per_region = total_budget / n_regions
-            total_min_allocation = total_budget
-        
-        # Remaining budget after minimum allocations
-        remaining_budget = total_budget - total_min_allocation
-        
-        # Objective function: maximize UN values for remaining budget
-        # Combined score = w1*humanity + w2*impartiality + w3*equity
-        # Humanity: lives saved
-        # Impartiality: severity-weighted coverage
-        # Equity: favor underfunded regions
-        
-        # We want to maximize: sum(allocations[i] * (w1 + w2*severity[i] + w3*equity[i]))
-        # Subject to: sum(allocations) <= remaining_budget
-        
-        # Linear programming approach
-        # Maximize: c^T * x
-        # Subject to: A_ub * x <= b_ub, x >= 0
-        
-        # Objective coefficients (negative because linprog minimizes)
-        c = -(
-            self.un_weights["humanity"] * np.ones(n_regions) +
-            self.un_weights["impartiality"] * severity +
-            self.un_weights["equity"] * equity_scores
-        )
-        
-        # Constraint: sum of additional allocations <= remaining_budget
-        A_ub = np.ones((1, n_regions))
-        b_ub = [remaining_budget]
-        
-        # Bounds: additional allocations >= 0
-        bounds = [(0, None) for _ in range(n_regions)]
-        
-        # Solve
-        result = linprog(c, A_ub=A_ub, b_ub=b_ub, bounds=bounds, method='highs')
-        
-        if not result.success or remaining_budget <= 0:
-            # Fallback: proportional allocation weighted by severity and vulnerability
-            weights = severity * people_in_need * equity_scores
-            weights = weights / weights.sum() if weights.sum() > 0 else np.ones(n_regions) / n_regions
-            additional_allocations = weights * remaining_budget
+        # If we have CSV cluster allocations, distribute them across regions
+        # Otherwise, fall back to optimization
+        if cluster_allocations:
+            # Calculate total budget and people from CSV
+            csv_total_budget = sum(alloc['budget'] for alloc in cluster_allocations.values())
+            csv_total_people = sum(alloc['people'] for alloc in cluster_allocations.values())
+            
+            # Distribute cluster budgets across regions based on severity and need
+            people_in_need = np.array([r["people_in_need"] for r in regions])
+            severity = np.array([r["severity_index"] for r in regions])
+            
+            # Weight each region by severity * people_in_need
+            region_weights = severity * people_in_need
+            if region_weights.sum() > 0:
+                region_weights = region_weights / region_weights.sum()
+            else:
+                region_weights = np.ones(n_regions) / n_regions
+            
+            # Distribute total budget proportionally
+            region_budgets = region_weights * csv_total_budget
+            region_people = (region_weights * csv_total_people).astype(int)
         else:
-            additional_allocations = result.x
-        
-        # Final allocations = minimum + additional optimized allocations
-        optimal_allocations = min_allocation_per_region + additional_allocations
-        
-        # Ensure no region gets less than minimum (safety check)
-        optimal_allocations = np.maximum(optimal_allocations, min_allocation_per_region)
-        
-        # Normalize to ensure total equals total_budget (handle floating point errors)
-        total_allocated = optimal_allocations.sum()
-        if total_allocated > 0:
-            optimal_allocations = optimal_allocations * (total_budget / total_allocated)
+            # Fallback to optimization if no CSV data
+            people_in_need = np.array([r["people_in_need"] for r in regions])
+            severity = np.array([r["severity_index"] for r in regions])
+            
+            # Ensure minimum allocation per region
+            min_allocation_per_region = max(total_budget * 0.01 / n_regions, 10000)
+            total_min_allocation = min_allocation_per_region * n_regions
+            
+            if total_min_allocation > total_budget:
+                min_allocation_per_region = total_budget / n_regions
+                total_min_allocation = total_budget
+            
+            remaining_budget = total_budget - total_min_allocation
+            
+            # Simple proportional allocation
+            weights = severity * people_in_need
+            if weights.sum() > 0:
+                weights = weights / weights.sum()
+            else:
+                weights = np.ones(n_regions) / n_regions
+            
+            region_budgets = min_allocation_per_region + (weights * remaining_budget)
+            region_people = (region_budgets / self.cost_per_person).astype(int)
         
         # Build plan
         region_allocations = []
@@ -321,7 +348,7 @@ class SimulationEngine:
         
         for i, region_data in enumerate(regions):
             region = region_data["admin1"]
-            budget = float(optimal_allocations[i])
+            budget = float(region_budgets[i])
             
             # Final safety check: ensure budget is at least $1
             budget = max(budget, 1.0)
@@ -368,18 +395,8 @@ class SimulationEngine:
             ) / sum(r["people_in_need"] * r["severity_index"] for r in regions) if regions else 0
         }
         
-        # Get ideal plan text from CSV if available
-        ideal_plan_text = self.get_ideal_plan_text(hurricane_id)
-        
-        # Generate explanation (fallback if CSV not available)
-        if not ideal_plan_text:
-            top_region = max(region_allocations, key=lambda a: a.budget)
-            ideal_plan_text = (
-                f"Resources were prioritized toward high-severity, low-access regions. "
-                f"Top allocation: {top_region.region} (${top_region.budget:,.0f}). "
-                f"Optimization balanced lives saved ({objective_scores['humanity']:.2%}), "
-                f"equity ({objective_scores['equity']:.2%}), and impartiality ({objective_scores['impartiality']:.2%})."
-            )
+        # Don't include explanation text - use data-driven allocations only
+        explanation = None
         
         constraints = {
             "total_budget": total_budget,
@@ -396,7 +413,7 @@ class SimulationEngine:
             allocations=region_allocations,
             constraints_used=constraints,
             objective_scores=objective_scores,
-            explanation=ideal_plan_text
+            explanation=explanation
         )
     
     def stage_three_real_world(
