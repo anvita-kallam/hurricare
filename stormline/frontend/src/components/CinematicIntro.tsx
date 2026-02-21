@@ -312,7 +312,17 @@ export default function CinematicIntro({
               
               {state.phase === 'playing' && state.isPlaying && (
                 <>
-                  <HurricaneTrack track={hurricane.track} progress={state.progress} />
+                  {/* Full hurricane track - always visible */}
+                  <HurricaneTrack track={hurricane.track} progress={1.0} />
+                  
+                  {/* Hurricane trail - shows path already traveled with different color */}
+                  {state.progress > 0 && (
+                    <HurricaneTrail 
+                      track={hurricane.track} 
+                      progress={state.progress}
+                      currentPosition={currentStormPosition}
+                    />
+                  )}
                   
                   <HurricaneSpiral
                     position={currentStormPosition}
@@ -359,10 +369,33 @@ export default function CinematicIntro({
         </button>
       )}
       
-      {/* Time overlay */}
+      {/* Time overlay - larger and more visible */}
       {state.phase === 'playing' && state.isPlaying && (
-        <div className="absolute top-8 left-8 text-white font-orbitron text-2xl">
+        <div className="absolute top-8 left-8 text-white font-orbitron text-4xl font-bold" style={{
+          textShadow: '0 0 20px rgba(6, 182, 212, 0.8), 0 0 40px rgba(6, 182, 212, 0.5)',
+          zIndex: 100
+        }}>
           T+{Math.floor(state.currentTime)} {Math.floor(state.currentTime) === 1 ? 'Hour' : 'Hours'}
+        </div>
+      )}
+      
+      {/* Hurricane name and info overlay */}
+      {state.phase === 'playing' && state.isPlaying && (
+        <div className="absolute top-20 left-8 text-white font-orbitron text-2xl font-bold" style={{
+          textShadow: '0 0 15px rgba(6, 182, 212, 0.8), 0 0 30px rgba(6, 182, 212, 0.5)',
+          zIndex: 100
+        }}>
+          {hurricane.name} ({hurricane.year})
+        </div>
+      )}
+      
+      {/* Category and affected countries */}
+      {state.phase === 'playing' && state.isPlaying && (
+        <div className="absolute top-32 left-8 text-cyan-300 font-exo text-lg" style={{
+          textShadow: '0 0 10px rgba(6, 182, 212, 0.6)',
+          zIndex: 100
+        }}>
+          Category {hurricane.max_category} • {hurricane.affected_countries.join(', ')}
         </div>
       )}
       
