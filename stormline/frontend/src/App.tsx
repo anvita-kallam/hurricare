@@ -4,6 +4,7 @@ import ProjectTable from './components/ProjectTable'
 import FlaggedProjects from './components/FlaggedProjects'
 import AllocationPanel from './components/AllocationPanel'
 import CoverageChoropleth from './components/CoverageChoropleth'
+import SimulationEngine from './components/SimulationEngine'
 import { useStore } from './state/useStore'
 import axios from 'axios'
 
@@ -27,7 +28,7 @@ function App() {
   } = useStore()
   
   const [loading, setLoading] = useState(true)
-  const [activeTab, setActiveTab] = useState<'projects' | 'flagged' | 'allocation'>('projects')
+  const [activeTab, setActiveTab] = useState<'projects' | 'flagged' | 'allocation' | 'simulation'>('simulation')
   
   useEffect(() => {
     const fetchHurricanes = async () => {
@@ -189,6 +190,16 @@ function App() {
             >
               Simulator
             </button>
+            <button
+              onClick={() => setActiveTab('simulation')}
+              className={`flex-1 py-2 px-4 text-sm font-medium transition-all font-orbitron ${
+                activeTab === 'simulation'
+                  ? 'border-b-2 border-cyan-400 text-cyan-300 text-glow-cyan bg-cyan-500/10'
+                  : 'text-cyan-400/60 hover:text-cyan-300 hover:bg-cyan-500/5'
+              }`}
+            >
+              Engine
+            </button>
           </div>
           
           {/* Tab Content */}
@@ -196,6 +207,7 @@ function App() {
             {activeTab === 'projects' && <ProjectTable />}
             {activeTab === 'flagged' && <FlaggedProjects />}
             {activeTab === 'allocation' && <AllocationPanel />}
+            {activeTab === 'simulation' && <SimulationEngine />}
           </div>
         </div>
       </div>

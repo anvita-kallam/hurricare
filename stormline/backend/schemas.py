@@ -73,3 +73,61 @@ class AllocationResponse(BaseModel):
     vulnerability_reduction: float
     unmet_need: float
     comparison: dict  # comparison to real allocation
+
+
+# Simulation Engine Schemas
+class NativeResources(BaseModel):
+    shelters: int = 0
+    hospital_beds: int = 0
+    responder_units: int = 0
+    evac_vehicles: int = 0
+    food_days: int = 0
+    power_units: int = 0
+
+
+class CoverageEstimate(BaseModel):
+    people_covered: int
+    coverage_ratio: float
+    unmet_need: int
+    severity_weighted_impact: float
+
+
+class RegionAllocation(BaseModel):
+    region: str
+    budget: float
+    resources: NativeResources
+    coverage_estimate: CoverageEstimate
+
+
+class SimulationPlan(BaseModel):
+    plan_type: str  # "user", "ml_ideal", "real_world"
+    hurricane_id: str
+    total_budget: float
+    response_window_hours: int
+    allocations: List[RegionAllocation]
+    constraints_used: dict
+    objective_scores: Optional[dict] = None
+    explanation: Optional[str] = None
+
+
+class UserPlanRequest(BaseModel):
+    hurricane_id: str
+    allocations: dict  # {admin1: budget_amount}
+    total_budget: float
+    response_window_hours: int = 72
+    resources: Optional[dict] = None  # {admin1: {shelters: int, ...}}
+
+
+class PlanComparison(BaseModel):
+    plan1_metrics: dict
+    plan2_metrics: dict
+    differences: dict
+    region_comparisons: List[dict]
+
+
+class MismatchAnalysis(BaseModel):
+    comparison: PlanComparison
+    overlooked_regions: List[dict]
+    narrative: str
+    equity_deviation: float
+    efficiency_loss: float
