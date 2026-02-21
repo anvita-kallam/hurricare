@@ -50,9 +50,19 @@ function App() {
   }, [setHurricanes, setCoverage])
   
   const handleHurricaneSelect = (hurricaneId: string) => {
-    const hurricane = hurricanes.find(h => h.id === hurricaneId)
-    setSelectedHurricane(hurricane || null)
-    console.log('Selected hurricane:', hurricane?.name)
+    // If clicking the same hurricane, deselect it
+    if (selectedHurricane?.id === hurricaneId) {
+      setSelectedHurricane(null)
+      console.log('Deselected hurricane')
+    } else {
+      const hurricane = hurricanes.find(h => h.id === hurricaneId)
+      setSelectedHurricane(hurricane || null)
+      console.log('Selected hurricane:', hurricane?.name)
+    }
+  }
+  
+  const handleClearSelection = () => {
+    setSelectedHurricane(null)
   }
   
   if (loading) {
@@ -122,7 +132,18 @@ function App() {
       <div className="flex-1 flex overflow-hidden relative z-10">
         {/* Left Sidebar - Hurricane Selection */}
         <div className="w-64 bg-black/70 backdrop-blur-sm border-r border-cyan-500/30 p-4 overflow-y-auto glow-cyan">
-          <h2 className="text-xl font-bold mb-4 text-glow-cyan font-orbitron">Historical Hurricanes</h2>
+          <div className="flex items-center justify-between mb-4">
+            <h2 className="text-xl font-bold text-glow-cyan font-orbitron">Historical Hurricanes</h2>
+            {selectedHurricane && (
+              <button
+                onClick={handleClearSelection}
+                className="text-xs px-2 py-1 rounded bg-red-500/20 hover:bg-red-500/30 border border-red-500/50 text-red-300 font-exo transition"
+                title="Clear Selection"
+              >
+                Clear
+              </button>
+            )}
+          </div>
           <div className="space-y-2">
             {hurricanes.map((hurricane) => (
               <button
