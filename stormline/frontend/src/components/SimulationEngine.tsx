@@ -263,15 +263,49 @@ export default function SimulationEngine() {
     try {
       const res = await axios.post(`${API_BASE}/simulation/stage2/ml-ideal-plan`, {
         hurricane_id: selectedHurricane.id,
-        allocations: {}, // Not used for ML plan
         total_budget: totalBudget,
         response_window_hours: responseWindow
       })
       
       setMlPlan(res.data)
-      setStage(3)
+      // Stay on Stage 2 to show the ML plan
     } catch (error) {
       console.error('Error generating ML plan:', error)
+      setValidation({
+        valid: false,
+        errors: ['Failed to generate ML plan. Please try again.'],
+        warnings: []
+      })
+    } finally {
+      setLoading(false)
+    }
+  }
+
+  const proceedToRealWorld = async () => {
+    if (!selectedHurricane || !mlPlan) return
+    
+    setLoading(true)
+    try {
+      const res = await axios.get(`${API_BASE}/simulation/stage3/real-world/${selectedHurricane.id}`)
+      setRealPlan(res.data)
+      
+      // Generate mismatch analysis
+      if (userPlan && mlPlan && res.data) {
+        try {
+          const mismatchRes = await axios.post(`${API_BASE}/simulation/mismatch-analysis`, {
+            user_plan: userPlan,
+            ml_ideal_plan: mlPlan,
+            real_world_plan: res.data
+          })
+          setMismatchAnalysis(mismatchRes.data)
+        } catch (error) {
+          console.error('Error generating mismatch analysis:', error)
+        }
+      }
+      
+      setStage(3)
+    } catch (error) {
+      console.error('Error loading real-world plan:', error)
     } finally {
       setLoading(false)
     }
@@ -634,10 +668,18 @@ export default function SimulationEngine() {
                       .map(alloc => {
                         const budgetPercent = (alloc.budget / mlPlan.total_budget) * 100
                         const coveragePercent = alloc.coverage_estimate.coverage_ratio * 100
+                        const peopleCovered = alloc.coverage_estimate.people_covered || 0
+                        const unmetNeed = alloc.coverage_estimate.unmet_need || 0
                         return (
                           <div key={alloc.region} className="bg-black/40 p-3 rounded border border-cyan-500/20">
                             <div className="flex justify-between items-center mb-2">
-                              <span className="text-cyan-200 font-exo font-semibold">{alloc.region}</span>
+                              <div>
+                                <span className="text-cyan-200 font-exo font-semibold">{alloc.region}</span>
+                                <div className="text-xs text-cyan-300/70 font-exo mt-1">
+                                  People Covered: {peopleCovered.toLocaleString()} • 
+                                  Unmet Need: {unmetNeed.toLocaleString()}
+                                </div>
+                              </div>
                               <span className="text-cyan-300 font-orbitron">${alloc.budget.toLocaleString()}</span>
                             </div>
                             
