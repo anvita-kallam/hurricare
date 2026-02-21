@@ -138,10 +138,28 @@ function App() {
     return <IntroScreen onEnter={handleEnterGame} isLoading={loading} />
   }
   
+  // Get hurricane for cinematic if pending
+  const cinematicHurricane = pendingHurricane 
+    ? hurricanes.find(h => h.id === pendingHurricane)
+    : null
+  
+  const cinematicImpactEvents = cinematicHurricane
+    ? (cinematicHurricane.impact_events || generateImpactEvents(cinematicHurricane))
+    : []
+  
   return (
     <>
+      {/* Cinematic Intro */}
+      {isCinematicPlaying && cinematicHurricane && (
+        <CinematicIntro
+          hurricane={cinematicHurricane}
+          impactEvents={cinematicImpactEvents}
+          onComplete={handleCinematicComplete}
+        />
+      )}
+      
       {/* Welcome Narrative Pop-up */}
-      {showWelcomePopup && (
+      {showWelcomePopup && !isCinematicPlaying && (
         <NarrativePopup
           title="Welcome to HurriCare"
           message="You are about to experience a humanitarian response simulation based on real historical hurricanes. Your mission: Allocate limited resources to save lives and reduce suffering. You'll compare your decisions against AI-optimized plans and actual historical responses. Select a hurricane from the left panel to begin your mission."
@@ -151,7 +169,15 @@ function App() {
         />
       )}
       
-      <div className="w-screen h-screen flex flex-col bg-black relative" style={{ zIndex: 1 }}>
+      <div 
+        className="w-screen h-screen flex flex-col bg-black relative" 
+        style={{ 
+          zIndex: 1,
+          pointerEvents: isCinematicPlaying ? 'none' : 'auto',
+          opacity: isCinematicPlaying ? 0 : 1,
+          transition: 'opacity 0.5s ease-in-out'
+        }}
+      >
       {/* Header */}
       <header className="bg-black/80 backdrop-blur-sm border-b border-cyan-500/30 p-4 glow-cyan relative z-10">
         <div className="flex items-center justify-between">
