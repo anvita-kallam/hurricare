@@ -187,16 +187,29 @@ export default function CinematicIntro({
     }
   }, [start])
   
-  // Calculate current storm position
+  // Calculate current storm position with smooth interpolation
   const currentStormPosition = useMemo(() => {
     if (hurricane.track.length === 0) return new THREE.Vector3(0, 1, 0)
     
-    const currentIndex = Math.min(
-      Math.floor(state.progress * hurricane.track.length),
-      hurricane.track.length - 1
-    )
-    const point = hurricane.track[currentIndex]
-    return latLonToVector3(point.lat, point.lon, 1.01)
+    // Smooth interpolation between track points
+    const totalPoints = hurricane.track.length
+    const exactIndex = state.progress * (totalPoints - 1)
+    const currentIndex = Math.floor(exactIndex)
+    const nextIndex = Math.min(currentIndex + 1, totalPoints - 1)
+    const t = exactIndex - currentIndex // Interpolation factor (0 to 1)
+    
+    // Smooth easing function for more natural motion
+    const smoothT = t * t * (3 - 2 * t) // Smoothstep function
+    
+    const currentPoint = hurricane.track[currentIndex]
+    const nextPoint = hurricane.track[nextIndex]
+    
+    // Interpolate between current and next point
+    const currentPos = latLonToVector3(currentPoint.lat, currentPoint.lon, 1.01)
+    const nextPos = latLonToVector3(nextPoint.lat, nextPoint.lon, 1.01)
+    
+    // Smooth interpolation
+    return currentPos.clone().lerp(nextPos, smoothT)
   }, [hurricane.track, state.progress])
   
   // Calculate storm intensity based on wind speed
