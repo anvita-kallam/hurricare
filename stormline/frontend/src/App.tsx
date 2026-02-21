@@ -36,6 +36,7 @@ function App() {
   const [gameStarted, setGameStarted] = useState(false)
   const [showWelcomePopup, setShowWelcomePopup] = useState(false)
   const [pendingHurricane, setPendingHurricane] = useState<string | null>(null)
+  const [showConfirmDialog, setShowConfirmDialog] = useState(false)
   
   useEffect(() => {
     const fetchHurricanes = async () => {
@@ -104,15 +105,28 @@ function App() {
     if (selectedHurricane?.id === hurricaneId) {
       setSelectedHurricane(null)
       setCinematicPlaying(false)
+      setShowConfirmDialog(false)
       console.log('Deselected hurricane')
     } else {
       const hurricane = hurricanes.find(h => h.id === hurricaneId)
       if (hurricane) {
-        // Trigger cinematic intro
+        // Show confirmation dialog
         setPendingHurricane(hurricaneId)
-        setCinematicPlaying(true)
+        setShowConfirmDialog(true)
       }
     }
+  }
+  
+  const handleConfirmSimulation = () => {
+    if (pendingHurricane) {
+      setShowConfirmDialog(false)
+      setCinematicPlaying(true)
+    }
+  }
+  
+  const handleCancelSimulation = () => {
+    setPendingHurricane(null)
+    setShowConfirmDialog(false)
   }
   
   const handleCinematicComplete = () => {
