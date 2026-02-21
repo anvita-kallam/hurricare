@@ -297,7 +297,7 @@ export default function SimulationEngine() {
                   <input
                     type="range"
                     min="0"
-                    max={Math.min(totalBudget, (userAllocations[region.admin1] || 0) + getRemainingBudget())}
+                    max={Math.max(0, (userAllocations[region.admin1] || 0) + getRemainingBudget())}
                     step={10000}
                     value={userAllocations[region.admin1] || 0}
                     onChange={(e) => handleAllocationChange(region.admin1, Number(e.target.value))}
