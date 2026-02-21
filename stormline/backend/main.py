@@ -1,9 +1,26 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from typing import Optional, List
+from datetime import date
 import duckdb
 import json
 from dataclasses import asdict
+
+# Daily leaderboard: { "YYYY-MM-DD": { "player_name": total_score } }
+# Resets automatically each day (new date = new dict)
+_leaderboard: dict[str, dict[str, float]] = {}
+
+
+def _today_key() -> str:
+    return date.today().isoformat()
+
+
+def _get_daily_scores() -> dict[str, float]:
+    key = _today_key()
+    if key not in _leaderboard:
+        _leaderboard[key] = {}
+    return _leaderboard[key]
+
 
 from schemas import (
     Hurricane, Project, CoverageResponse, FlaggedProject,
@@ -241,6 +258,39 @@ def _dict_to_plan(data: dict):
         objective_scores=data.get("objective_scores"),
         explanation=data.get("explanation")
     )
+
+
+# Leaderboard endpoints
+@app.post("/leaderboard/submit")
+def submit_leaderboard_score(data: dict):
+    """Submit a simulation score. Adds to player's daily total."""
+    player_name = (data.get("player_name") or "Anonymous").strip() or "Anonymous"
+    score = float(data.get("score", 0))
+    if score < 0:
+        score = 0
+    daily = _get_daily_scores()
+    daily[player_name] = daily.get(player_name, 0) + score
+    return {
+        "ok": True,
+        "player_name": player_name,
+        "score_added": score,
+        "total_today": daily[player_name],
+    }
+
+
+@app.get("/leaderboard/daily")
+def get_daily_leaderboard(limit: int = 10):
+    """Get top players for today. Resets each day."""
+    daily = _get_daily_scores()
+    sorted_entries = sorted(
+        daily.items(),
+        key=lambda x: x[1],
+        reverse=True
+    )[:limit]
+    return {
+        "date": _today_key(),
+        "entries": [{"rank": i + 1, "player_name": name, "score": s} for i, (name, s) in enumerate(sorted_entries)],
+    }
 
 
 if __name__ == "__main__":

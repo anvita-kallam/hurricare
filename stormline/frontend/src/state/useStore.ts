@@ -48,6 +48,8 @@ interface Store {
   showSeverityOverlay: boolean
   showCoverageOverlay: boolean
   autoSpin: boolean
+  lastSimulationScore: number | null
+  leaderboardOpen: boolean
   
   setHurricanes: (hurricanes: Hurricane[]) => void
   setSelectedHurricane: (hurricane: Hurricane | null) => void
@@ -57,6 +59,8 @@ interface Store {
   toggleSeverityOverlay: () => void
   toggleCoverageOverlay: () => void
   setAutoSpin: (autoSpin: boolean) => void
+  setLastSimulationScore: (score: number | null) => void
+  setLeaderboardOpen: (open: boolean) => void
 }
 
 export const useStore = create<Store>((set) => ({
@@ -68,6 +72,8 @@ export const useStore = create<Store>((set) => ({
   showSeverityOverlay: false,
   showCoverageOverlay: false,
   autoSpin: true,
+  lastSimulationScore: null,
+  leaderboardOpen: false,
   
   setHurricanes: (hurricanes) => set({ hurricanes }),
   setSelectedHurricane: (hurricane) => set({ selectedHurricane: hurricane }),
@@ -77,4 +83,6 @@ export const useStore = create<Store>((set) => ({
   toggleSeverityOverlay: () => set((state) => ({ showSeverityOverlay: !state.showSeverityOverlay })),
   toggleCoverageOverlay: () => set((state) => ({ showCoverageOverlay: !state.showCoverageOverlay })),
   setAutoSpin: (autoSpin) => set({ autoSpin }),
+  setLastSimulationScore: (lastSimulationScore) => set({ lastSimulationScore }),
+  setLeaderboardOpen: (leaderboardOpen) => set({ leaderboardOpen }),
 }))

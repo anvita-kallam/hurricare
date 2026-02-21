@@ -9,4 +9,4 @@ echo "Server will run on http://localhost:8000"
 echo "Press Ctrl+C to stop"
 echo ""
 
-python main.py
+python main_simple.py
