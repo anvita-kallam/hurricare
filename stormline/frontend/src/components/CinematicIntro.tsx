@@ -113,6 +113,54 @@ function HurricaneTrack({ track, progress }: { track: Array<{ lat: number; lon: 
   )
 }
 
+// Hurricane trail component - shows the path already traveled with fading effect
+function HurricaneTrail({ 
+  track, 
+  progress, 
+  currentPosition 
+}: { 
+  track: Array<{ lat: number; lon: number; wind: number }>
+  progress: number
+  currentPosition: THREE.Vector3
+}) {
+  const trailGeometry = useMemo(() => {
+    if (!track || track.length === 0) return null
+    
+    const points: THREE.Vector3[] = []
+    const totalPoints = track.length
+    const trailEndIndex = Math.floor(progress * totalPoints)
+    
+    // Create points for the trail up to current position
+    for (let i = 0; i <= trailEndIndex; i++) {
+      const point = track[i]
+      const pos = latLonToVector3(point.lat, point.lon, 1.01)
+      points.push(pos)
+    }
+    
+    // Add current position for smooth connection
+    if (points.length > 0) {
+      points.push(currentPosition)
+    }
+    
+    if (points.length < 2) return null
+    
+    return new THREE.BufferGeometry().setFromPoints(points)
+  }, [track, progress, currentPosition])
+  
+  if (!trailGeometry) return null
+  
+  return (
+    <line geometry={trailGeometry}>
+      <lineBasicMaterial
+        color={new THREE.Color(0.9, 0.9, 0.95)}
+        transparent
+        opacity={0.5}
+        linewidth={1.5}
+      />
+    </line>
+  )
+}
+
 interface CinematicIntroProps {
   hurricane: Hurricane
   impactEvents: ImpactEvent[]
