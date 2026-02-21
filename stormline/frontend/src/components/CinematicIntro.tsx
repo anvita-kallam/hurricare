@@ -173,12 +173,22 @@ export default function CinematicIntro({
     return 1
   }, [state.phase, state.progress])
   
+  // Debug logging
+  useEffect(() => {
+    console.log('Cinematic state:', state)
+  }, [state])
+  
+  if (!state.isPlaying && state.phase === 'complete') {
+    return null
+  }
+  
   return (
     <div
       className="fixed inset-0 z-50 bg-black"
       style={{
         opacity: fadeOpacity,
-        transition: 'opacity 0.3s ease-in-out'
+        transition: 'opacity 0.3s ease-in-out',
+        pointerEvents: 'auto'
       }}
     >
       <Canvas camera={{ position: [0, 0, 4], fov: 50 }}>
