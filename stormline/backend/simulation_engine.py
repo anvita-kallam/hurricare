@@ -395,7 +395,7 @@ class SimulationEngine:
         objective_scores = {
             "humanity": min(1.0, total_lives_saved / sum(r["people_in_need"] for r in regions)),
             "equity": min(1.0, total_equity_score / n_regions),
-            "efficiency": 1.0 / (total_efficiency / n_regions / self.cost_per_person) if total_efficiency > 0 else 0,
+            "efficiency": min(1.0, 1.0 / (total_efficiency / n_regions / self.cost_per_person)) if total_efficiency > 0 else 0,
             "impartiality": sum(
                 a.coverage_estimate["severity_weighted_impact"] 
                 for a in region_allocations
