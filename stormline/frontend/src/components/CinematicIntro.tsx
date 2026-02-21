@@ -271,6 +271,33 @@ export default function CinematicIntro({
     })
   }, [impactEvents, state.currentTime])
   
+  // Find the current track point to display info
+  const currentTrackPoint = useMemo(() => {
+    if (hurricane.track.length === 0) return null
+    
+    const currentIndex = Math.min(
+      Math.floor(state.progress * hurricane.track.length),
+      hurricane.track.length - 1
+    )
+    const point = hurricane.track[currentIndex]
+    
+    // Determine category from wind speed
+    const getCategory = (wind: number) => {
+      if (wind >= 157) return 5
+      if (wind >= 130) return 4
+      if (wind >= 111) return 3
+      if (wind >= 96) return 2
+      if (wind >= 74) return 1
+      return 0
+    }
+    
+    return {
+      ...point,
+      category: getCategory(point.wind),
+      index: currentIndex
+    }
+  }, [hurricane.track, state.progress])
+  
   const fadeOpacity = useMemo(() => {
     if (state.phase === 'fadeIn') return state.progress
     if (state.phase === 'fadeOut') return 1 - state.progress
