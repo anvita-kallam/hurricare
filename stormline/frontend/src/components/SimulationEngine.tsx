@@ -997,8 +997,11 @@ export default function SimulationEngine({ onStartSimulation }: SimulationEngine
                   <div>
                     <div className="text-yellow-300/70 mb-1">Coverage Ratio Gap:</div>
                     <div className="text-lg font-semibold text-yellow-200 font-orbitron">
-                      {((mlPlan.allocations.reduce((sum, a) => sum + (a.coverage_estimate?.coverage_ratio || 0), 0) / mlPlan.allocations.length) - 
-                        (realPlan.allocations.reduce((sum, a) => sum + (a.coverage_estimate?.coverage_ratio || 0), 0) / realPlan.allocations.length)) * 100).toFixed(1)}%
+                      {(() => {
+                        const idealAvg = mlPlan.allocations.reduce((sum: number, a: any) => sum + (a.coverage_estimate?.coverage_ratio || 0), 0) / mlPlan.allocations.length
+                        const realAvg = realPlan.allocations.reduce((sum: number, a: any) => sum + (a.coverage_estimate?.coverage_ratio || 0), 0) / realPlan.allocations.length
+                        return ((idealAvg - realAvg) * 100).toFixed(1)
+                      })()}%
                     </div>
                     <div className="text-xs text-yellow-300/70 mt-1">Difference in average coverage</div>
                   </div>
