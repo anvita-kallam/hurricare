@@ -88,62 +88,72 @@ export default function OverlayLayer() {
     
     const relevantCoverage = coverage.filter(c => c.hurricane_id === selectedHurricane.id)
     
-    // Get approximate lat/lon for each region (simplified - in real app would use actual region boundaries)
-    const regionCoords: Record<string, { lat: number; lon: number }> = {}
-    
-    // Use hurricane track to estimate region positions
-    if (selectedHurricane.track && selectedHurricane.track.length > 0) {
-      const trackPoints = selectedHurricane.track
-      relevantCoverage.forEach((cov, idx) => {
-        // Distribute regions around the hurricane track
-        const trackIdx = Math.floor((idx / relevantCoverage.length) * trackPoints.length)
-        const trackPoint = trackPoints[trackIdx]
-        
-        // Add some variation based on region index
-        const latOffset = (idx % 3 - 1) * 3
-        const lonOffset = (Math.floor(idx / 3) % 3 - 1) * 3
-        
-        regionCoords[cov.admin1] = {
-          lat: trackPoint.lat + latOffset,
-          lon: trackPoint.lon + lonOffset
-        }
-      })
+    if (!selectedHurricane.track || selectedHurricane.track.length === 0) {
+      return []
     }
     
-    return relevantCoverage.map(cov => {
-      const coords = regionCoords[cov.admin1] || { 
-        lat: selectedHurricane.track?.[0]?.lat || 0, 
-        lon: selectedHurricane.track?.[0]?.lon || 0 
-      }
+    const trackPoints = selectedHurricane.track
+    const overlays: Array<{
+      lat: number
+      lon: number
+      color: string
+      opacity: number
+      type: 'severity' | 'coverage'
+      admin1: string
+    }> = []
+    
+    relevantCoverage.forEach((cov, idx) => {
+      // Base position from hurricane track
+      const trackIdx = Math.floor((idx / relevantCoverage.length) * trackPoints.length)
+      const trackPoint = trackPoints[trackIdx]
       
-      let color = '#00bcd4'
-      let opacity = 0.5
-      
-      // Check if both overlays are active (intersection = purple)
-      if (showSeverityOverlay && showCoverageOverlay) {
-        color = '#9b59b6' // Purple for intersection
-        opacity = 0.7
-      } else if (showSeverityOverlay) {
-        // Red for severity overlay
+      // Severity overlay: positioned where the crisis/need is (closer to track, offset by severity)
+      if (showSeverityOverlay) {
         const severity = cov.severity_index || 0
-        const redIntensity = Math.floor(100 + severity * 155) // 100-255 range
-        color = `rgb(${redIntensity}, 0, 0)`
-        opacity = 0.5 + (severity * 0.4) // 0.5 to 0.9 opacity
-      } else if (showCoverageOverlay) {
-        // Blue for coverage overlay
-        const coverageRatio = Math.min(1, Math.max(0, cov.coverage_ratio || 0))
-        const blueIntensity = Math.floor(100 + coverageRatio * 155) // 100-255 range
-        color = `rgb(0, 0, ${blueIntensity})`
-        opacity = 0.5 + (coverageRatio * 0.4) // 0.5 to 0.9 opacity
+        // Position severity based on need - closer to track, with offset based on severity
+        const severityLatOffset = (idx % 3 - 1) * 2.5 + (severity * 1.5) // Need is near the crisis
+        const severityLonOffset = (Math.floor(idx / 3) % 3 - 1) * 2.5
+        
+        const severityCoords = {
+          lat: trackPoint.lat + severityLatOffset,
+          lon: trackPoint.lon + severityLonOffset
+        }
+        
+        const redIntensity = Math.floor(100 + severity * 155)
+        overlays.push({
+          ...severityCoords,
+          color: `rgb(${redIntensity}, 0, 0)`,
+          opacity: 0.5 + (severity * 0.4),
+          type: 'severity',
+          admin1: cov.admin1
+        })
       }
       
-      return {
-        ...cov,
-        ...coords,
-        color,
-        opacity
+      // Coverage overlay: positioned where funding went (different offset to show mismatch)
+      if (showCoverageOverlay) {
+        const coverageRatio = Math.min(1, Math.max(0, cov.coverage_ratio || 0))
+        // Position coverage offset from severity to show mismatch
+        // Lower coverage = further from need location (showing funding didn't reach where needed)
+        const coverageLatOffset = (idx % 3 - 1) * 2.5 - (1 - coverageRatio) * 3 // Funding may be offset from need
+        const coverageLonOffset = (Math.floor(idx / 3) % 3 - 1) * 2.5 + (1 - coverageRatio) * 3
+        
+        const coverageCoords = {
+          lat: trackPoint.lat + coverageLatOffset,
+          lon: trackPoint.lon + coverageLonOffset
+        }
+        
+        const blueIntensity = Math.floor(100 + coverageRatio * 155)
+        overlays.push({
+          ...coverageCoords,
+          color: `rgb(0, 0, ${blueIntensity})`,
+          opacity: 0.5 + (coverageRatio * 0.4),
+          type: 'coverage',
+          admin1: cov.admin1
+        })
       }
     })
+    
+    return overlays
   }, [showSeverityOverlay, showCoverageOverlay, selectedHurricane, coverage])
   
   if (!showSeverityOverlay && !showCoverageOverlay) {
@@ -157,18 +167,40 @@ export default function OverlayLayer() {
   return (
     <group>
       {overlayData.map((data, idx) => {
-        // Only render if we have valid coordinates and the overlay is enabled
+        // Only render if we have valid coordinates
         if (!data.lat || !data.lon || isNaN(data.lat) || isNaN(data.lon)) {
           return null
         }
         
+        // Check for intersections (both severity and coverage for same region)
+        const hasBoth = showSeverityOverlay && showCoverageOverlay
+        const otherOverlay = hasBoth ? overlayData.find(
+          (d, i) => i !== idx && d.admin1 === data.admin1 && d.type !== data.type
+        ) : null
+        
+        let finalColor = data.color
+        let finalOpacity = data.opacity
+        
+        // If both overlays exist for the same region and they're close, show purple intersection
+        if (otherOverlay) {
+          const distance = Math.sqrt(
+            Math.pow(data.lat - otherOverlay.lat, 2) + 
+            Math.pow(data.lon - otherOverlay.lon, 2)
+          )
+          // If overlays are close (within 5 degrees), show intersection
+          if (distance < 5) {
+            finalColor = '#9b59b6' // Purple for intersection
+            finalOpacity = 0.7
+          }
+        }
+        
         return (
           <RegionOverlay
-            key={`${data.hurricane_id}-${data.admin1}-${idx}`}
+            key={`${data.type}-${data.admin1}-${idx}`}
             centerLat={data.lat}
             centerLon={data.lon}
-            color={data.color}
-            opacity={data.opacity}
+            color={finalColor}
+            opacity={finalOpacity}
           />
         )
       })}
