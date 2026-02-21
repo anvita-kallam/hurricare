@@ -2,6 +2,7 @@ import { useEffect, useState, useCallback } from 'react'
 import Globe from './components/Globe'
 import CoverageChoropleth from './components/CoverageChoropleth'
 import SimulationEngine from './components/SimulationEngine'
+import ComparisonPage from './components/ComparisonPage'
 import Leaderboard from './components/Leaderboard'
 import IntroScreen from './components/IntroScreen'
 import NarrativePopup from './components/NarrativePopup'
@@ -34,6 +35,8 @@ function App() {
     setCinematicCompleted,
     narrativePopup,
     setNarrativePopup,
+    showComparisonPage,
+    setShowComparisonPage,
   } = useStore()
   
   const [loading, setLoading] = useState(true)
