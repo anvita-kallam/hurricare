@@ -68,6 +68,7 @@ interface Store {
   lastSimulationScore: number | null
   leaderboardOpen: boolean
   isCinematicPlaying: boolean
+  cinematicCompleted: boolean
   
   setHurricanes: (hurricanes: Hurricane[]) => void
   setSelectedHurricane: (hurricane: Hurricane | null) => void
@@ -80,6 +81,7 @@ interface Store {
   setLastSimulationScore: (score: number | null) => void
   setLeaderboardOpen: (open: boolean) => void
   setCinematicPlaying: (playing: boolean) => void
+  setCinematicCompleted: (completed: boolean) => void
 }
 
 export const useStore = create<Store>((set) => ({
@@ -94,6 +96,7 @@ export const useStore = create<Store>((set) => ({
   lastSimulationScore: null,
   leaderboardOpen: false,
   isCinematicPlaying: false,
+  cinematicCompleted: false,
   
   setHurricanes: (hurricanes) => set({ hurricanes }),
   setSelectedHurricane: (hurricane) => set({ selectedHurricane: hurricane }),
@@ -106,4 +109,5 @@ export const useStore = create<Store>((set) => ({
   setLastSimulationScore: (lastSimulationScore) => set({ lastSimulationScore }),
   setLeaderboardOpen: (leaderboardOpen) => set({ leaderboardOpen }),
   setCinematicPlaying: (isCinematicPlaying) => set({ isCinematicPlaying }),
+  setCinematicCompleted: (cinematicCompleted) => set({ cinematicCompleted }),
 }))

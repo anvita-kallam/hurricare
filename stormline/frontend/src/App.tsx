@@ -30,6 +30,8 @@ function App() {
     setLeaderboardOpen,
     isCinematicPlaying,
     setCinematicPlaying,
+    cinematicCompleted,
+    setCinematicCompleted,
   } = useStore()
   
   const [loading, setLoading] = useState(true)
@@ -105,31 +107,18 @@ function App() {
     if (selectedHurricane?.id === hurricaneId) {
       setSelectedHurricane(null)
       setCinematicPlaying(false)
-      setShowConfirmDialog(false)
       setPendingHurricane(null)
+      setCinematicCompleted(false)
       console.log('Deselected hurricane')
     } else {
       const hurricane = hurricanes.find(h => h.id === hurricaneId)
       if (hurricane) {
         // Immediately select the hurricane (for zoom and colored path)
         setSelectedHurricane(hurricane)
-        // Show confirmation dialog for cinematic
         setPendingHurricane(hurricaneId)
-        setShowConfirmDialog(true)
+        setCinematicCompleted(false)
       }
     }
-  }
-  
-  const handleConfirmSimulation = () => {
-    if (pendingHurricane) {
-      setShowConfirmDialog(false)
-      setCinematicPlaying(true)
-    }
-  }
-  
-  const handleCancelSimulation = () => {
-    setPendingHurricane(null)
-    setShowConfirmDialog(false)
   }
   
   const handleCinematicComplete = () => {
@@ -164,47 +153,16 @@ function App() {
     ? (cinematicHurricane.impact_events || generateImpactEvents(cinematicHurricane))
     : []
   
+  const handleStartSimulation = () => {
+    if (selectedHurricane) {
+      setPendingHurricane(selectedHurricane.id)
+      setCinematicPlaying(true)
+      setCinematicCompleted(false)
+    }
+  }
+  
   return (
     <>
-      {/* Confirmation Dialog */}
-      {showConfirmDialog && pendingHurricane && (
-        <div className="fixed inset-0 z-50 pointer-events-none">
-          <div className="absolute top-20 right-8 bg-black/90 border-2 border-cyan-500/50 rounded-lg p-4 max-w-sm glow-cyan pointer-events-auto">
-            <h2 className="text-xl font-bold text-glow-cyan font-orbitron mb-3">
-              Start Simulation
-            </h2>
-            {cinematicHurricane && (
-              <div className="text-cyan-200 font-exo mb-4 space-y-1.5 text-sm">
-                <p className="text-cyan-300/90">Enter simulation for:</p>
-                <p className="text-lg font-bold text-cyan-100">
-                  {cinematicHurricane.name} ({cinematicHurricane.year})
-                </p>
-                <p className="text-xs text-cyan-300/80">
-                  Category {cinematicHurricane.max_category} • {cinematicHurricane.estimated_population_affected.toLocaleString()} affected
-                </p>
-                <p className="text-xs text-cyan-400/70 mt-2">
-                  A brief cinematic will play.
-                </p>
-              </div>
-            )}
-            <div className="flex gap-3">
-              <button
-                onClick={handleConfirmSimulation}
-                className="flex-1 px-3 py-2 rounded bg-cyan-600 hover:bg-cyan-500 text-white font-semibold font-orbitron text-sm transition"
-              >
-                Enter
-              </button>
-              <button
-                onClick={handleCancelSimulation}
-                className="flex-1 px-3 py-2 rounded bg-gray-700 hover:bg-gray-600 text-gray-200 font-semibold font-exo text-sm transition"
-              >
-                Cancel
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
-      
       {/* Cinematic Intro */}
       {isCinematicPlaying && cinematicHurricane && (
         <CinematicIntro

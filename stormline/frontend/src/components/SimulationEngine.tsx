@@ -57,7 +57,7 @@ const CLUSTERS = [
 ] as const
 
 export default function SimulationEngine() {
-  const { selectedHurricane, coverage, projects, setLastSimulationScore, setLeaderboardOpen } = useStore()
+  const { selectedHurricane, coverage, projects, setLastSimulationScore, setLeaderboardOpen, cinematicCompleted, setCinematicCompleted, isCinematicPlaying, setCinematicPlaying } = useStore()
   const [stage, setStage] = useState<1 | 2 | 3 | 'comparison'>(1)
   // Cluster-based allocations per region: { region: { cluster: budget } }
   const [clusterAllocations, setClusterAllocations] = useState<Record<string, Record<string, number>>>({})
@@ -111,13 +111,6 @@ export default function SimulationEngine() {
   // Load total budget when hurricane is selected
   useEffect(() => {
     if (selectedHurricane) {
-      // Show narrative pop-up when hurricane is selected
-      setNarrativePopup({
-        title: `Hurricane ${selectedHurricane.name} - ${selectedHurricane.year}`,
-        message: `You are now the humanitarian response coordinator for ${selectedHurricane.name}, a Category ${selectedHurricane.max_category} storm that affected ${selectedHurricane.affected_countries.join(', ')}. ${selectedHurricane.estimated_population_affected.toLocaleString()} people were impacted. Your mission: allocate limited resources to save lives and reduce suffering. You have a fixed budget based on actual historical funding. Make every dollar count.`,
-        type: 'story'
-      })
-      
       const loadBudget = async () => {
         try {
           const budgetRes = await axios.get(`${API_BASE}/simulation/total-budget/${selectedHurricane.id}`)
@@ -134,6 +127,19 @@ export default function SimulationEngine() {
       loadBudget()
     }
   }, [selectedHurricane, coverage])
+  
+  // Show narrative pop-up AFTER cinematic completes
+  useEffect(() => {
+    if (selectedHurricane && cinematicCompleted && !isCinematicPlaying) {
+      setNarrativePopup({
+        title: `Hurricane ${selectedHurricane.name} - ${selectedHurricane.year}`,
+        message: `You are now the humanitarian response coordinator for ${selectedHurricane.name}, a Category ${selectedHurricane.max_category} storm that affected ${selectedHurricane.affected_countries.join(', ')}. ${selectedHurricane.estimated_population_affected.toLocaleString()} people were impacted. Your mission: allocate limited resources to save lives and reduce suffering. You have a fixed budget based on actual historical funding. Make every dollar count.`,
+        type: 'story'
+      })
+      // Reset cinematic completed flag after showing popup
+      setCinematicCompleted(false)
+    }
+  }, [selectedHurricane, cinematicCompleted, isCinematicPlaying, setCinematicCompleted])
 
 
   // Initialize cluster allocations per region
@@ -354,6 +360,39 @@ export default function SimulationEngine() {
     return (
       <div className="bg-black/40 backdrop-blur-sm rounded-lg border border-cyan-500/30 p-4 glow-cyan">
         <p className="text-cyan-300/80 font-exo">Please select a hurricane to begin simulation</p>
+      </div>
+    )
+  }
+  
+  // Show "Start Simulation" button if hurricane is selected but cinematic hasn't played
+  if (selectedHurricane && !cinematicCompleted && !isCinematicPlaying) {
+    return (
+      <div className="h-full flex items-center justify-center">
+        <div className="bg-black/40 backdrop-blur-sm rounded-lg border border-cyan-500/30 p-8 glow-cyan text-center space-y-4">
+          <div>
+            <h2 className="text-2xl font-bold text-glow-cyan font-orbitron mb-2">
+              {selectedHurricane.name} ({selectedHurricane.year})
+            </h2>
+            <p className="text-sm text-cyan-400/80 mb-1">
+              Category {selectedHurricane.max_category} • {selectedHurricane.affected_countries.join(', ')}
+            </p>
+            <p className="text-sm text-cyan-300/70">
+              {selectedHurricane.estimated_population_affected.toLocaleString()} people affected
+            </p>
+          </div>
+          <button
+            onClick={() => {
+              setCinematicPlaying(true)
+              setCinematicCompleted(false)
+            }}
+            className="px-8 py-4 rounded-lg bg-cyan-600 hover:bg-cyan-500 text-white font-bold font-orbitron text-lg transition glow-cyan"
+          >
+            Start Simulation
+          </button>
+          <p className="text-xs text-cyan-400/60 mt-2">
+            A brief cinematic will play showing the hurricane's progression
+          </p>
+        </div>
       </div>
     )
   }
