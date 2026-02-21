@@ -43,7 +43,14 @@ Navigate to `http://localhost:5173` in your browser.
    - Right-click and drag to pan
 3. **View Projects**: Click the "Projects" tab to see all projects
 4. **Check Anomalies**: Click the "Flagged" tab to see outlier projects
-5. **Try Simulation**: Click the "Simulator" tab and adjust budget sliders, then click "Run Simulation"
+5. **Play the Game**: 
+   - Click the "Game" tab
+   - Allocate funding by cluster (Emergency Shelter, Food Security, Health, WASH, Logistics, Early Recovery) per region
+   - Adjust sliders for each cluster within each region
+   - Click "Validate Plan & Proceed to Stage 2" to see your plan's impact
+   - Review the ML Ideal Plan (AI-optimized based on UN principles)
+   - Compare with real-world historical response
+   - Explore the Comparison Dashboard for detailed mismatch analysis
 
 ## Troubleshooting
 
