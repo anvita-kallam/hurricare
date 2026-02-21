@@ -200,7 +200,7 @@ export default function CinematicIntro({
           
           <Earth />
           
-          {state.phase === 'playing' && (
+          {(state.phase === 'playing' || state.phase === 'fadeIn') && (
             <>
               <CinematicCamera
                 track={hurricane.track}
@@ -208,33 +208,37 @@ export default function CinematicIntro({
                 progress={state.progress}
               />
               
-              <HurricaneTrack track={hurricane.track} progress={state.progress} />
-              
-              <HurricaneSpiral
-                position={currentStormPosition}
-                intensity={stormIntensity}
-                radius={0.15 + stormIntensity * 0.1}
-              />
-              
-              {visibleEvents.map((event, i) => {
-                const eventPosition = latLonToVector3(
-                  event.location.lat,
-                  event.location.lon,
-                  1.02
-                )
-                const timeDiff = Math.abs(event.time_hours - state.currentTime)
-                const eventOpacity = Math.max(0, 1 - timeDiff / 2) * fadeOpacity
-                
-                return (
-                  <ImpactCallout
-                    key={i}
-                    event={event}
-                    position={eventPosition}
-                    visible={timeDiff < 2}
-                    opacity={eventOpacity}
+              {state.phase === 'playing' && (
+                <>
+                  <HurricaneTrack track={hurricane.track} progress={state.progress} />
+                  
+                  <HurricaneSpiral
+                    position={currentStormPosition}
+                    intensity={stormIntensity}
+                    radius={0.15 + stormIntensity * 0.1}
                   />
-                )
-              })}
+                  
+                  {visibleEvents.map((event, i) => {
+                    const eventPosition = latLonToVector3(
+                      event.location.lat,
+                      event.location.lon,
+                      1.02
+                    )
+                    const timeDiff = Math.abs(event.time_hours - state.currentTime)
+                    const eventOpacity = Math.max(0, 1 - timeDiff / 2) * fadeOpacity
+                    
+                    return (
+                      <ImpactCallout
+                        key={i}
+                        event={event}
+                        position={eventPosition}
+                        visible={timeDiff < 2}
+                        opacity={eventOpacity}
+                      />
+                    )
+                  })}
+                </>
+              )}
             </>
           )}
         </Suspense>
