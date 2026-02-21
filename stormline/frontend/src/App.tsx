@@ -38,7 +38,6 @@ function App() {
   const [gameStarted, setGameStarted] = useState(false)
   const [showWelcomePopup, setShowWelcomePopup] = useState(false)
   const [pendingHurricane, setPendingHurricane] = useState<string | null>(null)
-  const [showConfirmDialog, setShowConfirmDialog] = useState(false)
   
   useEffect(() => {
     const fetchHurricanes = async () => {
@@ -127,6 +126,7 @@ function App() {
       setSelectedHurricane(hurricane || null)
       setPendingHurricane(null)
       setCinematicPlaying(false)
+      setCinematicCompleted(true)
     }
   }
   
