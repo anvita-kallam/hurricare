@@ -238,28 +238,13 @@ export default function CinematicIntro({
     return 1
   }, [state.phase, state.progress])
   
-  // Ensure onComplete is called when animation completes
-  const onCompleteCalledRef = useRef(false)
-  useEffect(() => {
-    if (state.phase === 'complete' && !state.isPlaying && !onCompleteCalledRef.current) {
-      console.log('Cinematic complete, calling onComplete')
-      onCompleteCalledRef.current = true
-      // Use a small timeout to ensure state has settled
-      const timeoutId = setTimeout(() => {
-        onComplete()
-      }, 100)
-      return () => clearTimeout(timeoutId)
-    }
-  }, [state.phase, state.isPlaying, onComplete])
-  
-  // Reset the ref when component mounts or animation restarts
-  useEffect(() => {
-    if (state.isPlaying && state.phase === 'fadeIn') {
-      onCompleteCalledRef.current = false
-    }
-  }, [state.isPlaying, state.phase])
-  
+  // Force unmount when animation completes
   if (!state.isPlaying && state.phase === 'complete') {
+    // Call onComplete one more time to ensure it fires
+    useEffect(() => {
+      console.log('Animation complete, calling onComplete')
+      onComplete()
+    }, [])
     return null
   }
   
