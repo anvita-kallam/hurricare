@@ -133,8 +133,12 @@ export default function SimulationEngine() {
       })
       
       setUserPlan(res.data)
-      setStage(2)
       setValidation(null) // Clear validation on success
+      setStage(2)
+      // Auto-generate ML plan when moving to stage 2
+      setTimeout(() => {
+        generateMLPlan()
+      }, 500)
     } catch (error: any) {
       console.error('Error creating user plan:', error)
       if (error.response?.status === 400) {
@@ -345,46 +349,120 @@ export default function SimulationEngine() {
           <div className="bg-black/60 p-4 rounded border border-cyan-500/20">
             <h3 className="text-lg font-semibold mb-4 text-cyan-200 font-orbitron">ML-Generated Ideal Plan</h3>
             
-            {mlPlan ? (
+            {loading && !mlPlan ? (
+              <div className="text-center py-8">
+                <div className="inline-block animate-spin rounded-full h-12 w-12 border-b-2 border-cyan-400 mb-4"></div>
+                <div className="text-cyan-300 font-exo">Generating optimal allocation...</div>
+              </div>
+            ) : mlPlan ? (
               <div className="space-y-4">
                 {mlPlan.explanation && (
-                  <div className="bg-cyan-500/10 border border-cyan-500/30 p-3 rounded text-sm text-cyan-200 font-exo">
+                  <div className="bg-gradient-to-r from-cyan-500/20 to-blue-500/20 border border-cyan-500/30 p-4 rounded text-sm text-cyan-100 font-exo glow-cyan">
+                    <div className="font-semibold mb-2 text-cyan-200 font-orbitron">✨ AI Optimization Summary</div>
                     {mlPlan.explanation}
                   </div>
                 )}
                 
                 {mlPlan.objective_scores && (
-                  <div className="grid grid-cols-2 gap-2">
-                    {Object.entries(mlPlan.objective_scores).map(([key, value]) => (
-                      <div key={key} className="bg-black/40 p-2 rounded border border-cyan-500/20">
-                        <div className="text-xs text-cyan-300/70 font-exo capitalize">{key.replace('_', ' ')}</div>
-                        <div className="text-lg font-semibold text-cyan-300 font-orbitron">{((value as number) * 100).toFixed(1)}%</div>
-                      </div>
-                    ))}
+                  <div>
+                    <div className="text-sm font-semibold mb-3 text-cyan-200 font-orbitron">UN Values Performance</div>
+                    <div className="grid grid-cols-2 gap-3">
+                      {Object.entries(mlPlan.objective_scores).map(([key, value]) => {
+                        const score = (value as number) * 100
+                        const width = Math.min(100, score)
+                        return (
+                          <div key={key} className="bg-black/40 p-3 rounded border border-cyan-500/20">
+                            <div className="flex justify-between items-center mb-2">
+                              <div className="text-xs text-cyan-300/70 font-exo capitalize">{key.replace('_', ' ')}</div>
+                              <div className="text-lg font-semibold text-cyan-300 font-orbitron">{score.toFixed(1)}%</div>
+                            </div>
+                            <div className="w-full bg-gray-700 rounded-full h-2 overflow-hidden">
+                              <div 
+                                className="h-full bg-gradient-to-r from-cyan-400 to-blue-400 transition-all duration-500 glow-cyan"
+                                style={{ width: `${width}%` }}
+                              ></div>
+                            </div>
+                          </div>
+                        )
+                      })}
+                    </div>
                   </div>
                 )}
 
-                <div className="max-h-64 overflow-y-auto space-y-2">
-                  {mlPlan.allocations.map(alloc => (
-                    <div key={alloc.region} className="bg-black/40 p-2 rounded border border-cyan-500/20 text-sm">
-                      <div className="flex justify-between">
-                        <span className="text-cyan-200 font-exo">{alloc.region}</span>
-                        <span className="text-cyan-300 font-orbitron">${alloc.budget.toLocaleString()}</span>
-                      </div>
-                      <div className="text-xs text-cyan-300/70 font-exo">
-                        Coverage: {(alloc.coverage_estimate.coverage_ratio * 100).toFixed(1)}% • 
-                        Covered: {alloc.coverage_estimate.people_covered.toLocaleString()} people
-                      </div>
-                    </div>
-                  ))}
+                <div>
+                  <div className="text-sm font-semibold mb-3 text-cyan-200 font-orbitron">Ideal Allocation by Region</div>
+                  <div className="space-y-3 max-h-80 overflow-y-auto">
+                    {mlPlan.allocations
+                      .sort((a, b) => b.budget - a.budget)
+                      .map(alloc => {
+                        const budgetPercent = (alloc.budget / mlPlan.total_budget) * 100
+                        const coveragePercent = alloc.coverage_estimate.coverage_ratio * 100
+                        return (
+                          <div key={alloc.region} className="bg-black/40 p-3 rounded border border-cyan-500/20">
+                            <div className="flex justify-between items-center mb-2">
+                              <span className="text-cyan-200 font-exo font-semibold">{alloc.region}</span>
+                              <span className="text-cyan-300 font-orbitron">${alloc.budget.toLocaleString()}</span>
+                            </div>
+                            
+                            {/* Budget allocation bar */}
+                            <div className="mb-2">
+                              <div className="flex justify-between text-xs text-cyan-300/70 mb-1 font-exo">
+                                <span>Budget: {budgetPercent.toFixed(1)}%</span>
+                                <span>Coverage: {coveragePercent.toFixed(1)}%</span>
+                              </div>
+                              <div className="w-full bg-gray-700 rounded-full h-3 overflow-hidden">
+                                <div 
+                                  className="h-full bg-gradient-to-r from-cyan-500 to-blue-500 transition-all duration-500 glow-cyan"
+                                  style={{ width: `${budgetPercent}%` }}
+                                ></div>
+                              </div>
+                            </div>
+                            
+                            {/* Coverage visualization */}
+                            <div className="flex items-center gap-2 text-xs text-cyan-300/70 font-exo">
+                              <div className="flex-1">
+                                <span className="text-green-400">✓</span> {alloc.coverage_estimate.people_covered.toLocaleString()} people covered
+                              </div>
+                              <div className="flex-1">
+                                <span className="text-red-400">✗</span> {alloc.coverage_estimate.unmet_need.toLocaleString()} unmet need
+                              </div>
+                            </div>
+                          </div>
+                        )
+                      })}
+                  </div>
                 </div>
+
+                {/* Visual comparison with user plan */}
+                {userPlan && (
+                  <div className="mt-4 p-3 bg-purple-500/10 border border-purple-500/30 rounded">
+                    <div className="text-sm font-semibold mb-2 text-purple-300 font-orbitron">📊 Your Plan vs Ideal</div>
+                    <div className="space-y-2 text-xs font-exo">
+                      {mlPlan.allocations.map(mlAlloc => {
+                        const userAlloc = userPlan.allocations.find(a => a.region === mlAlloc.region)
+                        const diff = mlAlloc.budget - (userAlloc?.budget || 0)
+                        const diffPercent = userAlloc ? ((diff / userAlloc.budget) * 100) : 100
+                        return (
+                          <div key={mlAlloc.region} className="flex items-center justify-between">
+                            <span className="text-cyan-200">{mlAlloc.region}:</span>
+                            <div className="flex items-center gap-2">
+                              <span className={diff > 0 ? 'text-green-400' : diff < 0 ? 'text-red-400' : 'text-cyan-300'}>
+                                {diff > 0 ? '↑' : diff < 0 ? '↓' : '='} {Math.abs(diffPercent).toFixed(0)}%
+                              </span>
+                            </div>
+                          </div>
+                        )
+                      })}
+                    </div>
+                  </div>
+                )}
 
                 <button
                   onClick={loadRealWorldPlan}
                   disabled={loading}
-                  className="w-full mt-4 bg-cyan-600 text-white py-2 px-4 rounded hover:bg-cyan-700 disabled:bg-gray-600 disabled:text-gray-400 glow-cyan transition-all font-semibold font-orbitron"
+                  className="w-full mt-4 bg-gradient-to-r from-cyan-600 to-blue-600 text-white py-3 px-4 rounded hover:from-cyan-700 hover:to-blue-700 disabled:bg-gray-600 disabled:text-gray-400 glow-cyan transition-all font-semibold font-orbitron text-lg"
                 >
-                  {loading ? 'Loading...' : 'Proceed to Stage 3: Real-World Response'}
+                  {loading ? 'Loading Real-World Data...' : '→ Reveal Real-World Response'}
                 </button>
               </div>
             ) : (
