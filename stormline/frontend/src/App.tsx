@@ -106,11 +106,14 @@ function App() {
       setSelectedHurricane(null)
       setCinematicPlaying(false)
       setShowConfirmDialog(false)
+      setPendingHurricane(null)
       console.log('Deselected hurricane')
     } else {
       const hurricane = hurricanes.find(h => h.id === hurricaneId)
       if (hurricane) {
-        // Show confirmation dialog
+        // Immediately select the hurricane (for zoom and colored path)
+        setSelectedHurricane(hurricane)
+        // Show confirmation dialog for cinematic
         setPendingHurricane(hurricaneId)
         setShowConfirmDialog(true)
       }
