@@ -63,7 +63,7 @@ def get_hurricanes():
     global db, sim_engine
     with db_lock:
         try:
-            result = db.execute("SELECT * FROM hurricanes")
+            result = db.execute("SELECT * FROM hurricanes ORDER BY year DESC, name ASC")
             results = result.fetchall()
             # Ensure result is fully consumed
             result.close()
@@ -72,7 +72,7 @@ def get_hurricanes():
             print(f"Database error in get_hurricanes: {e}, reinitializing...")
             db = initialize_database()
             sim_engine = SimulationEngine(db)
-            result = db.execute("SELECT * FROM hurricanes")
+            result = db.execute("SELECT * FROM hurricanes ORDER BY year DESC, name ASC")
             results = result.fetchall()
             result.close()
     hurricanes = []
