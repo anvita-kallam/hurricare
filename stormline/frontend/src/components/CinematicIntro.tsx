@@ -331,51 +331,7 @@ export default function CinematicIntro({
                     radius={0.08 + stormIntensity * 0.05}
                   />
                   
-                  {/* Track point info callouts - show info at key points along the track */}
-                  {hurricane.track.map((point, i) => {
-                    // Show info at every 5th point or at significant wind speed changes
-                    const shouldShow = i % 5 === 0 || (i > 0 && Math.abs(point.wind - hurricane.track[i - 1].wind) > 20)
-                    if (!shouldShow) return null
-                    
-                    const pointPosition = latLonToVector3(point.lat, point.lon, 1.02)
-                    
-                    // Calculate approximate time for this point (assuming uniform distribution)
-                    const totalPoints = hurricane.track.length
-                    const pointProgress = i / totalPoints
-                    const pointTime = pointProgress * 24 // Assuming 24 hour animation
-                    const timeDiff = Math.abs(state.currentTime - pointTime)
-                    
-                    // Show callout when we're within 1 hour of this point
-                    if (timeDiff > 1) return null
-                    
-                    const fadeOpacity = state.phase === 'playing' ? 1 : 0
-                    const pointOpacity = Math.max(0, 1 - timeDiff) * fadeOpacity
-                    
-                    // Determine category from wind speed
-                    const getCategory = (wind: number) => {
-                      if (wind >= 157) return 5
-                      if (wind >= 130) return 4
-                      if (wind >= 111) return 3
-                      if (wind >= 96) return 2
-                      if (wind >= 74) return 1
-                      return 0
-                    }
-                    
-                    const category = getCategory(point.wind)
-                    
-                    return (
-                      <TrackPointCallout
-                        key={`track-${i}`}
-                        position={pointPosition}
-                        windSpeed={point.wind}
-                        category={category}
-                        lat={point.lat}
-                        lon={point.lon}
-                        visible={timeDiff <= 1}
-                        opacity={pointOpacity}
-                      />
-                    )
-                  })}
+                  {/* Track point info is now shown as 2D overlay in bottom right */}
                   
                   {visibleEvents.map((event, i) => {
                     const eventPosition = latLonToVector3(
@@ -443,6 +399,37 @@ export default function CinematicIntro({
           zIndex: 100
         }}>
           Category {hurricane.max_category} • {hurricane.affected_countries.join(', ')}
+        </div>
+      )}
+      
+      {/* Track point info overlay - bottom right */}
+      {state.phase === 'playing' && state.isPlaying && currentTrackPoint && (
+        <div className="absolute bottom-8 right-8 bg-black/90 backdrop-blur-sm border border-cyan-500/50 rounded-lg p-4 min-w-[220px] max-w-[280px]" style={{
+          boxShadow: '0 0 20px rgba(6, 182, 212, 0.4)',
+          zIndex: 200
+        }}>
+          <div className="space-y-2">
+            <div className="flex items-center justify-between">
+              <span className="text-sm text-cyan-300 font-exo">Wind Speed</span>
+              <span className="text-lg font-bold text-white font-orbitron">
+                {Math.round(currentTrackPoint.wind)} mph
+              </span>
+            </div>
+            
+            {currentTrackPoint.category > 0 && (
+              <div className="flex items-center justify-between">
+                <span className="text-sm text-cyan-300 font-exo">Category</span>
+                <span className="text-lg font-bold text-red-400 font-orbitron">
+                  Cat {currentTrackPoint.category}
+                </span>
+              </div>
+            )}
+            
+            <div className="flex items-center justify-between text-xs text-cyan-400/70 font-exo pt-2 border-t border-cyan-500/30">
+              <span>{formatLatLon(currentTrackPoint.lat)}</span>
+              <span>{formatLatLon(currentTrackPoint.lon)}</span>
+            </div>
+          </div>
         </div>
       )}
       
