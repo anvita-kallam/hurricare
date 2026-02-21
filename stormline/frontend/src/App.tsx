@@ -30,19 +30,16 @@ function App() {
   const [activeTab, setActiveTab] = useState<'projects' | 'flagged' | 'allocation'>('projects')
   
   useEffect(() => {
-    const fetchData = async () => {
+    const fetchHurricanes = async () => {
       try {
-        const [hurricanesRes, projectsRes, coverageRes, flagsRes] = await Promise.all([
+        const [hurricanesRes, coverageRes] = await Promise.all([
           axios.get(`${API_BASE}/hurricanes`),
-          axios.get(`${API_BASE}/projects`),
-          axios.get(`${API_BASE}/coverage`),
-          axios.get(`${API_BASE}/flags`),
+          axios.get(`${API_BASE}/coverage`)
         ])
-        
         setHurricanes(hurricanesRes.data)
-        setProjects(projectsRes.data)
         setCoverage(coverageRes.data)
-        setFlaggedProjects(flagsRes.data)
+        console.log('Loaded hurricanes:', hurricanesRes.data.length)
+        console.log('Loaded coverage data:', coverageRes.data.length)
       } catch (error) {
         console.error('Error fetching data:', error)
       } finally {
@@ -50,33 +47,13 @@ function App() {
       }
     }
     
-    fetchData()
-  }, [setHurricanes, setProjects, setCoverage, setFlaggedProjects])
+    fetchHurricanes()
+  }, [setHurricanes, setCoverage])
   
   const handleHurricaneSelect = (hurricaneId: string) => {
     const hurricane = hurricanes.find(h => h.id === hurricaneId)
     setSelectedHurricane(hurricane || null)
-    
-    // Fetch filtered data for selected hurricane
-    const fetchFilteredData = async () => {
-      try {
-        const [projectsRes, coverageRes, flagsRes] = await Promise.all([
-          axios.get(`${API_BASE}/projects?hurricane_id=${hurricaneId}`),
-          axios.get(`${API_BASE}/coverage?hurricane_id=${hurricaneId}`),
-          axios.get(`${API_BASE}/flags?hurricane_id=${hurricaneId}`),
-        ])
-        
-        setProjects(projectsRes.data)
-        setCoverage(coverageRes.data)
-        setFlaggedProjects(flagsRes.data)
-      } catch (error) {
-        console.error('Error fetching filtered data:', error)
-      }
-    }
-    
-    if (hurricane) {
-      fetchFilteredData()
-    }
+    console.log('Selected hurricane:', hurricane?.name)
   }
   
   if (loading) {

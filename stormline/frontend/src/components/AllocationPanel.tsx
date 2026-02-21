@@ -23,7 +23,8 @@ export default function AllocationPanel() {
       const initial: Record<string, number> = {}
       regions.forEach(region => {
         const cov = coverage.find(c => c.admin1 === region && c.hurricane_id === selectedHurricane?.id)
-        initial[region] = cov ? cov.pooled_fund_budget : 0
+        // Start with 10% of estimated need budget as default
+        initial[region] = cov ? Math.round(cov.estimated_need_budget * 0.1) : 0
       })
       setAllocations(initial)
     }
@@ -130,38 +131,96 @@ export default function AllocationPanel() {
       </button>
       
       {simulationResult && (
-        <div className="mt-4 p-3 bg-gray-50 rounded">
+        <div className="mt-4 p-3 bg-gray-50 rounded space-y-3">
           <h3 className="font-semibold mb-2">Simulation Results</h3>
-          <div className="space-y-1 text-sm">
-            <div>
-              <span className="font-medium">Impact Score:</span> {simulationResult.impact_score.toFixed(2)}
+          
+          {/* Overall Impact Score */}
+          <div className="pb-2 border-b">
+            <div className="text-lg font-bold text-blue-700">
+              Impact Score: {simulationResult.impact_score.toFixed(0).toLocaleString()}
             </div>
-            <div>
-              <span className="font-medium">Lives Covered:</span> {Math.round(simulationResult.lives_covered).toLocaleString()}
-            </div>
-            <div>
-              <span className="font-medium">Vulnerability Reduction:</span> {(simulationResult.vulnerability_reduction * 100).toFixed(2)}%
-            </div>
-            <div>
-              <span className="font-medium">Unmet Need:</span> {Math.round(simulationResult.unmet_need).toLocaleString()}
-            </div>
-            {simulationResult.comparison && (
-              <div className="mt-2 pt-2 border-t">
-                <div className="font-medium">Comparison to Current Allocation:</div>
-                <div className="text-xs">
-                  Current: {Math.round(simulationResult.comparison.current_lives_covered).toLocaleString()} lives
+          </div>
+          
+          {/* Hard Priorities (Non-negotiable) */}
+          {simulationResult.hard_priorities && (
+            <div className="pb-2 border-b">
+              <div className="font-semibold text-red-700 mb-1">Hard Priorities (Non-negotiable):</div>
+              <div className="text-xs space-y-1 pl-2">
+                <div>
+                  <span className="font-medium">Lives Saved:</span> {Math.round(simulationResult.hard_priorities.lives_saved).toLocaleString()}
                 </div>
-                <div className="text-xs">
-                  Simulated: {Math.round(simulationResult.comparison.simulated_lives_covered).toLocaleString()} lives
+                <div>
+                  <span className="font-medium">Suffering Reduced:</span> {Math.round(simulationResult.hard_priorities.suffering_reduced).toLocaleString()} people
                 </div>
-                <div className={`text-xs font-semibold ${
+                <div>
+                  <span className="font-medium">Vulnerable Protected:</span> {Math.round(simulationResult.hard_priorities.vulnerable_protected).toLocaleString()} people
+                </div>
+              </div>
+            </div>
+          )}
+          
+          {/* Soft Priorities (Trade-offs) */}
+          {simulationResult.soft_priorities && (
+            <div className="pb-2 border-b">
+              <div className="font-semibold text-orange-700 mb-1">Soft Priorities (Trade-offs):</div>
+              <div className="text-xs space-y-1 pl-2">
+                <div>
+                  <span className="font-medium">Economic Loss Reduction:</span> ${Math.round(simulationResult.soft_priorities.economic_loss_reduction).toLocaleString()}
+                </div>
+                <div>
+                  <span className="font-medium">Resource Efficiency:</span> {simulationResult.soft_priorities.resource_efficiency.toFixed(2)}
+                </div>
+              </div>
+            </div>
+          )}
+          
+          {/* Constraints */}
+          {simulationResult.constraints && (
+            <div className="pb-2 border-b">
+              <div className="font-semibold text-yellow-700 mb-1">Constraints (Penalties):</div>
+              <div className="text-xs space-y-1 pl-2">
+                <div>
+                  <span className="font-medium">Logistics Penalty:</span> {(simulationResult.constraints.logistics_penalty * 100).toFixed(1)}%
+                </div>
+                <div>
+                  <span className="font-medium">Access/Security Penalty:</span> {(simulationResult.constraints.access_penalty * 100).toFixed(1)}%
+                </div>
+                <div className="font-semibold">
+                  <span className="font-medium">Total Constraint Impact:</span> {(simulationResult.constraints.total_penalty * 100).toFixed(1)}%
+                </div>
+              </div>
+            </div>
+          )}
+          
+          {/* Unmet Need */}
+          <div className="pb-2 border-b">
+            <div className="font-semibold text-gray-700 mb-1">Critical Metrics:</div>
+            <div className="text-xs space-y-1 pl-2">
+              <div>
+                <span className="font-medium">Unmet Need:</span> {Math.round(simulationResult.unmet_need).toLocaleString()} people
+              </div>
+            </div>
+          </div>
+          
+          {/* Comparison */}
+          {simulationResult.comparison && (
+            <div>
+              <div className="font-semibold mb-1">Comparison to Current Allocation:</div>
+              <div className="text-xs space-y-1 pl-2">
+                <div>
+                  Current: {Math.round(simulationResult.comparison.current_lives_covered).toLocaleString()} lives saved
+                </div>
+                <div>
+                  Simulated: {Math.round(simulationResult.comparison.simulated_lives_covered).toLocaleString()} lives saved
+                </div>
+                <div className={`font-semibold ${
                   simulationResult.comparison.improvement > 0 ? 'text-green-600' : 'text-red-600'
                 }`}>
                   Improvement: {Math.round(simulationResult.comparison.improvement).toLocaleString()} lives
                 </div>
               </div>
-            )}
-          </div>
+            </div>
+          )}
         </div>
       )}
     </div>
