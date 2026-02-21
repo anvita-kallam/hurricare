@@ -6,7 +6,7 @@ import json
 import csv
 from pathlib import Path
 
-app = FastAPI(title="StormLine API", version="1.0.0")
+app = FastAPI(title="HurriCare API", version="1.0.0")
 
 # CORS middleware
 app.add_middleware(
@@ -71,7 +71,7 @@ def _get_daily_scores() -> dict:
 
 @app.get("/")
 def root():
-    return {"message": "StormLine API - Hurricanes Only", "version": "1.0.0"}
+    return {"message": "HurriCare API - Hurricanes Only", "version": "1.0.0"}
 
 
 @app.get("/hurricanes")
