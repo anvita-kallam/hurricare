@@ -32,6 +32,8 @@ function App() {
     setCinematicPlaying,
     cinematicCompleted,
     setCinematicCompleted,
+    narrativePopup,
+    setNarrativePopup,
   } = useStore()
   
   const [loading, setLoading] = useState(true)
