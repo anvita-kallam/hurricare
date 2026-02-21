@@ -76,8 +76,8 @@ function CinematicCamera({
   }, [track, progress, camera])
   
   useFrame(() => {
-    // Smooth camera movement
-    camera.position.lerp(positionRef.current, 0.05)
+    // Smoother camera movement with higher lerp factor
+    camera.position.lerp(positionRef.current, 0.15)
     const lookTarget = targetRef.current.clone()
     camera.lookAt(lookTarget)
   })

@@ -121,10 +121,24 @@ function App() {
   }
   
   const handleCinematicComplete = () => {
+    console.log('handleCinematicComplete called, pendingHurricane:', pendingHurricane)
     if (pendingHurricane) {
       const hurricane = hurricanes.find(h => h.id === pendingHurricane)
       setSelectedHurricane(hurricane || null)
       setPendingHurricane(null)
+      setCinematicPlaying(false)
+      setCinematicCompleted(true)
+      // Trigger narrative popup
+      if (hurricane) {
+        setNarrativePopup({
+          title: `Hurricane ${hurricane.name} - ${hurricane.year}`,
+          message: `You are now the humanitarian response coordinator for ${hurricane.name}, a Category ${hurricane.max_category} storm that affected ${hurricane.affected_countries.join(', ')}. ${hurricane.estimated_population_affected.toLocaleString()} people were impacted. Your mission: allocate limited resources to save lives and reduce suffering. You have a fixed budget based on actual historical funding. Make every dollar count.`,
+          type: 'story'
+        })
+      }
+    } else {
+      // Even if no pending hurricane, ensure we exit cinematic mode
+      console.log('No pending hurricane, but exiting cinematic mode')
       setCinematicPlaying(false)
       setCinematicCompleted(true)
     }
