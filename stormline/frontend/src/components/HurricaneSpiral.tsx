@@ -47,11 +47,6 @@ export default function HurricaneSpiral({
     return arms
   }, [radius, intensity])
   
-  // Create tube geometry for spiral arms
-  const tubeGeometry = useMemo(() => {
-    return new THREE.TubeGeometry(spiralArms[0], 20, 0.02, 8, false)
-  }, [spiralArms])
-  
   useFrame((state) => {
     if (groupRef.current) {
       // Rotate the entire hurricane
