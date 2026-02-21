@@ -22,21 +22,19 @@ export default function HurricaneSpiral({
   // Create spiral arms using curves
   const spiralArms = useMemo(() => {
     const arms: THREE.CatmullRomCurve3[] = []
-    const numArms = 3
+    const numArms = 4 // More arms for better hurricane appearance
     
     for (let arm = 0; arm < numArms; arm++) {
       const points: THREE.Vector3[] = []
       const armAngle = (arm / numArms) * Math.PI * 2
       
-      for (let i = 0; i <= 20; i++) {
-        const t = i / 20
-        const angle = armAngle + t * Math.PI * 4 // Multiple rotations
-        const distance = t * radius * (0.3 + intensity * 0.7)
-        // No height - keep it flat on the sphere surface
-        const height = 0
+      for (let i = 0; i <= 30; i++) {
+        const t = i / 30
+        const angle = armAngle + t * Math.PI * 6 // More rotations for clearer spiral
+        const distance = t * radius * (0.2 + intensity * 0.8)
         
         const x = Math.cos(angle) * distance
-        const y = height
+        const y = 0 // Flat on surface
         const z = Math.sin(angle) * distance
         
         points.push(new THREE.Vector3(x, y, z))
@@ -84,14 +82,14 @@ export default function HurricaneSpiral({
   
   return (
     <group ref={groupRef} position={position} quaternion={rotationMatrix}>
-      {/* Outer spiral arms */}
+      {/* Outer spiral arms - thicker and more visible */}
       {spiralArms.map((arm, i) => (
         <mesh key={`outer-${i}`} ref={i === 0 ? outerSpiralRef : undefined}>
-          <tubeGeometry args={[arm, 20, 0.03, 8, false]} />
+          <tubeGeometry args={[arm, 30, 0.015, 8, false]} />
           <meshBasicMaterial
             color={cloudColor}
             transparent
-            opacity={0.6 + intensity * 0.3}
+            opacity={0.8 + intensity * 0.2}
             side={THREE.DoubleSide}
           />
         </mesh>
@@ -100,15 +98,33 @@ export default function HurricaneSpiral({
       {/* Inner spiral arms (tighter) */}
       {spiralArms.map((arm, i) => {
         const innerArm = new THREE.CatmullRomCurve3(
-          arm.points.map(p => p.clone().multiplyScalar(0.6))
+          arm.points.map(p => p.clone().multiplyScalar(0.5))
         )
         return (
           <mesh key={`inner-${i}`} ref={i === 0 ? innerSpiralRef : undefined}>
-            <tubeGeometry args={[innerArm, 20, 0.02, 8, false]} />
+            <tubeGeometry args={[innerArm, 30, 0.01, 8, false]} />
             <meshBasicMaterial
               color={cloudColor}
               transparent
-              opacity={0.5 + intensity * 0.3}
+              opacity={0.7 + intensity * 0.2}
+              side={THREE.DoubleSide}
+            />
+          </mesh>
+        )
+      })}
+      
+      {/* Additional outer bands for more definition */}
+      {spiralArms.map((arm, i) => {
+        const outerArm = new THREE.CatmullRomCurve3(
+          arm.points.map(p => p.clone().multiplyScalar(1.2))
+        )
+        return (
+          <mesh key={`outer-band-${i}`}>
+            <tubeGeometry args={[outerArm, 30, 0.01, 8, false]} />
+            <meshBasicMaterial
+              color={cloudColor}
+              transparent
+              opacity={0.4 + intensity * 0.2}
               side={THREE.DoubleSide}
             />
           </mesh>
@@ -117,11 +133,11 @@ export default function HurricaneSpiral({
       
       {/* Eye of the storm - clear center */}
       <mesh position={[0, 0, 0]}>
-        <circleGeometry args={[radius * 0.2, 16]} />
+        <circleGeometry args={[radius * 0.15, 16]} />
         <meshBasicMaterial
-          color={new THREE.Color(0.95, 0.95, 1.0)}
+          color={new THREE.Color(0.9, 0.9, 0.95)}
           transparent
-          opacity={0.4}
+          opacity={0.3}
           side={THREE.DoubleSide}
         />
       </mesh>

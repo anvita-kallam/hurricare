@@ -204,7 +204,7 @@ export default function CinematicIntro({
           
           <Earth />
           
-          {(state.phase === 'playing' || state.phase === 'fadeIn') && (
+          {(state.phase === 'playing' || state.phase === 'fadeIn') && !state.isPlaying === false && (
             <>
               <CinematicCamera
                 track={hurricane.track}
@@ -212,7 +212,7 @@ export default function CinematicIntro({
                 progress={state.progress}
               />
               
-              {state.phase === 'playing' && (
+              {state.phase === 'playing' && state.isPlaying && (
                 <>
                   <HurricaneTrack track={hurricane.track} progress={state.progress} />
                   
