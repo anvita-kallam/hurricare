@@ -129,4 +129,32 @@ def initialize_database(data_dir: str = "sample_data") -> duckdb.DuckDBPyConnect
                 s['estimated_people_in_need']
             ])
     
+    # Load ideal plans
+    ideal_plans_file = data_path / "ideal_hurricane_response_plans.csv"
+    if ideal_plans_file.exists():
+        ideal_plans = load_csv_data(str(ideal_plans_file))
+        
+        conn.execute("""
+            CREATE TABLE ideal_plans (
+                id VARCHAR,
+                name VARCHAR,
+                year INTEGER,
+                affected_countries VARCHAR,
+                estimated_population_affected INTEGER,
+                ideal_plan_text TEXT
+            )
+        """)
+        
+        for plan in ideal_plans:
+            conn.execute("""
+                INSERT INTO ideal_plans VALUES (?, ?, ?, ?, ?, ?)
+            """, [
+                plan.get('id', ''),
+                plan.get('name', ''),
+                int(plan.get('year', 0)) if plan.get('year') else 0,
+                plan.get('affected_countries', ''),
+                int(plan.get('estimated_population_affected', 0)) if plan.get('estimated_population_affected') else 0,
+                plan.get('ideal_plan_text', '')
+            ])
+    
     return conn
