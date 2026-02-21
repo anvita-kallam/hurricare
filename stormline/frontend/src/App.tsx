@@ -130,9 +130,10 @@ function App() {
     
     if (pendingHurricane) {
       const hurricane = hurricanes.find(h => h.id === pendingHurricane)
+      // Set selected hurricane immediately so gameplay can begin
       setSelectedHurricane(hurricane || null)
       setPendingHurricane(null)
-      // Trigger narrative popup after a short delay
+      // Trigger narrative popup after a short delay to allow UI to update
       if (hurricane) {
         setTimeout(() => {
           setNarrativePopup({
@@ -140,7 +141,7 @@ function App() {
             message: `You are now the humanitarian response coordinator for ${hurricane.name}, a Category ${hurricane.max_category} storm that affected ${hurricane.affected_countries.join(', ')}. ${hurricane.estimated_population_affected.toLocaleString()} people were impacted. Your mission: allocate limited resources to save lives and reduce suffering. You have a fixed budget based on actual historical funding. Make every dollar count.`,
             type: 'story'
           })
-        }, 300)
+        }, 500)
       }
     }
   }, [pendingHurricane, hurricanes, setNarrativePopup])

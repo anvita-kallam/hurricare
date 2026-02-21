@@ -193,16 +193,23 @@ export default function CinematicIntro({
       const timer = setTimeout(() => {
         console.log('Auto-exiting animation after 10 seconds')
         stop()
-        onComplete()
+        // Small delay to ensure state updates before calling onComplete
+        setTimeout(() => {
+          onComplete()
+        }, 100)
       }, 10000) // 10 seconds
       return () => clearTimeout(timer)
     }
   }, [state.isPlaying, state.phase, stop, onComplete])
   
   const handleExitAnimation = () => {
-    console.log('Exit button clicked')
+    console.log('Exit button clicked - transitioning to gameplay')
+    // Stop animation immediately
     stop()
-    onComplete()
+    // Call onComplete with a small delay to ensure state has updated
+    setTimeout(() => {
+      onComplete()
+    }, 100)
   }
   
   // Calculate current storm position with smooth interpolation
