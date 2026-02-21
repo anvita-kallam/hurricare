@@ -408,20 +408,48 @@ export default function SimulationEngine({ onStartSimulation }: SimulationEngine
     )
   }
 
-  return (
-    <>
-      {/* Narrative Pop-up */}
-      {narrativePopup && (
-        <NarrativePopup
-          title={narrativePopup.title}
-          message={narrativePopup.message}
-          type={narrativePopup.type || 'info'}
-          onClose={() => setNarrativePopup(null)}
-          autoClose={0}
-        />
-      )}
-      
-      <div className="bg-black/40 backdrop-blur-sm rounded-lg border border-cyan-500/30 p-4 h-full flex flex-col glow-cyan overflow-auto">
+  // If comparison stage, render full-screen dashboard only
+  if (stage === 'comparison' && userPlan && mlPlan && realPlan) {
+    return (
+      <>
+        {/* Narrative Pop-up */}
+        {narrativePopup && (
+          <NarrativePopup
+            title={narrativePopup.title}
+            message={narrativePopup.message}
+            type={narrativePopup.type || 'info'}
+            onClose={() => setNarrativePopup(null)}
+            autoClose={0}
+          />
+        )}
+        
+        {/* Comparison Dashboard - Full Screen */}
+        <div className="fixed inset-0 z-50 bg-black overflow-y-auto">
+          {/* Header with Replay Button */}
+          <div className="sticky top-0 z-10 bg-black/90 backdrop-blur-sm border-b border-cyan-500/30 p-4 flex justify-between items-center">
+            <h3 className="text-3xl font-bold text-cyan-200 font-orbitron">Comparison Dashboard</h3>
+            <button
+              onClick={() => {
+                // Reset all state to go back to hurricane selector
+                setSelectedHurricane(null)
+                setStage(1)
+                setClusterAllocations({})
+                setUserPlan(null)
+                setMlPlan(null)
+                setRealPlan(null)
+                setMismatchAnalysis(null)
+                setSimulationResult(null)
+                setCinematicCompleted(false)
+              }}
+              className="px-6 py-3 rounded-lg bg-gradient-to-r from-cyan-600 to-blue-600 hover:from-cyan-700 hover:to-blue-700 text-white font-semibold font-orbitron glow-cyan transition-all flex items-center gap-2"
+            >
+              <span>🔄</span>
+              <span>Replay with Different Hurricane</span>
+            </button>
+          </div>
+          
+          <div className="w-full p-6 space-y-6">
+            <div className="bg-black/80 p-6 rounded-lg border-2 border-cyan-500/50 glow-cyan">
       {/* Stage Indicator */}
       <div className="mb-6 flex items-center justify-between border-b border-cyan-500/30 pb-4">
         <div>
@@ -911,9 +939,8 @@ export default function SimulationEngine({ onStartSimulation }: SimulationEngine
         </div>
       )}
       </div>
-
-      {/* Comparison Dashboard - Full Screen */}
-      {stage === 'comparison' && userPlan && mlPlan && realPlan && (
+    </>
+  )
         <div className="fixed inset-0 z-50 bg-black overflow-y-auto">
           {/* Header with Replay Button */}
           <div className="sticky top-0 z-10 bg-black/90 backdrop-blur-sm border-b border-cyan-500/30 p-4 flex justify-between items-center">
