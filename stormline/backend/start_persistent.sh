@@ -1,5 +1,5 @@
 #!/bin/bash
-# Persistent backend startup script for StormLine
+# Persistent backend startup script for HurriCare
 # This script ensures the backend stays running and restarts if it crashes
 
 cd "$(dirname "$0")"
@@ -9,7 +9,7 @@ PID_FILE="/tmp/stormline_backend.pid"
 
 # Function to start the backend
 start_backend() {
-    echo "Starting StormLine Backend Server..."
+          echo "Starting HurriCare Backend Server..."
     echo "Log file: $LOG_FILE"
     echo "PID file: $PID_FILE"
     

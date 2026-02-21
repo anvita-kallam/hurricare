@@ -1,4 +1,4 @@
-# StormLine - Geo-Insight Challenge
+# HurriCare - Geo-Insight Challenge
 
 A full-stack interactive web application that visualizes mismatches between humanitarian need and pooled-fund coverage using real historical hurricanes as scenarios.
 

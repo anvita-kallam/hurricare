@@ -1,5 +1,5 @@
 """
-Simulation Engine for StormLine
+Simulation Engine for HurriCare
 Implements three-stage simulation: User Plan, ML Ideal Plan, Real-World Response
 """
 import duckdb

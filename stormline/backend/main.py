@@ -32,7 +32,7 @@ from data_loader import initialize_database
 from analysis import get_coverage, get_flagged_projects, simulate_allocation
 from simulation_engine import SimulationEngine
 
-app = FastAPI(title="StormLine API", version="1.0.0")
+app = FastAPI(title="HurriCare API", version="1.0.0")
 
 # CORS middleware
 app.add_middleware(
@@ -54,7 +54,7 @@ sim_engine = SimulationEngine(db)
 
 @app.get("/")
 def root():
-    return {"message": "StormLine API", "version": "1.0.0"}
+    return {"message": "HurriCare API", "version": "1.0.0"}
 
 
 @app.get("/hurricanes", response_model=List[Hurricane])

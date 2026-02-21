@@ -90,7 +90,7 @@ export default function IntroScreen({ onEnter, isLoading }: IntroScreenProps) {
         <div className="text-center space-y-8">
           {/* Title */}
           <h1 className="text-7xl font-bold text-glow-cyan font-orbitron mb-4 animate-pulse" style={{ opacity: 1 }}>
-            STORMLINE
+            HURRICARE
           </h1>
           
           {/* Subtitle */}

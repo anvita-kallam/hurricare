@@ -84,7 +84,7 @@ function App() {
       {/* Welcome Narrative Pop-up */}
       {showWelcomePopup && (
         <NarrativePopup
-          title="Welcome to StormLine"
+          title="Welcome to HurriCare"
           message="You are about to experience a humanitarian response simulation based on real historical hurricanes.\n\nYour mission: Allocate limited resources to save lives and reduce suffering. You'll compare your decisions against AI-optimized plans and actual historical responses.\n\nSelect a hurricane from the left panel to begin your mission."
           type="story"
           onClose={() => setShowWelcomePopup(false)}
@@ -97,7 +97,7 @@ function App() {
       <header className="bg-black/80 backdrop-blur-sm border-b border-cyan-500/30 p-4 glow-cyan relative z-10">
         <div className="flex items-center justify-between">
           <div>
-            <h1 className="text-3xl font-bold text-glow-cyan font-orbitron">StormLine</h1>
+            <h1 className="text-3xl font-bold text-glow-cyan font-orbitron">HurriCare</h1>
           </div>
           <div className="flex items-center gap-4">
             <label className="flex items-center gap-2 cursor-pointer text-cyan-200 hover:text-cyan-100 transition">
