@@ -60,8 +60,21 @@ def root():
 @app.get("/hurricanes", response_model=List[Hurricane])
 def get_hurricanes():
     """Get all hurricanes."""
+    global db, sim_engine
     with db_lock:
-        results = db.execute("SELECT * FROM hurricanes").fetchall()
+        try:
+            result = db.execute("SELECT * FROM hurricanes")
+            results = result.fetchall()
+            # Ensure result is fully consumed
+            result.close()
+        except Exception as e:
+            # If connection is stale, reinitialize
+            print(f"Database error in get_hurricanes: {e}, reinitializing...")
+            db = initialize_database()
+            sim_engine = SimulationEngine(db)
+            result = db.execute("SELECT * FROM hurricanes")
+            results = result.fetchall()
+            result.close()
     hurricanes = []
     for row in results:
         hurricanes.append({
@@ -79,14 +92,31 @@ def get_hurricanes():
 @app.get("/projects", response_model=List[Project])
 def get_projects(hurricane_id: Optional[str] = None):
     """Get projects, optionally filtered by hurricane_id."""
+    global db, sim_engine
     with db_lock:
-        if hurricane_id:
-            results = db.execute(
-                "SELECT * FROM projects WHERE hurricane_id = ?",
-                [hurricane_id]
-            ).fetchall()
-        else:
-            results = db.execute("SELECT * FROM projects").fetchall()
+        try:
+            if hurricane_id:
+                result = db.execute(
+                    "SELECT * FROM projects WHERE hurricane_id = ?",
+                    [hurricane_id]
+                )
+            else:
+                result = db.execute("SELECT * FROM projects")
+            results = result.fetchall()
+            result.close()
+        except Exception as e:
+            print(f"Database error in get_projects: {e}, reinitializing...")
+            db = initialize_database()
+            sim_engine = SimulationEngine(db)
+            if hurricane_id:
+                result = db.execute(
+                    "SELECT * FROM projects WHERE hurricane_id = ?",
+                    [hurricane_id]
+                )
+            else:
+                result = db.execute("SELECT * FROM projects")
+            results = result.fetchall()
+            result.close()
     
     projects = []
     for row in results:
@@ -107,21 +137,45 @@ def get_projects(hurricane_id: Optional[str] = None):
 @app.get("/coverage", response_model=List[CoverageResponse])
 def get_coverage_endpoint(hurricane_id: Optional[str] = None):
     """Get coverage analysis."""
-    coverage_data = get_coverage(db, hurricane_id)
+    global db, sim_engine
+    with db_lock:
+        try:
+            coverage_data = get_coverage(db, hurricane_id)
+        except Exception as e:
+            print(f"Database error in get_coverage_endpoint: {e}, reinitializing...")
+            db = initialize_database()
+            sim_engine = SimulationEngine(db)
+            coverage_data = get_coverage(db, hurricane_id)
     return coverage_data
 
 
 @app.get("/flags", response_model=List[FlaggedProject])
 def get_flags(hurricane_id: Optional[str] = None):
     """Get flagged projects."""
-    flagged = get_flagged_projects(db, hurricane_id)
+    global db, sim_engine
+    with db_lock:
+        try:
+            flagged = get_flagged_projects(db, hurricane_id)
+        except Exception as e:
+            print(f"Database error in get_flags: {e}, reinitializing...")
+            db = initialize_database()
+            sim_engine = SimulationEngine(db)
+            flagged = get_flagged_projects(db, hurricane_id)
     return flagged
 
 
 @app.post("/simulate_allocation", response_model=AllocationResponse)
 def simulate_allocation_endpoint(request: AllocationRequest):
     """Simulate allocation impact."""
-    result = simulate_allocation(db, request.hurricane_id, request.allocations)
+    global db, sim_engine
+    with db_lock:
+        try:
+            result = simulate_allocation(db, request.hurricane_id, request.allocations)
+        except Exception as e:
+            print(f"Database error in simulate_allocation_endpoint: {e}, reinitializing...")
+            db = initialize_database()
+            sim_engine = SimulationEngine(db)
+            result = simulate_allocation(db, request.hurricane_id, request.allocations)
     return result
 
 
@@ -136,13 +190,20 @@ def get_affected_regions(hurricane_id: str):
 @app.get("/simulation/total-budget/{hurricane_id}")
 def get_total_budget(hurricane_id: str):
     """Get total pooled fund budget for a hurricane."""
+    global db, sim_engine
     query = """
         SELECT SUM(CASE WHEN pooled_fund = true THEN budget_usd ELSE 0 END) as total_budget
         FROM projects
         WHERE hurricane_id = ?
     """
     with db_lock:
-        result = db.execute(query, [hurricane_id]).fetchone()
+        try:
+            result = db.execute(query, [hurricane_id]).fetchone()
+        except Exception as e:
+            print(f"Database error in get_total_budget: {e}, reinitializing...")
+            db = initialize_database()
+            sim_engine = SimulationEngine(db)
+            result = db.execute(query, [hurricane_id]).fetchone()
     total_budget = result[0] if result and result[0] else 0
     return {"total_budget": float(total_budget)}
 
