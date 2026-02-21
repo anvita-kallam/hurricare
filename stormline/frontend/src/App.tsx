@@ -206,16 +206,16 @@ function App() {
       {showComparisonPage ? (
         <ComparisonPage />
       ) : (
-      <div 
-        className="w-screen h-screen flex flex-col bg-black relative" 
-        style={{ 
-          zIndex: 1,
-          pointerEvents: isCinematicPlaying ? 'none' : 'auto',
-          opacity: isCinematicPlaying ? 0 : 1,
-          transition: 'opacity 0.5s ease-in-out',
-          display: isCinematicPlaying ? 'none' : 'flex'
-        }}
-      >
+        <div 
+          className="w-screen h-screen flex flex-col bg-black relative" 
+          style={{ 
+            zIndex: 1,
+            pointerEvents: isCinematicPlaying ? 'none' : 'auto',
+            opacity: isCinematicPlaying ? 0 : 1,
+            transition: 'opacity 0.5s ease-in-out',
+            display: isCinematicPlaying ? 'none' : 'flex'
+          }}
+        >
       {/* Header */}
       <header className="bg-black/80 backdrop-blur-sm border-b border-cyan-500/30 p-4 glow-cyan relative z-10">
         <div className="flex items-center justify-between">
@@ -331,7 +331,7 @@ function App() {
           </div>
         </div>
       </div>
-      )}
+        )}
     </>
   )
 }
