@@ -15,7 +15,7 @@ function generateSubRegionalData(allocations: any[], planType: string) {
   allocations.forEach(alloc => {
     // Generate 3-5 sub-regions per region with varying severity and funding
     const numSubRegions = 3 + Math.floor(Math.random() * 3)
-    const baseSeverity = alloc.coverage_estimate?.severity_weighted_impact || 0.5
+      const baseSeverity = alloc.coverage_estimate?.severity_weighted_impact || alloc.coverage_estimate?.coverage_ratio || 0.5
     const baseBudget = alloc.budget
     
     for (let i = 0; i < numSubRegions; i++) {
