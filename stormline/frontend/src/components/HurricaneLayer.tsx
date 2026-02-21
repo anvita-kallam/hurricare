@@ -88,8 +88,8 @@ function HurricanePath({ hurricane, isSelected }: { hurricane: any; isSelected: 
   }, [hurricane.track])
   
   const geometry = useMemo(() => {
-    // Thinner lines for unselected, thicker for selected
-    const radius = isSelected ? 0.02 : 0.005
+    // Thinner lines for unselected, slightly thicker for selected
+    const radius = isSelected ? 0.01 : 0.005
     const tubeGeometry = new THREE.TubeGeometry(curve, 64, radius, 8, false)
     return tubeGeometry
   }, [curve, isSelected])
