@@ -219,7 +219,7 @@ export default function CinematicIntro({
                   <HurricaneSpiral
                     position={currentStormPosition}
                     intensity={stormIntensity}
-                    radius={0.15 + stormIntensity * 0.1}
+                    radius={0.08 + stormIntensity * 0.05}
                   />
                   
                   {visibleEvents.map((event, i) => {
