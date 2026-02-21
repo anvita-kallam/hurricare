@@ -1,7 +1,5 @@
 import { useEffect, useState } from 'react'
 import Globe from './components/Globe'
-import ProjectTable from './components/ProjectTable'
-import FlaggedProjects from './components/FlaggedProjects'
 import CoverageChoropleth from './components/CoverageChoropleth'
 import SimulationEngine from './components/SimulationEngine'
 import Leaderboard from './components/Leaderboard'
@@ -29,7 +27,6 @@ function App() {
   } = useStore()
   
   const [loading, setLoading] = useState(true)
-  const [activeTab, setActiveTab] = useState<'projects' | 'flagged' | 'simulation'>('simulation')
   
   useEffect(() => {
     const fetchHurricanes = async () => {
@@ -169,47 +166,10 @@ function App() {
           <CoverageChoropleth />
         </div>
         
-        {/* Right Sidebar - Analysis Panels */}
+        {/* Right Sidebar - Game Panel */}
         <div className="w-96 bg-black/70 backdrop-blur-sm border-l border-cyan-500/30 flex flex-col glow-cyan">
-          {/* Tabs */}
-          <div className="flex border-b border-cyan-500/30 bg-black/50">
-            <button
-              onClick={() => setActiveTab('projects')}
-              className={`flex-1 py-2 px-4 text-sm font-medium transition-all font-orbitron ${
-                activeTab === 'projects'
-                  ? 'border-b-2 border-cyan-400 text-cyan-300 text-glow-cyan bg-cyan-500/10'
-                  : 'text-cyan-400/60 hover:text-cyan-300 hover:bg-cyan-500/5'
-              }`}
-            >
-              Projects
-            </button>
-            <button
-              onClick={() => setActiveTab('flagged')}
-              className={`flex-1 py-2 px-4 text-sm font-medium transition-all font-orbitron ${
-                activeTab === 'flagged'
-                  ? 'border-b-2 border-cyan-400 text-cyan-300 text-glow-cyan bg-cyan-500/10'
-                  : 'text-cyan-400/60 hover:text-cyan-300 hover:bg-cyan-500/5'
-              }`}
-            >
-              Flagged
-            </button>
-            <button
-              onClick={() => setActiveTab('simulation')}
-              className={`flex-1 py-2 px-4 text-sm font-medium transition-all font-orbitron ${
-                activeTab === 'simulation'
-                  ? 'border-b-2 border-cyan-400 text-cyan-300 text-glow-cyan bg-cyan-500/10'
-                  : 'text-cyan-400/60 hover:text-cyan-300 hover:bg-cyan-500/5'
-              }`}
-            >
-              Game
-            </button>
-          </div>
-          
-          {/* Tab Content */}
           <div className="flex-1 overflow-hidden p-4">
-            {activeTab === 'projects' && <ProjectTable />}
-            {activeTab === 'flagged' && <FlaggedProjects />}
-            {activeTab === 'simulation' && <SimulationEngine />}
+            <SimulationEngine />
           </div>
         </div>
       </div>
