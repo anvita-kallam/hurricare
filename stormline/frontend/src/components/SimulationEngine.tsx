@@ -910,6 +910,7 @@ export default function SimulationEngine({ onStartSimulation }: SimulationEngine
           </div>
         </div>
       )}
+      </div>
 
       {/* Comparison Dashboard - Full Screen */}
       {stage === 'comparison' && userPlan && mlPlan && realPlan && (
