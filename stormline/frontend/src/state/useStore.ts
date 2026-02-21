@@ -76,7 +76,6 @@ interface Store {
   isCinematicPlaying: boolean
   cinematicCompleted: boolean
   narrativePopup: NarrativePopup | null
-  showComparisonPage: boolean
   
   setHurricanes: (hurricanes: Hurricane[]) => void
   setSelectedHurricane: (hurricane: Hurricane | null) => void
