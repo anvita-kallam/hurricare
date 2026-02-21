@@ -82,13 +82,17 @@ export function useCinematicController(
           const playElapsed = now - phaseStartTimeRef.current!
           const playProgress = playElapsed / playDuration
           
+          // Cap at 24 hours maximum
+          const maxHours = 24
+          const cappedDurationHours = Math.min(durationHours, maxHours)
+          
           if (playProgress >= 1) {
             phaseStartTimeRef.current = now
             return { ...prev, phase: 'fadeOut', progress: 0 }
           }
           
-          // Scale time to fit within fixed duration
-          const currentTime = playProgress * durationHours
+          // Scale time to fit within fixed duration, capped at 24 hours
+          const currentTime = Math.min(playProgress * cappedDurationHours, maxHours)
           return {
             ...prev,
             currentTime,
