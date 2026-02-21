@@ -60,8 +60,8 @@ function App() {
     return (
       <div className="w-screen h-screen flex items-center justify-center bg-black">
         <div className="text-center">
-          <div className="text-2xl font-semibold mb-2 text-glow-cyan">Loading StormLine...</div>
-          <div className="text-cyan-300">Fetching hurricane data...</div>
+          <div className="text-2xl font-semibold mb-2 text-glow-cyan font-orbitron">Loading StormLine...</div>
+          <div className="text-cyan-300 font-exo">Fetching hurricane data...</div>
         </div>
       </div>
     )
@@ -73,8 +73,8 @@ function App() {
       <header className="bg-black/80 backdrop-blur-sm border-b border-cyan-500/30 p-4 glow-cyan relative z-10">
         <div className="flex items-center justify-between">
           <div>
-            <h1 className="text-3xl font-bold text-glow-cyan">StormLine</h1>
-            <p className="text-sm text-cyan-300/80">Geo-Insight Challenge: Humanitarian Need vs Pooled-Fund Coverage</p>
+            <h1 className="text-3xl font-bold text-glow-cyan font-orbitron">StormLine</h1>
+            <p className="text-sm text-cyan-300/80 font-exo">Geo-Insight Challenge: Humanitarian Need vs Pooled-Fund Coverage</p>
           </div>
           <div className="flex items-center gap-4">
             <label className="flex items-center gap-2 cursor-pointer text-cyan-200 hover:text-cyan-100 transition">
@@ -112,13 +112,13 @@ function App() {
       <div className="flex-1 flex overflow-hidden relative z-10">
         {/* Left Sidebar - Hurricane Selection */}
         <div className="w-64 bg-black/70 backdrop-blur-sm border-r border-cyan-500/30 p-4 overflow-y-auto glow-cyan">
-          <h2 className="text-xl font-bold mb-4 text-glow-cyan">Historical Hurricanes</h2>
+          <h2 className="text-xl font-bold mb-4 text-glow-cyan font-orbitron">Historical Hurricanes</h2>
           <div className="space-y-2">
             {hurricanes.map((hurricane) => (
               <button
                 key={hurricane.id}
                 onClick={() => handleHurricaneSelect(hurricane.id)}
-                className={`w-full text-left p-3 rounded border-2 transition-all duration-300 ${
+                className={`w-full text-left p-3 rounded border-2 transition-all duration-300 font-exo ${
                   selectedHurricane?.id === hurricane.id
                     ? 'border-cyan-400 bg-cyan-500/20 glow-cyan text-cyan-100'
                     : 'border-cyan-500/30 bg-black/40 text-cyan-200 hover:border-cyan-400 hover:bg-cyan-500/10 hover:glow-cyan'
@@ -137,7 +137,7 @@ function App() {
           
           {selectedHurricane && (
             <div className="mt-6 p-3 bg-cyan-500/10 border border-cyan-500/30 rounded glow-cyan">
-              <h3 className="font-semibold mb-2 text-cyan-200">Selected Scenario</h3>
+              <h3 className="font-semibold mb-2 text-cyan-200 font-orbitron">Selected Scenario</h3>
               <div className="text-sm space-y-1 text-cyan-300/90">
                 <div><span className="font-medium text-cyan-200">Name:</span> {selectedHurricane.name}</div>
                 <div><span className="font-medium text-cyan-200">Year:</span> {selectedHurricane.year}</div>
@@ -161,7 +161,7 @@ function App() {
           <div className="flex border-b border-cyan-500/30 bg-black/50">
             <button
               onClick={() => setActiveTab('projects')}
-              className={`flex-1 py-2 px-4 text-sm font-medium transition-all ${
+              className={`flex-1 py-2 px-4 text-sm font-medium transition-all font-orbitron ${
                 activeTab === 'projects'
                   ? 'border-b-2 border-cyan-400 text-cyan-300 text-glow-cyan bg-cyan-500/10'
                   : 'text-cyan-400/60 hover:text-cyan-300 hover:bg-cyan-500/5'
@@ -171,7 +171,7 @@ function App() {
             </button>
             <button
               onClick={() => setActiveTab('flagged')}
-              className={`flex-1 py-2 px-4 text-sm font-medium transition-all ${
+              className={`flex-1 py-2 px-4 text-sm font-medium transition-all font-orbitron ${
                 activeTab === 'flagged'
                   ? 'border-b-2 border-cyan-400 text-cyan-300 text-glow-cyan bg-cyan-500/10'
                   : 'text-cyan-400/60 hover:text-cyan-300 hover:bg-cyan-500/5'
@@ -181,7 +181,7 @@ function App() {
             </button>
             <button
               onClick={() => setActiveTab('allocation')}
-              className={`flex-1 py-2 px-4 text-sm font-medium transition-all ${
+              className={`flex-1 py-2 px-4 text-sm font-medium transition-all font-orbitron ${
                 activeTab === 'allocation'
                   ? 'border-b-2 border-cyan-400 text-cyan-300 text-glow-cyan bg-cyan-500/10'
                   : 'text-cyan-400/60 hover:text-cyan-300 hover:bg-cyan-500/5'

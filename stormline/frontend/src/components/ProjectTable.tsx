@@ -70,7 +70,7 @@ export default function ProjectTable() {
   
   return (
     <div className="bg-black/40 backdrop-blur-sm rounded-lg border border-cyan-500/30 p-4 h-full flex flex-col glow-cyan">
-      <h2 className="text-xl font-bold mb-4 text-glow-cyan">Project Analysis</h2>
+      <h2 className="text-xl font-bold mb-4 text-glow-cyan font-orbitron">Project Analysis</h2>
       
       <div className="mb-4 flex gap-4 flex-wrap">
         <div>

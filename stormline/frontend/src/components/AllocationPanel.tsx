@@ -68,16 +68,16 @@ export default function AllocationPanel() {
   if (!selectedHurricane) {
     return (
       <div className="bg-black/40 backdrop-blur-sm rounded-lg border border-cyan-500/30 p-4 glow-cyan">
-        <h2 className="text-xl font-bold mb-4 text-glow-cyan">Allocation Simulator</h2>
-        <p className="text-cyan-300/80">Select a hurricane to begin simulation</p>
+        <h2 className="text-xl font-bold mb-4 text-glow-cyan font-orbitron">Allocation Simulator</h2>
+        <p className="text-cyan-300/80 font-exo">Select a hurricane to begin simulation</p>
       </div>
     )
   }
   
   return (
     <div className="bg-black/40 backdrop-blur-sm rounded-lg border border-cyan-500/30 p-4 h-full flex flex-col glow-cyan">
-      <h2 className="text-xl font-bold mb-4 text-glow-cyan">Allocation Simulator</h2>
-      <div className="text-sm text-cyan-300/80 mb-4">
+      <h2 className="text-xl font-bold mb-4 text-glow-cyan font-orbitron">Allocation Simulator</h2>
+      <div className="text-sm text-cyan-300/80 mb-4 font-exo">
         Adjust budget allocations per region and simulate impact
       </div>
       
@@ -125,14 +125,14 @@ export default function AllocationPanel() {
       <button
         onClick={runSimulation}
         disabled={loading}
-        className="w-full bg-cyan-600 text-white py-2 px-4 rounded hover:bg-cyan-700 disabled:bg-gray-600 disabled:text-gray-400 glow-cyan transition-all font-semibold"
+        className="w-full bg-cyan-600 text-white py-2 px-4 rounded hover:bg-cyan-700 disabled:bg-gray-600 disabled:text-gray-400 glow-cyan transition-all font-semibold font-orbitron"
       >
         {loading ? 'Running Simulation...' : 'Run Simulation'}
       </button>
       
       {simulationResult && (
         <div className="mt-4 p-3 bg-cyan-500/10 border border-cyan-500/30 rounded space-y-3 glow-cyan backdrop-blur-sm">
-          <h3 className="font-semibold mb-2 text-glow-cyan">Simulation Results</h3>
+          <h3 className="font-semibold mb-2 text-glow-cyan font-orbitron">Simulation Results</h3>
           
           {/* Overall Impact Score */}
           <div className="pb-2 border-b border-cyan-500/30">

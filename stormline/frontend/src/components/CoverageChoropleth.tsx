@@ -15,7 +15,7 @@ export default function CoverageChoropleth() {
   
   return (
     <div className="absolute top-4 right-4 bg-black/80 backdrop-blur-sm border border-cyan-500/30 p-3 rounded glow-cyan z-10">
-      <div className="text-sm font-semibold mb-2 text-glow-cyan">Overlay Active</div>
+      <div className="text-sm font-semibold mb-2 text-glow-cyan font-orbitron">Overlay Active</div>
       {showSeverityOverlay && (
         <div className="text-xs mb-1 text-cyan-200">
           <span className="inline-block w-3 h-3 bg-red-500 mr-1 rounded glow"></span>
