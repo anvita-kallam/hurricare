@@ -126,7 +126,7 @@ function App() {
     console.log('handleCinematicComplete called, pendingHurricane:', pendingHurricane)
     // FORCE exit cinematic mode IMMEDIATELY - this is critical
     setCinematicPlaying(false)
-    setCinematicCompleted(true)
+    setCinematicCompleted(true) // Mark cinematic as completed so we skip "Start Simulation" screen
     
     if (pendingHurricane) {
       const hurricane = hurricanes.find(h => h.id === pendingHurricane)

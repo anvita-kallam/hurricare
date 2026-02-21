@@ -132,18 +132,23 @@ export default function SimulationEngine({ onStartSimulation }: SimulationEngine
     }
   }, [selectedHurricane, coverage])
   
-  // Show narrative pop-up AFTER cinematic completes
+  // Show narrative pop-up AFTER cinematic completes (only once)
+  const narrativeShownRef = useRef(false)
   useEffect(() => {
-    if (selectedHurricane && cinematicCompleted && !isCinematicPlaying) {
+    if (selectedHurricane && cinematicCompleted && !isCinematicPlaying && !narrativeShownRef.current) {
+      narrativeShownRef.current = true
       setNarrativePopup({
         title: `Hurricane ${selectedHurricane.name} - ${selectedHurricane.year}`,
         message: `You are now the humanitarian response coordinator for ${selectedHurricane.name}, a Category ${selectedHurricane.max_category} storm that affected ${selectedHurricane.affected_countries.join(', ')}. ${selectedHurricane.estimated_population_affected.toLocaleString()} people were impacted. Your mission: allocate limited resources to save lives and reduce suffering. You have a fixed budget based on actual historical funding. Make every dollar count.`,
         type: 'story'
       })
-      // Reset cinematic completed flag after showing popup
-      setCinematicCompleted(false)
     }
-  }, [selectedHurricane, cinematicCompleted, isCinematicPlaying, setCinematicCompleted])
+  }, [selectedHurricane, cinematicCompleted, isCinematicPlaying])
+  
+  // Reset narrative shown flag when hurricane changes
+  useEffect(() => {
+    narrativeShownRef.current = false
+  }, [selectedHurricane])
 
 
   // Initialize cluster allocations per region
