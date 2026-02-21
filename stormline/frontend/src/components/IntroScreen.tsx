@@ -51,7 +51,7 @@ export default function IntroScreen({ onEnter, isLoading }: IntroScreenProps) {
           `,
           backgroundSize: '200px 200px',
           backgroundRepeat: 'repeat',
-          opacity: 0.9,
+          opacity: 1.0,
           animation: 'sparkle 20s linear infinite'
         }} />
         
@@ -67,20 +67,22 @@ export default function IntroScreen({ onEnter, isLoading }: IntroScreenProps) {
           `,
           backgroundSize: '300px 300px',
           backgroundRepeat: 'repeat',
-          opacity: 0.6,
+          opacity: 0.9,
           animation: 'sparkle 15s linear infinite reverse'
         }} />
 
         {/* Galaxy spiral effect */}
-        <div className="absolute inset-0 opacity-30" style={{
-          background: `radial-gradient(ellipse 80% 50% at 50% 50%, rgba(168, 85, 247, 0.4) 0%, rgba(6, 182, 212, 0.3) 30%, transparent 70%)`,
+        <div className="absolute inset-0" style={{
+          background: `radial-gradient(ellipse 80% 50% at 50% 50%, rgba(168, 85, 247, 0.6) 0%, rgba(6, 182, 212, 0.5) 30%, transparent 70%)`,
+          opacity: 0.5,
           animation: 'rotate 60s linear infinite'
         }} />
         
         {/* Additional nebula effect */}
-        <div className="absolute inset-0 opacity-20" style={{
-          background: `radial-gradient(ellipse 60% 40% at 20% 30%, rgba(6, 182, 212, 0.3) 0%, transparent 50%),
-                       radial-gradient(ellipse 50% 60% at 80% 70%, rgba(168, 85, 247, 0.3) 0%, transparent 50%)`,
+        <div className="absolute inset-0" style={{
+          background: `radial-gradient(ellipse 60% 40% at 20% 30%, rgba(6, 182, 212, 0.5) 0%, transparent 50%),
+                       radial-gradient(ellipse 50% 60% at 80% 70%, rgba(168, 85, 247, 0.5) 0%, transparent 50%)`,
+          opacity: 0.4,
           animation: 'pulse 8s ease-in-out infinite'
         }} />
       </div>
@@ -130,8 +132,12 @@ export default function IntroScreen({ onEnter, isLoading }: IntroScreenProps) {
           to { transform: rotate(360deg); }
         }
         @keyframes pulse {
-          0%, 100% { opacity: 0.2; }
-          50% { opacity: 0.4; }
+          0%, 100% { opacity: 0.4; }
+          50% { opacity: 0.6; }
+        }
+        @keyframes sparkle {
+          0%, 100% { opacity: 0.9; }
+          50% { opacity: 1.0; }
         }
       `}</style>
     </div>
