@@ -85,7 +85,7 @@ function App() {
       {showWelcomePopup && (
         <NarrativePopup
           title="Welcome to HurriCare"
-          message="You are about to experience a humanitarian response simulation based on real historical hurricanes.\n\nYour mission: Allocate limited resources to save lives and reduce suffering. You'll compare your decisions against AI-optimized plans and actual historical responses.\n\nSelect a hurricane from the left panel to begin your mission."
+          message="You are about to experience a humanitarian response simulation based on real historical hurricanes. Your mission: Allocate limited resources to save lives and reduce suffering. You'll compare your decisions against AI-optimized plans and actual historical responses. Select a hurricane from the left panel to begin your mission."
           type="story"
           onClose={() => setShowWelcomePopup(false)}
           autoClose={0}
