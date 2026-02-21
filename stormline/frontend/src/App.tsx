@@ -214,11 +214,6 @@ function App() {
         </div>
       </div>
       
-      {/* Footer with data quality warning */}
-      <footer className="bg-black/80 backdrop-blur-sm border-t border-cyan-500/30 text-cyan-300/80 text-xs p-2 text-center relative z-10">
-        <span className="text-yellow-400">⚠️</span> This application uses synthetic but realistic data based on historical hurricanes. 
-        Budgets, beneficiaries, and allocations are simulated for demonstration purposes.
-      </footer>
     </div>
   )
 }
