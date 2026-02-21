@@ -17,6 +17,15 @@ function latLonToVector3(lat: number, lon: number, radius: number = 1): THREE.Ve
   return new THREE.Vector3(x, y, z)
 }
 
+// Helper to format lat/lon coordinates
+function formatLatLon(coord: number, isLat: boolean = true) {
+  const abs = Math.abs(coord)
+  const deg = Math.floor(abs)
+  const min = Math.floor((abs - deg) * 60)
+  const dir = coord >= 0 ? (isLat ? 'N' : 'E') : (isLat ? 'S' : 'W')
+  return `${deg}°${min}'${dir}`
+}
+
 // Earth component
 function Earth() {
   const earthTexture = useTexture('https://raw.githubusercontent.com/mrdoob/three.js/dev/examples/textures/land_ocean_ice_cloud_2048.jpg')
