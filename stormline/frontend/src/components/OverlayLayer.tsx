@@ -16,7 +16,7 @@ function latLonToVector3(lat: number, lon: number, radius: number = 1): THREE.Ve
 }
 
 // Generate a simple region shape around a center point
-function createRegionShape(centerLat: number, centerLon: number, size: number = 5): THREE.Vector3[] {
+function createRegionShape(centerLat: number, centerLon: number, size: number = 3): THREE.Vector3[] {
   const points: THREE.Vector3[] = []
   const radius = 1.01 // Slightly above the globe surface
   
@@ -125,17 +125,26 @@ export default function OverlayLayer() {
         const redIntensity = Math.floor(severity * 255)
         color = `rgb(${redIntensity}, 0, ${255 - redIntensity})`
         opacity = 0.5 + (severity * 0.4) // 0.5 to 0.9 opacity
-      } else if (showCoverageOverlay) {
-        // Cyan to green gradient based on coverage ratio
+      }
+      
+      if (showCoverageOverlay) {
+        // Color gradient based on coverage ratio
         const coverageRatio = Math.min(1, Math.max(0, cov.coverage_ratio || 0))
-        if (coverageRatio < 0.5) {
+        if (coverageRatio < 0.3) {
+          // Very low coverage: dark red
+          color = `rgb(200, 0, 0)`
+        } else if (coverageRatio < 0.5) {
           // Low coverage: red to orange
-          const intensity = coverageRatio * 2
-          color = `rgb(${255}, ${Math.floor(intensity * 255)}, 0)`
+          const intensity = ((coverageRatio - 0.3) / 0.2) // 0 to 1
+          color = `rgb(255, ${Math.floor(intensity * 100)}, 0)`
+        } else if (coverageRatio < 0.7) {
+          // Medium coverage: orange to yellow
+          const intensity = ((coverageRatio - 0.5) / 0.2) // 0 to 1
+          color = `rgb(255, ${Math.floor(100 + intensity * 155)}, 0)`
         } else {
           // High coverage: yellow to green
-          const intensity = (coverageRatio - 0.5) * 2
-          color = `rgb(${255 - Math.floor(intensity * 255)}, 255, 0)`
+          const intensity = ((coverageRatio - 0.7) / 0.3) // 0 to 1
+          color = `rgb(${255 - Math.floor(intensity * 255)}, 255, ${Math.floor(intensity * 100)})`
         }
         opacity = 0.5 + (coverageRatio * 0.4) // 0.5 to 0.9 opacity
       }
@@ -153,17 +162,28 @@ export default function OverlayLayer() {
     return null
   }
   
+  if (overlayData.length === 0) {
+    return null
+  }
+  
   return (
     <group>
-      {overlayData.map((data, idx) => (
-        <RegionOverlay
-          key={`${data.hurricane_id}-${data.admin1}-${idx}`}
-          centerLat={data.lat}
-          centerLon={data.lon}
-          color={data.color}
-          opacity={data.opacity}
-        />
-      ))}
+      {overlayData.map((data, idx) => {
+        // Only render if we have valid coordinates and the overlay is enabled
+        if (!data.lat || !data.lon || isNaN(data.lat) || isNaN(data.lon)) {
+          return null
+        }
+        
+        return (
+          <RegionOverlay
+            key={`${data.hurricane_id}-${data.admin1}-${idx}`}
+            centerLat={data.lat}
+            centerLon={data.lon}
+            color={data.color}
+            opacity={data.opacity}
+          />
+        )
+      })}
     </group>
   )
 }
