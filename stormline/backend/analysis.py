@@ -213,10 +213,55 @@ def simulate_allocation(conn: duckdb.DuckDBPyConnection, hurricane_id: str, allo
         "improvement": total_lives_covered - current_lives_covered
     }
     
+    # Calculate hard priorities (non-negotiable)
+    # Prevent avoidable deaths = lives covered weighted by severity
+    lives_saved = total_lives_covered
+    
+    # Prevent severe human suffering = vulnerability reduction
+    suffering_reduced = total_vulnerability_reduction * 1000  # Scale for display
+    
+    # Protect vulnerable populations (assume 30% of people in need are vulnerable)
+    vulnerable_protected = sum(
+        min(allocations.get(admin1, 0) / 500, data["people_in_need"] * 0.3)
+        for admin1, data in severity_data.items()
+    )
+    
+    hard_priorities = {
+        "lives_saved": lives_saved,
+        "suffering_reduced": suffering_reduced,
+        "vulnerable_protected": vulnerable_protected
+    }
+    
+    # Calculate soft priorities (trade-offs)
+    total_allocated = sum(allocations.values())
+    economic_loss_reduction = total_lives_covered * 5000  # Estimated economic value per life
+    resource_efficiency = total_lives_covered / total_allocated if total_allocated > 0 else 0
+    
+    soft_priorities = {
+        "economic_loss_reduction": economic_loss_reduction,
+        "resource_efficiency": resource_efficiency
+    }
+    
+    # Calculate constraints (penalties)
+    # Logistics penalty: higher for remote/less accessible regions
+    logistics_penalty = 0.05  # Base 5% penalty
+    # Access/security penalty: higher for conflict zones (simplified)
+    access_penalty = 0.03  # Base 3% penalty
+    total_penalty = logistics_penalty + access_penalty
+    
+    constraints = {
+        "logistics_penalty": logistics_penalty,
+        "access_penalty": access_penalty,
+        "total_penalty": total_penalty
+    }
+    
     return {
         "impact_score": impact_score,
         "lives_covered": total_lives_covered,
         "vulnerability_reduction": total_vulnerability_reduction,
         "unmet_need": total_unmet_need,
-        "comparison": comparison
+        "comparison": comparison,
+        "hard_priorities": hard_priorities,
+        "soft_priorities": soft_priorities,
+        "constraints": constraints
     }

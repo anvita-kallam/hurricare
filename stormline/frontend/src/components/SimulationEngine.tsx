@@ -364,44 +364,86 @@ export default function SimulationEngine() {
                   </div>
                 </div>
                 
-                {/* Key Metrics */}
-                <div className="space-y-2 text-sm font-exo">
-                  <div className="flex justify-between">
-                    <span className="text-cyan-200">Lives Covered:</span>
-                    <span className="text-cyan-300 font-orbitron">{simulationResult.lives_covered?.toLocaleString() || 0}</span>
-                  </div>
-                  <div className="flex justify-between">
-                    <span className="text-cyan-200">Vulnerability Reduction:</span>
-                    <span className="text-cyan-300 font-orbitron">{simulationResult.vulnerability_reduction?.toFixed(2) || 0}</span>
-                  </div>
-                  <div className="flex justify-between">
-                    <span className="text-cyan-200">Unmet Need:</span>
-                    <span className="text-cyan-300 font-orbitron">{simulationResult.unmet_need?.toLocaleString() || 0}</span>
-                  </div>
-                  
-                  {/* Comparison */}
-                  {simulationResult.comparison && (
-                    <div className="mt-3 pt-3 border-t border-cyan-500/30">
-                      <div className="text-xs text-cyan-300/70 mb-2 font-exo">Comparison to Current Allocation:</div>
-                      <div className="space-y-1">
-                        <div className="flex justify-between text-xs">
-                          <span className="text-cyan-200">Current:</span>
-                          <span className="text-cyan-300">{simulationResult.comparison.current_lives_covered?.toLocaleString() || 0} lives</span>
-                        </div>
-                        <div className="flex justify-between text-xs">
-                          <span className="text-cyan-200">Your Plan:</span>
-                          <span className="text-cyan-300">{simulationResult.comparison.simulated_lives_covered?.toLocaleString() || 0} lives</span>
-                        </div>
-                        <div className="flex justify-between">
-                          <span className="text-cyan-200 font-semibold">Improvement:</span>
-                          <span className={`font-orbitron font-semibold ${simulationResult.comparison.improvement > 0 ? 'text-green-400 glow-green' : 'text-red-400'}`}>
-                            {simulationResult.comparison.improvement > 0 ? '+' : ''}{simulationResult.comparison.improvement?.toFixed(0) || 0} lives
-                          </span>
-                        </div>
+                {/* Hard Priorities (Non-negotiable) */}
+                {simulationResult.hard_priorities && (
+                  <div className="pb-2 border-b border-cyan-500/30">
+                    <div className="font-semibold text-red-400 mb-1 glow font-orbitron">Hard Priorities (Non-negotiable):</div>
+                    <div className="text-xs space-y-1 pl-2 text-cyan-200 font-exo">
+                      <div>
+                        <span className="font-medium text-cyan-300">Lives Saved:</span> {Math.round(simulationResult.hard_priorities.lives_saved || 0).toLocaleString()}
+                      </div>
+                      <div>
+                        <span className="font-medium text-cyan-300">Suffering Reduced:</span> {Math.round(simulationResult.hard_priorities.suffering_reduced || 0).toLocaleString()} people
+                      </div>
+                      <div>
+                        <span className="font-medium text-cyan-300">Vulnerable Protected:</span> {Math.round(simulationResult.hard_priorities.vulnerable_protected || 0).toLocaleString()} people
                       </div>
                     </div>
-                  )}
+                  </div>
+                )}
+                
+                {/* Soft Priorities (Trade-offs) */}
+                {simulationResult.soft_priorities && (
+                  <div className="pb-2 border-b border-cyan-500/30">
+                    <div className="font-semibold text-orange-400 mb-1 glow font-orbitron">Soft Priorities (Trade-offs):</div>
+                    <div className="text-xs space-y-1 pl-2 text-cyan-200 font-exo">
+                      <div>
+                        <span className="font-medium text-cyan-300">Economic Loss Reduction:</span> ${Math.round(simulationResult.soft_priorities.economic_loss_reduction || 0).toLocaleString()}
+                      </div>
+                      <div>
+                        <span className="font-medium text-cyan-300">Resource Efficiency:</span> {simulationResult.soft_priorities.resource_efficiency?.toFixed(2) || 0}
+                      </div>
+                    </div>
+                  </div>
+                )}
+                
+                {/* Constraints (Penalties) */}
+                {simulationResult.constraints && (
+                  <div className="pb-2 border-b border-cyan-500/30">
+                    <div className="font-semibold text-yellow-400 mb-1 glow font-orbitron">Constraints (Penalties):</div>
+                    <div className="text-xs space-y-1 pl-2 text-cyan-200 font-exo">
+                      <div>
+                        <span className="font-medium text-cyan-300">Logistics Penalty:</span> {(simulationResult.constraints.logistics_penalty * 100 || 0).toFixed(1)}%
+                      </div>
+                      <div>
+                        <span className="font-medium text-cyan-300">Access/Security Penalty:</span> {(simulationResult.constraints.access_penalty * 100 || 0).toFixed(1)}%
+                      </div>
+                      <div className="font-semibold text-cyan-200">
+                        <span className="font-medium">Total Constraint Impact:</span> {(simulationResult.constraints.total_penalty * 100 || 0).toFixed(1)}%
+                      </div>
+                    </div>
+                  </div>
+                )}
+                
+                {/* Critical Metrics */}
+                <div className="pb-2 border-b border-cyan-500/30">
+                  <div className="font-semibold text-cyan-300 mb-1 font-orbitron">Critical Metrics:</div>
+                  <div className="text-xs space-y-1 pl-2 text-cyan-200 font-exo">
+                    <div>
+                      <span className="font-medium text-cyan-300">Unmet Need:</span> {Math.round(simulationResult.unmet_need || 0).toLocaleString()} people
+                    </div>
+                  </div>
                 </div>
+                
+                {/* Comparison */}
+                {simulationResult.comparison && (
+                  <div>
+                    <div className="font-semibold mb-1 text-cyan-200 font-orbitron">Comparison to Current Allocation:</div>
+                    <div className="text-xs space-y-1 pl-2 text-cyan-200 font-exo">
+                      <div>
+                        Current: {Math.round(simulationResult.comparison.current_lives_covered || 0).toLocaleString()} lives saved
+                      </div>
+                      <div>
+                        Your Plan: {Math.round(simulationResult.comparison.simulated_lives_covered || 0).toLocaleString()} lives saved
+                      </div>
+                      <div className={`font-semibold ${
+                        simulationResult.comparison.improvement > 0 ? 'text-green-400 glow-green' : 'text-red-400 glow'
+                      }`}>
+                        Improvement: {Math.round(simulationResult.comparison.improvement || 0).toLocaleString()} lives
+                      </div>
+                    </div>
+                  </div>
+                )}
               </div>
             )}
           </div>
