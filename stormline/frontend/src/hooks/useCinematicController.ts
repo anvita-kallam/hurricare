@@ -45,6 +45,11 @@ export function useCinematicController(
     const fadeOutDuration = 2000 // 2 second fade out
     const playDuration = (durationHours / TIME_SCALE) * 1000 // Convert hours to ms
     
+    // Cancel any existing animation
+    if (animationFrameRef.current) {
+      cancelAnimationFrame(animationFrameRef.current)
+    }
+    
     setState({
       isPlaying: true,
       currentTime: 0,
@@ -92,16 +97,20 @@ export function useCinematicController(
           return { ...prev, progress: elapsed / fadeOutDuration }
         }
         
-        if (prev.phase === 'complete') {
-          return prev
-        }
-        
-        // Continue animation if not complete
-        animationFrameRef.current = requestAnimationFrame(animate)
+        // Complete phase - stop animation
         return prev
+      })
+      
+      // Continue animation loop
+      setState(currentState => {
+        if (currentState.phase !== 'complete' && currentState.isPlaying) {
+          animationFrameRef.current = requestAnimationFrame(animate)
+        }
+        return currentState
       })
     }
     
+    // Start the animation loop
     animationFrameRef.current = requestAnimationFrame(animate)
   }, [durationHours, onComplete])
   
