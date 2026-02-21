@@ -28,7 +28,7 @@ export default function Globe() {
           <directionalLight position={[5, 5, 5]} intensity={1.2} />
           <pointLight position={[-5, -5, -5]} intensity={0.5} color="#00bcd4" />
           <Earth />
-          <Stars radius={500} depth={100} count={30000} factor={8} fade speed={0.5} />
+          <Stars radius={500} depth={100} count={30000} factor={12} fade speed={0.5} />
           <HurricaneLayer />
           <OrbitControls
             ref={controlsRef}
