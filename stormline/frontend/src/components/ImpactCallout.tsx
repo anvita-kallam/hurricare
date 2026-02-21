@@ -67,7 +67,7 @@ export default function ImpactCallout({
     <mesh position={position}>
       <Html
         center
-        distanceFactor={10}
+        distanceFactor={5}
         style={{
           pointerEvents: 'none',
           opacity,
@@ -75,19 +75,20 @@ export default function ImpactCallout({
         }}
       >
         <div
-          className="bg-black/90 backdrop-blur-sm border border-cyan-500/50 rounded-lg p-3 text-white font-exo"
+          className="bg-black/90 backdrop-blur-sm border border-cyan-500/50 rounded-lg p-2 text-white font-exo"
           style={{
-            minWidth: '200px',
+            minWidth: '150px',
+            maxWidth: '200px',
             boxShadow: '0 0 20px rgba(6, 182, 212, 0.5)'
           }}
         >
-          <div className="text-cyan-400 font-orbitron text-sm mb-1">
+          <div className="text-cyan-400 font-orbitron text-xs mb-1">
             T+{event.time_hours} {event.time_hours === 1 ? 'Hour' : 'Hours'}
           </div>
-          <div className="font-bold text-sm mb-2">{event.location.name}</div>
-          <div className="text-xs space-y-1">
+          <div className="font-bold text-xs mb-1">{event.location.name}</div>
+          <div className="text-xs space-y-0.5">
             {impactText.map((text, i) => (
-              <div key={i}>{text}</div>
+              <div key={i} className="text-xs">{text}</div>
             ))}
           </div>
         </div>
