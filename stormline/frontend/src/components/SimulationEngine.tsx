@@ -1222,8 +1222,6 @@ export default function SimulationEngine({ onStartSimulation }: SimulationEngine
       </div>
     </>
   )
-          {/* Header with Replay Button */}
-          <div className="sticky top-0 z-10 bg-black/90 backdrop-blur-sm border-b border-cyan-500/30 p-4 flex justify-between items-center">
             <h3 className="text-3xl font-bold text-cyan-200 font-orbitron">Comparison Dashboard</h3>
             <button
               onClick={() => {
