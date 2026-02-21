@@ -204,7 +204,7 @@ export default function CinematicIntro({
           
           <Earth />
           
-          {(state.phase === 'playing' || state.phase === 'fadeIn') && !state.isPlaying === false && (
+          {(state.phase === 'playing' || state.phase === 'fadeIn') && state.isPlaying && (
             <>
               <CinematicCamera
                 track={hurricane.track}
