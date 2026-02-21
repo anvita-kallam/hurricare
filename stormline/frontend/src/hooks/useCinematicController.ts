@@ -92,16 +92,18 @@ export function useCinematicController(
           return { ...prev, progress: elapsed / fadeOutDuration }
         }
         
+        if (prev.phase === 'complete') {
+          return prev
+        }
+        
+        // Continue animation if not complete
+        animationFrameRef.current = requestAnimationFrame(animate)
         return prev
       })
-      
-      if (state.isPlaying && state.phase !== 'complete') {
-        animationFrameRef.current = requestAnimationFrame(animate)
-      }
     }
     
     animationFrameRef.current = requestAnimationFrame(animate)
-  }, [durationHours, onComplete, state.isPlaying, state.phase])
+  }, [durationHours, onComplete])
   
   const stop = useCallback(() => {
     if (animationFrameRef.current) {
