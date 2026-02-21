@@ -29,28 +29,42 @@ export default function IntroScreen({ onEnter, isLoading }: IntroScreenProps) {
   return (
     <div className="fixed inset-0 z-50 bg-black overflow-hidden">
       {/* Galaxy Background */}
-      <div className="absolute inset-0">
-        {/* Animated stars layer 1 */}
+      <div className="absolute inset-0 overflow-hidden">
+        {/* Deep space gradient */}
+        <div className="absolute inset-0 bg-gradient-to-b from-purple-900/20 via-black to-cyan-900/20" />
+        
+        {/* Animated stars layer 1 - White stars */}
         <div className="absolute inset-0" style={{
-          backgroundImage: `radial-gradient(2px 2px at ${Math.random() * 100}% ${Math.random() * 100}%, white, transparent),
-                            radial-gradient(2px 2px at ${Math.random() * 100}% ${Math.random() * 100}%, white, transparent),
-                            radial-gradient(1px 1px at ${Math.random() * 100}% ${Math.random() * 100}%, white, transparent),
-                            radial-gradient(1px 1px at ${Math.random() * 100}% ${Math.random() * 100}%, white, transparent),
-                            radial-gradient(2px 2px at ${Math.random() * 100}% ${Math.random() * 100}%, white, transparent),
-                            radial-gradient(1px 1px at ${Math.random() * 100}% ${Math.random() * 100}%, white, transparent),
-                            radial-gradient(2px 2px at ${Math.random() * 100}% ${Math.random() * 100}%, white, transparent),
-                            radial-gradient(1px 1px at ${Math.random() * 100}% ${Math.random() * 100}%, white, transparent)`,
+          backgroundImage: `
+            radial-gradient(2px 2px at 20% 30%, white, transparent),
+            radial-gradient(2px 2px at 60% 70%, white, transparent),
+            radial-gradient(1px 1px at 50% 50%, white, transparent),
+            radial-gradient(1px 1px at 80% 10%, white, transparent),
+            radial-gradient(2px 2px at 90% 60%, white, transparent),
+            radial-gradient(1px 1px at 33% 80%, white, transparent),
+            radial-gradient(2px 2px at 10% 40%, white, transparent),
+            radial-gradient(1px 1px at 70% 20%, white, transparent),
+            radial-gradient(1px 1px at 15% 60%, white, transparent),
+            radial-gradient(2px 2px at 45% 25%, white, transparent),
+            radial-gradient(1px 1px at 75% 85%, white, transparent),
+            radial-gradient(2px 2px at 25% 75%, white, transparent)
+          `,
           backgroundSize: '200px 200px',
           backgroundRepeat: 'repeat',
           opacity: 0.9,
           animation: 'sparkle 20s linear infinite'
         }} />
         
-        {/* Animated stars layer 2 */}
+        {/* Animated stars layer 2 - Colored stars */}
         <div className="absolute inset-0" style={{
-          backgroundImage: `radial-gradient(1px 1px at ${Math.random() * 100}% ${Math.random() * 100}%, rgba(6, 182, 212, 0.8), transparent),
-                            radial-gradient(1px 1px at ${Math.random() * 100}% ${Math.random() * 100}%, rgba(168, 85, 247, 0.6), transparent),
-                            radial-gradient(2px 2px at ${Math.random() * 100}% ${Math.random() * 100}%, rgba(6, 182, 212, 0.7), transparent)`,
+          backgroundImage: `
+            radial-gradient(1px 1px at 30% 50%, rgba(6, 182, 212, 0.8), transparent),
+            radial-gradient(1px 1px at 70% 30%, rgba(168, 85, 247, 0.6), transparent),
+            radial-gradient(2px 2px at 50% 70%, rgba(6, 182, 212, 0.7), transparent),
+            radial-gradient(1px 1px at 10% 20%, rgba(168, 85, 247, 0.5), transparent),
+            radial-gradient(2px 2px at 90% 80%, rgba(6, 182, 212, 0.6), transparent),
+            radial-gradient(1px 1px at 40% 90%, rgba(168, 85, 247, 0.7), transparent)
+          `,
           backgroundSize: '300px 300px',
           backgroundRepeat: 'repeat',
           opacity: 0.6,
@@ -59,9 +73,15 @@ export default function IntroScreen({ onEnter, isLoading }: IntroScreenProps) {
 
         {/* Galaxy spiral effect */}
         <div className="absolute inset-0 opacity-30" style={{
-          background: `radial-gradient(ellipse at center, rgba(168, 85, 247, 0.3) 0%, rgba(6, 182, 212, 0.2) 30%, transparent 70%)`,
-          transform: 'rotate(45deg) scale(1.5)',
+          background: `radial-gradient(ellipse 80% 50% at 50% 50%, rgba(168, 85, 247, 0.4) 0%, rgba(6, 182, 212, 0.3) 30%, transparent 70%)`,
           animation: 'rotate 60s linear infinite'
+        }} />
+        
+        {/* Additional nebula effect */}
+        <div className="absolute inset-0 opacity-20" style={{
+          background: `radial-gradient(ellipse 60% 40% at 20% 30%, rgba(6, 182, 212, 0.3) 0%, transparent 50%),
+                       radial-gradient(ellipse 50% 60% at 80% 70%, rgba(168, 85, 247, 0.3) 0%, transparent 50%)`,
+          animation: 'pulse 8s ease-in-out infinite'
         }} />
       </div>
 
@@ -106,8 +126,12 @@ export default function IntroScreen({ onEnter, isLoading }: IntroScreenProps) {
 
       <style>{`
         @keyframes rotate {
-          from { transform: rotate(0deg) scale(1.5); }
-          to { transform: rotate(360deg) scale(1.5); }
+          from { transform: rotate(0deg); }
+          to { transform: rotate(360deg); }
+        }
+        @keyframes pulse {
+          0%, 100% { opacity: 0.2; }
+          50% { opacity: 0.4; }
         }
       `}</style>
     </div>
