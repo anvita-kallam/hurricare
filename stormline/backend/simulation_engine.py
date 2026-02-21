@@ -378,10 +378,10 @@ class SimulationEngine:
             total_efficiency += budget / people_covered if people_covered > 0 else 0
             
             coverage_estimate = {
-                "people_covered": int(total_coverage),
+                "people_covered": people_covered,
                 "coverage_ratio": coverage_ratio,
-                "unmet_need": int(max(0, people_in_need - total_coverage)),
-                "severity_weighted_impact": total_coverage * severity
+                "unmet_need": int(max(0, people_in_need - people_covered)),
+                "severity_weighted_impact": people_covered * severity
             }
             
             region_allocations.append(RegionAllocation(
