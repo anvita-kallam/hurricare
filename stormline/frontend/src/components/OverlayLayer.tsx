@@ -16,13 +16,13 @@ function latLonToVector3(lat: number, lon: number, radius: number = 1): THREE.Ve
 }
 
 // Generate a simple region shape around a center point
-function createRegionShape(centerLat: number, centerLon: number, size: number = 0.15): THREE.Vector3[] {
+function createRegionShape(centerLat: number, centerLon: number, size: number = 5): THREE.Vector3[] {
   const points: THREE.Vector3[] = []
   const radius = 1.01 // Slightly above the globe surface
   
   // Create a circular region around the center point
-  for (let i = 0; i < 16; i++) {
-    const angle = (i / 16) * Math.PI * 2
+  for (let i = 0; i < 32; i++) {
+    const angle = (i / 32) * Math.PI * 2
     const lat = centerLat + Math.cos(angle) * size
     const lon = centerLon + Math.sin(angle) * size
     points.push(latLonToVector3(lat, lon, radius))
@@ -100,8 +100,8 @@ export default function OverlayLayer() {
         const trackPoint = trackPoints[trackIdx]
         
         // Add some variation based on region index
-        const latOffset = (idx % 3 - 1) * 2
-        const lonOffset = (Math.floor(idx / 3) % 3 - 1) * 2
+        const latOffset = (idx % 3 - 1) * 3
+        const lonOffset = (Math.floor(idx / 3) % 3 - 1) * 3
         
         regionCoords[cov.admin1] = {
           lat: trackPoint.lat + latOffset,
@@ -117,14 +117,14 @@ export default function OverlayLayer() {
       }
       
       let color = '#00bcd4'
-      let opacity = 0.3
+      let opacity = 0.5
       
       if (showSeverityOverlay) {
         // Red gradient based on severity (0-1 scale)
         const severity = cov.severity_index || 0
         const redIntensity = Math.floor(severity * 255)
         color = `rgb(${redIntensity}, 0, ${255 - redIntensity})`
-        opacity = 0.4 + (severity * 0.4) // 0.4 to 0.8 opacity
+        opacity = 0.5 + (severity * 0.4) // 0.5 to 0.9 opacity
       } else if (showCoverageOverlay) {
         // Cyan to green gradient based on coverage ratio
         const coverageRatio = Math.min(1, Math.max(0, cov.coverage_ratio || 0))
@@ -137,7 +137,7 @@ export default function OverlayLayer() {
           const intensity = (coverageRatio - 0.5) * 2
           color = `rgb(${255 - Math.floor(intensity * 255)}, 255, 0)`
         }
-        opacity = 0.3 + (coverageRatio * 0.5) // 0.3 to 0.8 opacity
+        opacity = 0.5 + (coverageRatio * 0.4) // 0.5 to 0.9 opacity
       }
       
       return {
