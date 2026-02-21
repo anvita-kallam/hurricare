@@ -85,14 +85,14 @@ function CinematicCamera({
   return null
 }
 
-// Hurricane track visualization
+// Hurricane track visualization - larger and more visible
 function HurricaneTrack({ track, progress }: { track: Array<{ lat: number; lon: number; wind: number }>, progress: number }) {
   const points = useMemo(() => {
     return track.map(point => latLonToVector3(point.lat, point.lon, 1.01))
   }, [track])
   
-  const currentIndex = Math.floor(progress * points.length)
-  const visiblePoints = points.slice(0, currentIndex + 1)
+  // Show full track, not just up to current position
+  const visiblePoints = points
   
   if (visiblePoints.length < 2) return null
   
@@ -108,7 +108,12 @@ function HurricaneTrack({ track, progress }: { track: Array<{ lat: number; lon: 
           itemSize={3}
         />
       </bufferGeometry>
-      <lineBasicMaterial color="#ff6b6b" linewidth={2} />
+      <lineBasicMaterial 
+        color="#ff6b6b" 
+        linewidth={5}
+        transparent
+        opacity={0.8}
+      />
     </line>
   )
 }
@@ -152,10 +157,10 @@ function HurricaneTrail({
   return (
     <line geometry={trailGeometry}>
       <lineBasicMaterial
-        color={new THREE.Color(0.9, 0.9, 0.95)}
+        color={new THREE.Color(1.0, 0.8, 0.2)}
         transparent
-        opacity={0.5}
-        linewidth={1.5}
+        opacity={0.7}
+        linewidth={4}
       />
     </line>
   )
