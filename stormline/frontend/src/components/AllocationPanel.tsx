@@ -131,29 +131,29 @@ export default function AllocationPanel() {
       </button>
       
       {simulationResult && (
-        <div className="mt-4 p-3 bg-gray-50 rounded space-y-3">
-          <h3 className="font-semibold mb-2">Simulation Results</h3>
+        <div className="mt-4 p-3 bg-cyan-500/10 border border-cyan-500/30 rounded space-y-3 glow-cyan backdrop-blur-sm">
+          <h3 className="font-semibold mb-2 text-glow-cyan">Simulation Results</h3>
           
           {/* Overall Impact Score */}
-          <div className="pb-2 border-b">
-            <div className="text-lg font-bold text-blue-700">
+          <div className="pb-2 border-b border-cyan-500/30">
+            <div className="text-lg font-bold text-glow-cyan">
               Impact Score: {simulationResult.impact_score.toFixed(0).toLocaleString()}
             </div>
           </div>
           
           {/* Hard Priorities (Non-negotiable) */}
           {simulationResult.hard_priorities && (
-            <div className="pb-2 border-b">
-              <div className="font-semibold text-red-700 mb-1">Hard Priorities (Non-negotiable):</div>
-              <div className="text-xs space-y-1 pl-2">
+            <div className="pb-2 border-b border-cyan-500/30">
+              <div className="font-semibold text-red-400 mb-1 glow">Hard Priorities (Non-negotiable):</div>
+              <div className="text-xs space-y-1 pl-2 text-cyan-200">
                 <div>
-                  <span className="font-medium">Lives Saved:</span> {Math.round(simulationResult.hard_priorities.lives_saved).toLocaleString()}
+                  <span className="font-medium text-cyan-300">Lives Saved:</span> {Math.round(simulationResult.hard_priorities.lives_saved).toLocaleString()}
                 </div>
                 <div>
-                  <span className="font-medium">Suffering Reduced:</span> {Math.round(simulationResult.hard_priorities.suffering_reduced).toLocaleString()} people
+                  <span className="font-medium text-cyan-300">Suffering Reduced:</span> {Math.round(simulationResult.hard_priorities.suffering_reduced).toLocaleString()} people
                 </div>
                 <div>
-                  <span className="font-medium">Vulnerable Protected:</span> {Math.round(simulationResult.hard_priorities.vulnerable_protected).toLocaleString()} people
+                  <span className="font-medium text-cyan-300">Vulnerable Protected:</span> {Math.round(simulationResult.hard_priorities.vulnerable_protected).toLocaleString()} people
                 </div>
               </div>
             </div>
@@ -161,14 +161,14 @@ export default function AllocationPanel() {
           
           {/* Soft Priorities (Trade-offs) */}
           {simulationResult.soft_priorities && (
-            <div className="pb-2 border-b">
-              <div className="font-semibold text-orange-700 mb-1">Soft Priorities (Trade-offs):</div>
-              <div className="text-xs space-y-1 pl-2">
+            <div className="pb-2 border-b border-cyan-500/30">
+              <div className="font-semibold text-orange-400 mb-1 glow">Soft Priorities (Trade-offs):</div>
+              <div className="text-xs space-y-1 pl-2 text-cyan-200">
                 <div>
-                  <span className="font-medium">Economic Loss Reduction:</span> ${Math.round(simulationResult.soft_priorities.economic_loss_reduction).toLocaleString()}
+                  <span className="font-medium text-cyan-300">Economic Loss Reduction:</span> ${Math.round(simulationResult.soft_priorities.economic_loss_reduction).toLocaleString()}
                 </div>
                 <div>
-                  <span className="font-medium">Resource Efficiency:</span> {simulationResult.soft_priorities.resource_efficiency.toFixed(2)}
+                  <span className="font-medium text-cyan-300">Resource Efficiency:</span> {simulationResult.soft_priorities.resource_efficiency.toFixed(2)}
                 </div>
               </div>
             </div>
@@ -176,16 +176,16 @@ export default function AllocationPanel() {
           
           {/* Constraints */}
           {simulationResult.constraints && (
-            <div className="pb-2 border-b">
-              <div className="font-semibold text-yellow-700 mb-1">Constraints (Penalties):</div>
-              <div className="text-xs space-y-1 pl-2">
+            <div className="pb-2 border-b border-cyan-500/30">
+              <div className="font-semibold text-yellow-400 mb-1 glow">Constraints (Penalties):</div>
+              <div className="text-xs space-y-1 pl-2 text-cyan-200">
                 <div>
-                  <span className="font-medium">Logistics Penalty:</span> {(simulationResult.constraints.logistics_penalty * 100).toFixed(1)}%
+                  <span className="font-medium text-cyan-300">Logistics Penalty:</span> {(simulationResult.constraints.logistics_penalty * 100).toFixed(1)}%
                 </div>
                 <div>
-                  <span className="font-medium">Access/Security Penalty:</span> {(simulationResult.constraints.access_penalty * 100).toFixed(1)}%
+                  <span className="font-medium text-cyan-300">Access/Security Penalty:</span> {(simulationResult.constraints.access_penalty * 100).toFixed(1)}%
                 </div>
-                <div className="font-semibold">
+                <div className="font-semibold text-cyan-200">
                   <span className="font-medium">Total Constraint Impact:</span> {(simulationResult.constraints.total_penalty * 100).toFixed(1)}%
                 </div>
               </div>
@@ -193,11 +193,11 @@ export default function AllocationPanel() {
           )}
           
           {/* Unmet Need */}
-          <div className="pb-2 border-b">
-            <div className="font-semibold text-gray-700 mb-1">Critical Metrics:</div>
-            <div className="text-xs space-y-1 pl-2">
+          <div className="pb-2 border-b border-cyan-500/30">
+            <div className="font-semibold text-cyan-300 mb-1">Critical Metrics:</div>
+            <div className="text-xs space-y-1 pl-2 text-cyan-200">
               <div>
-                <span className="font-medium">Unmet Need:</span> {Math.round(simulationResult.unmet_need).toLocaleString()} people
+                <span className="font-medium text-cyan-300">Unmet Need:</span> {Math.round(simulationResult.unmet_need).toLocaleString()} people
               </div>
             </div>
           </div>
@@ -205,8 +205,8 @@ export default function AllocationPanel() {
           {/* Comparison */}
           {simulationResult.comparison && (
             <div>
-              <div className="font-semibold mb-1">Comparison to Current Allocation:</div>
-              <div className="text-xs space-y-1 pl-2">
+              <div className="font-semibold mb-1 text-cyan-200">Comparison to Current Allocation:</div>
+              <div className="text-xs space-y-1 pl-2 text-cyan-200">
                 <div>
                   Current: {Math.round(simulationResult.comparison.current_lives_covered).toLocaleString()} lives saved
                 </div>
@@ -214,7 +214,7 @@ export default function AllocationPanel() {
                   Simulated: {Math.round(simulationResult.comparison.simulated_lives_covered).toLocaleString()} lives saved
                 </div>
                 <div className={`font-semibold ${
-                  simulationResult.comparison.improvement > 0 ? 'text-green-600' : 'text-red-600'
+                  simulationResult.comparison.improvement > 0 ? 'text-green-400 glow-green' : 'text-red-400 glow'
                 }`}>
                   Improvement: {Math.round(simulationResult.comparison.improvement).toLocaleString()} lives
                 </div>
