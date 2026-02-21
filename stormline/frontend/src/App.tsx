@@ -5,8 +5,10 @@ import SimulationEngine from './components/SimulationEngine'
 import Leaderboard from './components/Leaderboard'
 import IntroScreen from './components/IntroScreen'
 import NarrativePopup from './components/NarrativePopup'
+import CinematicIntro from './components/CinematicIntro'
 import { useStore } from './state/useStore'
 import axios from 'axios'
+import { ImpactEvent } from './hooks/useCinematicController'
 
 const API_BASE = 'http://localhost:8000'
 
@@ -26,11 +28,14 @@ function App() {
     lastSimulationScore,
     leaderboardOpen,
     setLeaderboardOpen,
+    isCinematicPlaying,
+    setCinematicPlaying,
   } = useStore()
   
   const [loading, setLoading] = useState(true)
   const [gameStarted, setGameStarted] = useState(false)
   const [showWelcomePopup, setShowWelcomePopup] = useState(false)
+  const [pendingHurricane, setPendingHurricane] = useState<string | null>(null)
   
   useEffect(() => {
     const fetchHurricanes = async () => {
@@ -53,15 +58,69 @@ function App() {
     fetchHurricanes()
   }, [setHurricanes, setCoverage])
   
+  // Generate impact events for a hurricane (synthetic but realistic)
+  const generateImpactEvents = (hurricane: any): ImpactEvent[] => {
+    const events: ImpactEvent[] = []
+    const track = hurricane.track || []
+    
+    if (track.length === 0) return events
+    
+    // Generate events at key points along the track
+    const eventIndices = [
+      Math.floor(track.length * 0.2),
+      Math.floor(track.length * 0.4),
+      Math.floor(track.length * 0.6),
+      Math.floor(track.length * 0.8),
+    ]
+    
+    eventIndices.forEach((idx, i) => {
+      if (idx >= track.length) return
+      const point = track[idx]
+      const timeHours = idx * 6 // Roughly 6 hours per track point
+      
+      // Get region name from affected countries or use generic
+      const regionName = hurricane.affected_countries?.[0] || 'Affected Region'
+      
+      events.push({
+        time_hours: timeHours,
+        location: {
+          name: `${regionName} - Track Point ${i + 1}`,
+          lat: point.lat,
+          lon: point.lon
+        },
+        impact: {
+          power_outages: Math.floor(Math.random() * 50000) + 10000,
+          evacuations: Math.floor(Math.random() * 20000) + 5000,
+          flooding_reported: point.wind > 100
+        }
+      })
+    })
+    
+    return events
+  }
+  
   const handleHurricaneSelect = (hurricaneId: string) => {
     // If clicking the same hurricane, deselect it
     if (selectedHurricane?.id === hurricaneId) {
       setSelectedHurricane(null)
+      setCinematicPlaying(false)
       console.log('Deselected hurricane')
     } else {
       const hurricane = hurricanes.find(h => h.id === hurricaneId)
+      if (hurricane) {
+        // Trigger cinematic intro
+        setPendingHurricane(hurricaneId)
+        setCinematicPlaying(true)
+      }
+    }
+  }
+  
+  const handleCinematicComplete = () => {
+    if (pendingHurricane) {
+      const hurricane = hurricanes.find(h => h.id === pendingHurricane)
       setSelectedHurricane(hurricane || null)
-      console.log('Selected hurricane:', hurricane?.name)
+      setPendingHurricane(null)
+      setCinematicPlaying(false)
     }
   }
   

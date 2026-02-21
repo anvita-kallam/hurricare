@@ -1,5 +1,21 @@
 import { create } from 'zustand'
 
+export interface ImpactEvent {
+  time_hours: number
+  location: {
+    name: string
+    lat: number
+    lon: number
+  }
+  impact: {
+    fatalities?: number
+    power_outages?: number
+    evacuations?: number
+    damage_estimate_millions?: number
+    flooding_reported?: boolean
+  }
+}
+
 export interface Hurricane {
   id: string
   name: string
@@ -8,6 +24,7 @@ export interface Hurricane {
   track: Array<{ lat: number; lon: number; wind: number }>
   affected_countries: string[]
   estimated_population_affected: number
+  impact_events?: ImpactEvent[]
 }
 
 export interface Project {
@@ -50,6 +67,7 @@ interface Store {
   autoSpin: boolean
   lastSimulationScore: number | null
   leaderboardOpen: boolean
+  isCinematicPlaying: boolean
   
   setHurricanes: (hurricanes: Hurricane[]) => void
   setSelectedHurricane: (hurricane: Hurricane | null) => void
@@ -61,6 +79,7 @@ interface Store {
   setAutoSpin: (autoSpin: boolean) => void
   setLastSimulationScore: (score: number | null) => void
   setLeaderboardOpen: (open: boolean) => void
+  setCinematicPlaying: (playing: boolean) => void
 }
 
 export const useStore = create<Store>((set) => ({
@@ -74,6 +93,7 @@ export const useStore = create<Store>((set) => ({
   autoSpin: true,
   lastSimulationScore: null,
   leaderboardOpen: false,
+  isCinematicPlaying: false,
   
   setHurricanes: (hurricanes) => set({ hurricanes }),
   setSelectedHurricane: (hurricane) => set({ selectedHurricane: hurricane }),
@@ -85,4 +105,5 @@ export const useStore = create<Store>((set) => ({
   setAutoSpin: (autoSpin) => set({ autoSpin }),
   setLastSimulationScore: (lastSimulationScore) => set({ lastSimulationScore }),
   setLeaderboardOpen: (leaderboardOpen) => set({ leaderboardOpen }),
+  setCinematicPlaying: (isCinematicPlaying) => set({ isCinematicPlaying }),
 }))
