@@ -177,7 +177,7 @@ export default function CinematicIntro({
     return hurricane.track.length * 6
   }, [hurricane.track])
   
-  const { state, start } = useCinematicController(durationHours, onComplete, 10)
+  const { state, start, stop } = useCinematicController(durationHours, onComplete, 10)
   const hasStartedRef = useRef(false)
   
   useEffect(() => {
@@ -186,6 +186,24 @@ export default function CinematicIntro({
       start()
     }
   }, [start])
+  
+  // Auto-exit after 10 seconds
+  useEffect(() => {
+    if (state.isPlaying && state.phase === 'playing') {
+      const timer = setTimeout(() => {
+        console.log('Auto-exiting animation after 10 seconds')
+        stop()
+        onComplete()
+      }, 10000) // 10 seconds
+      return () => clearTimeout(timer)
+    }
+  }, [state.isPlaying, state.phase, stop, onComplete])
+  
+  const handleExitAnimation = () => {
+    console.log('Exit button clicked')
+    stop()
+    onComplete()
+  }
   
   // Calculate current storm position with smooth interpolation
   const currentStormPosition = useMemo(() => {
