@@ -23,11 +23,12 @@ export interface CinematicState {
   phase: 'fadeIn' | 'playing' | 'fadeOut' | 'complete'
 }
 
-const TIME_SCALE = 0.5 // 1 second = 30 minutes = 0.5 hours
+const TIME_SCALE = 0.5 // 1 second = 30 minutes = 0.5 hours (not used for fixed duration)
 
 export function useCinematicController(
   durationHours: number,
-  onComplete: () => void
+  onComplete: () => void,
+  fixedDurationSeconds: number = 10
 ) {
   const [state, setState] = useState<CinematicState>({
     isPlaying: false,
@@ -42,9 +43,9 @@ export function useCinematicController(
   const isRunningRef = useRef<boolean>(false)
   
   const start = useCallback(() => {
-    const fadeInDuration = 1000 // 1 second fade in
-    const fadeOutDuration = 2000 // 2 second fade out
-    const playDuration = (durationHours / TIME_SCALE) * 1000 // Convert hours to ms
+    const fadeInDuration = 500 // 0.5 second fade in
+    const fadeOutDuration = 1000 // 1 second fade out
+    const playDuration = fixedDurationSeconds * 1000 // Fixed duration in ms
     
     // Cancel any existing animation
     if (animationFrameRef.current) {
@@ -86,6 +87,7 @@ export function useCinematicController(
             return { ...prev, phase: 'fadeOut', progress: 0 }
           }
           
+          // Scale time to fit within fixed duration
           const currentTime = playProgress * durationHours
           return {
             ...prev,
@@ -116,7 +118,7 @@ export function useCinematicController(
     
     // Start the animation loop
     animationFrameRef.current = requestAnimationFrame(animate)
-  }, [durationHours, onComplete])
+  }, [durationHours, onComplete, fixedDurationSeconds])
   
   const stop = useCallback(() => {
     if (animationFrameRef.current) {

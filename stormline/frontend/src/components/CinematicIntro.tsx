@@ -129,7 +129,7 @@ export default function CinematicIntro({
     return hurricane.track.length * 6
   }, [hurricane.track])
   
-  const { state, start } = useCinematicController(durationHours, onComplete)
+  const { state, start } = useCinematicController(durationHours, onComplete, 10)
   
   useEffect(() => {
     start()
