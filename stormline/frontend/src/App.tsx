@@ -26,7 +26,7 @@ function App() {
   } = useStore()
   
   const [loading, setLoading] = useState(true)
-  const [activeTab, setActiveTab] = useState<'projects' | 'flagged' | 'allocation' | 'simulation'>('simulation')
+  const [activeTab, setActiveTab] = useState<'projects' | 'flagged' | 'simulation'>('simulation')
   
   useEffect(() => {
     const fetchHurricanes = async () => {
@@ -179,16 +179,6 @@ function App() {
               Flagged
             </button>
             <button
-              onClick={() => setActiveTab('allocation')}
-              className={`flex-1 py-2 px-4 text-sm font-medium transition-all font-orbitron ${
-                activeTab === 'allocation'
-                  ? 'border-b-2 border-cyan-400 text-cyan-300 text-glow-cyan bg-cyan-500/10'
-                  : 'text-cyan-400/60 hover:text-cyan-300 hover:bg-cyan-500/5'
-              }`}
-            >
-              Simulator
-            </button>
-            <button
               onClick={() => setActiveTab('simulation')}
               className={`flex-1 py-2 px-4 text-sm font-medium transition-all font-orbitron ${
                 activeTab === 'simulation'
@@ -204,7 +194,6 @@ function App() {
           <div className="flex-1 overflow-hidden p-4">
             {activeTab === 'projects' && <ProjectTable />}
             {activeTab === 'flagged' && <FlaggedProjects />}
-            {activeTab === 'allocation' && <AllocationPanel />}
             {activeTab === 'simulation' && <SimulationEngine />}
           </div>
         </div>

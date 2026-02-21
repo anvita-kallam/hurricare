@@ -57,6 +57,8 @@ export default function SimulationEngine() {
   const [mismatchAnalysis, setMismatchAnalysis] = useState<any>(null)
   const [loading, setLoading] = useState(false)
   const [validation, setValidation] = useState<{valid: boolean, errors: string[], warnings: string[]} | null>(null)
+  const [quickSimResult, setQuickSimResult] = useState<any>(null)
+  const [showQuickSim, setShowQuickSim] = useState(false)
 
   useEffect(() => {
     if (selectedHurricane) {
@@ -332,13 +334,83 @@ export default function SimulationEngine() {
               </div>
             )}
 
-            <button
-              onClick={validateUserPlan}
-              disabled={loading}
-              className="w-full mt-4 bg-cyan-600 text-white py-2 px-4 rounded hover:bg-cyan-700 disabled:bg-gray-600 disabled:text-gray-400 glow-cyan transition-all font-semibold font-orbitron"
-            >
-              {loading ? 'Validating...' : 'Validate & Proceed to Stage 2'}
-            </button>
+            <div className="flex gap-2 mt-4">
+              <button
+                onClick={async () => {
+                  if (!selectedHurricane) return
+                  setLoading(true)
+                  try {
+                    const response = await axios.post(`${API_BASE}/simulate_allocation`, {
+                      hurricane_id: selectedHurricane.id,
+                      allocations: userAllocations
+                    })
+                    setQuickSimResult(response.data)
+                    setShowQuickSim(true)
+                  } catch (error) {
+                    console.error('Quick simulation error:', error)
+                  } finally {
+                    setLoading(false)
+                  }
+                }}
+                disabled={loading}
+                className="flex-1 bg-purple-600 text-white py-2 px-4 rounded hover:bg-purple-700 disabled:bg-gray-600 disabled:text-gray-400 glow-purple transition-all font-semibold font-orbitron"
+              >
+                {loading ? 'Simulating...' : 'Quick Simulate'}
+              </button>
+              <button
+                onClick={validateUserPlan}
+                disabled={loading}
+                className="flex-1 bg-cyan-600 text-white py-2 px-4 rounded hover:bg-cyan-700 disabled:bg-gray-600 disabled:text-gray-400 glow-cyan transition-all font-semibold font-orbitron"
+              >
+                {loading ? 'Validating...' : 'Proceed to Stage 2'}
+              </button>
+            </div>
+
+            {showQuickSim && quickSimResult && (
+              <div className="mt-4 p-4 bg-purple-500/10 border border-purple-500/30 rounded space-y-3 glow-purple backdrop-blur-sm">
+                <div className="flex justify-between items-center mb-2">
+                  <h3 className="font-semibold text-glow-purple font-orbitron">Quick Simulation Results</h3>
+                  <button
+                    onClick={() => setShowQuickSim(false)}
+                    className="text-purple-300 hover:text-purple-100 text-sm font-exo"
+                  >
+                    ✕
+                  </button>
+                </div>
+                
+                <div className="pb-2 border-b border-purple-500/30">
+                  <div className="text-lg font-bold text-glow-purple font-orbitron">
+                    Impact Score: {quickSimResult.impact_score?.toFixed(0) || 'N/A'}
+                  </div>
+                </div>
+
+                <div className="space-y-2 text-sm font-exo">
+                  <div className="flex justify-between">
+                    <span className="text-purple-200">Lives Covered:</span>
+                    <span className="text-purple-300 font-orbitron">{quickSimResult.lives_covered?.toLocaleString() || 0}</span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span className="text-purple-200">Vulnerability Reduction:</span>
+                    <span className="text-purple-300 font-orbitron">{quickSimResult.vulnerability_reduction?.toFixed(2) || 0}</span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span className="text-purple-200">Unmet Need:</span>
+                    <span className="text-purple-300 font-orbitron">{quickSimResult.unmet_need?.toLocaleString() || 0}</span>
+                  </div>
+                  {quickSimResult.comparison && (
+                    <div className="mt-3 pt-3 border-t border-purple-500/30">
+                      <div className="text-xs text-purple-300/70 mb-1">Comparison to Current:</div>
+                      <div className="flex justify-between">
+                        <span className="text-purple-200">Improvement:</span>
+                        <span className={`font-orbitron ${quickSimResult.comparison.improvement > 0 ? 'text-green-400' : 'text-red-400'}`}>
+                          {quickSimResult.comparison.improvement > 0 ? '+' : ''}{quickSimResult.comparison.improvement?.toFixed(0) || 0} lives
+                        </span>
+                      </div>
+                    </div>
+                  )}
+                </div>
+              </div>
+            )}
           </div>
         </div>
       )}
