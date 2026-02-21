@@ -910,11 +910,12 @@ export default function SimulationEngine({ onStartSimulation }: SimulationEngine
         </div>
       )}
 
-      {/* Comparison Dashboard */}
+      {/* Comparison Dashboard - Full Screen */}
       {stage === 'comparison' && userPlan && mlPlan && realPlan && (
-        <div className="flex-1 space-y-4">
-          <div className="bg-black/60 p-4 rounded border border-cyan-500/20">
-            <h3 className="text-xl font-semibold mb-4 text-cyan-200 font-orbitron">Comparison Dashboard</h3>
+        <div className="fixed inset-0 z-50 bg-black overflow-y-auto">
+          <div className="max-w-[1920px] mx-auto p-6 space-y-6">
+            <div className="bg-black/80 p-6 rounded-lg border-2 border-cyan-500/50 glow-cyan">
+              <h3 className="text-3xl font-bold mb-6 text-cyan-200 font-orbitron">Comparison Dashboard</h3>
             
             {/* Narrative Summary */}
             {mismatchAnalysis?.narrative && (
