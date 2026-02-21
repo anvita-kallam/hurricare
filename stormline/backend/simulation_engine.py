@@ -357,18 +357,22 @@ class SimulationEngine:
             people_in_need = region_data["people_in_need"]
             severity = region_data["severity_index"]
             
-            native_capacity = (
-                native_res.shelters * 50 +
-                native_res.hospital_beds * 1 +
-                native_res.responder_units * 10
-            )
-            budget_coverage = budget / self.cost_per_person
-            total_coverage = min(budget_coverage + native_capacity, people_in_need)
-            coverage_ratio = total_coverage / people_in_need if people_in_need > 0 else 0
+            # Use CSV people count if available, otherwise calculate
+            if cluster_allocations and i < len(region_people):
+                people_covered = min(int(region_people[i]), people_in_need)
+            else:
+                native_capacity = (
+                    native_res.shelters * 50 +
+                    native_res.hospital_beds * 1 +
+                    native_res.responder_units * 10
+                )
+                budget_coverage = budget / self.cost_per_person
+                people_covered = min(int(budget_coverage + native_capacity), people_in_need)
             
-            total_lives_saved += total_coverage
-            total_equity_score += coverage_ratio * equity_scores[i]
-            total_efficiency += budget / total_coverage if total_coverage > 0 else 0
+            coverage_ratio = people_covered / people_in_need if people_in_need > 0 else 0
+            
+            total_lives_saved += people_covered
+            total_efficiency += budget / people_covered if people_covered > 0 else 0
             
             coverage_estimate = {
                 "people_covered": int(total_coverage),
