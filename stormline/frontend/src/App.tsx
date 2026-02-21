@@ -35,6 +35,8 @@ function App() {
     setCinematicCompleted,
     narrativePopup,
     setNarrativePopup,
+    showComparisonPage,
+    setShowComparisonPage,
   } = useStore()
   
   const [loading, setLoading] = useState(true)
