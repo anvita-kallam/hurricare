@@ -252,14 +252,26 @@ class SimulationEngine:
         current_coverage = self._get_current_coverage(hurricane_id, [r["admin1"] for r in regions])
         equity_scores = 1.0 / (current_coverage + 0.1)  # Inverse, avoid division by zero
         
-        # Objective function: maximize UN values
+        # Ensure minimum allocation per region (at least 1% of budget per region, minimum $10,000)
+        min_allocation_per_region = max(total_budget * 0.01 / n_regions, 10000)
+        total_min_allocation = min_allocation_per_region * n_regions
+        
+        # If minimum allocations exceed budget, scale them down proportionally
+        if total_min_allocation > total_budget:
+            min_allocation_per_region = total_budget / n_regions
+            total_min_allocation = total_budget
+        
+        # Remaining budget after minimum allocations
+        remaining_budget = total_budget - total_min_allocation
+        
+        # Objective function: maximize UN values for remaining budget
         # Combined score = w1*humanity + w2*impartiality + w3*equity
         # Humanity: lives saved
         # Impartiality: severity-weighted coverage
         # Equity: favor underfunded regions
         
         # We want to maximize: sum(allocations[i] * (w1 + w2*severity[i] + w3*equity[i]))
-        # Subject to: sum(allocations) <= total_budget
+        # Subject to: sum(allocations) <= remaining_budget
         
         # Linear programming approach
         # Maximize: c^T * x
@@ -272,23 +284,26 @@ class SimulationEngine:
             self.un_weights["equity"] * equity_scores
         )
         
-        # Constraint: sum of allocations <= total_budget
+        # Constraint: sum of additional allocations <= remaining_budget
         A_ub = np.ones((1, n_regions))
-        b_ub = [total_budget]
+        b_ub = [remaining_budget]
         
-        # Bounds: allocations >= 0
+        # Bounds: additional allocations >= 0
         bounds = [(0, None) for _ in range(n_regions)]
         
         # Solve
         result = linprog(c, A_ub=A_ub, b_ub=b_ub, bounds=bounds, method='highs')
         
-        if not result.success:
+        if not result.success or remaining_budget <= 0:
             # Fallback: proportional allocation weighted by severity and vulnerability
             weights = severity * people_in_need * equity_scores
             weights = weights / weights.sum() if weights.sum() > 0 else np.ones(n_regions) / n_regions
-            optimal_allocations = weights * total_budget
+            additional_allocations = weights * remaining_budget
         else:
-            optimal_allocations = result.x
+            additional_allocations = result.x
+        
+        # Final allocations = minimum + additional optimized allocations
+        optimal_allocations = min_allocation_per_region + additional_allocations
         
         # Build plan
         region_allocations = []
