@@ -63,7 +63,12 @@ export function useCinematicController(
     phaseStartTimeRef.current = Date.now()
     
     const animate = () => {
-      if (!isRunningRef.current) return
+      if (!isRunningRef.current) {
+        if (animationFrameRef.current) {
+          cancelAnimationFrame(animationFrameRef.current)
+        }
+        return
+      }
       
       const now = Date.now()
       const phaseStart = phaseStartTimeRef.current || now
