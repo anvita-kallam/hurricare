@@ -4,6 +4,7 @@ import { Suspense, useEffect, useRef } from 'react'
 import { useFrame } from '@react-three/fiber'
 import * as THREE from 'three'
 import HurricaneLayer from './HurricaneLayer'
+import OverlayLayer from './OverlayLayer'
 import { useStore } from '../state/useStore'
 
 function Earth() {
@@ -114,6 +115,7 @@ export default function Globe() {
           <Earth />
           <Stars radius={500} depth={100} count={30000} factor={12} fade speed={0.5} />
           <HurricaneLayer />
+          <OverlayLayer />
           <CameraController />
         </Suspense>
       </Canvas>
