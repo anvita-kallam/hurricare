@@ -124,9 +124,25 @@ export function useCinematicController(
         return prev
       })
       
-      // Continue animation loop if still running
+      // Continue animation loop if still running AND not complete
       if (isRunningRef.current) {
-        animationFrameRef.current = requestAnimationFrame(animate)
+        // Check if we should stop
+        setState(currentState => {
+          if (currentState.phase === 'complete') {
+            isRunningRef.current = false
+            if (animationFrameRef.current) {
+              cancelAnimationFrame(animationFrameRef.current)
+            }
+            return currentState
+          }
+          animationFrameRef.current = requestAnimationFrame(animate)
+          return currentState
+        })
+      } else {
+        // Stop immediately if not running
+        if (animationFrameRef.current) {
+          cancelAnimationFrame(animationFrameRef.current)
+        }
       }
     }
     
