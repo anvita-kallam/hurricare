@@ -1179,6 +1179,7 @@ export default function SimulationEngine({ onStartSimulation }: SimulationEngine
             </button>
             </div>
           </div>
+          </div>
         </div>
       )}
     </>
