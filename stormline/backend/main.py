@@ -111,6 +111,19 @@ def get_affected_regions(hurricane_id: str):
     return {"regions": regions}
 
 
+@app.get("/simulation/total-budget/{hurricane_id}")
+def get_total_budget(hurricane_id: str):
+    """Get total pooled fund budget for a hurricane."""
+    query = """
+        SELECT SUM(CASE WHEN pooled_fund = true THEN budget_usd ELSE 0 END) as total_budget
+        FROM projects
+        WHERE hurricane_id = ?
+    """
+    result = db.execute(query, [hurricane_id]).fetchone()
+    total_budget = result[0] if result and result[0] else 0
+    return {"total_budget": float(total_budget)}
+
+
 @app.post("/simulation/stage1/user-plan", response_model=SimulationPlan)
 def create_user_plan(request: UserPlanRequest):
     """Stage 1: Create user-designed response plan."""

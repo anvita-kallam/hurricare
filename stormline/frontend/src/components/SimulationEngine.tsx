@@ -68,12 +68,17 @@ export default function SimulationEngine() {
     if (!selectedHurricane) return
     
     try {
-      const res = await axios.get(`${API_BASE}/simulation/regions/${selectedHurricane.id}`)
-      setRegions(res.data.regions)
+      const [regionsRes, budgetRes] = await Promise.all([
+        axios.get(`${API_BASE}/simulation/regions/${selectedHurricane.id}`),
+        axios.get(`${API_BASE}/simulation/total-budget/${selectedHurricane.id}`)
+      ])
+      
+      setRegions(regionsRes.data.regions)
+      setTotalBudget(budgetRes.data.total_budget)
       
       // Initialize allocations to zero
       const initial: Record<string, number> = {}
-      res.data.regions.forEach((r: AffectedRegion) => {
+      regionsRes.data.regions.forEach((r: AffectedRegion) => {
         initial[r.admin1] = 0
       })
       setUserAllocations(initial)
@@ -83,10 +88,28 @@ export default function SimulationEngine() {
   }
 
   const handleAllocationChange = (region: string, value: number) => {
-    setUserAllocations(prev => ({
-      ...prev,
-      [region]: Math.max(0, value)
-    }))
+    setUserAllocations(prev => {
+      const newAllocations = { ...prev }
+      const currentTotal = Object.values(prev).reduce((sum, v) => sum + (v || 0), 0)
+      const currentRegionValue = prev[region] || 0
+      const newTotal = currentTotal - currentRegionValue + value
+      
+      // Prevent exceeding total budget
+      if (newTotal > totalBudget) {
+        // Allow up to the remaining budget
+        const remaining = totalBudget - (currentTotal - currentRegionValue)
+        newAllocations[region] = Math.max(0, Math.min(value, remaining))
+      } else {
+        newAllocations[region] = Math.max(0, value)
+      }
+      
+      return newAllocations
+    })
+  }
+  
+  const getRemainingBudget = () => {
+    const allocated = Object.values(userAllocations).reduce((sum, v) => sum + (v || 0), 0)
+    return totalBudget - allocated
   }
 
   const validateUserPlan = async () => {
@@ -225,14 +248,25 @@ export default function SimulationEngine() {
             <h3 className="text-lg font-semibold mb-4 text-cyan-200 font-orbitron">Design Your Response Plan</h3>
             
             <div className="space-y-4 mb-4">
-              <div>
-                <label className="block text-sm font-medium mb-2 text-cyan-200 font-exo">Total Budget (USD)</label>
-                <input
-                  type="number"
-                  value={totalBudget}
-                  onChange={(e) => setTotalBudget(Number(e.target.value))}
-                  className="w-full border border-cyan-500/30 rounded px-3 py-2 bg-black/60 text-cyan-200 focus:border-cyan-400 focus:glow-cyan font-exo"
-                />
+              <div className="bg-cyan-500/10 border border-cyan-500/30 p-3 rounded">
+                <div className="flex justify-between items-center mb-2">
+                  <label className="text-sm font-medium text-cyan-200 font-exo">Total Budget (Actual Funding)</label>
+                  <span className="text-lg font-semibold text-cyan-300 font-orbitron">
+                    ${totalBudget.toLocaleString()}
+                  </span>
+                </div>
+                <div className="flex justify-between items-center text-xs">
+                  <span className="text-cyan-300/70 font-exo">Allocated:</span>
+                  <span className="text-cyan-300 font-orbitron">
+                    ${Object.values(userAllocations).reduce((sum, v) => sum + (v || 0), 0).toLocaleString()}
+                  </span>
+                </div>
+                <div className="flex justify-between items-center text-xs mt-1">
+                  <span className="text-cyan-300/70 font-exo">Remaining:</span>
+                  <span className={`font-orbitron ${getRemainingBudget() < 0 ? 'text-red-400' : 'text-cyan-300'}`}>
+                    ${getRemainingBudget().toLocaleString()}
+                  </span>
+                </div>
               </div>
               
               <div>
@@ -263,7 +297,7 @@ export default function SimulationEngine() {
                   <input
                     type="range"
                     min="0"
-                    max={totalBudget}
+                    max={Math.min(totalBudget, (userAllocations[region.admin1] || 0) + getRemainingBudget())}
                     step={10000}
                     value={userAllocations[region.admin1] || 0}
                     onChange={(e) => handleAllocationChange(region.admin1, Number(e.target.value))}
