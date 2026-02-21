@@ -58,7 +58,11 @@ export function useCinematicController(
     })
     phaseStartTimeRef.current = Date.now()
     
+    let isRunning = true
+    
     const animate = () => {
+      if (!isRunning) return
+      
       const now = Date.now()
       const phaseStart = phaseStartTimeRef.current || now
       const elapsed = now - phaseStart
@@ -91,6 +95,7 @@ export function useCinematicController(
         
         if (prev.phase === 'fadeOut') {
           if (elapsed >= fadeOutDuration) {
+            isRunning = false
             onComplete()
             return { ...prev, phase: 'complete', isPlaying: false }
           }
@@ -98,16 +103,14 @@ export function useCinematicController(
         }
         
         // Complete phase - stop animation
+        isRunning = false
         return prev
       })
       
-      // Continue animation loop
-      setState(currentState => {
-        if (currentState.phase !== 'complete' && currentState.isPlaying) {
-          animationFrameRef.current = requestAnimationFrame(animate)
-        }
-        return currentState
-      })
+      // Continue animation loop if still running
+      if (isRunning) {
+        animationFrameRef.current = requestAnimationFrame(animate)
+      }
     }
     
     // Start the animation loop
