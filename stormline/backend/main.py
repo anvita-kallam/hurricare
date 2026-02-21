@@ -89,6 +89,123 @@ def get_hurricanes():
     return hurricanes
 
 
+@app.get("/hurricanes/match")
+def find_matching_hurricane(region: str, category: int):
+    """Find the hurricane that most closely matches the given region and category."""
+    global db, sim_engine
+    with db_lock:
+        try:
+            result = db.execute("SELECT * FROM hurricanes")
+            results = result.fetchall()
+            result.close()
+        except Exception as e:
+            print(f"Database error in find_matching_hurricane: {e}, reinitializing...")
+            db = initialize_database()
+            sim_engine = SimulationEngine(db)
+            result = db.execute("SELECT * FROM hurricanes")
+            results = result.fetchall()
+            result.close()
+    
+    hurricanes = []
+    for row in results:
+        hurricanes.append({
+            "id": row[0],
+            "name": row[1],
+            "year": row[2],
+            "max_category": row[3],
+            "track": json.loads(row[4]),
+            "affected_countries": json.loads(row[5]),
+            "estimated_population_affected": row[6]
+        })
+    
+    # Normalize region input (case-insensitive, partial matching)
+    region_lower = region.lower().strip()
+    
+    # Score each hurricane
+    scored_hurricanes = []
+    for h in hurricanes:
+        score = 0
+        
+        # Category match (exact match = 100 points, within 1 = 50 points, within 2 = 25 points)
+        category_diff = abs(h["max_category"] - category)
+        if category_diff == 0:
+            score += 100
+        elif category_diff == 1:
+            score += 50
+        elif category_diff == 2:
+            score += 25
+        
+        # Region match (check if region appears in affected countries)
+        # Exact match = 100 points, partial match = 50 points
+        countries_lower = [c.lower() for c in h["affected_countries"]]
+        region_found = False
+        
+        # Check for exact country name match
+        for country in countries_lower:
+            if region_lower == country:
+                score += 100
+                region_found = True
+                break
+            # Check for partial match (region name contains country or vice versa)
+            if region_lower in country or country in region_lower:
+                score += 50
+                region_found = True
+                break
+        
+        # Also check common region aliases
+        region_aliases = {
+            "us": ["united states", "usa"],
+            "usa": ["united states", "us"],
+            "united states": ["us", "usa"],
+            "caribbean": ["jamaica", "bahamas", "cuba", "haiti", "dominican republic", "puerto rico", "barbados", "grenada"],
+            "gulf coast": ["united states", "mexico"],
+            "east coast": ["united states"],
+            "southeast": ["united states"],
+            "philippines": ["philippines"],
+            "china": ["china", "hong kong", "taiwan"],
+            "japan": ["japan"],
+            "india": ["india", "bangladesh", "sri lanka"],
+        }
+        
+        if not region_found:
+            for alias, countries in region_aliases.items():
+                if region_lower == alias.lower():
+                    for country in countries_lower:
+                        if country in countries:
+                            score += 75
+                            region_found = True
+                            break
+                    if region_found:
+                        break
+        
+        # Prefer more recent hurricanes (add small bonus for recent years)
+        year_bonus = max(0, (h["year"] - 2000) * 0.5)
+        score += year_bonus
+        
+        scored_hurricanes.append({
+            "hurricane": h,
+            "score": score,
+            "category_match": category_diff == 0,
+            "region_match": region_found
+        })
+    
+    # Sort by score (highest first)
+    scored_hurricanes.sort(key=lambda x: x["score"], reverse=True)
+    
+    if not scored_hurricanes:
+        return {"error": "No hurricanes found"}
+    
+    best_match = scored_hurricanes[0]
+    
+    return {
+        "match": best_match["hurricane"],
+        "score": best_match["score"],
+        "category_match": best_match["category_match"],
+        "region_match": best_match["region_match"],
+        "alternatives": [s["hurricane"] for s in scored_hurricanes[1:4]]  # Top 3 alternatives
+    }
+
+
 @app.get("/projects", response_model=List[Project])
 def get_projects(hurricane_id: Optional[str] = None):
     """Get projects, optionally filtered by hurricane_id."""
