@@ -199,10 +199,6 @@ function App() {
         />
       )}
       
-      {/* Show Comparison Page if active */}
-      {showComparisonPage ? (
-        <ComparisonPage />
-      ) : (
       <div 
         className="w-screen h-screen flex flex-col bg-black relative" 
         style={{ 
