@@ -73,7 +73,6 @@ function App() {
         <div className="flex items-center justify-between">
           <div>
             <h1 className="text-3xl font-bold text-glow-cyan font-orbitron">StormLine</h1>
-            <p className="text-sm text-cyan-300/80 font-exo">Geo-Insight Challenge: Humanitarian Need vs Pooled-Fund Coverage</p>
           </div>
           <div className="flex items-center gap-4">
             <label className="flex items-center gap-2 cursor-pointer text-cyan-200 hover:text-cyan-100 transition">
