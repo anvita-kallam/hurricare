@@ -1,6 +1,13 @@
 import { useState, useEffect, useMemo } from 'react'
 import axios from 'axios'
 import { useStore } from '../state/useStore'
+import { 
+  FundingVsNeedHeatmap, 
+  CoverageGapChart, 
+  RegionalHeatmap, 
+  OutcomeRadarChart,
+  SeverityVsFundingScatter 
+} from './DataVisualizations'
 
 const API_BASE = 'http://localhost:8000'
 
@@ -743,7 +750,7 @@ export default function SimulationEngine() {
 
       {/* Stage 3: Real-World Response */}
       {stage === 3 && realPlan && (
-        <div className="flex-1 space-y-4">
+        <div className="flex-1 space-y-4 overflow-y-auto">
           <div className="bg-black/60 p-4 rounded border border-cyan-500/20">
             <h3 className="text-lg font-semibold mb-4 text-cyan-200 font-orbitron">Real-World Historical Response</h3>
             
@@ -766,6 +773,29 @@ export default function SimulationEngine() {
                   </div>
                 ))}
               </div>
+
+              {/* Data Visualizations for Real-World */}
+              {userPlan && mlPlan && (
+                <div className="space-y-4 mt-6">
+                  <FundingVsNeedHeatmap 
+                    userPlan={userPlan} 
+                    mlPlan={mlPlan} 
+                    realPlan={realPlan} 
+                  />
+                  
+                  <SeverityVsFundingScatter 
+                    userPlan={userPlan} 
+                    mlPlan={mlPlan} 
+                    realPlan={realPlan} 
+                  />
+                  
+                  <RegionalHeatmap 
+                    userPlan={userPlan} 
+                    mlPlan={mlPlan} 
+                    realPlan={realPlan} 
+                  />
+                </div>
+              )}
 
               <button
                 onClick={() => setStage('comparison')}
@@ -909,6 +939,40 @@ export default function SimulationEngine() {
                 </div>
               </div>
             )}
+
+            {/* Data Visualizations */}
+            <div className="space-y-4 mb-6">
+              <FundingVsNeedHeatmap 
+                userPlan={userPlan} 
+                mlPlan={mlPlan} 
+                realPlan={realPlan} 
+              />
+              
+              <CoverageGapChart 
+                userPlan={userPlan} 
+                mlPlan={mlPlan} 
+                realPlan={realPlan} 
+              />
+              
+              <OutcomeRadarChart 
+                userPlan={userPlan} 
+                mlPlan={mlPlan} 
+                realPlan={realPlan}
+                mismatchAnalysis={mismatchAnalysis}
+              />
+              
+              <SeverityVsFundingScatter 
+                userPlan={userPlan} 
+                mlPlan={mlPlan} 
+                realPlan={realPlan} 
+              />
+              
+              <RegionalHeatmap 
+                userPlan={userPlan} 
+                mlPlan={mlPlan} 
+                realPlan={realPlan} 
+              />
+            </div>
 
             {/* Regional Comparison Table */}
             <div className="mb-6">
