@@ -263,14 +263,18 @@ export default function SimulationEngine() {
     try {
       const res = await axios.post(`${API_BASE}/simulation/stage2/ml-ideal-plan`, {
         hurricane_id: selectedHurricane.id,
+        allocations: {}, // Empty - not used for ML plan
         total_budget: totalBudget,
         response_window_hours: responseWindow
       })
       
       setMlPlan(res.data)
       // Stay on Stage 2 to show the ML plan
-    } catch (error) {
+    } catch (error: any) {
       console.error('Error generating ML plan:', error)
+      if (error.response) {
+        console.error('Response data:', error.response.data)
+      }
       setValidation({
         valid: false,
         errors: ['Failed to generate ML plan. Please try again.'],
