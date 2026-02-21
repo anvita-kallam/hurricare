@@ -382,8 +382,13 @@ export default function SimulationEngine() {
           </div>
           <button
             onClick={() => {
-              setCinematicPlaying(true)
-              setCinematicCompleted(false)
+              if (onStartSimulation) {
+                onStartSimulation()
+              } else if (selectedHurricane) {
+                // Fallback: trigger directly if no callback provided
+                setCinematicPlaying(true)
+                setCinematicCompleted(false)
+              }
             }}
             className="px-8 py-4 rounded-lg bg-cyan-600 hover:bg-cyan-500 text-white font-bold font-orbitron text-lg transition glow-cyan"
           >
