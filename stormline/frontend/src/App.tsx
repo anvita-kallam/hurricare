@@ -330,7 +330,6 @@ function App() {
         </div>
       </div>
       )}
-    </div>
     </>
   )
 }
