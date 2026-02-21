@@ -303,7 +303,7 @@ function App() {
         {/* Right Sidebar - Game Panel */}
         <div className="w-96 bg-black/70 backdrop-blur-sm border-l border-cyan-500/30 flex flex-col glow-cyan">
           <div className="flex-1 overflow-hidden p-4">
-            <SimulationEngine />
+            <SimulationEngine onStartSimulation={handleStartSimulation} />
           </div>
         </div>
       </div>
