@@ -51,7 +51,7 @@ export default function IntroScreen({ onEnter, isLoading }: IntroScreenProps) {
           `,
           backgroundSize: '200px 200px',
           backgroundRepeat: 'repeat',
-          opacity: 1.0,
+          opacity: 0.9,
           animation: 'sparkle 20s linear infinite'
         }} />
         
@@ -67,22 +67,20 @@ export default function IntroScreen({ onEnter, isLoading }: IntroScreenProps) {
           `,
           backgroundSize: '300px 300px',
           backgroundRepeat: 'repeat',
-          opacity: 0.9,
+          opacity: 0.6,
           animation: 'sparkle 15s linear infinite reverse'
         }} />
 
         {/* Galaxy spiral effect */}
-        <div className="absolute inset-0" style={{
-          background: `radial-gradient(ellipse 80% 50% at 50% 50%, rgba(168, 85, 247, 0.6) 0%, rgba(6, 182, 212, 0.5) 30%, transparent 70%)`,
-          opacity: 0.5,
+        <div className="absolute inset-0 opacity-30" style={{
+          background: `radial-gradient(ellipse 80% 50% at 50% 50%, rgba(168, 85, 247, 0.4) 0%, rgba(6, 182, 212, 0.3) 30%, transparent 70%)`,
           animation: 'rotate 60s linear infinite'
         }} />
         
         {/* Additional nebula effect */}
-        <div className="absolute inset-0" style={{
-          background: `radial-gradient(ellipse 60% 40% at 20% 30%, rgba(6, 182, 212, 0.5) 0%, transparent 50%),
-                       radial-gradient(ellipse 50% 60% at 80% 70%, rgba(168, 85, 247, 0.5) 0%, transparent 50%)`,
-          opacity: 0.4,
+        <div className="absolute inset-0 opacity-20" style={{
+          background: `radial-gradient(ellipse 60% 40% at 20% 30%, rgba(6, 182, 212, 0.3) 0%, transparent 50%),
+                       radial-gradient(ellipse 50% 60% at 80% 70%, rgba(168, 85, 247, 0.3) 0%, transparent 50%)`,
           animation: 'pulse 8s ease-in-out infinite'
         }} />
       </div>
@@ -91,19 +89,19 @@ export default function IntroScreen({ onEnter, isLoading }: IntroScreenProps) {
       <div className="relative z-10 flex flex-col items-center justify-center h-full">
         <div className="text-center space-y-8">
           {/* Title */}
-          <h1 className="text-7xl font-bold text-glow-cyan font-orbitron mb-4 animate-pulse">
+          <h1 className="text-7xl font-bold text-glow-cyan font-orbitron mb-4 animate-pulse" style={{ opacity: 1 }}>
             STORMLINE
           </h1>
           
           {/* Subtitle */}
-          <p className="text-2xl text-cyan-300 font-exo mb-12">
+          <p className="text-2xl text-cyan-300 font-exo mb-12" style={{ opacity: 1 }}>
             Humanitarian Response Simulation
           </p>
 
           {/* Loading or Button */}
           {isLoading ? (
             <div className="space-y-4">
-              <div className="text-3xl font-orbitron text-glow-cyan">
+              <div className="text-3xl font-orbitron text-glow-cyan" style={{ opacity: 1 }}>
                 {loadingText}{dots}
               </div>
               <div className="flex justify-center">
@@ -132,12 +130,8 @@ export default function IntroScreen({ onEnter, isLoading }: IntroScreenProps) {
           to { transform: rotate(360deg); }
         }
         @keyframes pulse {
-          0%, 100% { opacity: 0.4; }
-          50% { opacity: 0.6; }
-        }
-        @keyframes sparkle {
-          0%, 100% { opacity: 0.9; }
-          50% { opacity: 1.0; }
+          0%, 100% { opacity: 0.2; }
+          50% { opacity: 0.4; }
         }
       `}</style>
     </div>
