@@ -331,6 +331,52 @@ export default function CinematicIntro({
                     radius={0.08 + stormIntensity * 0.05}
                   />
                   
+                  {/* Track point info callouts - show info at key points along the track */}
+                  {hurricane.track.map((point, i) => {
+                    // Show info at every 5th point or at significant wind speed changes
+                    const shouldShow = i % 5 === 0 || (i > 0 && Math.abs(point.wind - hurricane.track[i - 1].wind) > 20)
+                    if (!shouldShow) return null
+                    
+                    const pointPosition = latLonToVector3(point.lat, point.lon, 1.02)
+                    
+                    // Calculate approximate time for this point (assuming uniform distribution)
+                    const totalPoints = hurricane.track.length
+                    const pointProgress = i / totalPoints
+                    const pointTime = pointProgress * 24 // Assuming 24 hour animation
+                    const timeDiff = Math.abs(state.currentTime - pointTime)
+                    
+                    // Show callout when we're within 1 hour of this point
+                    if (timeDiff > 1) return null
+                    
+                    const fadeOpacity = state.phase === 'playing' ? 1 : 0
+                    const pointOpacity = Math.max(0, 1 - timeDiff) * fadeOpacity
+                    
+                    // Determine category from wind speed
+                    const getCategory = (wind: number) => {
+                      if (wind >= 157) return 5
+                      if (wind >= 130) return 4
+                      if (wind >= 111) return 3
+                      if (wind >= 96) return 2
+                      if (wind >= 74) return 1
+                      return 0
+                    }
+                    
+                    const category = getCategory(point.wind)
+                    
+                    return (
+                      <TrackPointCallout
+                        key={`track-${i}`}
+                        position={pointPosition}
+                        windSpeed={point.wind}
+                        category={category}
+                        lat={point.lat}
+                        lon={point.lon}
+                        visible={timeDiff <= 1}
+                        opacity={pointOpacity}
+                      />
+                    )
+                  })}
+                  
                   {visibleEvents.map((event, i) => {
                     const eventPosition = latLonToVector3(
                       event.location.lat,
