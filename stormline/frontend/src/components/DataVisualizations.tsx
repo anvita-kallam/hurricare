@@ -46,7 +46,7 @@ export function FundingVsNeedHeatmap({ userPlan, mlPlan, realPlan }: Visualizati
       const mlAlloc = mlPlan.allocations.find((a: any) => a.region === realAlloc.region)
       
       const need = realAlloc.coverage_estimate?.people_in_need || 0
-      const severity = realAlloc.coverage_estimate?.severity_weighted_impact || 0.5
+      const severity = realAlloc.coverage_estimate?.severity_weighted_impact || realAlloc.coverage_estimate?.coverage_ratio || 0.5
       
       data.push({
         region: realAlloc.region,
@@ -302,7 +302,7 @@ export function SeverityVsFundingScatter({ userPlan, mlPlan, realPlan }: Visuali
       const userAlloc = userPlan.allocations.find((a: any) => a.region === realAlloc.region)
       const mlAlloc = mlPlan.allocations.find((a: any) => a.region === realAlloc.region)
       
-      const severity = realAlloc.coverage_estimate?.severity_weighted_impact || 0.5
+      const severity = realAlloc.coverage_estimate?.severity_weighted_impact || realAlloc.coverage_estimate?.coverage_ratio || 0.5
       
       return {
         region: realAlloc.region,
