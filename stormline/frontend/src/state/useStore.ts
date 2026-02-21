@@ -56,6 +56,12 @@ export interface FlaggedProject extends Project {
   z_score: number
 }
 
+export interface NarrativePopup {
+  title: string
+  message: string
+  type?: 'story' | 'info' | 'warning'
+}
+
 interface Store {
   hurricanes: Hurricane[]
   selectedHurricane: Hurricane | null
@@ -69,6 +75,7 @@ interface Store {
   leaderboardOpen: boolean
   isCinematicPlaying: boolean
   cinematicCompleted: boolean
+  narrativePopup: NarrativePopup | null
   
   setHurricanes: (hurricanes: Hurricane[]) => void
   setSelectedHurricane: (hurricane: Hurricane | null) => void
@@ -82,6 +89,7 @@ interface Store {
   setLeaderboardOpen: (open: boolean) => void
   setCinematicPlaying: (playing: boolean) => void
   setCinematicCompleted: (completed: boolean) => void
+  setNarrativePopup: (popup: NarrativePopup | null) => void
 }
 
 export const useStore = create<Store>((set) => ({
@@ -97,6 +105,7 @@ export const useStore = create<Store>((set) => ({
   leaderboardOpen: false,
   isCinematicPlaying: false,
   cinematicCompleted: false,
+  narrativePopup: null,
   
   setHurricanes: (hurricanes) => set({ hurricanes }),
   setSelectedHurricane: (hurricane) => set({ selectedHurricane: hurricane }),
@@ -110,4 +119,5 @@ export const useStore = create<Store>((set) => ({
   setLeaderboardOpen: (leaderboardOpen) => set({ leaderboardOpen }),
   setCinematicPlaying: (isCinematicPlaying) => set({ isCinematicPlaying }),
   setCinematicCompleted: (cinematicCompleted) => set({ cinematicCompleted }),
+  setNarrativePopup: (narrativePopup) => set({ narrativePopup }),
 }))
