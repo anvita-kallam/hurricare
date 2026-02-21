@@ -13,19 +13,18 @@ export default function ComparisonPage() {
     selectedHurricane, 
     setSelectedHurricane, 
     setShowComparisonPage,
-    narrativePopup,
-    setNarrativePopup
+    comparisonData
   } = useStore()
   
-  // Get plans from localStorage or state - for now we'll need to pass them as props
-  // For MVP, we'll store them in the store or pass via context
-  // For now, let's get them from a ref or state that persists
+  if (!comparisonData) {
+    return (
+      <div className="w-screen h-screen bg-black flex items-center justify-center">
+        <div className="text-cyan-300 font-orbitron">No comparison data available</div>
+      </div>
+    )
+  }
   
-  // This is a placeholder - in a real implementation, you'd get these from the store or props
-  const userPlan = null
-  const mlPlan = null
-  const realPlan = null
-  const mismatchAnalysis = null
+  const { userPlan, mlPlan, realPlan, mismatchAnalysis } = comparisonData
   
   const handleBack = () => {
     setShowComparisonPage(false)
