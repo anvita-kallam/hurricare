@@ -44,12 +44,24 @@ interface AffectedRegion {
   people_in_need: number
 }
 
+// Standard humanitarian clusters/causes
+const CLUSTERS = [
+  'Emergency Shelter and NFI',
+  'Food Security',
+  'Health',
+  'Water Sanitation Hygiene',
+  'Logistics',
+  'Early Recovery'
+] as const
+
 export default function SimulationEngine() {
   const { selectedHurricane, coverage, projects } = useStore()
   const [stage, setStage] = useState<1 | 2 | 3 | 'comparison'>(1)
-  const [allocationView, setAllocationView] = useState<'regions' | 'clusters'>('regions')
+  const [allocationView, setAllocationView] = useState<'regions' | 'clusters'>('clusters')
+  // Region-based allocations: { region: budget }
   const [userAllocations, setUserAllocations] = useState<Record<string, number>>({})
-  const [clusterAllocations, setClusterAllocations] = useState<Record<string, number>>({})
+  // Cluster-based allocations per region: { region: { cluster: budget } }
+  const [clusterAllocations, setClusterAllocations] = useState<Record<string, Record<string, number>>>({})
   const [totalBudget, setTotalBudget] = useState(50000000)
   const [responseWindow, setResponseWindow] = useState(72)
   const [userPlan, setUserPlan] = useState<SimulationPlan | null>(null)
@@ -81,25 +93,17 @@ export default function SimulationEngine() {
     return result
   }, [selectedHurricane, coverage])
 
-  // Get clusters for selected hurricane
-  const clusters = useMemo(() => {
-    if (!selectedHurricane) return []
-    const unique = new Set(
-      projects
-        .filter(p => p.hurricane_id === selectedHurricane.id)
-        .map(p => p.cluster)
-    )
-    return Array.from(unique).sort()
-  }, [selectedHurricane, projects])
-
-  // Get cluster budgets (current allocation per cluster)
-  const clusterBudgets = useMemo(() => {
+  // Get cluster budgets per region (current allocation per cluster per region)
+  const clusterBudgetsByRegion = useMemo(() => {
     if (!selectedHurricane) return {}
-    const result: Record<string, number> = {}
+    const result: Record<string, Record<string, number>> = {}
     projects
       .filter(p => p.hurricane_id === selectedHurricane.id && p.pooled_fund)
       .forEach(p => {
-        result[p.cluster] = (result[p.cluster] || 0) + p.budget_usd
+        if (!result[p.admin1]) {
+          result[p.admin1] = {}
+        }
+        result[p.admin1][p.cluster] = (result[p.admin1][p.cluster] || 0) + p.budget_usd
       })
     return result
   }, [selectedHurricane, projects])
@@ -135,16 +139,19 @@ export default function SimulationEngine() {
     }
   }, [regions, coverage, selectedHurricane])
 
-  // Initialize cluster allocations
+  // Initialize cluster allocations per region
   useEffect(() => {
-    if (clusters.length > 0) {
-      const initial: Record<string, number> = {}
-      clusters.forEach(cluster => {
-        initial[cluster] = 0
+    if (regions.length > 0) {
+      const initial: Record<string, Record<string, number>> = {}
+      regions.forEach(region => {
+        initial[region] = {}
+        CLUSTERS.forEach(cluster => {
+          initial[region][cluster] = 0
+        })
       })
       setClusterAllocations(initial)
     }
-  }, [clusters])
+  }, [regions])
 
   const handleAllocationChange = (region: string, value: number) => {
     setUserAllocations(prev => {
@@ -166,19 +173,27 @@ export default function SimulationEngine() {
     })
   }
 
-  const handleClusterAllocationChange = (cluster: string, value: number) => {
+  const handleClusterAllocationChange = (region: string, cluster: string, value: number) => {
     setClusterAllocations(prev => {
       const newAllocations = { ...prev }
-      const currentTotal = Object.values(prev).reduce((sum, v) => sum + (v || 0), 0)
-      const currentClusterValue = prev[cluster] || 0
+      if (!newAllocations[region]) {
+        newAllocations[region] = {}
+      }
+      
+      // Calculate total allocated across all regions and clusters
+      const currentTotal = Object.values(prev).reduce((sum, regionAllocs) => {
+        return sum + Object.values(regionAllocs).reduce((s, v) => s + (v || 0), 0)
+      }, 0)
+      
+      const currentClusterValue = prev[region]?.[cluster] || 0
       const newTotal = currentTotal - currentClusterValue + value
       
       // Prevent exceeding total budget
       if (newTotal > totalBudget) {
         const remaining = totalBudget - (currentTotal - currentClusterValue)
-        newAllocations[cluster] = Math.max(0, Math.min(value, remaining))
+        newAllocations[region][cluster] = Math.max(0, Math.min(value, remaining))
       } else {
-        newAllocations[cluster] = Math.max(0, value)
+        newAllocations[region][cluster] = Math.max(0, value)
       }
       
       return newAllocations
@@ -190,9 +205,35 @@ export default function SimulationEngine() {
       const allocated = Object.values(userAllocations).reduce((sum, v) => sum + (v || 0), 0)
       return totalBudget - allocated
     } else {
-      const allocated = Object.values(clusterAllocations).reduce((sum, v) => sum + (v || 0), 0)
+      const allocated = Object.values(clusterAllocations).reduce((sum, regionAllocs) => {
+        return sum + Object.values(regionAllocs).reduce((s, v) => s + (v || 0), 0)
+      }, 0)
       return totalBudget - allocated
     }
+  }
+
+  const getTotalAllocated = () => {
+    if (allocationView === 'regions') {
+      return Object.values(userAllocations).reduce((sum, v) => sum + (v || 0), 0)
+    } else {
+      return Object.values(clusterAllocations).reduce((sum, regionAllocs) => {
+        return sum + Object.values(regionAllocs).reduce((s, v) => s + (v || 0), 0)
+      }, 0)
+    }
+  }
+
+  const getRegionClusterTotal = (region: string) => {
+    return Object.values(clusterAllocations[region] || {}).reduce((sum, v) => sum + (v || 0), 0)
+  }
+
+  const getRemainingForRegion = (region: string) => {
+    const regionTotal = getRegionClusterTotal(region)
+    const otherRegionsTotal = Object.entries(clusterAllocations)
+      .filter(([r]) => r !== region)
+      .reduce((sum, [, regionAllocs]) => {
+        return sum + Object.values(regionAllocs).reduce((s, v) => s + (v || 0), 0)
+      }, 0)
+    return totalBudget - otherRegionsTotal - regionTotal
   }
 
   const validateUserPlan = async () => {
@@ -203,7 +244,7 @@ export default function SimulationEngine() {
     
     try {
       // Ensure all regions have allocations (even if 0)
-      // If using cluster allocation, convert to region allocation based on current distribution
+      // If using cluster allocation, sum up cluster allocations per region
       const completeAllocations: Record<string, number> = {}
       
       if (allocationView === 'regions') {
@@ -211,19 +252,10 @@ export default function SimulationEngine() {
           completeAllocations[region] = userAllocations[region] || 0
         })
       } else {
-        // Convert cluster allocations to region allocations proportionally
-        // For now, distribute cluster allocations evenly across regions
-        // In a more sophisticated version, we'd use project data to determine distribution
-        const totalClusterAlloc = Object.values(clusterAllocations).reduce((sum, v) => sum + (v || 0), 0)
+        // Sum cluster allocations per region
         regions.forEach(region => {
-          // Distribute proportionally based on current coverage
-          const cov = currentCoverage[region]
-          if (cov && totalBudget > 0) {
-            const regionProportion = cov.pooled_fund_budget / totalBudget
-            completeAllocations[region] = totalClusterAlloc * regionProportion
-          } else {
-            completeAllocations[region] = totalClusterAlloc / regions.length
-          }
+          const regionTotal = Object.values(clusterAllocations[region] || {}).reduce((sum, v) => sum + (v || 0), 0)
+          completeAllocations[region] = regionTotal
         })
       }
       
@@ -376,9 +408,7 @@ export default function SimulationEngine() {
                 <div className="flex justify-between items-center text-xs">
                   <span className="text-cyan-300/70 font-exo">Allocated:</span>
                   <span className="text-cyan-300 font-orbitron">
-                    ${allocationView === 'regions' 
-                      ? Object.values(userAllocations).reduce((sum, v) => sum + (v || 0), 0).toLocaleString()
-                      : Object.values(clusterAllocations).reduce((sum, v) => sum + (v || 0), 0).toLocaleString()}
+                    ${getTotalAllocated().toLocaleString()}
                   </span>
                 </div>
                 <div className="flex justify-between items-center text-xs mt-1">
@@ -476,44 +506,74 @@ export default function SimulationEngine() {
               )
             )}
 
-            {/* Cluster Allocation */}
+            {/* Cluster Allocation Per Region */}
             {allocationView === 'clusters' && (
-              clusters.length === 0 ? (
+              regions.length === 0 ? (
                 <div className="text-center py-8 text-cyan-300/70 font-exo">
-                  <div>No clusters found. Please select a hurricane.</div>
+                  <div>No regions found. Please select a hurricane.</div>
                 </div>
               ) : (
-                <div className="space-y-3 max-h-96 overflow-y-auto">
-                  {clusters.map(cluster => {
-                    const currentAlloc = clusterAllocations[cluster] || 0
-                    const currentBudget = clusterBudgets[cluster] || 0
-                    const maxForCluster = Math.max(0, currentAlloc + getRemainingBudget())
+                <div className="space-y-4 max-h-96 overflow-y-auto">
+                  {regions.map(region => {
+                    const cov = currentCoverage[region]
+                    const regionClusterTotal = getRegionClusterTotal(region)
+                    const remainingForRegion = getRemainingForRegion(region)
                     
                     return (
-                      <div key={cluster} className="bg-black/40 p-3 rounded border border-cyan-500/20">
-                        <div className="flex justify-between items-center mb-2">
+                      <div key={region} className="bg-black/50 p-4 rounded border border-cyan-500/30">
+                        <div className="flex justify-between items-center mb-3 pb-2 border-b border-cyan-500/20">
                           <div>
-                            <div className="font-semibold text-cyan-200 font-exo">{cluster}</div>
-                            <div className="text-xs text-cyan-300/70 font-exo">
-                              Current Funding: ${currentBudget.toLocaleString()}
-                            </div>
+                            <div className="font-semibold text-cyan-200 font-exo text-lg">{region}</div>
+                            {cov && (
+                              <div className="text-xs text-cyan-300/70 font-exo mt-1">
+                                Severity: {cov.severity_index.toFixed(2)} • 
+                                People in Need: {cov.people_in_need.toLocaleString()} • 
+                                Current Total: ${cov.pooled_fund_budget.toLocaleString()}
+                              </div>
+                            )}
                           </div>
                           <div className="text-sm font-semibold text-cyan-300 font-orbitron">
-                            ${currentAlloc.toLocaleString()}
+                            Region Total: ${regionClusterTotal.toLocaleString()}
                           </div>
                         </div>
-                        <input
-                          type="range"
-                          min="0"
-                          max={maxForCluster}
-                          step={Math.max(1000, Math.floor(maxForCluster / 100))}
-                          value={currentAlloc}
-                          onChange={(e) => handleClusterAllocationChange(cluster, Number(e.target.value))}
-                          className="w-full accent-cyan-500"
-                        />
-                        <div className="flex justify-between text-xs text-cyan-400/60 mt-1 font-exo">
-                          <span>$0</span>
-                          <span>${maxForCluster.toLocaleString()}</span>
+                        
+                        <div className="space-y-3">
+                          {CLUSTERS.map(cluster => {
+                            const currentAlloc = clusterAllocations[region]?.[cluster] || 0
+                            const currentBudget = clusterBudgetsByRegion[region]?.[cluster] || 0
+                            const maxForCluster = Math.max(0, currentAlloc + remainingForRegion)
+                            
+                            return (
+                              <div key={cluster} className="bg-black/40 p-3 rounded border border-cyan-500/20">
+                                <div className="flex justify-between items-center mb-2">
+                                  <div>
+                                    <div className="font-medium text-cyan-200 font-exo">{cluster}</div>
+                                    {currentBudget > 0 && (
+                                      <div className="text-xs text-cyan-300/70 font-exo">
+                                        Current: ${currentBudget.toLocaleString()}
+                                      </div>
+                                    )}
+                                  </div>
+                                  <div className="text-sm font-semibold text-cyan-300 font-orbitron">
+                                    ${currentAlloc.toLocaleString()}
+                                  </div>
+                                </div>
+                                <input
+                                  type="range"
+                                  min="0"
+                                  max={maxForCluster}
+                                  step={Math.max(1000, Math.floor(maxForCluster / 100))}
+                                  value={currentAlloc}
+                                  onChange={(e) => handleClusterAllocationChange(region, cluster, Number(e.target.value))}
+                                  className="w-full accent-cyan-500"
+                                />
+                                <div className="flex justify-between text-xs text-cyan-400/60 mt-1 font-exo">
+                                  <span>$0</span>
+                                  <span>${maxForCluster.toLocaleString()}</span>
+                                </div>
+                              </div>
+                            )
+                          })}
                         </div>
                       </div>
                     )
