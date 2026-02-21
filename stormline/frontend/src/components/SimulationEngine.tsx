@@ -8,7 +8,6 @@ import {
   OutcomeRadarChart,
   SeverityVsFundingScatter 
 } from './DataVisualizations'
-import ComparisonHeatmaps from './ComparisonHeatmaps'
 import NarrativePopup from './NarrativePopup'
 
 const API_BASE = 'http://localhost:8000'
