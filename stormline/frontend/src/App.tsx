@@ -7,6 +7,7 @@ import Leaderboard from './components/Leaderboard'
 import IntroScreen from './components/IntroScreen'
 import NarrativePopup from './components/NarrativePopup'
 import CinematicIntro from './components/CinematicIntro'
+import HurricaneMatcher from './components/HurricaneMatcher'
 import { useStore } from './state/useStore'
 import axios from 'axios'
 import { ImpactEvent } from './hooks/useCinematicController'
@@ -43,6 +44,7 @@ function App() {
   const [gameStarted, setGameStarted] = useState(false)
   const [showWelcomePopup, setShowWelcomePopup] = useState(false)
   const [pendingHurricane, setPendingHurricane] = useState<string | null>(null)
+  const [showMatcher, setShowMatcher] = useState(false)
   
   useEffect(() => {
     const fetchHurricanes = async () => {
@@ -154,13 +156,34 @@ function App() {
   }
 
   const handleEnterGame = () => {
+    setShowMatcher(true)
+  }
+
+  const handleMatcherMatch = (hurricaneId: string) => {
+    setShowMatcher(false)
+    setGameStarted(true)
+    setShowWelcomePopup(true)
+  }
+
+  const handleMatcherSkip = () => {
+    setShowMatcher(false)
     setGameStarted(true)
     setShowWelcomePopup(true)
   }
   
   // Show intro screen until game is started
   if (!gameStarted) {
-    return <IntroScreen onEnter={handleEnterGame} isLoading={loading} />
+    return (
+      <>
+        <IntroScreen onEnter={handleEnterGame} isLoading={loading} />
+        {showMatcher && !loading && (
+          <HurricaneMatcher 
+            onMatchFound={handleMatcherMatch}
+            onSkip={handleMatcherSkip}
+          />
+        )}
+      </>
+    )
   }
   
   // Get hurricane for cinematic if pending
