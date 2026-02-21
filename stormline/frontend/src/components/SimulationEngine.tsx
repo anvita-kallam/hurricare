@@ -56,7 +56,11 @@ const CLUSTERS = [
   'Early Recovery'
 ] as const
 
-export default function SimulationEngine() {
+interface SimulationEngineProps {
+  onStartSimulation?: () => void
+}
+
+export default function SimulationEngine({ onStartSimulation }: SimulationEngineProps = {}) {
   const { selectedHurricane, coverage, projects, setLastSimulationScore, setLeaderboardOpen, cinematicCompleted, setCinematicCompleted, isCinematicPlaying, setCinematicPlaying } = useStore()
   const [stage, setStage] = useState<1 | 2 | 3 | 'comparison'>(1)
   // Cluster-based allocations per region: { region: { cluster: budget } }
