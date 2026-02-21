@@ -172,25 +172,28 @@ export default function OverlayLayer() {
           return null
         }
         
-        // Check for intersections (both severity and coverage for same region)
-        const hasBoth = showSeverityOverlay && showCoverageOverlay
-        const otherOverlay = hasBoth ? overlayData.find(
-          (d, i) => i !== idx && d.admin1 === data.admin1 && d.type !== data.type
-        ) : null
-        
+        // Check for intersections only when both overlays are active
         let finalColor = data.color
         let finalOpacity = data.opacity
         
-        // If both overlays exist for the same region and they're close, show purple intersection
-        if (otherOverlay) {
-          const distance = Math.sqrt(
-            Math.pow(data.lat - otherOverlay.lat, 2) + 
-            Math.pow(data.lon - otherOverlay.lon, 2)
+        if (showSeverityOverlay && showCoverageOverlay) {
+          // Find the corresponding overlay of the other type for the same region
+          const otherOverlay = overlayData.find(
+            (d, i) => i !== idx && d.admin1 === data.admin1 && d.type !== data.type
           )
-          // If overlays are close (within 5 degrees), show intersection
-          if (distance < 5) {
-            finalColor = '#9b59b6' // Purple for intersection
-            finalOpacity = 0.7
+          
+          // If both overlays exist for the same region and they're close, show purple intersection
+          if (otherOverlay) {
+            const distance = Math.sqrt(
+              Math.pow(data.lat - otherOverlay.lat, 2) + 
+              Math.pow(data.lon - otherOverlay.lon, 2)
+            )
+            // If overlays are close (within 5 degrees), show intersection as purple
+            if (distance < 5) {
+              finalColor = '#9b59b6' // Purple for intersection
+              finalOpacity = 0.7
+            }
+            // Otherwise, keep original color (red for severity, blue for coverage)
           }
         }
         
