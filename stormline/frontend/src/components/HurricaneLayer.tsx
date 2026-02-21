@@ -95,7 +95,21 @@ function HurricanePath({ hurricane, isSelected }: { hurricane: any; isSelected: 
   }, [curve, isSelected])
   
   // Get unique color for this storm
-  const color = getStormColor(hurricane.id)
+  const baseColor = getStormColor(hurricane.id)
+  
+  // Convert to greyscale for unselected hurricanes
+  const color = useMemo(() => {
+    if (isSelected) {
+      return baseColor
+    }
+    // Convert color to greyscale
+    const hex = baseColor.replace('#', '')
+    const r = parseInt(hex.substr(0, 2), 16)
+    const g = parseInt(hex.substr(2, 2), 16)
+    const b = parseInt(hex.substr(4, 2), 16)
+    const grey = Math.round(0.299 * r + 0.587 * g + 0.114 * b)
+    return `#${grey.toString(16).padStart(2, '0')}${grey.toString(16).padStart(2, '0')}${grey.toString(16).padStart(2, '0')}`
+  }, [baseColor, isSelected])
   
   return (
     <group>
