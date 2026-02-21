@@ -2010,5 +2010,324 @@
       "Somalia"
     ],
     "estimated_population_affected": 1200000
+  },
+  {
+    "id": "beryl_2024",
+    "name": "Hurricane Beryl",
+    "year": 2024,
+    "max_category": 5,
+    "track": [
+      {
+        "lat": 9.5,
+        "lon": -48.2,
+        "wind": 50
+      },
+      {
+        "lat": 11.8,
+        "lon": -55.5,
+        "wind": 75
+      },
+      {
+        "lat": 14.2,
+        "lon": -62.8,
+        "wind": 110
+      },
+      {
+        "lat": 16.5,
+        "lon": -68.2,
+        "wind": 150
+      },
+      {
+        "lat": 18.2,
+        "lon": -72.5,
+        "wind": 165
+      },
+      {
+        "lat": 19.8,
+        "lon": -76.2,
+        "wind": 160
+      },
+      {
+        "lat": 21.5,
+        "lon": -79.8,
+        "wind": 140
+      },
+      {
+        "lat": 24.2,
+        "lon": -93.5,
+        "wind": 120
+      },
+      {
+        "lat": 28.5,
+        "lon": -95.2,
+        "wind": 100
+      },
+      {
+        "lat": 32.2,
+        "lon": -94.8,
+        "wind": 65
+      }
+    ],
+    "affected_countries": [
+      "Jamaica",
+      "Grenada",
+      "Barbados",
+      "United States",
+      "Mexico"
+    ],
+    "estimated_population_affected": 3200000
+  },
+  {
+    "id": "milton_2024",
+    "name": "Hurricane Milton",
+    "year": 2024,
+    "max_category": 5,
+    "track": [
+      {
+        "lat": 12.2,
+        "lon": -78.5,
+        "wind": 65
+      },
+      {
+        "lat": 15.5,
+        "lon": -82.2,
+        "wind": 90
+      },
+      {
+        "lat": 19.2,
+        "lon": -85.8,
+        "wind": 120
+      },
+      {
+        "lat": 23.5,
+        "lon": -87.2,
+        "wind": 150
+      },
+      {
+        "lat": 26.8,
+        "lon": -88.5,
+        "wind": 165
+      },
+      {
+        "lat": 27.2,
+        "lon": -82.8,
+        "wind": 160
+      },
+      {
+        "lat": 28.5,
+        "lon": -81.2,
+        "wind": 130
+      },
+      {
+        "lat": 30.2,
+        "lon": -78.5,
+        "wind": 85
+      }
+    ],
+    "affected_countries": [
+      "United States",
+      "Cuba",
+      "Jamaica"
+    ],
+    "estimated_population_affected": 4500000
+  },
+  {
+    "id": "helene_2024",
+    "name": "Hurricane Helene",
+    "year": 2024,
+    "max_category": 4,
+    "track": [
+      {
+        "lat": 10.5,
+        "lon": -35.2,
+        "wind": 50
+      },
+      {
+        "lat": 13.8,
+        "lon": -42.5,
+        "wind": 75
+      },
+      {
+        "lat": 17.2,
+        "lon": -50.8,
+        "wind": 100
+      },
+      {
+        "lat": 21.5,
+        "lon": -60.2,
+        "wind": 130
+      },
+      {
+        "lat": 26.8,
+        "lon": -70.5,
+        "wind": 140
+      },
+      {
+        "lat": 32.2,
+        "lon": -78.8,
+        "wind": 120
+      },
+      {
+        "lat": 35.5,
+        "lon": -80.2,
+        "wind": 90
+      },
+      {
+        "lat": 37.8,
+        "lon": -79.5,
+        "wind": 65
+      }
+    ],
+    "affected_countries": [
+      "United States",
+      "Bahamas"
+    ],
+    "estimated_population_affected": 2800000
+  },
+  {
+    "id": "alexandra_2025",
+    "name": "Hurricane Alexandra",
+    "year": 2025,
+    "max_category": 4,
+    "track": [
+      {
+        "lat": 11.2,
+        "lon": -52.5,
+        "wind": 60
+      },
+      {
+        "lat": 14.5,
+        "lon": -60.8,
+        "wind": 85
+      },
+      {
+        "lat": 18.2,
+        "lon": -68.2,
+        "wind": 110
+      },
+      {
+        "lat": 22.5,
+        "lon": -75.8,
+        "wind": 140
+      },
+      {
+        "lat": 26.8,
+        "lon": -82.5,
+        "wind": 145
+      },
+      {
+        "lat": 29.2,
+        "lon": -85.2,
+        "wind": 130
+      },
+      {
+        "lat": 31.5,
+        "lon": -87.8,
+        "wind": 95
+      }
+    ],
+    "affected_countries": [
+      "United States",
+      "Cuba",
+      "Bahamas"
+    ],
+    "estimated_population_affected": 1800000
+  },
+  {
+    "id": "benjamin_2025",
+    "name": "Hurricane Benjamin",
+    "year": 2025,
+    "max_category": 5,
+    "track": [
+      {
+        "lat": 13.5,
+        "lon": -45.2,
+        "wind": 55
+      },
+      {
+        "lat": 16.8,
+        "lon": -55.5,
+        "wind": 80
+      },
+      {
+        "lat": 20.2,
+        "lon": -65.8,
+        "wind": 115
+      },
+      {
+        "lat": 24.5,
+        "lon": -72.2,
+        "wind": 150
+      },
+      {
+        "lat": 27.8,
+        "lon": -78.5,
+        "wind": 175
+      },
+      {
+        "lat": 28.2,
+        "lon": -81.8,
+        "wind": 170
+      },
+      {
+        "lat": 29.5,
+        "lon": -84.2,
+        "wind": 140
+      },
+      {
+        "lat": 31.8,
+        "lon": -86.5,
+        "wind": 100
+      }
+    ],
+    "affected_countries": [
+      "United States",
+      "Puerto Rico",
+      "Dominican Republic"
+    ],
+    "estimated_population_affected": 3500000
+  },
+  {
+    "id": "cassandra_2025",
+    "name": "Hurricane Cassandra",
+    "year": 2025,
+    "max_category": 3,
+    "track": [
+      {
+        "lat": 15.2,
+        "lon": -40.5,
+        "wind": 45
+      },
+      {
+        "lat": 18.5,
+        "lon": -50.8,
+        "wind": 70
+      },
+      {
+        "lat": 22.2,
+        "lon": -62.2,
+        "wind": 95
+      },
+      {
+        "lat": 26.5,
+        "lon": -72.8,
+        "wind": 115
+      },
+      {
+        "lat": 30.8,
+        "lon": -78.5,
+        "wind": 110
+      },
+      {
+        "lat": 35.2,
+        "lon": -75.2,
+        "wind": 80
+      }
+    ],
+    "affected_countries": [
+      "United States",
+      "Bermuda"
+    ],
+    "estimated_population_affected": 1200000
   }
 ]
