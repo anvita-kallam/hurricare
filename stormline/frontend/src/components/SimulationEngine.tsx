@@ -1044,10 +1044,10 @@ export default function SimulationEngine({ onStartSimulation }: SimulationEngine
                               </div>
                             </td>
                             <td className="p-2 text-right text-cyan-300">
-                              {(idealAlloc?.coverage_estimate?.coverage_ratio || 0 * 100).toFixed(1)}%
+                              {((idealAlloc?.coverage_estimate?.coverage_ratio || 0) * 100).toFixed(1)}%
                             </td>
                             <td className="p-2 text-right text-red-300">
-                              {(realAlloc.coverage_estimate?.coverage_ratio || 0 * 100).toFixed(1)}%
+                              {((realAlloc.coverage_estimate?.coverage_ratio || 0) * 100).toFixed(1)}%
                             </td>
                           </tr>
                         )
