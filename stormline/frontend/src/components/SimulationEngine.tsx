@@ -1177,6 +1177,7 @@ export default function SimulationEngine({ onStartSimulation }: SimulationEngine
             >
               📥 Download Comparison Report (JSON)
             </button>
+            </div>
           </div>
         </div>
       )}
