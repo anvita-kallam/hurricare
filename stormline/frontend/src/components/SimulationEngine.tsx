@@ -1180,7 +1180,6 @@ export default function SimulationEngine({ onStartSimulation }: SimulationEngine
           </div>
         </div>
       )}
-      </div>
-    </>
+    </div>
   )
 }
