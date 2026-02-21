@@ -297,32 +297,48 @@ export default function SimulationEngine() {
               </div>
             </div>
 
-            <div className="space-y-3 max-h-96 overflow-y-auto">
-              {regions.map(region => (
-                <div key={region.admin1} className="bg-black/40 p-3 rounded border border-cyan-500/20">
-                  <div className="flex justify-between items-center mb-2">
-                    <div>
-                      <div className="font-semibold text-cyan-200 font-exo">{region.admin1}</div>
-                      <div className="text-xs text-cyan-300/70 font-exo">
-                        Severity: {region.severity_index.toFixed(2)} • Need: {region.people_in_need.toLocaleString()} people
+            {regions.length === 0 ? (
+              <div className="text-center py-8 text-cyan-300/70 font-exo">
+                <div className="inline-block animate-spin rounded-full h-8 w-8 border-b-2 border-cyan-400 mb-4"></div>
+                <div>Loading regions...</div>
+              </div>
+            ) : (
+              <div className="space-y-3 max-h-96 overflow-y-auto">
+                {regions.map(region => {
+                  const currentAlloc = userAllocations[region.admin1] || 0
+                  const maxForRegion = Math.max(0, currentAlloc + getRemainingBudget())
+                  
+                  return (
+                    <div key={region.admin1} className="bg-black/40 p-3 rounded border border-cyan-500/20">
+                      <div className="flex justify-between items-center mb-2">
+                        <div>
+                          <div className="font-semibold text-cyan-200 font-exo">{region.admin1}</div>
+                          <div className="text-xs text-cyan-300/70 font-exo">
+                            Severity: {region.severity_index.toFixed(2)} • Need: {region.people_in_need.toLocaleString()} people
+                          </div>
+                        </div>
+                        <div className="text-sm font-semibold text-cyan-300 font-orbitron">
+                          ${currentAlloc.toLocaleString()}
+                        </div>
+                      </div>
+                      <input
+                        type="range"
+                        min="0"
+                        max={maxForRegion}
+                        step={Math.max(1000, Math.floor(maxForRegion / 100))}
+                        value={currentAlloc}
+                        onChange={(e) => handleAllocationChange(region.admin1, Number(e.target.value))}
+                        className="w-full accent-cyan-500"
+                      />
+                      <div className="flex justify-between text-xs text-cyan-400/60 mt-1 font-exo">
+                        <span>$0</span>
+                        <span>${maxForRegion.toLocaleString()}</span>
                       </div>
                     </div>
-                    <div className="text-sm font-semibold text-cyan-300 font-orbitron">
-                      ${(userAllocations[region.admin1] || 0).toLocaleString()}
-                    </div>
-                  </div>
-                  <input
-                    type="range"
-                    min="0"
-                    max={Math.max(0, (userAllocations[region.admin1] || 0) + getRemainingBudget())}
-                    step={10000}
-                    value={userAllocations[region.admin1] || 0}
-                    onChange={(e) => handleAllocationChange(region.admin1, Number(e.target.value))}
-                    className="w-full accent-cyan-500"
-                  />
-                </div>
-              ))}
-            </div>
+                  )
+                })}
+              </div>
+            )}
 
             {validation && (
               <div className="mt-4 space-y-2">
