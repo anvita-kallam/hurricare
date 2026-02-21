@@ -119,33 +119,21 @@ export default function OverlayLayer() {
       let color = '#00bcd4'
       let opacity = 0.5
       
-      if (showSeverityOverlay) {
-        // Red gradient based on severity (0-1 scale)
+      // Check if both overlays are active (intersection = purple)
+      if (showSeverityOverlay && showCoverageOverlay) {
+        color = '#9b59b6' // Purple for intersection
+        opacity = 0.7
+      } else if (showSeverityOverlay) {
+        // Red for severity overlay
         const severity = cov.severity_index || 0
-        const redIntensity = Math.floor(severity * 255)
-        color = `rgb(${redIntensity}, 0, ${255 - redIntensity})`
+        const redIntensity = Math.floor(100 + severity * 155) // 100-255 range
+        color = `rgb(${redIntensity}, 0, 0)`
         opacity = 0.5 + (severity * 0.4) // 0.5 to 0.9 opacity
-      }
-      
-      if (showCoverageOverlay) {
-        // Color gradient based on coverage ratio
+      } else if (showCoverageOverlay) {
+        // Blue for coverage overlay
         const coverageRatio = Math.min(1, Math.max(0, cov.coverage_ratio || 0))
-        if (coverageRatio < 0.3) {
-          // Very low coverage: dark red
-          color = `rgb(200, 0, 0)`
-        } else if (coverageRatio < 0.5) {
-          // Low coverage: red to orange
-          const intensity = ((coverageRatio - 0.3) / 0.2) // 0 to 1
-          color = `rgb(255, ${Math.floor(intensity * 100)}, 0)`
-        } else if (coverageRatio < 0.7) {
-          // Medium coverage: orange to yellow
-          const intensity = ((coverageRatio - 0.5) / 0.2) // 0 to 1
-          color = `rgb(255, ${Math.floor(100 + intensity * 155)}, 0)`
-        } else {
-          // High coverage: yellow to green
-          const intensity = ((coverageRatio - 0.7) / 0.3) // 0 to 1
-          color = `rgb(${255 - Math.floor(intensity * 255)}, 255, ${Math.floor(intensity * 100)})`
-        }
+        const blueIntensity = Math.floor(100 + coverageRatio * 155) // 100-255 range
+        color = `rgb(0, 0, ${blueIntensity})`
         opacity = 0.5 + (coverageRatio * 0.4) // 0.5 to 0.9 opacity
       }
       
