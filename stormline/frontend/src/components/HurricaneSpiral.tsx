@@ -51,8 +51,8 @@ export default function HurricaneSpiral({
   
   useFrame((state) => {
     if (groupRef.current) {
-      // Rotate the entire hurricane
-      groupRef.current.rotation.y += rotationSpeed * 0.02
+      // Faster, more visible rotation
+      groupRef.current.rotation.y += rotationSpeed * 0.05
     }
     
     if (outerSpiralRef.current && innerSpiralRef.current) {
