@@ -62,7 +62,7 @@ interface SimulationEngineProps {
 }
 
 export default function SimulationEngine({ onStartSimulation }: SimulationEngineProps = {}) {
-  const { selectedHurricane, coverage, projects, setLastSimulationScore, setLeaderboardOpen, cinematicCompleted, setCinematicCompleted, isCinematicPlaying, setCinematicPlaying, setSelectedHurricane, setShowComparisonPage, setComparisonData } = useStore()
+  const { selectedHurricane, coverage, projects, setLastSimulationScore, setLeaderboardOpen, cinematicCompleted, setCinematicCompleted, isCinematicPlaying, setCinematicPlaying, setSelectedHurricane } = useStore()
   const [stage, setStage] = useState<1 | 2 | 3 | 'comparison'>(1)
   // Cluster-based allocations per region: { region: { cluster: budget } }
   const [clusterAllocations, setClusterAllocations] = useState<Record<string, Record<string, number>>>({})
