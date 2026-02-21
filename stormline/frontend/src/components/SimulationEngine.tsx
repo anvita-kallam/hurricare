@@ -737,11 +737,11 @@ export default function SimulationEngine() {
                 )}
 
                 <button
-                  onClick={loadRealWorldPlan}
+                  onClick={proceedToRealWorld}
                   disabled={loading}
                   className="w-full mt-4 bg-gradient-to-r from-cyan-600 to-blue-600 text-white py-3 px-4 rounded hover:from-cyan-700 hover:to-blue-700 disabled:bg-gray-600 disabled:text-gray-400 glow-cyan transition-all font-semibold font-orbitron text-lg"
                 >
-                  {loading ? 'Loading Real-World Data...' : '→ Reveal Real-World Response'}
+                  {loading ? 'Loading Real-World Data...' : '→ Proceed to Stage 3: Real-World Response'}
                 </button>
               </div>
             ) : (
