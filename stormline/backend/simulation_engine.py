@@ -214,6 +214,16 @@ class SimulationEngine:
             constraints_used=constraints
         )
     
+    def get_ideal_plan_text(self, hurricane_id: str) -> Optional[str]:
+        """Get ideal plan text from CSV data."""
+        query = """
+            SELECT ideal_plan_text
+            FROM ideal_plans
+            WHERE id = ?
+        """
+        result = self.db.execute(query, [hurricane_id]).fetchone()
+        return result[0] if result else None
+    
     def stage_two_ml_ideal_plan(
         self,
         hurricane_id: str,
@@ -221,6 +231,9 @@ class SimulationEngine:
         response_window_hours: int = 72
     ) -> SimulationPlan:
         """Stage 2: ML-generated ideal plan (UN-values-optimized)."""
+        # Get ideal plan text from CSV
+        ideal_plan_text = self.get_ideal_plan_text(hurricane_id)
+        
         regions = self.get_affected_regions(hurricane_id)
         
         if not regions:
