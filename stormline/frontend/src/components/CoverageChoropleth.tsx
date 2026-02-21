@@ -3,7 +3,7 @@
 import { useStore } from '../state/useStore'
 
 export default function CoverageChoropleth() {
-  const { showCoverageOverlay, showSeverityOverlay, coverage, selectedHurricane } = useStore()
+  const { showCoverageOverlay, showSeverityOverlay, selectedHurricane } = useStore()
   
   if (!showCoverageOverlay && !showSeverityOverlay) {
     return null

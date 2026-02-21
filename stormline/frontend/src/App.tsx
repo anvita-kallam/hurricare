@@ -14,9 +14,7 @@ function App() {
   const {
     hurricanes,
     setHurricanes,
-    setProjects,
     setCoverage,
-    setFlaggedProjects,
     selectedHurricane,
     setSelectedHurricane,
     showSeverityOverlay,

@@ -51,7 +51,7 @@ export default function SimulationEngine() {
   const [userAllocations, setUserAllocations] = useState<Record<string, number>>({})
   const [totalBudget, setTotalBudget] = useState(50000000)
   const [responseWindow, setResponseWindow] = useState(72)
-  const [userPlan, setUserPlan] = useState<SimulationPlan | null>(null)
+  const [, setUserPlan] = useState<SimulationPlan | null>(null)
   const [mlPlan, setMlPlan] = useState<SimulationPlan | null>(null)
   const [realPlan, setRealPlan] = useState<SimulationPlan | null>(null)
   const [mismatchAnalysis, setMismatchAnalysis] = useState<any>(null)
@@ -93,21 +93,40 @@ export default function SimulationEngine() {
     if (!selectedHurricane) return
     
     setLoading(true)
+    setValidation(null) // Clear previous validation
+    
     try {
+      // Ensure all regions have allocations (even if 0)
+      const completeAllocations: Record<string, number> = {}
+      regions.forEach(region => {
+        completeAllocations[region.admin1] = userAllocations[region.admin1] || 0
+      })
+      
       const res = await axios.post(`${API_BASE}/simulation/stage1/user-plan`, {
         hurricane_id: selectedHurricane.id,
-        allocations: userAllocations,
+        allocations: completeAllocations,
         total_budget: totalBudget,
         response_window_hours: responseWindow
       })
       
       setUserPlan(res.data)
       setStage(2)
+      setValidation(null) // Clear validation on success
     } catch (error: any) {
+      console.error('Error creating user plan:', error)
       if (error.response?.status === 400) {
-        setValidation(error.response.data.detail)
+        const detail = error.response.data.detail
+        setValidation({
+          valid: false,
+          errors: detail?.errors || [detail?.message || 'Validation failed'],
+          warnings: detail?.warnings || []
+        })
       } else {
-        console.error('Error creating user plan:', error)
+        setValidation({
+          valid: false,
+          errors: ['Failed to create plan. Please try again.'],
+          warnings: []
+        })
       }
     } finally {
       setLoading(false)
@@ -176,17 +195,17 @@ export default function SimulationEngine() {
           <h2 className="text-xl font-bold text-glow-cyan font-orbitron mb-2">Simulation Engine</h2>
           <div className="flex gap-2">
             <div className={`px-3 py-1 rounded text-xs font-orbitron ${
-              stage >= 1 ? 'bg-cyan-500/30 text-cyan-300' : 'bg-gray-700 text-gray-400'
+              (typeof stage === 'number' && stage >= 1) || stage === 'comparison' ? 'bg-cyan-500/30 text-cyan-300' : 'bg-gray-700 text-gray-400'
             }`}>
               Stage 1: User Plan
             </div>
             <div className={`px-3 py-1 rounded text-xs font-orbitron ${
-              stage >= 2 ? 'bg-cyan-500/30 text-cyan-300' : 'bg-gray-700 text-gray-400'
+              (typeof stage === 'number' && stage >= 2) || stage === 'comparison' ? 'bg-cyan-500/30 text-cyan-300' : 'bg-gray-700 text-gray-400'
             }`}>
               Stage 2: ML Ideal
             </div>
             <div className={`px-3 py-1 rounded text-xs font-orbitron ${
-              stage >= 3 ? 'bg-cyan-500/30 text-cyan-300' : 'bg-gray-700 text-gray-400'
+              (typeof stage === 'number' && stage >= 3) || stage === 'comparison' ? 'bg-cyan-500/30 text-cyan-300' : 'bg-gray-700 text-gray-400'
             }`}>
               Stage 3: Real-World
             </div>
@@ -287,7 +306,7 @@ export default function SimulationEngine() {
       )}
 
       {/* Stage 2: ML Ideal Plan */}
-      {stage === 2 && userPlan && (
+      {stage === 2 && (
         <div className="flex-1 space-y-4">
           <div className="bg-black/60 p-4 rounded border border-cyan-500/20">
             <h3 className="text-lg font-semibold mb-4 text-cyan-200 font-orbitron">ML-Generated Ideal Plan</h3>

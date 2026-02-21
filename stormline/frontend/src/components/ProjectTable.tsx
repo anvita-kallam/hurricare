@@ -21,8 +21,8 @@ export default function ProjectTable() {
     }
     
     if (showOnlyFlagged) {
-      const flaggedIds = new Set(flaggedProjects.map(fp => fp.project_id))
-      filtered = filtered.filter(p => flaggedIds.has(p.project_id))
+      const flaggedIdsSet = new Set(flaggedProjects.map(fp => fp.project_id))
+      filtered = filtered.filter(p => flaggedIdsSet.has(p.project_id))
     }
     
     return filtered
@@ -30,12 +30,15 @@ export default function ProjectTable() {
   
   const sortedProjects = useMemo(() => {
     return [...filteredProjects].sort((a, b) => {
-      let aVal: any = a[sortField]
-      let bVal: any = b[sortField]
+      let aVal: any
+      let bVal: any
       
       if (sortField === 'budget_per_beneficiary') {
         aVal = a.beneficiaries > 0 ? a.budget_usd / a.beneficiaries : 0
         bVal = b.beneficiaries > 0 ? b.budget_usd / b.beneficiaries : 0
+      } else {
+        aVal = a[sortField as keyof typeof a]
+        bVal = b[sortField as keyof typeof b]
       }
       
       if (typeof aVal === 'string') {
@@ -61,8 +64,6 @@ export default function ProjectTable() {
     const unique = new Set(projects.map(p => p.cluster))
     return Array.from(unique).sort()
   }, [projects])
-  
-  const flaggedIds = new Set(flaggedProjects.map(fp => fp.project_id))
   
   const getFlagInfo = (projectId: string) => {
     return flaggedProjects.find(fp => fp.project_id === projectId)

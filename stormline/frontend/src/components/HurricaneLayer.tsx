@@ -59,7 +59,7 @@ const stormColors = [
 ]
 
 // Function to get a unique color for each storm based on its ID
-function getStormColor(hurricaneId: string, index: number): string {
+function getStormColor(hurricaneId: string): string {
   // Use a simple hash function to consistently assign colors
   let hash = 0
   for (let i = 0; i < hurricaneId.length; i++) {
@@ -69,7 +69,7 @@ function getStormColor(hurricaneId: string, index: number): string {
   return stormColors[colorIndex]
 }
 
-function HurricanePath({ hurricane, isSelected, index }: { hurricane: any; isSelected: boolean; index: number }) {
+function HurricanePath({ hurricane, isSelected }: { hurricane: any; isSelected: boolean }) {
   const [hovered, setHovered] = useState(false)
   
   const curve = useMemo(() => {
@@ -93,8 +93,7 @@ function HurricanePath({ hurricane, isSelected, index }: { hurricane: any; isSel
   }, [curve])
   
   // Get unique color for this storm
-  const color = getStormColor(hurricane.id, index)
-  const lineWidth = isSelected ? 0.015 : 0.008
+  const color = getStormColor(hurricane.id)
   
   return (
     <group>
@@ -180,12 +179,11 @@ export default function HurricaneLayer() {
   
   return (
     <group>
-      {hurricanes.map((hurricane, index) => (
+      {hurricanes.map((hurricane) => (
         <HurricanePath
           key={hurricane.id}
           hurricane={hurricane}
           isSelected={selectedHurricane?.id === hurricane.id}
-          index={index}
         />
       ))}
     </group>

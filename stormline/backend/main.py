@@ -124,7 +124,14 @@ def create_user_plan(request: UserPlanRequest):
     
     if not validation["valid"]:
         from fastapi import HTTPException
-        raise HTTPException(status_code=400, detail={"errors": validation["errors"], "warnings": validation["warnings"]})
+        raise HTTPException(
+            status_code=400,
+            detail={
+                "message": "Validation failed",
+                "errors": validation["errors"],
+                "warnings": validation["warnings"]
+            }
+        )
     
     # Create plan
     plan = sim_engine.stage_one_user_plan(
