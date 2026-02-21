@@ -107,8 +107,14 @@ export function useCinematicController(
         
         if (prev.phase === 'fadeOut') {
           if (elapsed >= fadeOutDuration) {
+            // STOP ANIMATION IMMEDIATELY
             isRunningRef.current = false
-            // Call onComplete before setting state to ensure callback fires
+            // Cancel animation frame BEFORE state update
+            if (animationFrameRef.current) {
+              cancelAnimationFrame(animationFrameRef.current)
+              animationFrameRef.current = undefined
+            }
+            // Call onComplete immediately
             onComplete()
             return { ...prev, phase: 'complete', isPlaying: false }
           }

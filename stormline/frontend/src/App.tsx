@@ -120,29 +120,28 @@ function App() {
     }
   }
   
-  const handleCinematicComplete = () => {
+  const handleCinematicComplete = useCallback(() => {
     console.log('handleCinematicComplete called, pendingHurricane:', pendingHurricane)
+    // FORCE exit cinematic mode IMMEDIATELY - this is critical
+    setCinematicPlaying(false)
+    setCinematicCompleted(true)
+    
     if (pendingHurricane) {
       const hurricane = hurricanes.find(h => h.id === pendingHurricane)
       setSelectedHurricane(hurricane || null)
       setPendingHurricane(null)
-      setCinematicPlaying(false)
-      setCinematicCompleted(true)
-      // Trigger narrative popup
+      // Trigger narrative popup after a short delay
       if (hurricane) {
-        setNarrativePopup({
-          title: `Hurricane ${hurricane.name} - ${hurricane.year}`,
-          message: `You are now the humanitarian response coordinator for ${hurricane.name}, a Category ${hurricane.max_category} storm that affected ${hurricane.affected_countries.join(', ')}. ${hurricane.estimated_population_affected.toLocaleString()} people were impacted. Your mission: allocate limited resources to save lives and reduce suffering. You have a fixed budget based on actual historical funding. Make every dollar count.`,
-          type: 'story'
-        })
+        setTimeout(() => {
+          setNarrativePopup({
+            title: `Hurricane ${hurricane.name} - ${hurricane.year}`,
+            message: `You are now the humanitarian response coordinator for ${hurricane.name}, a Category ${hurricane.max_category} storm that affected ${hurricane.affected_countries.join(', ')}. ${hurricane.estimated_population_affected.toLocaleString()} people were impacted. Your mission: allocate limited resources to save lives and reduce suffering. You have a fixed budget based on actual historical funding. Make every dollar count.`,
+            type: 'story'
+          })
+        }, 300)
       }
-    } else {
-      // Even if no pending hurricane, ensure we exit cinematic mode
-      console.log('No pending hurricane, but exiting cinematic mode')
-      setCinematicPlaying(false)
-      setCinematicCompleted(true)
     }
-  }
+  }, [pendingHurricane, hurricanes, setNarrativePopup])
   
   const handleClearSelection = () => {
     setSelectedHurricane(null)
