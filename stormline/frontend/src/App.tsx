@@ -3,6 +3,7 @@ import Globe from './components/Globe'
 import CoverageChoropleth from './components/CoverageChoropleth'
 import SimulationEngine from './components/SimulationEngine'
 import Leaderboard from './components/Leaderboard'
+import IntroScreen from './components/IntroScreen'
 import { useStore } from './state/useStore'
 import axios from 'axios'
 
@@ -27,6 +28,7 @@ function App() {
   } = useStore()
   
   const [loading, setLoading] = useState(true)
+  const [gameStarted, setGameStarted] = useState(false)
   
   useEffect(() => {
     const fetchHurricanes = async () => {
@@ -64,16 +66,14 @@ function App() {
   const handleClearSelection = () => {
     setSelectedHurricane(null)
   }
+
+  const handleEnterGame = () => {
+    setGameStarted(true)
+  }
   
-  if (loading) {
-    return (
-      <div className="w-screen h-screen flex items-center justify-center bg-black">
-        <div className="text-center">
-          <div className="text-2xl font-semibold mb-2 text-glow-cyan font-orbitron">Loading StormLine...</div>
-          <div className="text-cyan-300 font-exo">Fetching hurricane data...</div>
-        </div>
-      </div>
-    )
+  // Show intro screen until game is started
+  if (!gameStarted) {
+    return <IntroScreen onEnter={handleEnterGame} isLoading={loading} />
   }
   
   return (

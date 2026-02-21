@@ -8,6 +8,7 @@ import {
   OutcomeRadarChart,
   SeverityVsFundingScatter 
 } from './DataVisualizations'
+import NarrativePopup from './NarrativePopup'
 
 const API_BASE = 'http://localhost:8000'
 
@@ -69,6 +70,7 @@ export default function SimulationEngine() {
   const [loading, setLoading] = useState(false)
   const [validation, setValidation] = useState<{valid: boolean, errors: string[], warnings: string[]} | null>(null)
   const [simulationResult, setSimulationResult] = useState<any>(null)
+  const [narrativePopup, setNarrativePopup] = useState<{title: string, message: string, type?: 'info' | 'warning' | 'success' | 'story'} | null>(null)
 
   // Get regions from coverage data (like AllocationPanel)
   const regions = useMemo(() => {
@@ -109,6 +111,13 @@ export default function SimulationEngine() {
   // Load total budget when hurricane is selected
   useEffect(() => {
     if (selectedHurricane) {
+      // Show narrative pop-up when hurricane is selected
+      setNarrativePopup({
+        title: `Hurricane ${selectedHurricane.name} - ${selectedHurricane.year}`,
+        message: `You are now the humanitarian response coordinator for ${selectedHurricane.name}, a Category ${selectedHurricane.max_category} storm that affected ${selectedHurricane.affected_countries.join(', ')}.\n\n${selectedHurricane.estimated_population_affected.toLocaleString()} people were impacted. Your mission: allocate limited resources to save lives and reduce suffering.\n\nYou have a fixed budget based on actual historical funding. Make every dollar count.`,
+        type: 'story'
+      })
+      
       const loadBudget = async () => {
         try {
           const budgetRes = await axios.get(`${API_BASE}/simulation/total-budget/${selectedHurricane.id}`)
@@ -235,6 +244,13 @@ export default function SimulationEngine() {
         console.error('Error running simulation:', error)
       }
       
+      // Show narrative pop-up about user plan completion
+      setNarrativePopup({
+        title: 'Your Response Plan Complete',
+        message: `You've allocated $${getTotalAllocated().toLocaleString()} across ${regions.length} affected regions.\n\nYour plan prioritizes specific humanitarian clusters in each region. Now let's see how an AI-optimized plan would allocate the same resources based on UN humanitarian principles.`,
+        type: 'success'
+      })
+      
       setStage(2)
       // Auto-generate ML plan when moving to stage 2
       setTimeout(() => {
@@ -274,6 +290,14 @@ export default function SimulationEngine() {
       })
       
       setMlPlan(res.data)
+      
+      // Show narrative pop-up about ML plan
+      setNarrativePopup({
+        title: 'AI-Optimized Response Plan Generated',
+        message: `The AI has analyzed the crisis using United Nations humanitarian principles:\n\n• Humanity: Prioritizing life-saving interventions\n• Neutrality: Allocating without bias\n• Impartiality: Based on need alone\n• Equity: Fair distribution across regions\n• Sustainability: Long-term recovery focus\n\nCompare your plan with this optimized allocation.`,
+        type: 'info'
+      })
+      
       // Stay on Stage 2 to show the ML plan
     } catch (error: any) {
       console.error('Error generating ML plan:', error)
@@ -311,6 +335,13 @@ export default function SimulationEngine() {
         }
       }
       
+      // Show narrative pop-up about real-world response
+      setNarrativePopup({
+        title: 'Historical Response Revealed',
+        message: `This is how ${selectedHurricane.name} was actually handled in ${selectedHurricane.year}.\n\nReal-world humanitarian response faces constraints you might not see: political pressures, logistics bottlenecks, security challenges, and competing priorities.\n\nCompare your plan, the AI's ideal plan, and what actually happened.`,
+        type: 'warning'
+      })
+      
       setStage(3)
     } catch (error) {
       console.error('Error loading real-world plan:', error)
@@ -328,7 +359,19 @@ export default function SimulationEngine() {
   }
 
   return (
-    <div className="bg-black/40 backdrop-blur-sm rounded-lg border border-cyan-500/30 p-4 h-full flex flex-col glow-cyan overflow-auto">
+    <>
+      {/* Narrative Pop-up */}
+      {narrativePopup && (
+        <NarrativePopup
+          title={narrativePopup.title}
+          message={narrativePopup.message}
+          type={narrativePopup.type || 'info'}
+          onClose={() => setNarrativePopup(null)}
+          autoClose={0}
+        />
+      )}
+      
+      <div className="bg-black/40 backdrop-blur-sm rounded-lg border border-cyan-500/30 p-4 h-full flex flex-col glow-cyan overflow-auto">
       {/* Stage Indicator */}
       <div className="mb-6 flex items-center justify-between border-b border-cyan-500/30 pb-4">
         <div>
@@ -798,7 +841,16 @@ export default function SimulationEngine() {
               )}
 
               <button
-                onClick={() => setStage('comparison')}
+                onClick={() => {
+                  if (userPlan && mlPlan && realPlan) {
+                    setNarrativePopup({
+                      title: 'Final Analysis: The Complete Picture',
+                      message: `You've seen three different approaches to responding to ${selectedHurricane?.name}:\n\n1. YOUR PLAN: Your strategic allocation based on your judgment\n2. AI IDEAL PLAN: Optimized allocation using UN humanitarian principles\n3. REAL-WORLD: How the crisis was actually handled historically\n\nExplore the metrics, visualizations, and insights below. What can we learn from these comparisons?`,
+                      type: 'story'
+                    })
+                  }
+                  setStage('comparison')
+                }}
                 disabled={!mismatchAnalysis}
                 className="w-full mt-4 bg-gradient-to-r from-purple-600 to-pink-600 text-white py-3 px-4 rounded hover:from-purple-700 hover:to-pink-700 disabled:bg-gray-600 disabled:text-gray-400 glow-purple transition-all font-semibold font-orbitron text-lg"
               >
@@ -1080,6 +1132,7 @@ export default function SimulationEngine() {
           </div>
         </div>
       )}
-    </div>
+      </div>
+    </>
   )
 }
