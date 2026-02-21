@@ -4,6 +4,7 @@ import CoverageChoropleth from './components/CoverageChoropleth'
 import SimulationEngine from './components/SimulationEngine'
 import Leaderboard from './components/Leaderboard'
 import IntroScreen from './components/IntroScreen'
+import NarrativePopup from './components/NarrativePopup'
 import { useStore } from './state/useStore'
 import axios from 'axios'
 
@@ -29,6 +30,7 @@ function App() {
   
   const [loading, setLoading] = useState(true)
   const [gameStarted, setGameStarted] = useState(false)
+  const [showWelcomePopup, setShowWelcomePopup] = useState(false)
   
   useEffect(() => {
     const fetchHurricanes = async () => {
@@ -69,6 +71,7 @@ function App() {
 
   const handleEnterGame = () => {
     setGameStarted(true)
+    setShowWelcomePopup(true)
   }
   
   // Show intro screen until game is started
@@ -77,7 +80,19 @@ function App() {
   }
   
   return (
-    <div className="w-screen h-screen flex flex-col bg-black relative" style={{ zIndex: 1 }}>
+    <>
+      {/* Welcome Narrative Pop-up */}
+      {showWelcomePopup && (
+        <NarrativePopup
+          title="Welcome to StormLine"
+          message="You are about to experience a humanitarian response simulation based on real historical hurricanes.\n\nYour mission: Allocate limited resources to save lives and reduce suffering. You'll compare your decisions against AI-optimized plans and actual historical responses.\n\nSelect a hurricane from the left panel to begin your mission."
+          type="story"
+          onClose={() => setShowWelcomePopup(false)}
+          autoClose={0}
+        />
+      )}
+      
+      <div className="w-screen h-screen flex flex-col bg-black relative" style={{ zIndex: 1 }}>
       {/* Header */}
       <header className="bg-black/80 backdrop-blur-sm border-b border-cyan-500/30 p-4 glow-cyan relative z-10">
         <div className="flex items-center justify-between">
@@ -195,6 +210,7 @@ function App() {
       </div>
       
     </div>
+    </>
   )
 }
 
