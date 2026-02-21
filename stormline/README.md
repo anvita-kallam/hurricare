@@ -4,12 +4,16 @@ A full-stack interactive web application that visualizes mismatches between huma
 
 ## Features
 
-- **3D Interactive Globe**: Rotatable, zoomable globe with Three.js and react-three-fiber
-- **Historical Hurricane Visualization**: Animated tracks for 6 major hurricanes (Katrina, Sandy, Maria, Harvey, Haiyan, Dorian)
+- **3D Interactive Globe**: Rotatable, zoomable globe with Three.js and react-three-fiber, space-themed with glowing components
+- **Historical Hurricane Visualization**: Animated tracks for 40+ major hurricanes (Katrina, Sandy, Maria, Harvey, Haiyan, Dorian, and more)
 - **Coverage Analysis**: Visualize gaps between estimated need and pooled fund coverage
 - **Project Analysis**: Sortable, filterable table of humanitarian projects
 - **Anomaly Detection**: IQR-based flagging of outlier projects (high/low budget per beneficiary)
-- **Allocation Simulator**: Interactive tool to simulate resource allocation and compare outcomes
+- **Three-Stage Simulation Engine**:
+  - **Stage 1: User Plan**: Design your own response plan with cluster-based allocation per region
+  - **Stage 2: ML Ideal Plan**: AI-optimized plan based on UN humanitarian principles
+  - **Stage 3: Real-World Response**: Historical actual allocations
+  - **Comparison Dashboard**: Side-by-side comparison with mismatch analysis and downloadable reports
 
 ## Tech Stack
 
@@ -156,6 +160,12 @@ The application will be available at `http://localhost:5173`
 - `GET /coverage?hurricane_id={id}` - Get coverage analysis
 - `GET /flags?hurricane_id={id}` - Get flagged projects
 - `POST /simulate_allocation` - Simulate resource allocation impact
+- `GET /simulation/regions/{hurricane_id}` - Get affected regions for a hurricane
+- `GET /simulation/total-budget/{hurricane_id}` - Get total actual funding for a hurricane
+- `POST /simulation/stage1/user-plan` - Create user-designed response plan
+- `POST /simulation/stage2/ml-ideal-plan` - Generate ML-optimized ideal plan
+- `GET /simulation/stage3/real-world/{hurricane_id}` - Get real-world historical response
+- `POST /simulation/mismatch-analysis` - Compare plans and generate mismatch analysis
 
 ## Usage
 
@@ -167,11 +177,13 @@ The application will be available at `http://localhost:5173`
    - Toggle auto-rotate in the header
 3. **View Projects**: Switch to the "Projects" tab to see all projects for the selected hurricane
 4. **Check Flags**: Switch to the "Flagged" tab to see anomaly-detected projects
-5. **Simulate Allocations**: 
-   - Switch to the "Simulator" tab
-   - Adjust budget sliders for each region
-   - Click "Run Simulation" to see predicted impact
-   - Compare results to current pooled fund allocation
+5. **Play the Game**: 
+   - Switch to the "Game" tab
+   - Allocate funding by cluster (Emergency Shelter, Food Security, Health, WASH, Logistics, Early Recovery) per region
+   - Click "Validate Plan & Proceed to Stage 2" to see your plan's impact
+   - Review the ML Ideal Plan optimized for UN humanitarian principles
+   - Compare with the real-world historical response
+   - View the comprehensive Comparison Dashboard with mismatch analysis
 
 ## Color Coding
 
