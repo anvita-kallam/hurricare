@@ -209,7 +209,7 @@ export function RegionalHeatmap({ userPlan, mlPlan, realPlan }: VisualizationPro
                         </div>
                         {mismatch > 20 && (
                           <div className="text-xs text-yellow-400 font-exo mt-1">
-                            ⚠️ Mismatch: {mismatch.toFixed(0)}%
+                            Mismatch: {mismatch.toFixed(0)}%
                           </div>
                         )}
                       </div>
