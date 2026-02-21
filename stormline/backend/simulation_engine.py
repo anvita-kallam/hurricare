@@ -283,9 +283,12 @@ class SimulationEngine:
         total_budget: float,
         response_window_hours: int = 72
     ) -> SimulationPlan:
-        """Stage 2: ML-generated ideal plan (UN-values-optimized)."""
+        """Stage 2: ML-generated ideal plan using CSV data."""
         # Get ideal plan text from CSV
         ideal_plan_text = self.get_ideal_plan_text(hurricane_id)
+        
+        # Parse cluster-level allocations from CSV
+        cluster_allocations = self.parse_ideal_plan_allocations(ideal_plan_text) if ideal_plan_text else {}
         
         regions = self.get_affected_regions(hurricane_id)
         
