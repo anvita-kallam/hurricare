@@ -263,13 +263,19 @@ export default function CinematicIntro({
     return 1
   }, [state.phase, state.progress])
   
+  // Ensure onComplete is called when animation completes
+  useEffect(() => {
+    if (state.phase === 'complete' && !state.isPlaying) {
+      console.log('Animation complete, calling onComplete')
+      const timer = setTimeout(() => {
+        onComplete()
+      }, 50)
+      return () => clearTimeout(timer)
+    }
+  }, [state.phase, state.isPlaying, onComplete])
+  
   // Force unmount when animation completes
   if (!state.isPlaying && state.phase === 'complete') {
-    // Call onComplete one more time to ensure it fires
-    useEffect(() => {
-      console.log('Animation complete, calling onComplete')
-      onComplete()
-    }, [])
     return null
   }
   
