@@ -4,15 +4,72 @@ import * as THREE from 'three'
 import { useFrame } from '@react-three/fiber'
 import { Html } from '@react-three/drei'
 
-const categoryColors: Record<number, string> = {
-  1: '#90EE90', // Light green
-  2: '#FFD700', // Gold
-  3: '#FF8C00', // Dark orange
-  4: '#FF4500', // Red orange
-  5: '#8B0000', // Dark red
+// Extended color palette for unique storm colors
+const stormColors = [
+  '#FF6B6B', // Coral red
+  '#4ECDC4', // Turquoise
+  '#45B7D1', // Sky blue
+  '#FFA07A', // Light salmon
+  '#98D8C8', // Mint green
+  '#F7DC6F', // Yellow
+  '#BB8FCE', // Lavender
+  '#85C1E2', // Light blue
+  '#F8B739', // Orange
+  '#52BE80', // Green
+  '#EC7063', // Pink
+  '#5DADE2', // Blue
+  '#F4D03F', // Gold
+  '#AF7AC5', // Purple
+  '#76D7C4', // Teal
+  '#F39C12', // Dark orange
+  '#E74C3C', // Red
+  '#3498DB', // Bright blue
+  '#2ECC71', // Emerald
+  '#9B59B6', // Amethyst
+  '#1ABC9C', // Turquoise
+  '#E67E22', // Carrot
+  '#34495E', // Dark blue-gray
+  '#16A085', // Dark turquoise
+  '#27AE60', // Dark green
+  '#2980B9', // Dark blue
+  '#8E44AD', // Dark purple
+  '#C0392B', // Dark red
+  '#D35400', // Dark orange
+  '#7F8C8D', // Gray
+  '#F1C40F', // Bright yellow
+  '#E91E63', // Pink
+  '#00BCD4', // Cyan
+  '#FF9800', // Orange
+  '#9C27B0', // Purple
+  '#3F51B5', // Indigo
+  '#009688', // Teal
+  '#CDDC39', // Lime
+  '#FF5722', // Deep orange
+  '#795548', // Brown
+  '#607D8B', // Blue gray
+  '#FFC107', // Amber
+  '#00E676', // Green accent
+  '#FF1744', // Red accent
+  '#3D5AFE', // Indigo accent
+  '#1DE9B6', // Teal accent
+  '#FF9100', // Orange accent
+  '#E040FB', // Purple accent
+  '#00B0FF', // Light blue accent
+  '#64FFDA', // Cyan accent
+]
+
+// Function to get a unique color for each storm based on its ID
+function getStormColor(hurricaneId: string, index: number): string {
+  // Use a simple hash function to consistently assign colors
+  let hash = 0
+  for (let i = 0; i < hurricaneId.length; i++) {
+    hash = hurricaneId.charCodeAt(i) + ((hash << 5) - hash)
+  }
+  const colorIndex = Math.abs(hash) % stormColors.length
+  return stormColors[colorIndex]
 }
 
-function HurricanePath({ hurricane, isSelected }: { hurricane: any; isSelected: boolean }) {
+function HurricanePath({ hurricane, isSelected, index }: { hurricane: any; isSelected: boolean; index: number }) {
   const [hovered, setHovered] = useState(false)
   
   const curve = useMemo(() => {
@@ -35,7 +92,8 @@ function HurricanePath({ hurricane, isSelected }: { hurricane: any; isSelected: 
     return tubeGeometry
   }, [curve])
   
-  const color = categoryColors[hurricane.max_category] || '#FFFFFF'
+  // Get unique color for this storm
+  const color = getStormColor(hurricane.id, index)
   const lineWidth = isSelected ? 0.015 : 0.008
   
   return (
@@ -122,11 +180,12 @@ export default function HurricaneLayer() {
   
   return (
     <group>
-      {hurricanes.map((hurricane) => (
+      {hurricanes.map((hurricane, index) => (
         <HurricanePath
           key={hurricane.id}
           hurricane={hurricane}
           isSelected={selectedHurricane?.id === hurricane.id}
+          index={index}
         />
       ))}
     </group>
