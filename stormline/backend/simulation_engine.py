@@ -342,14 +342,18 @@ class SimulationEngine:
             ) / sum(r["people_in_need"] * r["severity_index"] for r in regions) if regions else 0
         }
         
-        # Generate explanation
-        top_region = max(region_allocations, key=lambda a: a.budget)
-        explanation = (
-            f"Resources were prioritized toward high-severity, low-access regions. "
-            f"Top allocation: {top_region.region} (${top_region.budget:,.0f}). "
-            f"Optimization balanced lives saved ({objective_scores['humanity']:.2%}), "
-            f"equity ({objective_scores['equity']:.2%}), and impartiality ({objective_scores['impartiality']:.2%})."
-        )
+        # Get ideal plan text from CSV if available
+        ideal_plan_text = self.get_ideal_plan_text(hurricane_id)
+        
+        # Generate explanation (fallback if CSV not available)
+        if not ideal_plan_text:
+            top_region = max(region_allocations, key=lambda a: a.budget)
+            ideal_plan_text = (
+                f"Resources were prioritized toward high-severity, low-access regions. "
+                f"Top allocation: {top_region.region} (${top_region.budget:,.0f}). "
+                f"Optimization balanced lives saved ({objective_scores['humanity']:.2%}), "
+                f"equity ({objective_scores['equity']:.2%}), and impartiality ({objective_scores['impartiality']:.2%})."
+            )
         
         constraints = {
             "total_budget": total_budget,
@@ -366,7 +370,7 @@ class SimulationEngine:
             allocations=region_allocations,
             constraints_used=constraints,
             objective_scores=objective_scores,
-            explanation=explanation
+            explanation=ideal_plan_text
         )
     
     def stage_three_real_world(
