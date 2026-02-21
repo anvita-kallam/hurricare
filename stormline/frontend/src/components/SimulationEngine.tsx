@@ -45,9 +45,8 @@ interface AffectedRegion {
 }
 
 export default function SimulationEngine() {
-  const { selectedHurricane } = useStore()
+  const { selectedHurricane, coverage, projects } = useStore()
   const [stage, setStage] = useState<1 | 2 | 3 | 'comparison'>(1)
-  const [regions, setRegions] = useState<AffectedRegion[]>([])
   const [userAllocations, setUserAllocations] = useState<Record<string, number>>({})
   const [totalBudget, setTotalBudget] = useState(50000000)
   const [responseWindow, setResponseWindow] = useState(72)
@@ -59,34 +58,59 @@ export default function SimulationEngine() {
   const [validation, setValidation] = useState<{valid: boolean, errors: string[], warnings: string[]} | null>(null)
   const [simulationResult, setSimulationResult] = useState<any>(null)
 
+  // Get regions from coverage data (like AllocationPanel)
+  const regions = useMemo(() => {
+    if (!selectedHurricane) return []
+    return coverage
+      .filter(c => c.hurricane_id === selectedHurricane.id)
+      .map(c => c.admin1)
+      .filter((v, i, a) => a.indexOf(v) === i)
+  }, [selectedHurricane, coverage])
+
+  // Get current coverage data
+  const currentCoverage = useMemo(() => {
+    if (!selectedHurricane) return {}
+    const result: Record<string, any> = {}
+    coverage
+      .filter(c => c.hurricane_id === selectedHurricane.id)
+      .forEach(c => {
+        result[c.admin1] = c
+      })
+    return result
+  }, [selectedHurricane, coverage])
+
+  // Load total budget when hurricane is selected
   useEffect(() => {
     if (selectedHurricane) {
-      loadRegions()
+      const loadBudget = async () => {
+        try {
+          const budgetRes = await axios.get(`${API_BASE}/simulation/total-budget/${selectedHurricane.id}`)
+          setTotalBudget(budgetRes.data.total_budget || 50000000)
+        } catch (error) {
+          console.error('Error loading budget:', error)
+          // Calculate from coverage if API fails
+          const total = coverage
+            .filter(c => c.hurricane_id === selectedHurricane.id)
+            .reduce((sum, c) => sum + c.pooled_fund_budget, 0)
+          setTotalBudget(total || 50000000)
+        }
+      }
+      loadBudget()
     }
-  }, [selectedHurricane])
+  }, [selectedHurricane, coverage])
 
-  const loadRegions = async () => {
-    if (!selectedHurricane) return
-    
-    try {
-      const [regionsRes, budgetRes] = await Promise.all([
-        axios.get(`${API_BASE}/simulation/regions/${selectedHurricane.id}`),
-        axios.get(`${API_BASE}/simulation/total-budget/${selectedHurricane.id}`)
-      ])
-      
-      setRegions(regionsRes.data.regions)
-      setTotalBudget(budgetRes.data.total_budget)
-      
-      // Initialize allocations to zero
+  // Initialize allocations when regions change
+  useEffect(() => {
+    if (regions.length > 0) {
       const initial: Record<string, number> = {}
-      regionsRes.data.regions.forEach((r: AffectedRegion) => {
-        initial[r.admin1] = 0
+      regions.forEach(region => {
+        const cov = coverage.find(c => c.admin1 === region && c.hurricane_id === selectedHurricane?.id)
+        // Start with 0 allocation
+        initial[region] = 0
       })
       setUserAllocations(initial)
-    } catch (error) {
-      console.error('Error loading regions:', error)
     }
-  }
+  }, [regions, coverage, selectedHurricane])
 
   const handleAllocationChange = (region: string, value: number) => {
     setUserAllocations(prev => {
@@ -123,7 +147,7 @@ export default function SimulationEngine() {
       // Ensure all regions have allocations (even if 0)
       const completeAllocations: Record<string, number> = {}
       regions.forEach(region => {
-        completeAllocations[region.admin1] = userAllocations[region.admin1] || 0
+        completeAllocations[region] = userAllocations[region] || 0
       })
       
       const res = await axios.post(`${API_BASE}/simulation/stage1/user-plan`, {
@@ -299,23 +323,29 @@ export default function SimulationEngine() {
 
             {regions.length === 0 ? (
               <div className="text-center py-8 text-cyan-300/70 font-exo">
-                <div className="inline-block animate-spin rounded-full h-8 w-8 border-b-2 border-cyan-400 mb-4"></div>
-                <div>Loading regions...</div>
+                <div>No regions found. Please select a hurricane.</div>
               </div>
             ) : (
               <div className="space-y-3 max-h-96 overflow-y-auto">
                 {regions.map(region => {
-                  const currentAlloc = userAllocations[region.admin1] || 0
+                  const cov = currentCoverage[region]
+                  const currentAlloc = userAllocations[region] || 0
                   const maxForRegion = Math.max(0, currentAlloc + getRemainingBudget())
                   
                   return (
-                    <div key={region.admin1} className="bg-black/40 p-3 rounded border border-cyan-500/20">
+                    <div key={region} className="bg-black/40 p-3 rounded border border-cyan-500/20">
                       <div className="flex justify-between items-center mb-2">
                         <div>
-                          <div className="font-semibold text-cyan-200 font-exo">{region.admin1}</div>
-                          <div className="text-xs text-cyan-300/70 font-exo">
-                            Severity: {region.severity_index.toFixed(2)} • Need: {region.people_in_need.toLocaleString()} people
-                          </div>
+                          <div className="font-semibold text-cyan-200 font-exo">{region}</div>
+                          {cov && (
+                            <div className="text-xs text-cyan-300/70 font-exo">
+                              Current: ${cov.pooled_fund_budget.toLocaleString()} • 
+                              Need: ${cov.estimated_need_budget.toLocaleString()} • 
+                              Coverage: {(cov.coverage_ratio * 100).toFixed(1)}% • 
+                              Severity: {cov.severity_index.toFixed(2)} • 
+                              People in Need: {cov.people_in_need.toLocaleString()}
+                            </div>
+                          )}
                         </div>
                         <div className="text-sm font-semibold text-cyan-300 font-orbitron">
                           ${currentAlloc.toLocaleString()}
@@ -327,7 +357,7 @@ export default function SimulationEngine() {
                         max={maxForRegion}
                         step={Math.max(1000, Math.floor(maxForRegion / 100))}
                         value={currentAlloc}
-                        onChange={(e) => handleAllocationChange(region.admin1, Number(e.target.value))}
+                        onChange={(e) => handleAllocationChange(region, Number(e.target.value))}
                         className="w-full accent-cyan-500"
                       />
                       <div className="flex justify-between text-xs text-cyan-400/60 mt-1 font-exo">
