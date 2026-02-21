@@ -103,6 +103,7 @@ export function useCinematicController(
         if (prev.phase === 'fadeOut') {
           if (elapsed >= fadeOutDuration) {
             isRunningRef.current = false
+            // Call onComplete before setting state to ensure callback fires
             onComplete()
             return { ...prev, phase: 'complete', isPlaying: false }
           }
@@ -110,7 +111,11 @@ export function useCinematicController(
         }
         
         // Complete phase - stop animation
-        isRunningRef.current = false
+        if (prev.phase === 'complete') {
+          isRunningRef.current = false
+          return prev
+        }
+        
         return prev
       })
       

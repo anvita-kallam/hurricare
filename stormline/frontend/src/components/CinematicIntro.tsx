@@ -46,21 +46,25 @@ function CinematicCamera({
   useEffect(() => {
     if (track.length === 0) return
     
-    // Calculate current position along track
+    // Calculate current position along track with smooth interpolation
     const totalDuration = track.length
+    const exactIndex = progress * (totalDuration - 1)
     const currentIndex = Math.min(
-      Math.floor(progress * totalDuration),
+      Math.floor(exactIndex),
       track.length - 1
     )
     const nextIndex = Math.min(currentIndex + 1, track.length - 1)
-    const segmentProgress = (progress * totalDuration) - currentIndex
+    const segmentProgress = exactIndex - currentIndex
+    
+    // Smoothstep interpolation for smoother camera movement
+    const smoothT = segmentProgress * segmentProgress * (3 - 2 * segmentProgress)
     
     const currentPoint = track[currentIndex]
     const nextPoint = track[nextIndex]
     
-    // Interpolate position
-    const lat = currentPoint.lat + (nextPoint.lat - currentPoint.lat) * segmentProgress
-    const lon = currentPoint.lon + (nextPoint.lon - currentPoint.lon) * segmentProgress
+    // Interpolate position smoothly
+    const lat = currentPoint.lat + (nextPoint.lat - currentPoint.lat) * smoothT
+    const lon = currentPoint.lon + (nextPoint.lon - currentPoint.lon) * smoothT
     
     const stormPosition = latLonToVector3(lat, lon, 1.01)
     targetRef.current.copy(stormPosition)
@@ -69,10 +73,6 @@ function CinematicCamera({
     const offset = new THREE.Vector3(0, 0.3, 0.5).multiplyScalar(2)
     const cameraPosition = stormPosition.clone().add(offset)
     positionRef.current.copy(cameraPosition)
-    
-    // Look at storm
-    camera.position.copy(cameraPosition)
-    camera.lookAt(stormPosition)
   }, [track, progress, camera])
   
   useFrame(() => {
