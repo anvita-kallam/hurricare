@@ -5,6 +5,7 @@ from datetime import date
 import duckdb
 import json
 from dataclasses import asdict
+import threading
 
 # Daily leaderboard: { "YYYY-MM-DD": { "player_name": total_score } }
 # Resets automatically each day (new date = new dict)
@@ -42,7 +43,9 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-# Initialize database
+# Initialize database with thread-safe connection
+# DuckDB connections are not thread-safe, so we use a lock
+db_lock = threading.Lock()
 db = initialize_database()
 
 # Initialize simulation engine
@@ -57,7 +60,8 @@ def root():
 @app.get("/hurricanes", response_model=List[Hurricane])
 def get_hurricanes():
     """Get all hurricanes."""
-    results = db.execute("SELECT * FROM hurricanes").fetchall()
+    with db_lock:
+        results = db.execute("SELECT * FROM hurricanes").fetchall()
     hurricanes = []
     for row in results:
         hurricanes.append({
@@ -75,13 +79,14 @@ def get_hurricanes():
 @app.get("/projects", response_model=List[Project])
 def get_projects(hurricane_id: Optional[str] = None):
     """Get projects, optionally filtered by hurricane_id."""
-    if hurricane_id:
-        results = db.execute(
-            "SELECT * FROM projects WHERE hurricane_id = ?",
-            [hurricane_id]
-        ).fetchall()
-    else:
-        results = db.execute("SELECT * FROM projects").fetchall()
+    with db_lock:
+        if hurricane_id:
+            results = db.execute(
+                "SELECT * FROM projects WHERE hurricane_id = ?",
+                [hurricane_id]
+            ).fetchall()
+        else:
+            results = db.execute("SELECT * FROM projects").fetchall()
     
     projects = []
     for row in results:
@@ -136,7 +141,8 @@ def get_total_budget(hurricane_id: str):
         FROM projects
         WHERE hurricane_id = ?
     """
-    result = db.execute(query, [hurricane_id]).fetchone()
+    with db_lock:
+        result = db.execute(query, [hurricane_id]).fetchone()
     total_budget = result[0] if result and result[0] else 0
     return {"total_budget": float(total_budget)}
 
