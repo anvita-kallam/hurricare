@@ -5,7 +5,6 @@ import * as THREE from 'three'
 import { useCinematicController, ImpactEvent } from '../hooks/useCinematicController'
 import HurricaneSpiral from './HurricaneSpiral'
 import ImpactCallout from './ImpactCallout'
-import TrackPointCallout from './TrackPointCallout'
 import { Hurricane } from '../state/useStore'
 
 // Helper to convert lat/lon to 3D
