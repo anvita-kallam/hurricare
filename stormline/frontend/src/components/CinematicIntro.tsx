@@ -130,9 +130,13 @@ export default function CinematicIntro({
   }, [hurricane.track])
   
   const { state, start } = useCinematicController(durationHours, onComplete, 10)
+  const hasStartedRef = useRef(false)
   
   useEffect(() => {
-    start()
+    if (!hasStartedRef.current) {
+      hasStartedRef.current = true
+      start()
+    }
   }, [start])
   
   // Calculate current storm position
