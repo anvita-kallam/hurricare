@@ -1041,14 +1041,18 @@ export default function SimulationEngine({ onStartSimulation }: SimulationEngine
               </div>
             )}
 
-            {/* Data Visualizations */}
-            <div className="space-y-4 mb-6">
-              <FundingVsNeedHeatmap 
-                userPlan={userPlan} 
-                mlPlan={mlPlan} 
-                realPlan={realPlan} 
+            {/* Comparison Heatmaps - Full Screen */}
+            <div className="mb-6 h-[600px]">
+              <ComparisonHeatmaps 
+                userPlan={userPlan}
+                mlPlan={mlPlan}
+                realPlan={realPlan}
+                selectedHurricane={selectedHurricane}
               />
-              
+            </div>
+            
+            {/* Other Data Visualizations */}
+            <div className="space-y-4 mb-6">
               <CoverageGapChart 
                 userPlan={userPlan} 
                 mlPlan={mlPlan} 
@@ -1063,12 +1067,6 @@ export default function SimulationEngine({ onStartSimulation }: SimulationEngine
               />
               
               <SeverityVsFundingScatter 
-                userPlan={userPlan} 
-                mlPlan={mlPlan} 
-                realPlan={realPlan} 
-              />
-              
-              <RegionalHeatmap 
                 userPlan={userPlan} 
                 mlPlan={mlPlan} 
                 realPlan={realPlan} 
