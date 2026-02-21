@@ -90,8 +90,8 @@ def get_hurricanes():
 
 
 @app.get("/hurricanes/match")
-def find_matching_hurricane(region: str, category: int):
-    """Find the hurricane that most closely matches the given region and category."""
+def find_matching_hurricane(region: str, category: int, direction: Optional[str] = None):
+    """Find the hurricane that most closely matches the given region, category, and optional direction."""
     global db, sim_engine
     with db_lock:
         try:
@@ -178,6 +178,57 @@ def find_matching_hurricane(region: str, category: int):
                     if region_found:
                         break
         
+        # Direction match (if provided)
+        direction_match = False
+        if direction:
+            direction_lower = direction.lower().strip()
+            track = h.get("track", [])
+            if len(track) >= 2:
+                # Calculate overall direction from first to last significant point
+                # Use first 20% and last 20% of track to determine general direction
+                start_idx = max(0, len(track) // 5)
+                end_idx = min(len(track) - 1, len(track) - len(track) // 5)
+                
+                if end_idx > start_idx:
+                    start_point = track[start_idx]
+                    end_point = track[end_idx]
+                    
+                    # Calculate lat/lon differences
+                    lat_diff = end_point["lat"] - start_point["lat"]
+                    lon_diff = end_point["lon"] - start_point["lon"]
+                    
+                    # Determine primary direction
+                    # North = positive lat, South = negative lat
+                    # East = positive lon (in Western Hemisphere, negative lon means west)
+                    # For Western Hemisphere: East = less negative/more positive lon, West = more negative lon
+                    abs_lat = abs(lat_diff)
+                    abs_lon = abs(lon_diff)
+                    
+                    hurricane_direction = None
+                    if abs_lat > abs_lon:
+                        # Primarily north-south movement
+                        if lat_diff > 0:
+                            hurricane_direction = "north"
+                        else:
+                            hurricane_direction = "south"
+                    else:
+                        # Primarily east-west movement
+                        # In Western Hemisphere, lon is negative, so more negative = west, less negative = east
+                        if lon_diff > 0:
+                            hurricane_direction = "east"
+                        else:
+                            hurricane_direction = "west"
+                    
+                    # Match direction
+                    if hurricane_direction and direction_lower == hurricane_direction:
+                        score += 50
+                        direction_match = True
+                    # Also check for opposite direction (some hurricanes curve)
+                    elif hurricane_direction:
+                        opposite_map = {"north": "south", "south": "north", "east": "west", "west": "east"}
+                        if direction_lower == opposite_map.get(hurricane_direction):
+                            score += 25  # Partial match for opposite direction
+        
         # Prefer more recent hurricanes (add small bonus for recent years)
         year_bonus = max(0, (h["year"] - 2000) * 0.5)
         score += year_bonus
@@ -186,7 +237,8 @@ def find_matching_hurricane(region: str, category: int):
             "hurricane": h,
             "score": score,
             "category_match": category_diff == 0,
-            "region_match": region_found
+            "region_match": region_found,
+            "direction_match": direction_match
         })
     
     # Sort by score (highest first)

@@ -12,6 +12,8 @@ interface HurricaneMatcherProps {
 export default function HurricaneMatcher({ onMatchFound, onSkip }: HurricaneMatcherProps) {
   const [region, setRegion] = useState('')
   const [category, setCategory] = useState(3)
+  const [direction, setDirection] = useState<string>('')
+  const [extraDetails, setExtraDetails] = useState('')
   const [isSearching, setIsSearching] = useState(false)
   const [matchResult, setMatchResult] = useState<any>(null)
   const { setSelectedHurricane, hurricanes } = useStore()
@@ -24,12 +26,15 @@ export default function HurricaneMatcher({ onMatchFound, onSkip }: HurricaneMatc
 
     setIsSearching(true)
     try {
-      const response = await axios.get(`${API_BASE}/hurricanes/match`, {
-        params: {
-          region: region.trim(),
-          category: category
-        }
-      })
+      const params: any = {
+        region: region.trim(),
+        category: category
+      }
+      if (direction) {
+        params.direction = direction
+      }
+      
+      const response = await axios.get(`${API_BASE}/hurricanes/match`, { params })
       setMatchResult(response.data)
     } catch (error) {
       console.error('Error finding matching hurricane:', error)
@@ -106,6 +111,41 @@ export default function HurricaneMatcher({ onMatchFound, onSkip }: HurricaneMatc
             </div>
           </div>
 
+          {/* Direction Input (Optional) */}
+          <div>
+            <label className="block text-cyan-300 font-exo mb-2">
+              Direction (Optional)
+            </label>
+            <select
+              value={direction}
+              onChange={(e) => setDirection(e.target.value)}
+              className="w-full px-4 py-3 bg-black/60 border border-cyan-500/50 rounded-lg text-cyan-100 font-exo focus:outline-none focus:border-cyan-400 focus:glow-cyan"
+            >
+              <option value="">Select direction...</option>
+              <option value="north">North</option>
+              <option value="east">East</option>
+              <option value="south">South</option>
+              <option value="west">West</option>
+            </select>
+          </div>
+
+          {/* Extra Details (Optional, doesn't affect matching) */}
+          <div>
+            <label className="block text-cyan-300 font-exo mb-2">
+              Extra Details (Optional)
+            </label>
+            <textarea
+              value={extraDetails}
+              onChange={(e) => setExtraDetails(e.target.value)}
+              placeholder="Add any additional notes or details about the hurricane scenario..."
+              rows={3}
+              className="w-full px-4 py-3 bg-black/60 border border-cyan-500/50 rounded-lg text-cyan-100 font-exo focus:outline-none focus:border-cyan-400 focus:glow-cyan resize-none"
+            />
+            <p className="text-xs text-cyan-400 mt-1 font-exo">
+              This field does not affect matching - it's for your notes only
+            </p>
+          </div>
+
           {/* Search Button */}
           <button
             onClick={handleSearch}
@@ -134,6 +174,11 @@ export default function HurricaneMatcher({ onMatchFound, onSkip }: HurricaneMatc
                         Region Match
                       </span>
                     )}
+                    {matchResult.direction_match && (
+                      <span className="text-xs px-2 py-1 bg-blue-500/20 text-blue-300 rounded font-exo">
+                        Direction Match
+                      </span>
+                    )}
                   </div>
                 </div>
                 <div className="text-cyan-200 font-exo space-y-1">
@@ -146,6 +191,12 @@ export default function HurricaneMatcher({ onMatchFound, onSkip }: HurricaneMatc
                   <div className="text-xs text-cyan-400 mt-2">
                     Match Score: {Math.round(matchResult.score)}
                   </div>
+                  {extraDetails && (
+                    <div className="mt-3 pt-3 border-t border-cyan-500/20">
+                      <div className="text-xs text-cyan-400 font-exo mb-1">Your Notes:</div>
+                      <div className="text-sm text-cyan-300 font-exo italic">{extraDetails}</div>
+                    </div>
+                  )}
                 </div>
                 <button
                   onClick={handleSelectMatch}
