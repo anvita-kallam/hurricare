@@ -620,7 +620,7 @@ export default function SimulationEngine() {
               <div className="space-y-4">
                 {mlPlan.explanation && (
                   <div className="bg-gradient-to-r from-cyan-500/20 to-blue-500/20 border border-cyan-500/30 p-4 rounded text-sm text-cyan-100 font-exo glow-cyan">
-                    <div className="font-semibold mb-2 text-cyan-200 font-orbitron">✨ AI Optimization Summary</div>
+                    <div className="font-semibold mb-2 text-cyan-200 font-orbitron">AI Optimization Summary</div>
                     {mlPlan.explanation}
                   </div>
                 )}
@@ -706,7 +706,7 @@ export default function SimulationEngine() {
                 {/* Visual comparison with user plan */}
                 {userPlan && (
                   <div className="mt-4 p-3 bg-purple-500/10 border border-purple-500/30 rounded">
-                    <div className="text-sm font-semibold mb-2 text-purple-300 font-orbitron">📊 Your Plan vs Ideal</div>
+                    <div className="text-sm font-semibold mb-2 text-purple-300 font-orbitron">Your Plan vs Ideal</div>
                     <div className="space-y-2 text-xs font-exo">
                       {mlPlan.allocations.map(mlAlloc => {
                         const userAlloc = userPlan.allocations.find(a => a.region === mlAlloc.region)
@@ -732,7 +732,7 @@ export default function SimulationEngine() {
                   disabled={loading}
                   className="w-full mt-4 bg-gradient-to-r from-cyan-600 to-blue-600 text-white py-3 px-4 rounded hover:from-cyan-700 hover:to-blue-700 disabled:bg-gray-600 disabled:text-gray-400 glow-cyan transition-all font-semibold font-orbitron text-lg"
                 >
-                  {loading ? 'Loading Real-World Data...' : '→ Proceed to Stage 3: Real-World Response'}
+                  {loading ? 'Loading Real-World Data...' : 'Proceed to Stage 3: Real-World Response'}
                 </button>
               </div>
             ) : (
@@ -802,7 +802,7 @@ export default function SimulationEngine() {
                 disabled={!mismatchAnalysis}
                 className="w-full mt-4 bg-gradient-to-r from-purple-600 to-pink-600 text-white py-3 px-4 rounded hover:from-purple-700 hover:to-pink-700 disabled:bg-gray-600 disabled:text-gray-400 glow-purple transition-all font-semibold font-orbitron text-lg"
               >
-                {mismatchAnalysis ? '→ View Full Comparison Dashboard' : 'Generating Analysis...'}
+                {mismatchAnalysis ? 'View Full Comparison Dashboard' : 'Generating Analysis...'}
               </button>
             </div>
           </div>
@@ -818,7 +818,7 @@ export default function SimulationEngine() {
             {/* Narrative Summary */}
             {mismatchAnalysis?.narrative && (
               <div className="bg-gradient-to-r from-yellow-500/20 to-orange-500/20 border border-yellow-500/30 p-4 rounded mb-4 text-sm text-yellow-100 font-exo glow-yellow">
-                <div className="font-semibold mb-2 text-yellow-200 font-orbitron">📊 Key Insights</div>
+                <div className="font-semibold mb-2 text-yellow-200 font-orbitron">Key Insights</div>
                 <p>{mismatchAnalysis.narrative}</p>
               </div>
             )}
@@ -1023,7 +1023,7 @@ export default function SimulationEngine() {
             {/* Most Overlooked Regions */}
             {mismatchAnalysis?.overlooked_regions && mismatchAnalysis.overlooked_regions.length > 0 && (
               <div className="mb-6">
-                <div className="text-sm font-semibold mb-3 text-red-300 font-orbitron">⚠️ Most Underfunded Regions</div>
+                <div className="text-sm font-semibold mb-3 text-red-300 font-orbitron">Most Underfunded Regions</div>
                 <div className="space-y-2">
                   {mismatchAnalysis.overlooked_regions.slice(0, 5).map((region: any, i: number) => {
                     const gap = region.ideal_budget - region.actual_budget
