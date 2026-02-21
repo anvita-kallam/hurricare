@@ -165,35 +165,35 @@ function App() {
     <>
       {/* Confirmation Dialog */}
       {showConfirmDialog && pendingHurricane && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-sm">
-          <div className="bg-black/90 border-2 border-cyan-500/50 rounded-lg p-6 max-w-md mx-4 glow-cyan">
-            <h2 className="text-2xl font-bold text-glow-cyan font-orbitron mb-4">
+        <div className="fixed inset-0 z-50 pointer-events-none">
+          <div className="absolute top-20 right-8 bg-black/90 border-2 border-cyan-500/50 rounded-lg p-4 max-w-sm glow-cyan pointer-events-auto">
+            <h2 className="text-xl font-bold text-glow-cyan font-orbitron mb-3">
               Start Simulation
             </h2>
             {cinematicHurricane && (
-              <div className="text-cyan-200 font-exo mb-6 space-y-2">
-                <p>You are about to enter the simulation for:</p>
-                <p className="text-xl font-bold text-cyan-100">
+              <div className="text-cyan-200 font-exo mb-4 space-y-1.5 text-sm">
+                <p className="text-cyan-300/90">Enter simulation for:</p>
+                <p className="text-lg font-bold text-cyan-100">
                   {cinematicHurricane.name} ({cinematicHurricane.year})
                 </p>
-                <p className="text-sm text-cyan-300/80">
+                <p className="text-xs text-cyan-300/80">
                   Category {cinematicHurricane.max_category} • {cinematicHurricane.estimated_population_affected.toLocaleString()} affected
                 </p>
-                <p className="text-sm text-cyan-400/70 mt-4">
-                  A brief cinematic will play showing the hurricane's progression.
+                <p className="text-xs text-cyan-400/70 mt-2">
+                  A brief cinematic will play.
                 </p>
               </div>
             )}
-            <div className="flex gap-4">
+            <div className="flex gap-3">
               <button
                 onClick={handleConfirmSimulation}
-                className="flex-1 px-4 py-2 rounded bg-cyan-600 hover:bg-cyan-500 text-white font-semibold font-orbitron transition"
+                className="flex-1 px-3 py-2 rounded bg-cyan-600 hover:bg-cyan-500 text-white font-semibold font-orbitron text-sm transition"
               >
-                Enter Simulation
+                Enter
               </button>
               <button
                 onClick={handleCancelSimulation}
-                className="flex-1 px-4 py-2 rounded bg-gray-700 hover:bg-gray-600 text-gray-200 font-semibold font-exo transition"
+                className="flex-1 px-3 py-2 rounded bg-gray-700 hover:bg-gray-600 text-gray-200 font-semibold font-exo text-sm transition"
               >
                 Cancel
               </button>
