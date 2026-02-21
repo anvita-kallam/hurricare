@@ -903,6 +903,216 @@ export default function SimulationEngine({ onStartSimulation }: SimulationEngine
           </div>
         </div>
       )}
+
+      {/* Stage 4: Comparison Dashboard */}
+      {stage === 'comparison' && mlPlan && realPlan && (
+        <div className="flex-1 space-y-4 overflow-y-auto">
+          <div className="bg-black/60 p-4 rounded border border-cyan-500/20">
+            <h3 className="text-2xl font-semibold mb-6 text-cyan-200 font-orbitron">Comparison Dashboard: Ideal vs Real-World</h3>
+            
+            <div className="space-y-6">
+              {/* Summary Metrics */}
+              <div className="grid grid-cols-2 gap-4">
+                {/* Ideal Plan Summary */}
+                <div className="bg-gradient-to-br from-cyan-500/20 to-blue-500/20 border border-cyan-500/30 p-4 rounded">
+                  <div className="font-semibold mb-3 text-cyan-200 font-orbitron text-lg">Ideal Plan (ML-Optimized)</div>
+                  <div className="space-y-2 text-sm font-exo">
+                    <div className="flex justify-between">
+                      <span className="text-cyan-300/70">Total Budget:</span>
+                      <span className="text-cyan-200 font-orbitron">${mlPlan.total_budget.toLocaleString()}</span>
+                    </div>
+                    <div className="flex justify-between">
+                      <span className="text-cyan-300/70">People Covered:</span>
+                      <span className="text-cyan-200 font-orbitron">
+                        {mlPlan.allocations.reduce((sum, a) => sum + (a.coverage_estimate?.people_covered || 0), 0).toLocaleString()}
+                      </span>
+                    </div>
+                    <div className="flex justify-between">
+                      <span className="text-cyan-300/70">Avg Coverage:</span>
+                      <span className="text-cyan-200 font-orbitron">
+                        {(mlPlan.allocations.reduce((sum, a) => sum + (a.coverage_estimate?.coverage_ratio || 0), 0) / mlPlan.allocations.length * 100).toFixed(1)}%
+                      </span>
+                    </div>
+                    {mlPlan.objective_scores && (
+                      <div className="mt-3 pt-3 border-t border-cyan-500/30">
+                        <div className="text-xs text-cyan-300/70 mb-2 font-orbitron">UN Values Performance:</div>
+                        <div className="space-y-1">
+                          {Object.entries(mlPlan.objective_scores).map(([key, value]) => (
+                            <div key={key} className="flex justify-between text-xs">
+                              <span className="text-cyan-300/70 capitalize">{key.replace('_', ' ')}:</span>
+                              <span className="text-cyan-200">{(Number(value) * 100).toFixed(1)}%</span>
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+                    )}
+                  </div>
+                </div>
+
+                {/* Real-World Plan Summary */}
+                <div className="bg-gradient-to-br from-red-500/20 to-orange-500/20 border border-red-500/30 p-4 rounded">
+                  <div className="font-semibold mb-3 text-red-200 font-orbitron text-lg">Real-World Response</div>
+                  <div className="space-y-2 text-sm font-exo">
+                    <div className="flex justify-between">
+                      <span className="text-red-300/70">Total Budget:</span>
+                      <span className="text-red-200 font-orbitron">${realPlan.total_budget.toLocaleString()}</span>
+                    </div>
+                    <div className="flex justify-between">
+                      <span className="text-red-300/70">People Covered:</span>
+                      <span className="text-red-200 font-orbitron">
+                        {realPlan.allocations.reduce((sum, a) => sum + (a.coverage_estimate?.people_covered || 0), 0).toLocaleString()}
+                      </span>
+                    </div>
+                    <div className="flex justify-between">
+                      <span className="text-red-300/70">Avg Coverage:</span>
+                      <span className="text-red-200 font-orbitron">
+                        {(realPlan.allocations.reduce((sum, a) => sum + (a.coverage_estimate?.coverage_ratio || 0), 0) / realPlan.allocations.length * 100).toFixed(1)}%
+                      </span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              {/* Gap Analysis */}
+              <div className="bg-yellow-500/10 border border-yellow-500/30 p-4 rounded">
+                <div className="font-semibold mb-3 text-yellow-200 font-orbitron">Funding Gap Analysis</div>
+                <div className="grid grid-cols-3 gap-4 text-sm font-exo">
+                  <div>
+                    <div className="text-yellow-300/70 mb-1">Budget Difference:</div>
+                    <div className="text-lg font-semibold text-yellow-200 font-orbitron">
+                      ${(mlPlan.total_budget - realPlan.total_budget).toLocaleString()}
+                    </div>
+                    <div className="text-xs text-yellow-300/70 mt-1">
+                      {((mlPlan.total_budget - realPlan.total_budget) / realPlan.total_budget * 100).toFixed(1)}% {mlPlan.total_budget > realPlan.total_budget ? 'more' : 'less'} than real-world
+                    </div>
+                  </div>
+                  <div>
+                    <div className="text-yellow-300/70 mb-1">People Coverage Gap:</div>
+                    <div className="text-lg font-semibold text-yellow-200 font-orbitron">
+                      {(mlPlan.allocations.reduce((sum, a) => sum + (a.coverage_estimate?.people_covered || 0), 0) - 
+                        realPlan.allocations.reduce((sum, a) => sum + (a.coverage_estimate?.people_covered || 0), 0)).toLocaleString()}
+                    </div>
+                    <div className="text-xs text-yellow-300/70 mt-1">Additional people that could be covered</div>
+                  </div>
+                  <div>
+                    <div className="text-yellow-300/70 mb-1">Coverage Ratio Gap:</div>
+                    <div className="text-lg font-semibold text-yellow-200 font-orbitron">
+                      {((mlPlan.allocations.reduce((sum, a) => sum + (a.coverage_estimate?.coverage_ratio || 0), 0) / mlPlan.allocations.length) - 
+                        (realPlan.allocations.reduce((sum, a) => sum + (a.coverage_estimate?.coverage_ratio || 0), 0) / realPlan.allocations.length)) * 100).toFixed(1)}%
+                    </div>
+                    <div className="text-xs text-yellow-300/70 mt-1">Difference in average coverage</div>
+                  </div>
+                </div>
+              </div>
+
+              {/* Regional Comparison Table */}
+              <div>
+                <div className="text-sm font-semibold mb-3 text-cyan-200 font-orbitron">Regional Allocation Comparison</div>
+                <div className="max-h-96 overflow-y-auto">
+                  <table className="w-full text-xs font-exo">
+                    <thead className="bg-black/60 sticky top-0">
+                      <tr className="border-b border-cyan-500/30">
+                        <th className="text-left p-2 text-cyan-300 font-orbitron">Region</th>
+                        <th className="text-right p-2 text-cyan-300 font-orbitron">Ideal Budget</th>
+                        <th className="text-right p-2 text-cyan-300 font-orbitron">Real Budget</th>
+                        <th className="text-right p-2 text-cyan-300 font-orbitron">Gap</th>
+                        <th className="text-right p-2 text-cyan-300 font-orbitron">Ideal Coverage</th>
+                        <th className="text-right p-2 text-cyan-300 font-orbitron">Real Coverage</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {realPlan.allocations.map(realAlloc => {
+                        const idealAlloc = mlPlan.allocations.find(a => a.region === realAlloc.region)
+                        const gap = idealAlloc ? idealAlloc.budget - realAlloc.budget : -realAlloc.budget
+                        const gapPercent = realAlloc.budget > 0 ? (gap / realAlloc.budget) * 100 : 0
+                        
+                        return (
+                          <tr key={realAlloc.region} className="border-b border-cyan-500/10 hover:bg-cyan-500/5">
+                            <td className="p-2 text-cyan-200">{realAlloc.region}</td>
+                            <td className="p-2 text-right text-cyan-300">
+                              ${(idealAlloc?.budget || 0).toLocaleString()}
+                            </td>
+                            <td className="p-2 text-right text-red-300">
+                              ${realAlloc.budget.toLocaleString()}
+                            </td>
+                            <td className={`p-2 text-right font-orbitron ${
+                              gap > 0 ? 'text-yellow-400' : gap < 0 ? 'text-green-400' : 'text-cyan-300'
+                            }`}>
+                              {gap > 0 ? '+' : ''}${gap.toLocaleString()}
+                              <div className="text-xs text-cyan-300/70">
+                                ({gap > 0 ? '+' : ''}{gapPercent.toFixed(0)}%)
+                              </div>
+                            </td>
+                            <td className="p-2 text-right text-cyan-300">
+                              {(idealAlloc?.coverage_estimate?.coverage_ratio || 0 * 100).toFixed(1)}%
+                            </td>
+                            <td className="p-2 text-right text-red-300">
+                              {(realAlloc.coverage_estimate?.coverage_ratio || 0 * 100).toFixed(1)}%
+                            </td>
+                          </tr>
+                        )
+                      })}
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+
+              {/* Data Visualizations */}
+              {userPlan && (
+                <div className="space-y-4">
+                  <div className="text-sm font-semibold mb-3 text-cyan-200 font-orbitron">Visual Comparisons</div>
+                  
+                  <FundingVsNeedHeatmap 
+                    userPlan={userPlan} 
+                    mlPlan={mlPlan} 
+                    realPlan={realPlan} 
+                  />
+                  
+                  <SeverityVsFundingScatter 
+                    userPlan={userPlan} 
+                    mlPlan={mlPlan} 
+                    realPlan={realPlan} 
+                  />
+                  
+                  <RegionalHeatmap 
+                    userPlan={userPlan} 
+                    mlPlan={mlPlan} 
+                    realPlan={realPlan} 
+                  />
+                </div>
+              )}
+
+              {/* Mismatch Analysis */}
+              {mismatchAnalysis && (
+                <div className="bg-purple-500/10 border border-purple-500/30 p-4 rounded">
+                  <div className="font-semibold mb-3 text-purple-200 font-orbitron">Key Insights</div>
+                  {mismatchAnalysis.narrative && (
+                    <div className="text-sm text-purple-100 font-exo mb-4 whitespace-pre-line">
+                      {mismatchAnalysis.narrative}
+                    </div>
+                  )}
+                  {mismatchAnalysis.overlooked_regions && mismatchAnalysis.overlooked_regions.length > 0 && (
+                    <div>
+                      <div className="text-xs font-semibold mb-2 text-purple-300 font-orbitron">Most Underfunded Regions:</div>
+                      <div className="space-y-2">
+                        {mismatchAnalysis.overlooked_regions.slice(0, 5).map((region: any, i: number) => (
+                          <div key={i} className="bg-red-500/10 border border-red-500/30 p-2 rounded text-xs">
+                            <div className="font-semibold text-red-200">{region.region}</div>
+                            <div className="text-red-300/70">
+                              Gap: {Math.abs((region.coverage_gap || 0) * 100).toFixed(0)}% • 
+                              Missing: ${(region.ideal_budget - region.actual_budget).toLocaleString()}
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+                </div>
+              )}
+            </div>
+          </div>
+        </div>
+      )}
       </div>
     </>
   )
