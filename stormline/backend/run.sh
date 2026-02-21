@@ -5,4 +5,4 @@ echo "Starting StormLine Backend..."
 echo "Make sure you've installed dependencies: pip install -r requirements.txt"
 echo ""
 
-python main.py
+python main_simple.py

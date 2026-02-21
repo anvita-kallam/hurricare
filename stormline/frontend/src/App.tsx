@@ -2,9 +2,9 @@ import { useEffect, useState } from 'react'
 import Globe from './components/Globe'
 import ProjectTable from './components/ProjectTable'
 import FlaggedProjects from './components/FlaggedProjects'
-import AllocationPanel from './components/AllocationPanel'
 import CoverageChoropleth from './components/CoverageChoropleth'
 import SimulationEngine from './components/SimulationEngine'
+import Leaderboard from './components/Leaderboard'
 import { useStore } from './state/useStore'
 import axios from 'axios'
 
@@ -23,6 +23,9 @@ function App() {
     toggleCoverageOverlay,
     autoSpin,
     setAutoSpin,
+    lastSimulationScore,
+    leaderboardOpen,
+    setLeaderboardOpen,
   } = useStore()
   
   const [loading, setLoading] = useState(true)
@@ -103,9 +106,21 @@ function App() {
               />
               <span className="text-sm">Coverage Overlay</span>
             </label>
+            <button
+              onClick={() => setLeaderboardOpen(true)}
+              className="px-3 py-1.5 rounded bg-cyan-600/80 hover:bg-cyan-600 text-cyan-100 text-sm font-semibold font-orbitron transition"
+            >
+              Daily Leaderboard
+            </button>
           </div>
         </div>
       </header>
+
+      <Leaderboard
+        isOpen={leaderboardOpen}
+        onClose={() => setLeaderboardOpen(false)}
+        lastScore={lastSimulationScore}
+      />
       
       {/* Main Content */}
       <div className="flex-1 flex overflow-hidden relative z-10">

@@ -1,11 +1,12 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from typing import Optional
+from datetime import date
 import json
 import csv
 from pathlib import Path
 
-app = FastAPI(title="StormLine API - Hurricanes Only", version="1.0.0")
+app = FastAPI(title="StormLine API", version="1.0.0")
 
 # CORS middleware
 app.add_middleware(
@@ -33,6 +34,39 @@ with open(severity_file, 'r') as f:
             "severity_index": float(row["severity_index"]),
             "estimated_people_in_need": int(row["estimated_people_in_need"])
         })
+
+# Load projects data
+projects_data = []
+projects_file = Path(__file__).parent / "sample_data" / "projects.csv"
+if projects_file.exists():
+    with open(projects_file, 'r') as f:
+        reader = csv.DictReader(f)
+        for row in reader:
+            projects_data.append({
+                "project_id": row["project_id"],
+                "hurricane_id": row["hurricane_id"],
+                "country": row["country"],
+                "admin1": row["admin1"],
+                "cluster": row["cluster"],
+                "budget_usd": float(row["budget_usd"]),
+                "beneficiaries": int(row["beneficiaries"]),
+                "pooled_fund": row["pooled_fund"].lower() in ("true", "1", "yes"),
+                "implementing_partner": row["implementing_partner"]
+            })
+
+# Daily leaderboard (resets each day)
+_leaderboard: dict = {}
+
+
+def _today_key() -> str:
+    return date.today().isoformat()
+
+
+def _get_daily_scores() -> dict:
+    key = _today_key()
+    if key not in _leaderboard:
+        _leaderboard[key] = {}
+    return _leaderboard[key]
 
 
 @app.get("/")
@@ -214,6 +248,185 @@ def simulate_allocation(request: dict):
             "simulated_lives_covered": total_lives_saved,
             "improvement": total_lives_saved
         }
+    }
+
+
+# Leaderboard endpoints
+@app.post("/leaderboard/submit")
+def submit_leaderboard_score(data: dict):
+    """Submit a simulation score. Adds to player's daily total."""
+    player_name = (data.get("player_name") or "Anonymous").strip() or "Anonymous"
+    score = float(data.get("score", 0))
+    if score < 0:
+        score = 0
+    daily = _get_daily_scores()
+    daily[player_name] = daily.get(player_name, 0) + score
+    return {
+        "ok": True,
+        "player_name": player_name,
+        "score_added": score,
+        "total_today": daily[player_name],
+    }
+
+
+@app.get("/leaderboard/daily")
+def get_daily_leaderboard(limit: int = 10):
+    """Get top players for today. Resets each day."""
+    daily = _get_daily_scores()
+    sorted_entries = sorted(
+        daily.items(),
+        key=lambda x: x[1],
+        reverse=True
+    )[:limit]
+    return {
+        "date": _today_key(),
+        "entries": [{"rank": i + 1, "player_name": name, "score": s} for i, (name, s) in enumerate(sorted_entries)],
+    }
+
+
+# Simulation engine endpoints (simplified for main_simple)
+@app.get("/simulation/total-budget/{hurricane_id}")
+def get_total_budget(hurricane_id: str):
+    """Get total pooled fund budget for a hurricane."""
+    total = sum(p["budget_usd"] for p in projects_data if p["hurricane_id"] == hurricane_id and p["pooled_fund"])
+    return {"total_budget": float(total) if total > 0 else 50000000}
+
+
+def _make_coverage_estimate(people_in_need: int, severity_index: float, budget: float) -> dict:
+    unit_cost = 500
+    people_covered = min(int(budget / unit_cost), people_in_need)
+    coverage_ratio = people_covered / people_in_need if people_in_need > 0 else 0
+    return {
+        "people_covered": people_covered,
+        "coverage_ratio": coverage_ratio,
+        "unmet_need": people_in_need - people_covered,
+        "severity_weighted_impact": coverage_ratio * severity_index * people_in_need,
+    }
+
+
+@app.post("/simulation/stage1/user-plan")
+def create_user_plan(request: dict):
+    """Stage 1: Create user-designed response plan (simplified)."""
+    hurricane_id = request.get("hurricane_id")
+    allocations = request.get("allocations", {})
+    total_budget = request.get("total_budget", 50000000)
+    response_window_hours = request.get("response_window_hours", 72)
+
+    hurricane_severity = [s for s in severity_data if s["hurricane_id"] == hurricane_id]
+    plan_allocations = []
+    for s in hurricane_severity:
+        region = s["admin1"]
+        budget = allocations.get(region, 0)
+        cov = _make_coverage_estimate(
+            s["estimated_people_in_need"],
+            s["severity_index"],
+            budget,
+        )
+        plan_allocations.append({
+            "region": region,
+            "budget": float(budget),
+            "resources": {"shelters": 0, "hospital_beds": 0, "responder_units": 0, "evac_vehicles": 0, "food_days": 0, "power_units": 0},
+            "coverage_estimate": cov,
+        })
+
+    return {
+        "plan_type": "user",
+        "hurricane_id": hurricane_id,
+        "total_budget": total_budget,
+        "response_window_hours": response_window_hours,
+        "allocations": plan_allocations,
+        "constraints_used": {},
+        "objective_scores": None,
+        "explanation": None,
+    }
+
+
+@app.post("/simulation/stage2/ml-ideal-plan")
+def create_ml_ideal_plan(request: dict):
+    """Stage 2: Generate ML-optimized ideal plan (simplified)."""
+    hurricane_id = request.get("hurricane_id")
+    total_budget = request.get("total_budget", 50000000)
+    response_window_hours = request.get("response_window_hours", 72)
+
+    hurricane_severity = sorted(
+        [s for s in severity_data if s["hurricane_id"] == hurricane_id],
+        key=lambda x: x["severity_index"] * x["estimated_people_in_need"],
+        reverse=True,
+    )
+    remaining = total_budget
+    plan_allocations = []
+    for s in hurricane_severity:
+        need = s["severity_index"] * s["estimated_people_in_need"] * 500
+        budget = min(remaining, need)
+        remaining -= budget
+        cov = _make_coverage_estimate(s["estimated_people_in_need"], s["severity_index"], budget)
+        plan_allocations.append({
+            "region": s["admin1"],
+            "budget": float(budget),
+            "resources": {"shelters": 0, "hospital_beds": 0, "responder_units": 0, "evac_vehicles": 0, "food_days": 0, "power_units": 0},
+            "coverage_estimate": cov,
+        })
+
+    return {
+        "plan_type": "ml_ideal",
+        "hurricane_id": hurricane_id,
+        "total_budget": total_budget,
+        "response_window_hours": response_window_hours,
+        "allocations": plan_allocations,
+        "constraints_used": {},
+        "objective_scores": {"humanity": 0.9, "neutrality": 0.85, "impartiality": 0.9, "equity": 0.85, "sustainability": 0.8},
+        "explanation": "Optimized allocation prioritizing highest severity-weighted need regions.",
+    }
+
+
+@app.get("/simulation/stage3/real-world/{hurricane_id}")
+def get_real_world_plan(hurricane_id: str):
+    """Stage 3: Get real-world historical response (from projects)."""
+    projs = [p for p in projects_data if p["hurricane_id"] == hurricane_id]
+    by_region = {}
+    for p in projs:
+        r = p["admin1"]
+        by_region[r] = by_region.get(r, 0) + p["budget_usd"]
+
+    hurricane_severity = [s for s in severity_data if s["hurricane_id"] == hurricane_id]
+    plan_allocations = []
+    for s in hurricane_severity:
+        budget = by_region.get(s["admin1"], 0)
+        cov = _make_coverage_estimate(s["estimated_people_in_need"], s["severity_index"], budget)
+        plan_allocations.append({
+            "region": s["admin1"],
+            "budget": float(budget),
+            "resources": {"shelters": 0, "hospital_beds": 0, "responder_units": 0, "evac_vehicles": 0, "food_days": 0, "power_units": 0},
+            "coverage_estimate": cov,
+        })
+
+    total_budget = sum(by_region.values()) or 50000000
+    return {
+        "plan_type": "real_world",
+        "hurricane_id": hurricane_id,
+        "total_budget": total_budget,
+        "response_window_hours": 72,
+        "allocations": plan_allocations,
+        "constraints_used": {},
+        "objective_scores": None,
+        "explanation": None,
+    }
+
+
+@app.post("/simulation/mismatch-analysis")
+def get_mismatch_analysis(request: dict):
+    """Generate mismatch analysis (simplified stub)."""
+    ideal = request.get("ideal_plan", {})
+    real = request.get("real_plan", {})
+    ideal_total = sum(a.get("coverage_estimate", {}).get("people_covered", 0) for a in ideal.get("allocations", []))
+    real_total = sum(a.get("coverage_estimate", {}).get("people_covered", 0) for a in real.get("allocations", []))
+    diff = ideal_total - real_total if real_total else ideal_total
+    return {
+        "narrative": f"The ideal plan would have covered {ideal_total:,.0f} people vs real-world {real_total:,.0f}, a gap of {diff:,.0f}.",
+        "equity_deviation": 0.15,
+        "efficiency_loss": 0.12,
+        "overlooked_regions": [],
+        "comparison": {"differences": {"coverage_diff": diff / max(1, ideal_total)}},
     }
 
 

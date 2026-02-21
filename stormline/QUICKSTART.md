@@ -15,7 +15,7 @@ cd stormline/backend
 python3 -m venv venv
 source venv/bin/activate  # On Windows: venv\Scripts\activate
 pip install -r requirements.txt
-python main.py
+python main_simple.py
 ```
 
 The backend will start on `http://localhost:8000`
@@ -51,6 +51,13 @@ Navigate to `http://localhost:5173` in your browser.
    - Review the ML Ideal Plan (AI-optimized based on UN principles)
    - Compare with real-world historical response
    - Explore the Comparison Dashboard for detailed mismatch analysis
+
+## Which Backend to Use
+
+- **main_simple.py** (recommended): No DuckDB/scipy needed. Has all endpoints including simulation and leaderboard.
+- **main.py**: Full backend with DuckDB—requires `duckdb`, `scipy`, `numpy` in requirements.txt.
+
+**If you see 404 errors** (leaderboard, simulation endpoints): stop any running backend (Ctrl+C), then run `python main_simple.py`.
 
 ## Troubleshooting
 
