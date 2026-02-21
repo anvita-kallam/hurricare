@@ -216,13 +216,11 @@ export default function CinematicIntro({
                 <>
                   <HurricaneTrack track={hurricane.track} progress={state.progress} />
                   
-              <group position={currentStormPosition}>
-                <HurricaneSpiral
-                  position={new THREE.Vector3(0, 0, 0)}
-                  intensity={stormIntensity}
-                  radius={0.15 + stormIntensity * 0.1}
-                />
-              </group>
+                  <HurricaneSpiral
+                    position={currentStormPosition}
+                    intensity={stormIntensity}
+                    radius={0.15 + stormIntensity * 0.1}
+                  />
                   
                   {visibleEvents.map((event, i) => {
                     const eventPosition = latLonToVector3(
