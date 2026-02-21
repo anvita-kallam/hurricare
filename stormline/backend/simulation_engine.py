@@ -305,6 +305,14 @@ class SimulationEngine:
         # Final allocations = minimum + additional optimized allocations
         optimal_allocations = min_allocation_per_region + additional_allocations
         
+        # Ensure no region gets less than minimum (safety check)
+        optimal_allocations = np.maximum(optimal_allocations, min_allocation_per_region)
+        
+        # Normalize to ensure total equals total_budget (handle floating point errors)
+        total_allocated = optimal_allocations.sum()
+        if total_allocated > 0:
+            optimal_allocations = optimal_allocations * (total_budget / total_allocated)
+        
         # Build plan
         region_allocations = []
         total_lives_saved = 0
@@ -314,6 +322,9 @@ class SimulationEngine:
         for i, region_data in enumerate(regions):
             region = region_data["admin1"]
             budget = float(optimal_allocations[i])
+            
+            # Final safety check: ensure budget is at least $1
+            budget = max(budget, 1.0)
             
             native_res = self.get_native_resources(hurricane_id, region)
             people_in_need = region_data["people_in_need"]
