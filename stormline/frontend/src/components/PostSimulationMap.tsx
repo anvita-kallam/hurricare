@@ -50,7 +50,7 @@ function useRegionTransform(affectedRegions: string[]) {
     const scale = 12 / Math.max(spanLon, spanLat)
 
     const transform = (lon: number, lat: number): [number, number] => [
-      (lon - cLon) * scale,
+      -(lon - cLon) * scale,
       (lat - cLat) * scale,
     ]
 
