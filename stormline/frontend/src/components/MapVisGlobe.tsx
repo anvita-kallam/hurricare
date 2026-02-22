@@ -140,7 +140,7 @@ export default function MapVisGlobe({
 
       <div className={`globe-container${blurring ? ' motion-blur' : ''}`}>
         <Canvas camera={{ position: [0, 0, 2.9], fov: 50 }} dpr={[1, 2]}>
-          <GlobeScene selected={selected} onSelect={handleSelect} hoverEnabled={hoverEnabled} onHurricaneClick={handleHurricaneClick} />
+          <GlobeScene selected={selected} onSelect={handleSelect} hoverEnabled={hoverEnabled} onHurricaneClick={handleHurricaneClick} selectedHurricane={selectedHurricane} />
         </Canvas>
       </div>
 
