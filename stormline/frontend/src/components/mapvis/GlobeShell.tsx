@@ -1,5 +1,3 @@
-import { useRef } from 'react'
-import { useFrame } from '@react-three/fiber'
 import * as THREE from 'three'
 
 const LAYERS = [
@@ -13,27 +11,19 @@ const LAYERS = [
 ]
 
 export default function GlobeShell() {
-  const matRefs = useRef<THREE.Material[]>([])
-
-  useFrame(({ clock }) => {
-    const pulse = Math.sin(clock.elapsedTime * 0.9) * 0.04
-    matRefs.current.forEach((mat: any, i) => {
-      if (mat) mat.opacity = LAYERS[i].opacity * (1 + pulse)
-    })
-  })
-
   return (
     <>
-      <mesh renderOrder={0}>
+      {/* Base globe sphere — renderOrder 1 */}
+      <mesh renderOrder={1}>
         <sphereGeometry args={[1, 128, 128]} />
         <meshBasicMaterial color="#000000" />
       </mesh>
 
+      {/* Atmosphere halo layers — renderOrder 2-8, static opacity (no pulsing) */}
       {LAYERS.map(({ r, color, opacity }, i) => (
-        <mesh key={r} renderOrder={i + 5}>
+        <mesh key={r} renderOrder={i + 2}>
           <sphereGeometry args={[r, 48, 48]} />
           <meshBasicMaterial
-            ref={el => {if (el) matRefs.current[i] = el}}
             color={color}
             transparent
             opacity={opacity}
