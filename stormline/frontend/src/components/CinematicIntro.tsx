@@ -9,6 +9,8 @@ import HurricaneSpiral from './HurricaneSpiral'
 import ImpactCallout from './ImpactCallout'
 import CinematicGlobe from './CinematicGlobe'
 import { Hurricane, useStore } from '../state/useStore'
+import TypewriterText, { CountUpText } from './TypewriterText'
+import { playPanelSlide, playPanelSettle, playRipple, playTonalSweep, playPulse } from '../audio/SoundEngine'
 
 function latLonToVector3(lat: number, lon: number, radius: number = 1): THREE.Vector3 {
   const phi = (90 - lat) * (Math.PI / 180)
@@ -410,6 +412,22 @@ export default function CinematicIntro({
     return () => clearTimeout(timeout)
   }, [stop, safeComplete])
 
+  // Sound: tonal sweep + panel sounds on phase transitions
+  const lastPhaseRef = useRef(state.phase)
+  useEffect(() => {
+    if (state.phase !== lastPhaseRef.current) {
+      if (state.phase === 'playing') {
+        playTonalSweep()
+        setTimeout(() => playPanelSlide(), 400)
+        setTimeout(() => playPanelSettle(), 800)
+      }
+      if (state.phase === 'fadeOut') {
+        playRipple()
+      }
+      lastPhaseRef.current = state.phase
+    }
+  }, [state.phase])
+
   // Play personal account voiceover when animation is playing.
   useEffect(() => {
     if (state.phase !== 'playing' || !state.isPlaying || voicePlayedRef.current) return
@@ -466,6 +484,15 @@ export default function CinematicIntro({
   const visibleEvents = useMemo(() => {
     return impactEvents.filter(event => Math.abs(event.time_hours - state.currentTime) < 2)
   }, [impactEvents, state.currentTime])
+
+  // Sound: pulse on impact events appearing
+  const lastEventCountRef = useRef(0)
+  useEffect(() => {
+    if (visibleEvents.length > lastEventCountRef.current) {
+      playPulse()
+    }
+    lastEventCountRef.current = visibleEvents.length
+  }, [visibleEvents.length])
 
   const currentTrackPoint = useMemo(() => {
     if (hurricane.track.length === 0) return null
@@ -570,14 +597,19 @@ export default function CinematicIntro({
       {/* Hurricane name */}
       {state.phase === 'playing' && state.isPlaying && (
         <div className="absolute top-20 left-8 text-white font-rajdhani text-2xl font-bold" style={{ textShadow: '0 0 8px rgba(255,255,255,0.2)', zIndex: 100 }}>
-          {hurricane.name} ({hurricane.year})
+          <TypewriterText text={`${hurricane.name} (${hurricane.year})`} emphasis="headline" delayMs={200} charIntervalMs={45} />
         </div>
       )}
 
       {/* Category info */}
       {state.phase === 'playing' && state.isPlaying && (
         <div className="absolute top-32 left-8 text-white/70 font-rajdhani text-lg" style={{ zIndex: 100 }}>
-          Category {hurricane.max_category} &bull; {hurricane.affected_countries.join(', ')}
+          <TypewriterText
+            text={`Category ${hurricane.max_category} \u2022 ${hurricane.affected_countries.join(', ')}`}
+            emphasis="normal"
+            delayMs={600}
+            charIntervalMs={25}
+          />
         </div>
       )}
 
@@ -593,9 +625,7 @@ export default function CinematicIntro({
             animation: 'cinematic-panel-in 0.6s ease-out forwards',
           }}
         >
-          <div className="text-white/50 font-rajdhani text-[9px] tracking-widest uppercase">
-            Regional Severity
-          </div>
+          <TypewriterText text="Regional Severity" emphasis="soft" delayMs={100} className="text-white/50 font-rajdhani text-[9px] tracking-widest uppercase" />
           <SeverityMiniChart data={regionSeverityData} />
         </div>
       )}
@@ -610,13 +640,11 @@ export default function CinematicIntro({
             opacity: 0,
           }}
         >
-          <div className="text-white/50 font-rajdhani text-[9px] tracking-widest uppercase">
-            Impact Overview
-          </div>
+          <TypewriterText text="Impact Overview" emphasis="soft" delayMs={300} className="text-white/50 font-rajdhani text-[9px] tracking-widest uppercase" />
           <div className="grid grid-cols-2 gap-x-4 gap-y-1">
             <div>
               <div className="text-white/80 font-mono text-sm">
-                {hurricane.estimated_population_affected.toLocaleString()}
+                <CountUpText value={hurricane.estimated_population_affected} delayMs={500} duration={1500} />
               </div>
               <div className="text-white/30 font-rajdhani text-[8px] tracking-wider uppercase">
                 People Affected
@@ -706,7 +734,7 @@ export default function CinematicIntro({
       {state.phase === 'fadeOut' && (
         <div className="absolute inset-0 flex items-center justify-center">
           <div className="text-white font-rajdhani text-3xl text-center">
-            You are now entering the response phase.
+            <TypewriterText text="You are now entering the response phase." emphasis="headline" delayMs={100} charIntervalMs={35} />
           </div>
         </div>
       )}

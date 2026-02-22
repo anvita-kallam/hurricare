@@ -14,6 +14,11 @@ import ImmersivePanelOverlay from './components/ImmersivePanelOverlay'
 import { useStore } from './state/useStore'
 import axios from 'axios'
 import { ImpactEvent } from './hooks/useCinematicController'
+import AmbientProvider from './audio/AmbientProvider'
+import { useWheelSound } from './hooks/useScrollSound'
+import { useScrollSound } from './hooks/useScrollSound'
+import { playFocusShift, playHover, playButtonPress, playPanelSlide, playConfirmClick } from './audio/SoundEngine'
+import TypewriterText from './components/TypewriterText'
 
 const API_BASE = 'http://localhost:8000'
 
@@ -58,6 +63,13 @@ function App() {
   const [showWelcomePopup, setShowWelcomePopup] = useState(false)
   const [pendingHurricane, setPendingHurricane] = useState<string | null>(null)
   const [showMatcher, setShowMatcher] = useState(false)
+
+  // Sound: wheel-based scroll sounds (global, for non-scroll containers)
+  useWheelSound(true)
+
+  // Scroll sounds for the sidebar
+  const sidebarRef = useRef<HTMLDivElement>(null)
+  useScrollSound(sidebarRef, true)
   const [showFundingDisparity, setShowFundingDisparity] = useState(false)
   // Map transition: 'globe' | 'fading-out' | 'flat-entering' | 'flat'
   const [mapPhase, setMapPhase] = useState<'globe' | 'fading-out' | 'flat-entering' | 'flat'>('globe')
@@ -167,6 +179,7 @@ function App() {
       setPostSimulationMapMode(false)
       setMapPhase('globe')
       setGamePhase('pre-sim')
+      playConfirmClick()
     } else {
       const hurricane = hurricanes.find(h => h.id === hurricaneId)
       if (hurricane) {
@@ -175,6 +188,7 @@ function App() {
         setCinematicCompleted(false)
         setPostSimulationMapMode(false)
         setMapPhase('globe')
+        playFocusShift()
       }
     }
   }
@@ -256,11 +270,14 @@ function App() {
   // Dashboard entry screen
   if (!gameStarted && !showFundingDisparity) {
     return (
-      <Dashboard3D
-        onSelectOption={handleDashboardOption}
-        onEnter={() => {}}
-        isLoading={loading}
-      />
+      <>
+        <AmbientProvider />
+        <Dashboard3D
+          onSelectOption={handleDashboardOption}
+          onEnter={() => {}}
+          isLoading={loading}
+        />
+      </>
     )
   }
 
@@ -294,6 +311,7 @@ function App() {
   if (gamePhase === 'sim-complete') {
     return (
       <>
+        <AmbientProvider />
         {/* Full-screen post-simulation map — ONLY visual */}
         <div className="fixed inset-0 z-0 bg-black">
           <PostSimulationMap transitionPhase="active" />
@@ -311,6 +329,7 @@ function App() {
   if (gamePhase === 'game-flow') {
     return (
       <>
+        <AmbientProvider />
         {/* Background map — visible behind the blur */}
         <div className="fixed inset-0 z-0 bg-black">
           <PostSimulationMap transitionPhase="active" />
@@ -327,6 +346,8 @@ function App() {
   // ═══════════════════════════════════════════════════════════════════════════
   return (
     <>
+      <AmbientProvider />
+
       {/* HurricaneMatcher — deferred search overlay (appears only when user clicks search bar) */}
       {showMatcher && (
         <div className="fixed inset-0 z-[60]" style={{ animation: 'matcherFadeIn 0.3s ease-out' }}>
@@ -442,7 +463,7 @@ function App() {
         {/* Main Content */}
         <div className="flex-1 flex overflow-hidden relative z-10">
           {/* Left Sidebar — Hurricane Selection */}
-          <div className="w-64 bg-black/80 border-r border-white/[0.08] p-4 overflow-y-auto">
+          <div ref={sidebarRef} className="w-64 bg-black/80 border-r border-white/[0.08] p-4 overflow-y-auto">
             <div className="flex items-center justify-between mb-4">
               <h2 className="text-xl font-bold text-white/90 font-rajdhani">Historical Hurricanes</h2>
               {selectedHurricane && (
