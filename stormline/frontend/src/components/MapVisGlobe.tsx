@@ -54,6 +54,7 @@ export default function MapVisGlobe({
 }: MapVisGlobeProps) {
   const [selected, setSelected] = useState<string | null>(null)
   const [blurring, setBlurring] = useState(false)
+  const [hoverEnabled, setHoverEnabled] = useState(true)
   const blurTimeout = useRef<ReturnType<typeof setTimeout> | null>(null)
 
   useEffect(() => {
@@ -77,7 +78,14 @@ export default function MapVisGlobe({
       {selected && <div className="zoom-vignette" />}
 
       <div className={`globe-container${blurring ? ' motion-blur' : ''}`}>
-        <GlobeScene selected={selected} onSelect={handleSelect} />
+        <button
+          className="hover-toggle-btn"
+          onClick={() => setHoverEnabled(!hoverEnabled)}
+          title={hoverEnabled ? 'Disable hover elevation' : 'Enable hover elevation'}
+        >
+          Hover: {hoverEnabled ? 'On' : 'Off'}
+        </button>
+        <GlobeScene selected={selected} onSelect={handleSelect} hoverEnabled={hoverEnabled} />
       </div>
 
       <CountryPanel name={selected} onBack={handleBack} />

@@ -137,7 +137,7 @@ function CameraRig({ selected }: { selected: string | null }) {
   )
 }
 
-function GlobeGroup({ onSelect, selected, groupRef, mouseLocal }: { onSelect: (name: string) => void, selected: string | null, groupRef: React.MutableRefObject<THREE.Group | null>, mouseLocal: React.MutableRefObject<THREE.Vector3 | null> }) {
+function GlobeGroup({ onSelect, selected, groupRef, mouseLocal, hoverEnabled = true }: { onSelect: (name: string) => void, selected: string | null, groupRef: React.MutableRefObject<THREE.Group | null>, mouseLocal: React.MutableRefObject<THREE.Vector3 | null>, hoverEnabled?: boolean }) {
   return (
     <group ref={groupRef}>
       <GlobeShell />
@@ -150,6 +150,7 @@ function GlobeGroup({ onSelect, selected, groupRef, mouseLocal }: { onSelect: (n
           globalSelected={selected !== null}
           mouseOnGlobe={mouseLocal}
           onSelect={onSelect}
+          hoverEnabled={hoverEnabled}
         />
       ))}
       <HurricaneLayer />
@@ -160,9 +161,10 @@ function GlobeGroup({ onSelect, selected, groupRef, mouseLocal }: { onSelect: (n
 interface GlobeSceneProps {
   selected: string | null
   onSelect: (name: string) => void
+  hoverEnabled?: boolean
 }
 
-export default function GlobeScene({ selected, onSelect }: GlobeSceneProps) {
+export default function GlobeScene({ selected, onSelect, hoverEnabled = true }: GlobeSceneProps) {
   const groupRef = useRef<THREE.Group>(null)
   const mouseLocal = useRef<THREE.Vector3 | null>(null)
 
@@ -173,7 +175,7 @@ export default function GlobeScene({ selected, onSelect }: GlobeSceneProps) {
       <pointLight position={[0, 0, 4]} intensity={0.25} color="#2244ff" distance={10} />
       <pointLight position={[-3, 1, 2]} intensity={0.15} color="#9900ff" distance={12} />
       <pointLight position={[3, -1, 2]} intensity={0.1} color="#0055ff" distance={12} />
-      <GlobeGroup selected={selected} onSelect={onSelect} groupRef={groupRef} mouseLocal={mouseLocal} />
+      <GlobeGroup selected={selected} onSelect={onSelect} groupRef={groupRef} mouseLocal={mouseLocal} hoverEnabled={hoverEnabled} />
       <MouseTracker groupRef={groupRef} mouseLocal={mouseLocal} />
       <Starfield />
       <PostProcessing selected={!!selected} />

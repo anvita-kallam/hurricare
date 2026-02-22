@@ -15,6 +15,7 @@ interface CountryMeshProps {
   globalSelected: boolean
   mouseOnGlobe: React.MutableRefObject<THREE.Vector3 | null>
   onSelect: (name: string) => void
+  hoverEnabled?: boolean
 }
 
 const latLonToVec3 = (lat: number, lon: number, radius: number) => {
@@ -73,7 +74,7 @@ const buildBorderTube = (points: [number, number][], radius: number) => {
   return new THREE.TubeGeometry(curve, segments, 0.006, 5, true)
 }
 
-export default function CountryMesh({ country, radius, selected, globalSelected, onSelect, mouseOnGlobe }: CountryMeshProps) {
+export default function CountryMesh({ country, radius, selected, globalSelected, onSelect, mouseOnGlobe, hoverEnabled = true }: CountryMeshProps) {
   const meshRef = useRef<THREE.Mesh>(null)
   const borderRef = useRef<THREE.LineLoop>(null)
   const tubeRef = useRef<THREE.Mesh>(null)
@@ -109,7 +110,7 @@ export default function CountryMesh({ country, radius, selected, globalSelected,
 
     if (!globalSelected) {
       let boost = 0
-      if (mouseOnGlobe.current) {
+      if (hoverEnabled && mouseOnGlobe.current) {
         const dot = centroid.dot(mouseOnGlobe.current)
         const d = (1 - dot) / 2
         boost = Math.exp(-d * 4) * 0.196
