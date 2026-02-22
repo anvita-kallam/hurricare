@@ -65,19 +65,19 @@ export default function HurricaneMatcher({ onMatchFound, onSkip }: HurricaneMatc
 
   return (
     <div className="fixed inset-0 z-50 bg-black/90 backdrop-blur-sm flex items-center justify-center">
-      <div className="bg-black/80 border-2 border-cyan-500/50 rounded-lg p-8 max-w-2xl w-full mx-4 glow-cyan">
-        <h2 className="text-3xl font-bold text-glow-cyan font-orbitron mb-6 text-center">
+      <div className="bg-black/80 border-2 border-white/[0.08] rounded-lg p-8 max-w-2xl w-full mx-4">
+        <h2 className="text-3xl font-bold font-rajdhani mb-6 text-center">
           Find Matching Hurricane
         </h2>
         
-        <p className="text-cyan-200 font-exo mb-6 text-center">
+        <p className="text-white/60 font-rajdhani mb-6 text-center">
           Enter a region and category to find the most similar historical hurricane
         </p>
 
         <div className="space-y-6">
           {/* Region Input */}
           <div>
-            <label className="block text-cyan-300 font-exo mb-2">
+            <label className="block text-white/50 font-rajdhani mb-2">
               Region / Country
             </label>
             <input
@@ -85,14 +85,14 @@ export default function HurricaneMatcher({ onMatchFound, onSkip }: HurricaneMatc
               value={region}
               onChange={(e) => setRegion(e.target.value)}
               placeholder="e.g., United States, Jamaica, Philippines, Caribbean"
-              className="w-full px-4 py-3 bg-black/60 border border-cyan-500/50 rounded-lg text-cyan-100 font-exo focus:outline-none focus:border-cyan-400 focus:glow-cyan"
+              className="w-full px-4 py-3 bg-black/60 border border-white/[0.08] rounded-lg text-white/70 font-rajdhani focus:outline-none focus:border-white/20"
               onKeyPress={(e) => e.key === 'Enter' && handleSearch()}
             />
           </div>
 
           {/* Category Input */}
           <div>
-            <label className="block text-cyan-300 font-exo mb-2">
+            <label className="block text-white/50 font-rajdhani mb-2">
               Category: {category}
             </label>
             <input
@@ -104,9 +104,9 @@ export default function HurricaneMatcher({ onMatchFound, onSkip }: HurricaneMatc
                 setCategory(parseInt(e.target.value))
                 playSliderStretch()
               }}
-              className="w-full h-2 bg-cyan-500/20 rounded-lg appearance-none cursor-pointer accent-cyan-500"
+              className="w-full h-2 bg-white/[0.04] rounded-lg appearance-none cursor-pointer accent-white/60"
             />
-            <div className="flex justify-between text-xs text-cyan-400 mt-1 font-exo">
+            <div className="flex justify-between text-xs text-white/40 mt-1 font-rajdhani">
               <span>1</span>
               <span>2</span>
               <span>3</span>
@@ -117,13 +117,13 @@ export default function HurricaneMatcher({ onMatchFound, onSkip }: HurricaneMatc
 
           {/* Direction Input (Optional) */}
           <div>
-            <label className="block text-cyan-300 font-exo mb-2">
+            <label className="block text-white/50 font-rajdhani mb-2">
               Direction (Optional)
             </label>
             <select
               value={direction}
               onChange={(e) => setDirection(e.target.value)}
-              className="w-full px-4 py-3 bg-black/60 border border-cyan-500/50 rounded-lg text-cyan-100 font-exo focus:outline-none focus:border-cyan-400 focus:glow-cyan"
+              className="w-full px-4 py-3 bg-black/60 border border-white/[0.08] rounded-lg text-white/70 font-rajdhani focus:outline-none focus:border-white/20"
             >
               <option value="">Select direction...</option>
               <option value="north">North</option>
@@ -135,7 +135,7 @@ export default function HurricaneMatcher({ onMatchFound, onSkip }: HurricaneMatc
 
           {/* Extra Details (Optional, doesn't affect matching) */}
           <div>
-            <label className="block text-cyan-300 font-exo mb-2">
+            <label className="block text-white/50 font-rajdhani mb-2">
               Extra Details (Optional)
             </label>
             <textarea
@@ -143,9 +143,9 @@ export default function HurricaneMatcher({ onMatchFound, onSkip }: HurricaneMatc
               onChange={(e) => setExtraDetails(e.target.value)}
               placeholder="Add any additional notes or details about the hurricane scenario..."
               rows={3}
-              className="w-full px-4 py-3 bg-black/60 border border-cyan-500/50 rounded-lg text-cyan-100 font-exo focus:outline-none focus:border-cyan-400 focus:glow-cyan resize-none"
+              className="w-full px-4 py-3 bg-black/60 border border-white/[0.08] rounded-lg text-white/70 font-rajdhani focus:outline-none focus:border-white/20 resize-none"
             />
-            <p className="text-xs text-cyan-400 mt-1 font-exo">
+            <p className="text-xs text-white/40 mt-1 font-rajdhani">
               This field does not affect matching - it's for your notes only
             </p>
           </div>
@@ -154,7 +154,7 @@ export default function HurricaneMatcher({ onMatchFound, onSkip }: HurricaneMatc
           <button
             onClick={handleSearch}
             disabled={isSearching || !region.trim()}
-            className="w-full px-6 py-3 bg-gradient-to-r from-cyan-600 to-purple-600 hover:from-cyan-500 hover:to-purple-500 text-white font-bold font-orbitron rounded-lg transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed glow-cyan"
+            className="w-full px-6 py-3 bg-white/[0.12] hover:bg-white/[0.15] text-white font-bold font-rajdhani rounded-lg transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed"
           >
             {isSearching ? 'Searching...' : 'Find Match'}
           </button>
@@ -162,49 +162,49 @@ export default function HurricaneMatcher({ onMatchFound, onSkip }: HurricaneMatc
           {/* Results */}
           {matchResult && (
             <div className="mt-6 space-y-4">
-              <div className="bg-cyan-500/10 border border-cyan-500/30 rounded-lg p-4">
+              <div className="bg-white/[0.03] border border-white/[0.06] rounded-lg p-4">
                 <div className="flex items-center justify-between mb-2">
-                  <h3 className="text-xl font-bold text-glow-cyan font-orbitron">
+                  <h3 className="text-xl font-bold font-rajdhani">
                     Best Match
                   </h3>
                   <div className="flex items-center gap-2">
                     {matchResult.category_match && (
-                      <span className="text-xs px-2 py-1 bg-green-500/20 text-green-300 rounded font-exo">
+                      <span className="text-xs px-2 py-1 bg-white/[0.04] text-white/40 rounded font-rajdhani">
                         Category Match
                       </span>
                     )}
                     {matchResult.region_match && (
-                      <span className="text-xs px-2 py-1 bg-green-500/20 text-green-300 rounded font-exo">
+                      <span className="text-xs px-2 py-1 bg-white/[0.04] text-white/40 rounded font-rajdhani">
                         Region Match
                       </span>
                     )}
                     {matchResult.direction_match && (
-                      <span className="text-xs px-2 py-1 bg-blue-500/20 text-blue-300 rounded font-exo">
+                      <span className="text-xs px-2 py-1 bg-white/[0.04] text-white/40 rounded font-rajdhani">
                         Direction Match
                       </span>
                     )}
                   </div>
                 </div>
-                <div className="text-cyan-200 font-exo space-y-1">
-                  <div className="text-lg font-semibold text-cyan-100">
+                <div className="text-white/60 font-rajdhani space-y-1">
+                  <div className="text-lg font-semibold text-white/70">
                     {matchResult.match.name} ({matchResult.match.year})
                   </div>
                   <div>Category {matchResult.match.max_category}</div>
                   <div>Affected: {matchResult.match.affected_countries.join(', ')}</div>
                   <div>Population Affected: {matchResult.match.estimated_population_affected.toLocaleString()}</div>
-                  <div className="text-xs text-cyan-400 mt-2">
+                  <div className="text-xs text-white/40 mt-2">
                     Match Score: {Math.round(matchResult.score)}
                   </div>
                   {extraDetails && (
-                    <div className="mt-3 pt-3 border-t border-cyan-500/20">
-                      <div className="text-xs text-cyan-400 font-exo mb-1">Your Notes:</div>
-                      <div className="text-sm text-cyan-300 font-exo italic">{extraDetails}</div>
+                    <div className="mt-3 pt-3 border-t border-white/[0.04]">
+                      <div className="text-xs text-white/40 font-rajdhani mb-1">Your Notes:</div>
+                      <div className="text-sm text-white/50 font-rajdhani italic">{extraDetails}</div>
                     </div>
                   )}
                 </div>
                 <button
                   onClick={handleSelectMatch}
-                  className="mt-4 w-full px-4 py-2 bg-cyan-600 hover:bg-cyan-500 text-white font-bold font-orbitron rounded transition-all duration-300"
+                  className="mt-4 w-full px-4 py-2 bg-white/[0.12] hover:bg-white/[0.15] text-white font-bold font-rajdhani rounded transition-all duration-300"
                 >
                   Select This Hurricane
                 </button>
@@ -213,19 +213,19 @@ export default function HurricaneMatcher({ onMatchFound, onSkip }: HurricaneMatc
               {/* Alternatives */}
               {matchResult.alternatives && matchResult.alternatives.length > 0 && (
                 <div>
-                  <h4 className="text-cyan-300 font-exo mb-2">Alternative Matches</h4>
+                  <h4 className="text-white/50 font-rajdhani mb-2">Alternative Matches</h4>
                   <div className="space-y-2">
                     {matchResult.alternatives.map((alt: any, idx: number) => (
                       <div
                         key={alt.id}
-                        className="bg-black/40 border border-cyan-500/20 rounded p-3 hover:border-cyan-500/50 transition-all cursor-pointer"
+                        className="bg-black/40 border border-white/[0.04] rounded p-3 hover:border-white/[0.08] transition-all cursor-pointer"
                         onClick={() => handleSelectAlternative(alt)}
                       >
-                        <div className="text-cyan-200 font-exo">
+                        <div className="text-white/60 font-rajdhani">
                           <div className="font-semibold">
                             {alt.name} ({alt.year}) - Category {alt.max_category}
                           </div>
-                          <div className="text-xs text-cyan-400">
+                          <div className="text-xs text-white/40">
                             {alt.affected_countries.join(', ')}
                           </div>
                         </div>
@@ -240,7 +240,7 @@ export default function HurricaneMatcher({ onMatchFound, onSkip }: HurricaneMatc
           {/* Skip Button */}
           <button
             onClick={onSkip}
-            className="w-full px-6 py-2 text-cyan-300 hover:text-cyan-100 font-exo border border-cyan-500/30 hover:border-cyan-500/50 rounded-lg transition-all duration-300"
+            className="w-full px-6 py-2 text-white/50 hover:text-white/70 font-rajdhani border border-white/[0.06] hover:border-white/[0.08] rounded-lg transition-all duration-300"
           >
             Skip - Browse All Hurricanes
           </button>

@@ -142,9 +142,9 @@ export default function PostSimulationSteps() {
       rV.push(realPlan.total_budget * Math.pow(t, 0.9) * (0.75 + Math.random() * 0.25))
     }
     return [
-      { name: 'You', color: '#4488aa', values: uV },
-      { name: 'ML', color: '#8855aa', values: mV },
-      { name: 'Real', color: '#aa4444', values: rV },
+      { name: 'You', color: 'rgba(255,255,255,0.6)', values: uV },
+      { name: 'ML', color: 'rgba(255,255,255,0.35)', values: mV },
+      { name: 'Real', color: 'rgba(255,255,255,0.15)', values: rV },
     ]
   }, [userPlan, mlPlan, realPlan])
 
@@ -336,9 +336,9 @@ function Step1Content({ selectedHurricane, regionData, avgUserCoverage, avgMlCov
       <div>
         <div className="text-white/20 font-rajdhani text-[9px] tracking-widest uppercase mb-2">Overall Coverage</div>
         <div className="flex justify-around">
-          <RingIndicator value={avgUserCoverage * 100} max={100} label="Your Plan" color="#4488aa" size={64}>{(avgUserCoverage * 100).toFixed(0)}%</RingIndicator>
-          <RingIndicator value={avgMlCoverage * 100} max={100} label="ML Ideal" color="#8855aa" size={64}>{(avgMlCoverage * 100).toFixed(0)}%</RingIndicator>
-          <RingIndicator value={avgRealCoverage * 100} max={100} label="Historical" color="#aa4444" size={64}>{(avgRealCoverage * 100).toFixed(0)}%</RingIndicator>
+          <RingIndicator value={avgUserCoverage * 100} max={100} label="Your Plan" color="rgba(255,255,255,0.6)" size={64}>{(avgUserCoverage * 100).toFixed(0)}%</RingIndicator>
+          <RingIndicator value={avgMlCoverage * 100} max={100} label="ML Ideal" color="rgba(255,255,255,0.35)" size={64}>{(avgMlCoverage * 100).toFixed(0)}%</RingIndicator>
+          <RingIndicator value={avgRealCoverage * 100} max={100} label="Historical" color="rgba(255,255,255,0.15)" size={64}>{(avgRealCoverage * 100).toFixed(0)}%</RingIndicator>
         </div>
       </div>
 
@@ -347,7 +347,7 @@ function Step1Content({ selectedHurricane, regionData, avgUserCoverage, avgMlCov
         <div className="text-white/20 font-rajdhani text-[9px] tracking-widest uppercase mb-2">Severity Surface</div>
         <ContourSurface
           regions={regionData.map((r: any) => ({ name: r.region, value: r.severity, max: 1 }))}
-          colorFn={(ratio: number) => ratio > 0.7 ? '#cc4444' : ratio > 0.4 ? '#ccaa44' : '#44aa77'}
+          colorFn={(ratio: number) => ratio > 0.7 ? 'rgba(255,255,255,0.5)' : ratio > 0.4 ? 'rgba(255,255,255,0.3)' : 'rgba(255,255,255,0.15)'}
           height={120}
         />
       </div>
@@ -358,11 +358,11 @@ function Step1Content({ selectedHurricane, regionData, avgUserCoverage, avgMlCov
         <div className="space-y-1">
           {[...regionData].sort((a: any, b: any) => b.severity - a.severity).map((r: any, i: number) => (
             <div key={i} className="flex items-center gap-2">
-              <div className="w-1.5 h-1.5 rounded-full shrink-0" style={{ backgroundColor: r.severity > 0.7 ? '#cc4444' : r.severity > 0.4 ? '#ccaa44' : '#44aa77' }} />
+              <div className="w-1.5 h-1.5 rounded-full shrink-0" style={{ backgroundColor: r.severity > 0.7 ? 'rgba(255,255,255,0.5)' : r.severity > 0.4 ? 'rgba(255,255,255,0.3)' : 'rgba(255,255,255,0.15)' }} />
               <span className="text-white/40 font-rajdhani text-[10px] flex-1 truncate">{r.region}</span>
               <span className="text-white/30 font-mono text-[10px]">{(r.severity * 10).toFixed(1)}</span>
               <div className="w-16 h-[3px] bg-white/[0.04] rounded-full overflow-hidden">
-                <div className="h-full rounded-full transition-all duration-800" style={{ width: `${r.severity * 100}%`, backgroundColor: r.severity > 0.7 ? '#cc4444' : r.severity > 0.4 ? '#ccaa44' : '#44aa77', opacity: 0.6, transitionDelay: `${i * 60}ms` }} />
+                <div className="h-full rounded-full transition-all duration-800" style={{ width: `${r.severity * 100}%`, backgroundColor: r.severity > 0.7 ? 'rgba(255,255,255,0.5)' : r.severity > 0.4 ? 'rgba(255,255,255,0.3)' : 'rgba(255,255,255,0.15)', opacity: 0.6, transitionDelay: `${i * 60}ms` }} />
               </div>
             </div>
           ))}
@@ -382,9 +382,9 @@ function Step2Content({ regionData, barClusterData, maxBudget, userPlan, mlPlan,
     <>
       {/* Plan Legend */}
       <div className="flex items-center gap-4">
-        <div className="flex items-center gap-1.5"><div className="w-2 h-2 rounded-full bg-[#4488aa]" /><span className="text-white/30 font-mono text-[9px]">Your Plan</span></div>
-        <div className="flex items-center gap-1.5"><div className="w-2 h-2 rounded-full bg-[#8855aa]" /><span className="text-white/30 font-mono text-[9px]">ML Ideal</span></div>
-        <div className="flex items-center gap-1.5"><div className="w-2 h-2 rounded-full bg-[#aa4444]" /><span className="text-white/30 font-mono text-[9px]">Historical</span></div>
+        <div className="flex items-center gap-1.5"><div className="w-2 h-2 rounded-full bg-white/60" /><span className="text-white/30 font-mono text-[9px]">Your Plan</span></div>
+        <div className="flex items-center gap-1.5"><div className="w-2 h-2 rounded-full bg-white/35" /><span className="text-white/30 font-mono text-[9px]">ML Ideal</span></div>
+        <div className="flex items-center gap-1.5"><div className="w-2 h-2 rounded-full bg-white/15" /><span className="text-white/30 font-mono text-[9px]">Historical</span></div>
       </div>
 
       {/* Budget Comparison */}
@@ -397,27 +397,27 @@ function Step2Content({ regionData, barClusterData, maxBudget, userPlan, mlPlan,
       <div className="grid grid-cols-3 gap-3">
         <div className="space-y-1.5">
           <div className="flex items-center gap-1.5">
-            <div className="w-1.5 h-1.5 rounded-full bg-[#4488aa]" />
+            <div className="w-1.5 h-1.5 rounded-full bg-white/60" />
             <span className="text-white/35 font-rajdhani text-[9px] tracking-wider uppercase">You</span>
             <span className="text-white/20 font-mono text-[8px] ml-auto">{formatBudget(userPlan.total_budget)}</span>
           </div>
-          <FundingFlow allocations={userPlan.allocations} totalBudget={userPlan.total_budget} planLabel="You" color="#4488aa" />
+          <FundingFlow allocations={userPlan.allocations} totalBudget={userPlan.total_budget} planLabel="You" color="rgba(255,255,255,0.6)" />
         </div>
         <div className="space-y-1.5">
           <div className="flex items-center gap-1.5">
-            <div className="w-1.5 h-1.5 rounded-full bg-[#8855aa]" />
+            <div className="w-1.5 h-1.5 rounded-full bg-white/35" />
             <span className="text-white/35 font-rajdhani text-[9px] tracking-wider uppercase">ML</span>
             <span className="text-white/20 font-mono text-[8px] ml-auto">{formatBudget(mlPlan.total_budget)}</span>
           </div>
-          <FundingFlow allocations={mlPlan.allocations} totalBudget={mlPlan.total_budget} planLabel="ML" color="#8855aa" />
+          <FundingFlow allocations={mlPlan.allocations} totalBudget={mlPlan.total_budget} planLabel="ML" color="rgba(255,255,255,0.35)" />
         </div>
         <div className="space-y-1.5">
           <div className="flex items-center gap-1.5">
-            <div className="w-1.5 h-1.5 rounded-full bg-[#aa4444]" />
+            <div className="w-1.5 h-1.5 rounded-full bg-white/15" />
             <span className="text-white/35 font-rajdhani text-[9px] tracking-wider uppercase">Real</span>
             <span className="text-white/20 font-mono text-[8px] ml-auto">{formatBudget(realPlan.total_budget)}</span>
           </div>
-          <FundingFlow allocations={realPlan.allocations} totalBudget={realPlan.total_budget} planLabel="Real" color="#aa4444" />
+          <FundingFlow allocations={realPlan.allocations} totalBudget={realPlan.total_budget} planLabel="Real" color="rgba(255,255,255,0.15)" />
         </div>
       </div>
 
@@ -444,18 +444,18 @@ function Step3Content({ regionData, userPlan, mlPlan, realPlan, avgUserCoverage,
     <>
       {/* Coverage Rings */}
       <div className="flex justify-around">
-        <RingIndicator value={avgUserCoverage * 100} max={100} label="Your Plan" color="#4488aa" size={64}>{(avgUserCoverage * 100).toFixed(0)}%</RingIndicator>
-        <RingIndicator value={avgMlCoverage * 100} max={100} label="ML Ideal" color="#8855aa" size={64}>{(avgMlCoverage * 100).toFixed(0)}%</RingIndicator>
-        <RingIndicator value={avgRealCoverage * 100} max={100} label="Historical" color="#aa4444" size={64}>{(avgRealCoverage * 100).toFixed(0)}%</RingIndicator>
+        <RingIndicator value={avgUserCoverage * 100} max={100} label="Your Plan" color="rgba(255,255,255,0.6)" size={64}>{(avgUserCoverage * 100).toFixed(0)}%</RingIndicator>
+        <RingIndicator value={avgMlCoverage * 100} max={100} label="ML Ideal" color="rgba(255,255,255,0.35)" size={64}>{(avgMlCoverage * 100).toFixed(0)}%</RingIndicator>
+        <RingIndicator value={avgRealCoverage * 100} max={100} label="Historical" color="rgba(255,255,255,0.15)" size={64}>{(avgRealCoverage * 100).toFixed(0)}%</RingIndicator>
       </div>
 
       {/* People Reached */}
       <div className="space-y-1">
         <div className="text-white/20 font-rajdhani text-[9px] tracking-widest uppercase">People Reached</div>
         {[
-          { label: 'Your Plan', value: totalUserCovered, color: '#4488aa' },
-          { label: 'ML Ideal', value: totalMlCovered, color: '#8855aa' },
-          { label: 'Historical', value: totalRealCovered, color: '#aa4444' },
+          { label: 'Your Plan', value: totalUserCovered, color: 'rgba(255,255,255,0.6)' },
+          { label: 'ML Ideal', value: totalMlCovered, color: 'rgba(255,255,255,0.35)' },
+          { label: 'Historical', value: totalRealCovered, color: 'rgba(255,255,255,0.15)' },
         ].map((p, i) => {
           const maxR = Math.max(totalUserCovered, totalMlCovered, totalRealCovered, 1)
           return (
@@ -493,7 +493,7 @@ function Step3Content({ regionData, userPlan, mlPlan, realPlan, avgUserCoverage,
               <div key={i} className="flex items-center gap-2">
                 <span className="text-white/25 font-rajdhani text-[9px] w-20 truncate uppercase">{r.region}</span>
                 <div className="flex-1 h-[4px] bg-white/[0.03] rounded-full overflow-hidden">
-                  <div className="h-full rounded-full transition-all duration-800" style={{ width: `${(r.unmetNeed / maxU) * 100}%`, background: 'linear-gradient(90deg, #aa4455, #cc6655)', opacity: 0.6, transitionDelay: `${i * 60}ms` }} />
+                  <div className="h-full rounded-full transition-all duration-800" style={{ width: `${(r.unmetNeed / maxU) * 100}%`, background: 'linear-gradient(90deg, rgba(255,255,255,0.3), rgba(255,255,255,0.15))', opacity: 0.6, transitionDelay: `${i * 60}ms` }} />
                 </div>
                 <span className="text-white/30 font-mono text-[9px] w-14 text-right">{r.unmetNeed.toLocaleString()}</span>
               </div>
@@ -589,7 +589,7 @@ function Step4Content({ regionData, severityGridData, maxBudget, coverageDelta, 
                 <div key={key} className="flex items-center gap-2">
                   <span className="text-white/25 font-rajdhani text-[9px] w-20 truncate uppercase">{key.replace('_', ' ')}</span>
                   <div className="flex-1 h-[3px] bg-white/[0.04] rounded-full overflow-hidden">
-                    <div className="h-full bg-[#8855aa]/60 rounded-full transition-all duration-1000" style={{ width: `${score}%` }} />
+                    <div className="h-full bg-white/35 rounded-full transition-all duration-1000" style={{ width: `${score}%` }} />
                   </div>
                   <span className="text-white/40 font-mono text-[9px] w-8 text-right">{score.toFixed(0)}%</span>
                 </div>

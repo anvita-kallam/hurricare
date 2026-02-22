@@ -143,9 +143,9 @@ export default function CommandCenter() {
     }
 
     return [
-      { name: 'You', color: '#4488aa', values: userVals },
-      { name: 'ML', color: '#8855aa', values: mlVals },
-      { name: 'Real', color: '#aa4444', values: realVals },
+      { name: 'You', color: 'rgba(255,255,255,0.6)', values: userVals },
+      { name: 'ML', color: 'rgba(255,255,255,0.35)', values: mlVals },
+      { name: 'Real', color: 'rgba(255,255,255,0.15)', values: realVals },
     ]
   }, [userPlan, mlPlan, realPlan])
 
@@ -218,28 +218,28 @@ export default function CommandCenter() {
           {/* Plan Legend */}
           <div className="flex items-center gap-3 pb-2 border-b border-white/[0.05]">
             <div className="flex items-center gap-1.5">
-              <div className="w-2 h-2 rounded-full bg-[#4488aa]" />
+              <div className="w-2 h-2 rounded-full bg-white/60" />
               <span className="text-white/30 font-mono text-[9px]">Your Plan</span>
             </div>
             <div className="flex items-center gap-1.5">
-              <div className="w-2 h-2 rounded-full bg-[#8855aa]" />
+              <div className="w-2 h-2 rounded-full bg-white/35" />
               <span className="text-white/30 font-mono text-[9px]">ML Ideal</span>
             </div>
             <div className="flex items-center gap-1.5">
-              <div className="w-2 h-2 rounded-full bg-[#aa4444]" />
+              <div className="w-2 h-2 rounded-full bg-white/20" />
               <span className="text-white/30 font-mono text-[9px]">Historical</span>
             </div>
           </div>
 
           {/* Ring Indicators Row */}
           <div className="flex justify-between">
-            <RingIndicator value={avgUserCoverage * 100} max={100} label="Your Coverage" color="#4488aa" size={64}>
+            <RingIndicator value={avgUserCoverage * 100} max={100} label="Your Coverage" color="rgba(255,255,255,0.6)" size={64}>
               {(avgUserCoverage * 100).toFixed(0)}%
             </RingIndicator>
-            <RingIndicator value={avgMlCoverage * 100} max={100} label="ML Coverage" color="#8855aa" size={64}>
+            <RingIndicator value={avgMlCoverage * 100} max={100} label="ML Coverage" color="rgba(255,255,255,0.35)" size={64}>
               {(avgMlCoverage * 100).toFixed(0)}%
             </RingIndicator>
-            <RingIndicator value={avgRealCoverage * 100} max={100} label="Historical" color="#aa4444" size={64}>
+            <RingIndicator value={avgRealCoverage * 100} max={100} label="Historical" color="rgba(255,255,255,0.2)" size={64}>
               {(avgRealCoverage * 100).toFixed(0)}%
             </RingIndicator>
           </div>
@@ -256,7 +256,7 @@ export default function CommandCenter() {
               value={`${((avgMlCoverage - avgRealCoverage) * 100).toFixed(1)}%`}
               subtext="ideal vs actual"
               trend={avgMlCoverage > avgRealCoverage ? 'down' : 'up'}
-              color="#cc5566"
+              color="rgba(255,255,255,0.4)"
             />
             <MetricCard
               label="People Reached"
@@ -282,7 +282,7 @@ export default function CommandCenter() {
                     <span className="text-white/25 font-rajdhani text-[9px] w-16 truncate uppercase tracking-wide">{key.replace('_', ' ')}</span>
                     <div className="flex-1 h-[3px] bg-white/[0.04] rounded-full overflow-hidden">
                       <div
-                        className="h-full bg-[#8855aa]/60 rounded-full transition-all duration-1000 ease-out"
+                        className="h-full bg-white/35/60 rounded-full transition-all duration-1000 ease-out"
                         style={{ width: `${score}%` }}
                       />
                     </div>
@@ -300,7 +300,7 @@ export default function CommandCenter() {
               allocations={userPlan.allocations}
               totalBudget={userPlan.total_budget}
               planLabel="Your Plan"
-              color="#4488aa"
+              color="rgba(255,255,255,0.6)"
             />
           </div>
 
@@ -386,9 +386,9 @@ export default function CommandCenter() {
                     max: 1,
                   }))}
                   colorFn={(ratio) => {
-                    if (ratio > 0.7) return '#44aa77'
-                    if (ratio > 0.4) return '#aaaa44'
-                    return '#aa4455'
+                    if (ratio > 0.7) return 'rgba(255,255,255,0.5)'
+                    if (ratio > 0.4) return 'rgba(255,255,255,0.3)'
+                    return 'rgba(255,255,255,0.15)'
                   }}
                   height={160}
                 />
@@ -409,7 +409,7 @@ export default function CommandCenter() {
                               className="h-full rounded-full transition-all duration-800 ease-out"
                               style={{
                                 width: `${pct}%`,
-                                background: `linear-gradient(90deg, #aa4455 0%, #cc6655 100%)`,
+                                background: `linear-gradient(90deg, rgba(255,255,255,0.3) 0%, rgba(255,255,255,0.15) 100%)`,
                                 opacity: 0.6,
                                 transitionDelay: `${i * 60}ms`,
                               }}
@@ -450,19 +450,19 @@ export default function CommandCenter() {
                                 className="h-full rounded-full"
                                 style={{
                                   width: `${r.severity * 100}%`,
-                                  backgroundColor: `rgba(${180 + r.severity * 75}, ${70 - r.severity * 50}, ${50}, 0.6)`,
+                                  backgroundColor: `rgba(255, 255, 255, ${0.15 + r.severity * 0.35})`,
                                 }}
                               />
                             </div>
                             {/* Funding indicator */}
                             <div className="flex-1 h-[4px] bg-white/[0.03] rounded-full overflow-hidden">
                               <div
-                                className="h-full rounded-full bg-[#4488aa]/50"
+                                className="h-full rounded-full bg-white/60/50"
                                 style={{ width: `${fundingRatio * 100 * regionData.length}%` }}
                               />
                             </div>
                           </div>
-                          <span className={`font-mono text-[9px] w-8 text-right ${mismatch > 20 ? 'text-[#cc5566]' : 'text-white/30'}`}>
+                          <span className={`font-mono text-[9px] w-8 text-right ${mismatch > 20 ? 'text-white/50' : 'text-white/30'}`}>
                             {mismatch.toFixed(0)}%
                           </span>
                         </div>
@@ -501,7 +501,7 @@ export default function CommandCenter() {
                       <div
                         className="w-1.5 h-1.5 rounded-full"
                         style={{
-                          backgroundColor: r.severity > 0.7 ? '#cc4444' : r.severity > 0.4 ? '#ccaa44' : '#44aa77',
+                          backgroundColor: r.severity > 0.7 ? 'rgba(255,255,255,0.5)' : r.severity > 0.4 ? 'rgba(255,255,255,0.3)' : 'rgba(255,255,255,0.15)',
                         }}
                       />
                     </div>
@@ -514,17 +514,17 @@ export default function CommandCenter() {
                         <div className="text-white/20 font-rajdhani text-[8px] tracking-widest uppercase">Budget</div>
                         <div className="space-y-0.5">
                           <div className="flex items-center gap-1.5">
-                            <div className="w-1.5 h-1.5 rounded-full bg-[#4488aa]" />
+                            <div className="w-1.5 h-1.5 rounded-full bg-white/60" />
                             <span className="text-white/40 font-mono text-[9px] flex-1">You</span>
                             <span className="text-white/60 font-mono text-[9px]">{formatBudget(r.userBudget)}</span>
                           </div>
                           <div className="flex items-center gap-1.5">
-                            <div className="w-1.5 h-1.5 rounded-full bg-[#8855aa]" />
+                            <div className="w-1.5 h-1.5 rounded-full bg-white/35" />
                             <span className="text-white/40 font-mono text-[9px] flex-1">ML</span>
                             <span className="text-white/60 font-mono text-[9px]">{formatBudget(r.mlBudget)}</span>
                           </div>
                           <div className="flex items-center gap-1.5">
-                            <div className="w-1.5 h-1.5 rounded-full bg-[#aa4444]" />
+                            <div className="w-1.5 h-1.5 rounded-full bg-white/20" />
                             <span className="text-white/40 font-mono text-[9px] flex-1">Real</span>
                             <span className="text-white/60 font-mono text-[9px]">{formatBudget(r.realBudget)}</span>
                           </div>
@@ -535,13 +535,13 @@ export default function CommandCenter() {
                       <div className="space-y-1">
                         <div className="text-white/20 font-rajdhani text-[8px] tracking-widest uppercase">Coverage</div>
                         <div className="flex gap-2">
-                          <RingIndicator value={r.userCoverage * 100} max={100} label="You" color="#4488aa" size={40}>
+                          <RingIndicator value={r.userCoverage * 100} max={100} label="You" color="rgba(255,255,255,0.6)" size={40}>
                             {(r.userCoverage * 100).toFixed(0)}%
                           </RingIndicator>
-                          <RingIndicator value={r.mlCoverage * 100} max={100} label="ML" color="#8855aa" size={40}>
+                          <RingIndicator value={r.mlCoverage * 100} max={100} label="ML" color="rgba(255,255,255,0.35)" size={40}>
                             {(r.mlCoverage * 100).toFixed(0)}%
                           </RingIndicator>
-                          <RingIndicator value={r.realCoverage * 100} max={100} label="Real" color="#aa4444" size={40}>
+                          <RingIndicator value={r.realCoverage * 100} max={100} label="Real" color="rgba(255,255,255,0.2)" size={40}>
                             {(r.realCoverage * 100).toFixed(0)}%
                           </RingIndicator>
                         </div>

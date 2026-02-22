@@ -58,12 +58,12 @@ export default function IntroScreen({ onEnter, isLoading }: IntroScreenProps) {
         {/* Animated stars layer 2 - Colored stars */}
         <div className="absolute inset-0" style={{
           backgroundImage: `
-            radial-gradient(1px 1px at 30% 50%, rgba(6, 182, 212, 0.8), transparent),
-            radial-gradient(1px 1px at 70% 30%, rgba(168, 85, 247, 0.6), transparent),
-            radial-gradient(2px 2px at 50% 70%, rgba(6, 182, 212, 0.7), transparent),
-            radial-gradient(1px 1px at 10% 20%, rgba(168, 85, 247, 0.5), transparent),
-            radial-gradient(2px 2px at 90% 80%, rgba(6, 182, 212, 0.6), transparent),
-            radial-gradient(1px 1px at 40% 90%, rgba(168, 85, 247, 0.7), transparent)
+            radial-gradient(1px 1px at 30% 50%, rgba(255, 255, 255, 0.4), transparent),
+            radial-gradient(1px 1px at 70% 30%, rgba(255, 255, 255, 0.24), transparent),
+            radial-gradient(2px 2px at 50% 70%, rgba(255, 255, 255, 0.35), transparent),
+            radial-gradient(1px 1px at 10% 20%, rgba(255, 255, 255, 0.2), transparent),
+            radial-gradient(2px 2px at 90% 80%, rgba(255, 255, 255, 0.3), transparent),
+            radial-gradient(1px 1px at 40% 90%, rgba(255, 255, 255, 0.28), transparent)
           `,
           backgroundSize: '300px 300px',
           backgroundRepeat: 'repeat',
@@ -73,14 +73,14 @@ export default function IntroScreen({ onEnter, isLoading }: IntroScreenProps) {
 
         {/* Galaxy spiral effect */}
         <div className="absolute inset-0 opacity-30" style={{
-          background: `radial-gradient(ellipse 80% 50% at 50% 50%, rgba(168, 85, 247, 0.4) 0%, rgba(6, 182, 212, 0.3) 30%, transparent 70%)`,
+          background: `radial-gradient(ellipse 80% 50% at 50% 50%, rgba(255, 255, 255, 0.16) 0%, rgba(255, 255, 255, 0.15) 30%, transparent 70%)`,
           animation: 'rotate 60s linear infinite'
         }} />
         
         {/* Additional nebula effect */}
         <div className="absolute inset-0 opacity-20" style={{
-          background: `radial-gradient(ellipse 60% 40% at 20% 30%, rgba(6, 182, 212, 0.3) 0%, transparent 50%),
-                       radial-gradient(ellipse 50% 60% at 80% 70%, rgba(168, 85, 247, 0.3) 0%, transparent 50%)`,
+          background: `radial-gradient(ellipse 60% 40% at 20% 30%, rgba(255, 255, 255, 0.15) 0%, transparent 50%),
+                       radial-gradient(ellipse 50% 60% at 80% 70%, rgba(255, 255, 255, 0.12) 0%, transparent 50%)`,
           animation: 'pulse 8s ease-in-out infinite'
         }} />
       </div>
@@ -89,19 +89,19 @@ export default function IntroScreen({ onEnter, isLoading }: IntroScreenProps) {
       <div className="relative z-10 flex flex-col items-center justify-center h-full">
         <div className="text-center space-y-8">
           {/* Title */}
-          <h1 className="text-7xl font-bold text-glow-cyan font-orbitron mb-4 animate-pulse" style={{ opacity: 1 }}>
+          <h1 className="text-7xl font-bold font-rajdhani mb-4 animate-pulse" style={{ opacity: 1 }}>
             HURRICARE
           </h1>
           
           {/* Subtitle */}
-          <p className="text-2xl text-cyan-300 font-exo mb-12" style={{ opacity: 1 }}>
+          <p className="text-2xl text-cyan-300 font-rajdhani mb-12" style={{ opacity: 1 }}>
             Humanitarian Response Simulation
           </p>
 
           {/* Loading or Button */}
           {isLoading ? (
             <div className="space-y-4">
-              <div className="text-3xl font-orbitron text-glow-cyan" style={{ opacity: 1 }}>
+              <div className="text-3xl font-rajdhani" style={{ opacity: 1 }}>
                 {loadingText}{dots}
               </div>
               <div className="flex justify-center">
@@ -116,7 +116,7 @@ export default function IntroScreen({ onEnter, isLoading }: IntroScreenProps) {
           ) : showButton ? (
             <button
               onClick={onEnter}
-              className="px-12 py-4 text-2xl font-orbitron font-bold text-black bg-gradient-to-r from-cyan-400 to-purple-500 rounded-lg glow-cyan hover:from-cyan-300 hover:to-purple-400 transition-all duration-300 transform hover:scale-110 animate-pulse"
+              className="px-12 py-4 text-2xl font-rajdhani font-bold text-black bg-gradient-to-r from-cyan-400 to-purple-500 rounded-lg hover:from-cyan-300 hover:to-purple-400 transition-all duration-300 transform hover:scale-110 animate-pulse"
             >
               ENTER GAME
             </button>

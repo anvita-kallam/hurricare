@@ -177,7 +177,7 @@ export default function CountryMesh({ country, radius, selected, globalSelected,
   })
 
   // Use the country color directly (funding disparity overrides in GlobeScene)
-  const fillColor = selected ? '#0e2f7a' : country.color
+  const fillColor = selected ? '#1a1a2a' : country.color
 
   return (
     <>

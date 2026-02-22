@@ -152,7 +152,7 @@ export default function Step1Situation() {
             <div style={{ fontFamily: "'Rajdhani', sans-serif", fontWeight: 700, fontSize: '1rem', color: 'rgba(255,255,255,0.85)', letterSpacing: '0.08em', lineHeight: 1.1 }}>
               {selectedHurricane.name}
             </div>
-            <div style={{ fontFamily: "'DM Mono', monospace", fontSize: '0.5rem', letterSpacing: '0.16em', marginTop: 2, color: maxSeverity > 0.7 ? 'rgba(255,100,80,0.6)' : maxSeverity > 0.4 ? 'rgba(255,220,100,0.6)' : 'rgba(120,220,120,0.6)' }}>
+            <div style={{ fontFamily: "'DM Mono', monospace", fontSize: '0.5rem', letterSpacing: '0.16em', marginTop: 2, color: 'rgba(255,255,255,0.4)' }}>
               CATEGORY {selectedHurricane.max_category} — {selectedHurricane.year}
             </div>
           </div>
@@ -194,9 +194,9 @@ export default function Step1Situation() {
               height={90}
               seed={seed + 10}
               colors={[
-                'rgba(255,100,80,0.12)',
-                'rgba(255,180,60,0.09)',
-                'rgba(100,180,220,0.08)',
+                'rgba(255,255,255,0.12)',
+                'rgba(255,255,255,0.08)',
+                'rgba(255,255,255,0.05)',
               ]}
             />
           </div>
@@ -290,7 +290,7 @@ export default function Step1Situation() {
               width={W}
               height={48}
               seed={seed + 50}
-              color={avgSeverity > 0.5 ? 'rgba(255,100,80,0.12)' : 'rgba(255,255,255,0.1)'}
+              color={'rgba(255,255,255,0.1)'}
               secondaryData={populationDistribution.map(p => {
                 const maxP = Math.max(...populationDistribution, 1)
                 return (p / maxP) * Math.max(...severityDistribution, 1)

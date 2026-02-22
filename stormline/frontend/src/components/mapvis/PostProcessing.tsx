@@ -1,18 +1,14 @@
-import { EffectComposer, HueSaturation, BrightnessContrast, Vignette } from '@react-three/postprocessing'
-import { BlendFunction } from 'postprocessing'
+import { EffectComposer, HueSaturation, BrightnessContrast } from '@react-three/postprocessing'
 
 // Bloom DISABLED — it causes white flashing squares with additive-blended materials.
 // Noise DISABLED — overlay blend on noise causes flickering.
+// Vignette DISABLED — forbidden per design spec.
+// Saturation reduced to desaturate everything toward monochrome.
 export default function PostProcessing() {
   return (
     <EffectComposer>
-      <HueSaturation hue={0} saturation={0.12} />
-      <BrightnessContrast brightness={0.02} contrast={0.06} />
-      <Vignette
-        offset={0.4}
-        darkness={0.65}
-        blendFunction={BlendFunction.NORMAL}
-      />
+      <HueSaturation hue={0} saturation={-0.3} />
+      <BrightnessContrast brightness={0.02} contrast={0.08} />
     </EffectComposer>
   )
 }

@@ -179,7 +179,7 @@ export default function Step4Results() {
               width={W}
               height={80}
               seed={seed + 10}
-              accentColor={avgUserCoverage < avgMlCoverage ? 'rgba(255,160,60,0.6)' : 'rgba(100,180,220,0.5)'}
+              accentColor={'rgba(255,255,255,0.4)'}
             />
           </div>
 
@@ -200,9 +200,9 @@ export default function Step4Results() {
               height={90}
               seed={seed + 20}
               colors={[
-                'rgba(68,136,170,0.15)',
-                'rgba(136,85,170,0.1)',
-                'rgba(170,68,68,0.08)',
+                'rgba(255,255,255,0.12)',
+                'rgba(255,255,255,0.08)',
+                'rgba(255,255,255,0.05)',
               ]}
             />
           </div>
@@ -244,7 +244,7 @@ export default function Step4Results() {
               width={W}
               height={64}
               seed={seed + 30}
-              accentColor={avgRealCoverage < avgMlCoverage ? 'rgba(255,160,60,0.4)' : 'rgba(100,220,120,0.3)'}
+              accentColor={'rgba(255,255,255,0.3)'}
             />
           </div>
 
@@ -275,7 +275,7 @@ export default function Step4Results() {
               width={W}
               height={48}
               seed={seed + 40}
-              color="rgba(255,160,60,0.12)"
+              color="rgba(255,255,255,0.1)"
               secondaryData={realCoverageSeries.length > 1 ? realCoverageSeries : [0, 50]}
             />
           </div>
@@ -330,11 +330,11 @@ export default function Step4Results() {
             </div>
             <div className="flex items-center gap-3">
               <div className="flex items-center gap-1">
-                <div className="w-2 h-2 rounded-sm" style={{ background: 'rgba(100,180,230,0.6)' }} />
+                <div className="w-2 h-2 rounded-sm" style={{ background: 'rgba(255,255,255,0.5)' }} />
                 <span className="text-white/30 font-mono text-[7px]">Your Plan</span>
               </div>
               <div className="flex items-center gap-1">
-                <div className="w-2 h-2 rounded-sm" style={{ background: 'rgba(136,85,170,0.6)' }} />
+                <div className="w-2 h-2 rounded-sm" style={{ background: 'rgba(255,255,255,0.3)' }} />
                 <span className="text-white/30 font-mono text-[7px]">ML Ideal</span>
               </div>
             </div>

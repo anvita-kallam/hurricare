@@ -16,34 +16,30 @@ interface ComparisonHeatmapsProps {
 // Generate color based on value
 function getColor(value: number, maxValue: number, type: 'crisis' | 'funding') {
   if (type === 'crisis') {
-    // Red gradient for crisis/severity
+    // Greyscale gradient for crisis/severity
     const intensity = Math.min(value / maxValue, 1)
-    const r = Math.floor(255 * intensity)
-    const g = Math.floor(100 * (1 - intensity))
-    const b = Math.floor(50 * (1 - intensity))
-    return `rgb(${r}, ${g}, ${b})`
+    const v = Math.floor(30 + (200 - 30) * intensity)
+    return `rgb(${v}, ${v}, ${v})`
   } else {
-    // Blue gradient for funding
+    // Greyscale gradient for funding
     const intensity = Math.min(value / maxValue, 1)
-    const r = Math.floor(50 * (1 - intensity))
-    const g = Math.floor(150 * intensity)
-    const b = Math.floor(255 * intensity)
-    return `rgb(${r}, ${g}, ${b})`
+    const v = Math.floor(25 + (180 - 25) * intensity)
+    return `rgb(${v}, ${v}, ${v})`
   }
 }
 
 export default function ComparisonHeatmaps({ userPlan, mlPlan, realPlan, selectedHurricane }: ComparisonHeatmapsProps) {
   const { coverage } = useStore()
-  
+
   // Prepare data for crisis heatmap (severity/need)
   const crisisData = useMemo(() => {
     const data: Record<string, { severity: number; need: number }> = {}
-    
+
     realPlan.allocations.forEach((alloc: any) => {
       const region = alloc.region
       const severity = alloc.coverage_estimate?.severity_weighted_impact || alloc.coverage_estimate?.coverage_ratio || 0.5
       const need = alloc.coverage_estimate?.people_in_need || 0
-      
+
       // Map region names to country codes (simplified - in production use proper mapping)
       const countryCode = getCountryCodeFromRegion(region)
       if (countryCode) {
@@ -53,19 +49,19 @@ export default function ComparisonHeatmaps({ userPlan, mlPlan, realPlan, selecte
         }
       }
     })
-    
+
     return data
   }, [realPlan])
-  
+
   // Prepare data for funding heatmap
   const fundingData = useMemo(() => {
     const data: Record<string, { real: number; ideal: number; user: number }> = {}
-    
+
     realPlan.allocations.forEach((realAlloc: any) => {
       const region = realAlloc.region
       const mlAlloc = mlPlan.allocations.find((a: any) => a.region === region)
       const userAlloc = userPlan.allocations.find((a: any) => a.region === region)
-      
+
       const countryCode = getCountryCodeFromRegion(region)
       if (countryCode) {
         data[countryCode] = {
@@ -75,24 +71,24 @@ export default function ComparisonHeatmaps({ userPlan, mlPlan, realPlan, selecte
         }
       }
     })
-    
+
     return data
   }, [realPlan, mlPlan, userPlan])
-  
+
   const maxCrisis = useMemo(() => {
     return Math.max(...Object.values(crisisData).map(d => d.severity), 1)
   }, [crisisData])
-  
+
   const maxFunding = useMemo(() => {
     return Math.max(...Object.values(fundingData).map(d => Math.max(d.real, d.ideal, d.user)), 1)
   }, [fundingData])
-  
+
   return (
     <div className="w-full h-full grid grid-cols-2 gap-4 p-4">
       {/* Crisis/Severity Heatmap */}
-      <div className="bg-black/80 border-2 border-red-500/50 rounded-lg p-6 glow-red flex flex-col">
-        <h3 className="text-2xl font-bold mb-4 text-red-300 font-orbitron">Crisis Intensity & Need</h3>
-        <div className="w-full flex-1 bg-black/60 rounded border-2 border-red-500/30">
+      <div className="bg-black/80 border border-white/[0.06] rounded-sm p-6 flex flex-col">
+        <h3 className="text-2xl font-bold mb-4 text-white/60 font-rajdhani">Crisis Intensity & Need</h3>
+        <div className="w-full flex-1 bg-black/60 rounded border border-white/[0.04]">
           <ComposableMap
             projectionConfig={{ scale: 150 }}
             style={{ width: '100%', height: '100%' }}
@@ -103,7 +99,7 @@ export default function ComparisonHeatmaps({ userPlan, mlPlan, realPlan, selecte
                   const countryCode = geo.properties.ISO_A2 || geo.properties.ISO_A3
                   const crisis = crisisData[countryCode]
                   const color = crisis ? getColor(crisis.severity, maxCrisis, 'crisis') : '#1a1a1a'
-                  
+
                   return (
                     <Geography
                       key={geo.rsmKey}
@@ -140,21 +136,21 @@ export default function ComparisonHeatmaps({ userPlan, mlPlan, realPlan, selecte
         {/* Legend */}
         <div className="mt-3 flex items-center gap-2 p-2 bg-black/40 rounded">
           <div className="flex-1 flex items-center gap-1">
-            <span className="text-xs text-red-300/70 font-exo">Low</span>
+            <span className="text-xs text-white/40 font-rajdhani">Low</span>
             {[0, 0.25, 0.5, 0.75, 1].map((val) => (
               <div key={val} className="flex-1 h-3 rounded-sm" style={{
                 background: getColor(val * maxCrisis, maxCrisis, 'crisis')
               }} />
             ))}
-            <span className="text-xs text-red-300/70 font-exo">High</span>
+            <span className="text-xs text-white/40 font-rajdhani">High</span>
           </div>
         </div>
       </div>
-      
+
       {/* Funding Heatmap */}
-      <div className="bg-black/80 border-2 border-cyan-500/50 rounded-lg p-6 glow-cyan flex flex-col">
-        <h3 className="text-2xl font-bold mb-4 text-cyan-300 font-orbitron">Funding Allocation</h3>
-        <div className="w-full flex-1 bg-black/60 rounded border-2 border-cyan-500/30">
+      <div className="bg-black/80 border border-white/[0.06] rounded-sm p-6 flex flex-col">
+        <h3 className="text-2xl font-bold mb-4 text-white/60 font-rajdhani">Funding Allocation</h3>
+        <div className="w-full flex-1 bg-black/60 rounded border border-white/[0.04]">
           <ComposableMap
             projectionConfig={{ scale: 150 }}
             style={{ width: '100%', height: '100%' }}
@@ -166,7 +162,7 @@ export default function ComparisonHeatmaps({ userPlan, mlPlan, realPlan, selecte
                   const funding = fundingData[countryCode]
                   // Use real-world funding for color
                   const color = funding ? getColor(funding.real, maxFunding, 'funding') : '#1a1a1a'
-                  
+
                   return (
                     <Geography
                       key={geo.rsmKey}
@@ -203,13 +199,13 @@ export default function ComparisonHeatmaps({ userPlan, mlPlan, realPlan, selecte
         {/* Legend */}
         <div className="mt-3 flex items-center gap-2 p-2 bg-black/40 rounded">
           <div className="flex-1 flex items-center gap-1">
-            <span className="text-xs text-cyan-300/70 font-exo">Low</span>
+            <span className="text-xs text-white/40 font-rajdhani">Low</span>
             {[0, 0.25, 0.5, 0.75, 1].map((val) => (
               <div key={val} className="flex-1 h-3 rounded-sm" style={{
                 background: getColor(val * maxFunding, maxFunding, 'funding')
               }} />
             ))}
-            <span className="text-xs text-cyan-300/70 font-exo">High</span>
+            <span className="text-xs text-white/40 font-rajdhani">High</span>
           </div>
         </div>
       </div>
@@ -245,18 +241,18 @@ function getCountryCodeFromRegion(region: string): string | null {
     'Canada': 'CA',
     'Mexico': 'MX',
   }
-  
+
   // Try exact match first
   if (regionToCountry[region]) {
     return regionToCountry[region]
   }
-  
+
   // Try partial match
   for (const [key, code] of Object.entries(regionToCountry)) {
     if (region.includes(key) || key.includes(region)) {
       return code
     }
   }
-  
+
   return null
 }

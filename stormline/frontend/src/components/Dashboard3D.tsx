@@ -24,7 +24,7 @@ const options: DashboardOption[] = [
     title: 'BROWSE',
     subtitle: 'Explore Historical Events & Tracks',
     tag: 'MODEL',
-    color: '#44ccaa',
+    color: 'rgba(255,255,255,0.5)',
     statusText: 'ACTIVE',
   },
   {
@@ -32,7 +32,7 @@ const options: DashboardOption[] = [
     title: 'FUNDING',
     subtitle: 'Global Disparity Analysis',
     tag: 'STATUS',
-    color: '#ff8844',
+    color: 'rgba(255,255,255,0.4)',
     statusText: 'LINKED',
   },
 ]
@@ -86,7 +86,7 @@ const gridFragmentShader = /* glsl */ `
                      smoothstep(0.0, 0.2, uv.y) * smoothstep(1.0, 0.8, uv.y);
 
     float alpha = (g1 + g2 + scan) * edgeFade;
-    gl_FragColor = vec4(0.2, 0.4, 0.8, alpha);
+    gl_FragColor = vec4(0.3, 0.3, 0.3, alpha);
   }
 `
 
@@ -264,7 +264,7 @@ function ParticleField() {
           float d = length(uv) * 2.0;
           if (d > 1.0) discard;
           float core = exp(-d * d * 6.0);
-          gl_FragColor = vec4(0.3, 0.5, 0.9, core * vAlpha * 0.15);
+          gl_FragColor = vec4(0.5, 0.5, 0.5, core * vAlpha * 0.12);
         }
       `,
       transparent: true,
@@ -310,10 +310,10 @@ function ThreeScene({
   return (
     <>
       <color attach="background" args={['#020408']} />
-      <ambientLight intensity={0.04} />
-      <pointLight position={[0, 2, 5]} intensity={0.12} color="#2244ff" distance={14} />
-      <pointLight position={[-4, 1, 3]} intensity={0.08} color="#9900ff" distance={14} />
-      <pointLight position={[4, -1, 3]} intensity={0.06} color="#0055ff" distance={14} />
+      <ambientLight intensity={0.05} />
+      <pointLight position={[0, 2, 5]} intensity={0.12} color="#ffffff" distance={14} />
+      <pointLight position={[-4, 1, 3]} intensity={0.08} color="#cccccc" distance={14} />
+      <pointLight position={[4, -1, 3]} intensity={0.06} color="#aaaaaa" distance={14} />
 
       <BackgroundGrid />
       <ParticleField />
@@ -368,11 +368,11 @@ function OscilloscopeTrace({ width = 100, height = 28 }: { width?: number; heigh
       <polyline
         ref={polyRef}
         fill="none"
-        stroke="rgba(68, 136, 255, 0.8)"
+        stroke="rgba(255, 255, 255, 0.6)"
         strokeWidth="0.8"
       />
       {/* Baseline */}
-      <line x1="0" y1={height / 2} x2={width} y2={height / 2} stroke="rgba(68,136,255,0.15)" strokeWidth="0.5" />
+      <line x1="0" y1={height / 2} x2={width} y2={height / 2} stroke="rgba(255,255,255,0.1)" strokeWidth="0.5" />
     </svg>
   )
 }
@@ -406,7 +406,7 @@ function OscilloscopeTrace2({ width = 80, height = 24 }: { width?: number; heigh
       <polyline
         ref={polyRef}
         fill="none"
-        stroke="rgba(68, 204, 170, 0.8)"
+        stroke="rgba(255, 255, 255, 0.5)"
         strokeWidth="0.6"
       />
     </svg>
@@ -415,7 +415,7 @@ function OscilloscopeTrace2({ width = 80, height = 24 }: { width?: number; heigh
 
 /* ─── HUD: Radial arc gauge ───────────────────────────────────────────────── */
 
-function RadialGauge({ size = 52, value = 0.72, color = 'rgba(68,136,255,0.35)' }: { size?: number; value?: number; color?: string }) {
+function RadialGauge({ size = 52, value = 0.72, color = 'rgba(255,255,255,0.2)' }: { size?: number; value?: number; color?: string }) {
   const r = size / 2 - 4
   const circumference = 2 * Math.PI * r
   const offset = circumference * (1 - value)
@@ -464,7 +464,7 @@ function MiniBarChart({ values = [0.3, 0.7, 0.5, 0.9, 0.4, 0.6, 0.8, 0.35] }: { 
           className="w-[2px] rounded-[0.5px]"
           style={{
             height: `${v * 100}%`,
-            background: `rgba(68, 136, 255, ${0.3 + v * 0.4})`,
+            background: `rgba(255, 255, 255, ${0.15 + v * 0.25})`,
           }}
         />
       ))}
@@ -510,7 +510,7 @@ function HorizontalScanBars() {
             className="h-[1px] rounded"
             style={{
               width: `${w * 40}px`,
-              background: 'rgba(68,136,255,0.5)',
+              background: 'rgba(255,255,255,0.25)',
             }}
           />
           <div className="text-[5px] font-mono text-white/30">{(w * 100).toFixed(0)}</div>
@@ -632,8 +632,7 @@ export default function Dashboard3D({ onSelectOption, isLoading }: Dashboard3DPr
         className="absolute left-0 right-0 h-[1px] pointer-events-none z-[7]"
         style={{
           top: `${scanlinePos}%`,
-          background: 'linear-gradient(90deg, transparent 0%, rgba(100,150,255,0.06) 30%, rgba(100,150,255,0.1) 50%, rgba(100,150,255,0.06) 70%, transparent 100%)',
-          boxShadow: '0 0 20px rgba(100,150,255,0.03)',
+          background: 'linear-gradient(90deg, transparent 0%, rgba(255,255,255,0.04) 30%, rgba(255,255,255,0.06) 50%, rgba(255,255,255,0.04) 70%, transparent 100%)',
         }}
       />
 
@@ -643,7 +642,7 @@ export default function Dashboard3D({ onSelectOption, isLoading }: Dashboard3DPr
       <div className="absolute top-14 left-6 flex flex-col gap-3 pointer-events-none z-[8]">
         <OscilloscopeTrace width={100} height={28} />
         <div className="flex items-center gap-2">
-          <div className="w-1 h-1 rounded-full bg-blue-400/20 dashboard-pulse" />
+          <div className="w-1 h-1 rounded-full bg-white/20 dashboard-pulse" />
           <span className="text-[6px] font-mono text-white/[0.08] tracking-[0.2em]">WAVEFORM.A</span>
         </div>
         <MiniBarChart />
@@ -655,20 +654,20 @@ export default function Dashboard3D({ onSelectOption, isLoading }: Dashboard3DPr
         <OscilloscopeTrace2 width={80} height={24} />
         <div className="flex items-center gap-2">
           <span className="text-[6px] font-mono text-white/[0.08] tracking-[0.2em]">SIGNAL.B</span>
-          <div className="w-1 h-1 rounded-full bg-teal-400/20 dashboard-pulse" />
+          <div className="w-1 h-1 rounded-full bg-white/15 dashboard-pulse" />
         </div>
         <HorizontalScanBars />
       </div>
 
       {/* Left mid: Radial gauge */}
       <div className="absolute left-5 top-1/2 -translate-y-1/2 flex flex-col items-center gap-2 pointer-events-none z-[8]">
-        <RadialGauge size={52} value={0.72} color="rgba(68,136,255,0.35)" />
+        <RadialGauge size={52} value={0.72} color="rgba(255,255,255,0.2)" />
         <span className="text-[5px] font-mono text-white/[0.07] tracking-[0.25em]">SYS.LOAD</span>
       </div>
 
       {/* Right mid: Radial gauge */}
       <div className="absolute right-5 top-1/2 -translate-y-1/2 flex flex-col items-center gap-2 pointer-events-none z-[8]">
-        <RadialGauge size={48} value={0.58} color="rgba(68,204,170,0.3)" />
+        <RadialGauge size={48} value={0.58} color="rgba(255,255,255,0.18)" />
         <span className="text-[5px] font-mono text-white/[0.07] tracking-[0.25em]">NET.IO</span>
       </div>
 
@@ -731,7 +730,7 @@ export default function Dashboard3D({ onSelectOption, isLoading }: Dashboard3DPr
         <div className="flex items-center justify-between px-8 pt-6 pb-2">
           {/* Left: system tag */}
           <div className="flex items-center gap-3">
-            <div className="w-1.5 h-1.5 rounded-full bg-[#4488ff]/60 dashboard-pulse" />
+            <div className="w-1.5 h-1.5 rounded-full bg-white/30 dashboard-pulse" />
             <span className="text-[10px] font-mono text-white/20 tracking-[0.2em] uppercase">
               SYS.ONLINE
             </span>
@@ -744,7 +743,7 @@ export default function Dashboard3D({ onSelectOption, isLoading }: Dashboard3DPr
           {/* Right: time + mode */}
           <div className="flex items-center gap-6">
             <div className="flex items-center gap-2">
-              <div className="w-1 h-1 rounded-full bg-green-400/30 dashboard-pulse" />
+              <div className="w-1 h-1 rounded-full bg-white/20 dashboard-pulse" />
               <span className="text-[8px] font-mono text-white/[0.10] tracking-[0.15em]">
                 ALL SYSTEMS NOMINAL
               </span>
@@ -780,7 +779,7 @@ export default function Dashboard3D({ onSelectOption, isLoading }: Dashboard3DPr
           <h1
             className="text-6xl font-bold text-white font-rajdhani tracking-[0.12em] leading-none"
             style={{
-              textShadow: '0 0 40px rgba(68, 136, 255, 0.08)',
+              textShadow: '0 0 40px rgba(255, 255, 255, 0.06)',
             }}
           >
             <TypewriterText text="HURRICARE" emphasis="headline" delayMs={800} charIntervalMs={80} />

@@ -162,7 +162,7 @@ function GraticuleOverlay({ radius }: { radius: number }) {
 
   return (
     <lineSegments geometry={geometry} renderOrder={9}>
-      <lineBasicMaterial color="#4488ff" transparent opacity={0.06} depthWrite={false} toneMapped={false} />
+      <lineBasicMaterial color="#888888" transparent opacity={0.06} depthWrite={false} toneMapped={false} />
     </lineSegments>
   )
 }
@@ -170,13 +170,13 @@ function GraticuleOverlay({ radius }: { radius: number }) {
 /* ─── Atmosphere shell — improved with rim lighting ──────────────────────── */
 
 const SHELL_LAYERS = [
-  { r: 1.008, color: '#4466cc', opacity: 0.10 },
-  { r: 1.02,  color: '#3355bb', opacity: 0.08 },
-  { r: 1.04,  color: '#2244aa', opacity: 0.06 },
-  { r: 1.07,  color: '#1a3399', opacity: 0.04 },
-  { r: 1.12,  color: '#112288', opacity: 0.025 },
-  { r: 1.20,  color: '#0a1166', opacity: 0.015 },
-  { r: 1.32,  color: '#060844', opacity: 0.008 },
+  { r: 1.008, color: '#666666', opacity: 0.10 },
+  { r: 1.02,  color: '#555555', opacity: 0.08 },
+  { r: 1.04,  color: '#444444', opacity: 0.06 },
+  { r: 1.07,  color: '#333333', opacity: 0.04 },
+  { r: 1.12,  color: '#222222', opacity: 0.025 },
+  { r: 1.20,  color: '#181818', opacity: 0.015 },
+  { r: 1.32,  color: '#101010', opacity: 0.008 },
 ]
 
 /* Rim-light shader for atmospheric Fresnel effect */
@@ -220,7 +220,7 @@ function MiniShell({ radius }: { radius: number }) {
           vertexShader={rimVertexShader}
           fragmentShader={rimFragmentShader}
           uniforms={{
-            uColor: { value: new THREE.Color('#4488ff') },
+            uColor: { value: new THREE.Color('#888888') },
             uOpacity: { value: 1.2 },
           }}
           transparent
@@ -283,7 +283,7 @@ const SAMPLE_TRACKS: { lat: number; lon: number }[][] = [
   ],
 ]
 
-const TRACK_COLORS = ['#FF6B6B', '#4ECDC4', '#45B7D1', '#FFA07A', '#F7DC6F', '#BB8FCE']
+const TRACK_COLORS = ['#b3b3b3', '#999999', '#808080', '#666666', '#a6a6a6', '#737373']
 
 function SamplePaths({ radius }: { radius: number }) {
   const geometries = useMemo(() => {
@@ -478,7 +478,7 @@ export default function MiniGlobePreview({ variant, position, isSelected, onClic
   )
 
   const ringColor =
-    variant === 'search' ? '#4488ff' : variant === 'browse' ? '#44ccaa' : '#ff8844'
+    variant === 'search' ? '#888888' : variant === 'browse' ? '#999999' : '#777777'
 
   return (
     <group ref={outerRef} position={position}>

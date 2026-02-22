@@ -72,22 +72,22 @@ export default function Leaderboard({ isOpen, onClose, lastScore, onScoreSubmitt
   return (
     <>
       <div className="fixed inset-0 bg-black/60 z-50" onClick={onClose} />
-      <div className="fixed left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 w-full max-w-md bg-black/95 border border-cyan-500/30 rounded-xl p-6 z-50 glow-cyan">
+      <div className="fixed left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 w-full max-w-md bg-black/95 border border-white/[0.06] rounded-xl p-6 z-50">
         <div className="flex justify-between items-center mb-4">
-          <h2 className="text-xl font-bold text-glow-cyan font-orbitron">Daily Leaderboard</h2>
-          <button onClick={onClose} className="text-cyan-400 hover:text-cyan-200 text-2xl">×</button>
+          <h2 className="text-xl font-bold font-rajdhani">Daily Leaderboard</h2>
+          <button onClick={onClose} className="text-white/40 hover:text-white/60 text-2xl">×</button>
         </div>
-        <p className="text-xs text-cyan-400/80 mb-4 font-exo">
+        <p className="text-xs text-white/40 mb-4 font-rajdhani">
           Resets every day. Complete simulations to add to your score.
         </p>
         {data && (
-          <p className="text-xs text-cyan-300/70 mb-3 font-exo">Today: {data.date}</p>
+          <p className="text-xs text-white/50 mb-3 font-rajdhani">Today: {data.date}</p>
         )}
 
         {/* Submit score section - only if lastScore provided */}
         {lastScore != null && lastScore >= 0 && (
-          <div className="mb-4 p-3 bg-cyan-500/10 border border-cyan-500/30 rounded">
-            <div className="text-sm font-semibold text-cyan-200 mb-2 font-orbitron">
+          <div className="mb-4 p-3 bg-white/[0.03] border border-white/[0.06] rounded">
+            <div className="text-sm font-semibold text-white/60 mb-2 font-rajdhani">
               Submit your score: {Math.round(lastScore).toLocaleString()}
             </div>
             <div className="flex gap-2">
@@ -96,40 +96,40 @@ export default function Leaderboard({ isOpen, onClose, lastScore, onScoreSubmitt
                 placeholder="Your name"
                 value={playerName}
                 onChange={(e) => setPlayerName(e.target.value)}
-                className="flex-1 bg-black/60 border border-cyan-500/30 rounded px-3 py-2 text-cyan-200 text-sm font-exo placeholder-cyan-500/50"
+                className="flex-1 bg-black/60 border border-white/[0.06] rounded px-3 py-2 text-white/60 text-sm font-rajdhani placeholder-white/30"
               />
               <button
                 onClick={handleSubmitScore}
                 disabled={submitting}
-                className="px-4 py-2 rounded bg-cyan-600 hover:bg-cyan-500 text-cyan-100 text-sm font-semibold disabled:opacity-50 font-orbitron"
+                className="px-4 py-2 rounded bg-white/[0.12] hover:bg-white/[0.15] text-white/70 text-sm font-semibold disabled:opacity-50 font-rajdhani"
               >
                 {submitting ? '...' : 'Submit'}
               </button>
             </div>
             {submitSuccess && (
-              <div className="text-green-400 text-xs mt-2 font-exo">{submitSuccess}</div>
+              <div className="text-white/40 text-xs mt-2 font-rajdhani">{submitSuccess}</div>
             )}
           </div>
         )}
 
         {/* Leaderboard list */}
         {loading ? (
-          <div className="text-center py-8 text-cyan-400 font-exo">Loading...</div>
+          <div className="text-center py-8 text-white/40 font-rajdhani">Loading...</div>
         ) : data && data.entries.length > 0 ? (
           <div className="space-y-2 max-h-64 overflow-y-auto">
             {data.entries.map((e) => (
               <div
                 key={`${e.player_name}-${e.rank}`}
-                className="flex items-center justify-between p-2 rounded bg-cyan-500/10 border border-cyan-500/20"
+                className="flex items-center justify-between p-2 rounded bg-white/[0.03] border border-white/[0.04]"
               >
-                <span className="font-orbitron text-cyan-300 w-6">#{e.rank}</span>
-                <span className="text-cyan-200 font-exo flex-1">{e.player_name}</span>
-                <span className="font-orbitron font-bold text-glow-cyan">{Math.round(e.score).toLocaleString()}</span>
+                <span className="font-rajdhani text-white/50 w-6">#{e.rank}</span>
+                <span className="text-white/60 font-rajdhani flex-1">{e.player_name}</span>
+                <span className="font-rajdhani font-bold">{Math.round(e.score).toLocaleString()}</span>
               </div>
             ))}
           </div>
         ) : (
-          <div className="text-center py-8 text-cyan-400/80 font-exo">
+          <div className="text-center py-8 text-white/40 font-rajdhani">
             No scores yet today. Complete a simulation and submit to be first!
           </div>
         )}

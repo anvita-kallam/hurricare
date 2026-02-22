@@ -131,25 +131,25 @@ export function CompactBarCluster({ data, height = 120 }: {
           return (
             <div key={i} className="flex items-end gap-px group relative flex-1 justify-center">
               <div
-                className="bg-[#4488aa] opacity-70 transition-all duration-700 ease-out rounded-t-[1px]"
-                style={{ width: barWidth, height: userH, transitionDelay: `${i * 40}ms` }}
+                className="transition-all duration-700 ease-out rounded-t-[1px]"
+                style={{ width: barWidth, height: userH, transitionDelay: `${i * 40}ms`, backgroundColor: 'rgba(255,255,255,0.6)' }}
               />
               <div
-                className="bg-[#8855aa] opacity-70 transition-all duration-700 ease-out rounded-t-[1px]"
-                style={{ width: barWidth, height: mlH, transitionDelay: `${i * 40 + 80}ms` }}
+                className="transition-all duration-700 ease-out rounded-t-[1px]"
+                style={{ width: barWidth, height: mlH, transitionDelay: `${i * 40 + 80}ms`, backgroundColor: 'rgba(255,255,255,0.35)' }}
               />
               <div
-                className="bg-[#aa4444] opacity-70 transition-all duration-700 ease-out rounded-t-[1px]"
-                style={{ width: barWidth, height: realH, transitionDelay: `${i * 40 + 160}ms` }}
+                className="transition-all duration-700 ease-out rounded-t-[1px]"
+                style={{ width: barWidth, height: realH, transitionDelay: `${i * 40 + 160}ms`, backgroundColor: 'rgba(255,255,255,0.15)' }}
               />
               {/* Hover tooltip */}
               <div className="absolute bottom-full mb-1 left-1/2 -translate-x-1/2 hidden group-hover:block z-20 pointer-events-none">
                 <div className="bg-black/95 border border-white/10 rounded px-2 py-1.5 whitespace-nowrap">
                   <div className="text-white/70 font-rajdhani text-[10px] font-semibold mb-1">{d.label}</div>
                   <div className="text-[9px] font-mono space-y-0.5">
-                    <div className="text-[#6abbe0]">You: ${(d.user / 1e6).toFixed(1)}M</div>
-                    <div className="text-[#b080d0]">ML: ${(d.ml / 1e6).toFixed(1)}M</div>
-                    <div className="text-[#d06060]">Real: ${(d.real / 1e6).toFixed(1)}M</div>
+                    <div style={{ color: 'rgba(255,255,255,0.7)' }}>You: ${(d.user / 1e6).toFixed(1)}M</div>
+                    <div style={{ color: 'rgba(255,255,255,0.4)' }}>ML: ${(d.ml / 1e6).toFixed(1)}M</div>
+                    <div style={{ color: 'rgba(255,255,255,0.2)' }}>Real: ${(d.real / 1e6).toFixed(1)}M</div>
                   </div>
                 </div>
               </div>
@@ -188,12 +188,11 @@ export function DeltaBar({ label, ideal, actual, maxRange }: {
           style={{
             left: isPositive ? '50%' : `${50 + pct}%`,
             width: `${Math.abs(pct)}%`,
-            backgroundColor: isPositive ? '#44aa77' : '#aa4455',
-            opacity: 0.7,
+            backgroundColor: isPositive ? 'rgba(255,255,255,0.5)' : 'rgba(255,255,255,0.2)',
           }}
         />
       </div>
-      <span className={`font-mono text-[10px] w-14 text-right ${isPositive ? 'text-[#55cc88]' : 'text-[#cc5566]'}`}>
+      <span className="font-mono text-[10px] w-14 text-right" style={{ color: isPositive ? 'rgba(255,255,255,0.6)' : 'rgba(255,255,255,0.3)' }}>
         {isPositive ? '+' : ''}{(delta / 1e6).toFixed(1)}M
       </span>
     </div>
@@ -292,8 +291,10 @@ export function SeverityGrid({ data }: {
   return (
     <div className="grid grid-cols-3 gap-1">
       {data.map((d, i) => {
-        const sevColor = `rgba(${180 + d.severity * 75}, ${60 - d.severity * 40}, ${60 - d.severity * 30}, ${0.5 + d.severity * 0.4})`
-        const gapColor = d.gap > 0.2 ? 'rgba(204,68,85,0.6)' : d.gap > 0.05 ? 'rgba(204,170,68,0.4)' : 'rgba(68,170,119,0.4)'
+        const sevOpacity = 0.1 + d.severity * 0.4
+        const sevColor = `rgba(255,255,255,${sevOpacity})`
+        const gapOpacity = d.gap > 0.2 ? 0.5 : d.gap > 0.05 ? 0.3 : 0.15
+        const gapColor = `rgba(255,255,255,${gapOpacity})`
 
         return (
           <div
@@ -313,7 +314,7 @@ export function SeverityGrid({ data }: {
               <div className="bg-black/95 border border-white/10 rounded px-2 py-1.5 whitespace-nowrap">
                 <div className="text-white/60 font-rajdhani text-[10px] font-semibold">{d.region}</div>
                 <div className="text-[9px] font-mono space-y-0.5 mt-0.5">
-                  <div style={{ color: sevColor }}>Severity: {(d.severity * 10).toFixed(1)}</div>
+                  <div style={{ color: `rgba(255,255,255,${0.3 + d.severity * 0.5})` }}>Severity: {(d.severity * 10).toFixed(1)}</div>
                   <div className="text-white/50">Coverage: {(d.coverage * 100).toFixed(1)}%</div>
                   <div style={{ color: gapColor }}>Gap: {(d.gap * 100).toFixed(1)}%</div>
                 </div>
@@ -342,6 +343,13 @@ export function DenseTimeSeries({ series, height = 100, labels }: {
 
   const width = 300
 
+  // Monochrome line differentiation: all white, varying strokeWidth and opacity
+  const lineStyles = [
+    { strokeWidth: 2.0, opacity: 0.8 },
+    { strokeWidth: 1.2, opacity: 0.45 },
+    { strokeWidth: 0.7, opacity: 0.2 },
+  ]
+
   return (
     <div className="relative" style={{ height }}>
       <svg ref={svgRef} viewBox={`0 0 ${width} ${height}`} className="w-full h-full" preserveAspectRatio="none">
@@ -355,6 +363,7 @@ export function DenseTimeSeries({ series, height = 100, labels }: {
         ))}
         {/* Series */}
         {series.map((s, si) => {
+          const style = lineStyles[si] || { strokeWidth: 1.0, opacity: 0.3 }
           const points = s.values.map((v, i) => {
             const x = (i / (s.values.length - 1)) * width
             const y = height - (v / maxVal) * (height - 10)
@@ -363,23 +372,22 @@ export function DenseTimeSeries({ series, height = 100, labels }: {
 
           // Area fill
           const firstY = height - (s.values[0] / maxVal) * (height - 10)
-          const lastY = height - (s.values[s.values.length - 1] / maxVal) * (height - 10)
           const areaPath = `M0,${firstY} ${points.split(' ').map(p => `L${p}`).join(' ')} L${width},${height} L0,${height} Z`
 
           return (
             <g key={si}>
               <path
                 d={areaPath}
-                fill={s.color}
-                opacity={0.06}
+                fill="rgba(255,255,255,1)"
+                opacity={style.opacity * 0.08}
                 className="transition-opacity duration-1000"
               />
               <polyline
                 points={points}
                 fill="none"
-                stroke={s.color}
-                strokeWidth={1.2}
-                opacity={0.7}
+                stroke="rgba(255,255,255,1)"
+                strokeWidth={style.strokeWidth}
+                opacity={style.opacity}
                 className="transition-opacity duration-1000"
                 style={{ strokeDasharray: width * 2, strokeDashoffset: 0 }}
               />
@@ -389,12 +397,15 @@ export function DenseTimeSeries({ series, height = 100, labels }: {
       </svg>
       {/* Legend */}
       <div className="absolute top-1 right-1 flex gap-3">
-        {series.map((s, i) => (
-          <div key={i} className="flex items-center gap-1">
-            <div className="w-2 h-0.5 rounded-full" style={{ backgroundColor: s.color, opacity: 0.7 }} />
-            <span className="text-white/30 font-mono text-[8px]">{s.name}</span>
-          </div>
-        ))}
+        {series.map((s, i) => {
+          const style = lineStyles[i] || { strokeWidth: 1.0, opacity: 0.3 }
+          return (
+            <div key={i} className="flex items-center gap-1">
+              <div className="w-2 rounded-full" style={{ backgroundColor: 'rgba(255,255,255,1)', opacity: style.opacity, height: Math.max(1, style.strokeWidth) }} />
+              <span className="text-white/30 font-mono text-[8px]">{s.name}</span>
+            </div>
+          )
+        })}
       </div>
     </div>
   )
@@ -446,7 +457,7 @@ export function MetricCard({ label, value, subtext, trend, color = 'rgba(255,255
   color?: string
 }) {
   const trendIcon = trend === 'up' ? '▲' : trend === 'down' ? '▼' : ''
-  const trendColor = trend === 'up' ? '#55cc88' : trend === 'down' ? '#cc5566' : 'rgba(255,255,255,0.4)'
+  const trendColor = trend === 'up' ? 'rgba(255,255,255,0.6)' : trend === 'down' ? 'rgba(255,255,255,0.3)' : 'rgba(255,255,255,0.4)'
 
   return (
     <div className="bg-white/[0.02] border border-white/[0.05] rounded-sm p-2.5 transition-all duration-300 hover:border-white/[0.1]">
@@ -485,6 +496,7 @@ export function CoverageSurfaceMap({ userPlan, mlPlan, realPlan }: ChartProps) {
     <div className="space-y-2">
       {regions.map((r, i) => {
         const maxCoverage = Math.max(r.userCoverage, r.mlCoverage, r.realCoverage, 0.01)
+        const gapOpacity = r.gap > 0.1 ? 0.6 : r.gap > 0 ? 0.4 : 0.25
         return (
           <div key={i} className="flex items-center gap-2 group">
             <span className="text-white/25 font-rajdhani text-[10px] w-20 truncate tracking-wide uppercase">{r.name}</span>
@@ -493,20 +505,20 @@ export function CoverageSurfaceMap({ userPlan, mlPlan, realPlan }: ChartProps) {
               <div className="flex-1 relative h-full">
                 <div className="absolute inset-0 bg-white/[0.02] rounded-sm" />
                 <div
-                  className="absolute bottom-0 left-0 h-full bg-[#4488aa]/30 rounded-sm transition-all duration-800 ease-out"
-                  style={{ width: `${(r.userCoverage / maxCoverage) * 100}%`, transitionDelay: `${i * 50}ms` }}
+                  className="absolute bottom-0 left-0 h-full rounded-sm transition-all duration-800 ease-out"
+                  style={{ width: `${(r.userCoverage / maxCoverage) * 100}%`, transitionDelay: `${i * 50}ms`, backgroundColor: 'rgba(255,255,255,0.5)' }}
                 />
                 <div
-                  className="absolute bottom-0 left-0 h-1 bg-[#8855aa]/60 rounded-sm transition-all duration-800 ease-out"
-                  style={{ width: `${(r.mlCoverage / maxCoverage) * 100}%`, transitionDelay: `${i * 50 + 100}ms` }}
+                  className="absolute bottom-0 left-0 h-1 rounded-sm transition-all duration-800 ease-out"
+                  style={{ width: `${(r.mlCoverage / maxCoverage) * 100}%`, transitionDelay: `${i * 50 + 100}ms`, backgroundColor: 'rgba(255,255,255,0.3)' }}
                 />
                 <div
-                  className="absolute bottom-0 left-0 h-0.5 bg-[#aa4444]/60 rounded-sm transition-all duration-800 ease-out"
-                  style={{ width: `${(r.realCoverage / maxCoverage) * 100}%`, transitionDelay: `${i * 50 + 200}ms` }}
+                  className="absolute bottom-0 left-0 h-0.5 rounded-sm transition-all duration-800 ease-out"
+                  style={{ width: `${(r.realCoverage / maxCoverage) * 100}%`, transitionDelay: `${i * 50 + 200}ms`, backgroundColor: 'rgba(255,255,255,0.15)' }}
                 />
               </div>
             </div>
-            <span className={`font-mono text-[9px] w-10 text-right ${r.gap > 0.1 ? 'text-[#cc5566]' : r.gap > 0 ? 'text-[#ccaa44]' : 'text-[#55cc88]'}`}>
+            <span className="font-mono text-[9px] w-10 text-right" style={{ color: `rgba(255,255,255,${gapOpacity})` }}>
               {r.gap > 0 ? '-' : '+'}{(Math.abs(r.gap) * 100).toFixed(0)}%
             </span>
           </div>

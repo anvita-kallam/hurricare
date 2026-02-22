@@ -36,10 +36,10 @@ export default function NarrativePopup({
   }, [autoClose, onClose])
 
   const typeStyles = {
-    info: 'border-cyan-500/50 bg-cyan-500/10 text-cyan-200',
-    warning: 'border-orange-500/50 bg-orange-500/10 text-orange-200',
-    success: 'border-green-500/50 bg-green-500/10 text-green-200',
-    story: 'border-purple-500/50 bg-purple-500/10 text-purple-200'
+    info: 'border-white/[0.08] bg-white/[0.03] text-white/60',
+    warning: 'border-white/[0.08] bg-white/[0.03] text-white/60',
+    success: 'border-white/[0.08] bg-white/[0.03] text-white/60',
+    story: 'border-white/[0.08] bg-white/[0.03] text-white/60'
   }
 
   const typeGlow = {
@@ -63,7 +63,7 @@ export default function NarrativePopup({
         onClick={(e) => e.stopPropagation()}
       >
         <div className="flex justify-between items-start mb-4">
-          <h3 className="text-2xl font-bold font-orbitron text-glow-cyan">
+          <h3 className="text-2xl font-bold font-rajdhani">
             <TypewriterText text={title} emphasis="headline" delayMs={200} charIntervalMs={40} />
           </h3>
           <button
@@ -73,14 +73,14 @@ export default function NarrativePopup({
             ×
           </button>
         </div>
-        <p className="text-lg font-exo leading-relaxed whitespace-pre-line">
+        <p className="text-lg font-rajdhani leading-relaxed whitespace-pre-line">
           <TypewriterText text={message} emphasis="normal" delayMs={600} charIntervalMs={12} />
         </p>
         {autoClose > 0 && (
           <div className="mt-4 flex justify-end">
             <button
               onClick={onClose}
-              className="px-6 py-2 bg-cyan-600/80 hover:bg-cyan-600 rounded font-orbitron transition"
+              className="px-6 py-2 bg-white/[0.15] hover:bg-white/[0.2] rounded font-rajdhani transition"
             >
               Continue
             </button>

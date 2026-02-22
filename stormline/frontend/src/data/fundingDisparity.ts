@@ -163,29 +163,15 @@ export function getFundingDisparity(countryName: string): number {
 }
 
 /**
- * Convert disparity value to a color
- * 0 = Green (well-funded)
- * 0.5 = Yellow (moderate)
- * 1 = Red (severely underfunded)
+ * Convert disparity value to a monochrome color
+ * 0 = Dark grey (well-funded, low disparity)
+ * 1 = Bright white (severely underfunded, high disparity)
  */
 export function disparityToColor(disparity: number): string {
   const clamped = Math.max(0, Math.min(1, disparity))
-
-  if (clamped < 0.5) {
-    // Green to Yellow (0 to 0.5)
-    const t = clamped * 2
-    const r = Math.round(255 * t)
-    const g = 255
-    const b = 0
-    return `#${r.toString(16).padStart(2, '0')}${g.toString(16).padStart(2, '0')}${b.toString(16).padStart(2, '0')}`
-  } else {
-    // Yellow to Red (0.5 to 1)
-    const t = (clamped - 0.5) * 2
-    const r = 255
-    const g = Math.round(255 * (1 - t))
-    const b = 0
-    return `#${r.toString(16).padStart(2, '0')}${g.toString(16).padStart(2, '0')}${b.toString(16).padStart(2, '0')}`
-  }
+  // Map 0-1 to luminance range: 25 (dark) → 200 (bright)
+  const lum = Math.round(25 + clamped * 175)
+  return `#${lum.toString(16).padStart(2, '0')}${lum.toString(16).padStart(2, '0')}${lum.toString(16).padStart(2, '0')}`
 }
 
 /**

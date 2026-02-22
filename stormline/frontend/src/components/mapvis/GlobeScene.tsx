@@ -223,11 +223,11 @@ export default function GlobeScene({ selectedCountry, onCountrySelect, hoverEnab
   return (
     <>
       <color attach="background" args={['#000000']} />
-      {/* Static lighting — no dynamic intensity tied to selection */}
-      <ambientLight intensity={0.05} />
-      <pointLight position={[0, 0, 4]} intensity={0.2} color="#2244ff" distance={10} />
-      <pointLight position={[-3, 1, 2]} intensity={0.12} color="#9900ff" distance={12} />
-      <pointLight position={[3, -1, 2]} intensity={0.08} color="#0055ff" distance={12} />
+      {/* Static lighting — monochrome, analytical */}
+      <ambientLight intensity={0.06} />
+      <pointLight position={[0, 0, 4]} intensity={0.2} color="#ffffff" distance={10} />
+      <pointLight position={[-3, 1, 2]} intensity={0.1} color="#cccccc" distance={12} />
+      <pointLight position={[3, -1, 2]} intensity={0.08} color="#aaaaaa" distance={12} />
       <GlobeGroup selected={activeSelected} onSelect={handleSelect} groupRef={groupRef} mouseLocal={mouseLocal} hoverEnabled={hoverEnabled} fundingDisparityMode={fundingDisparityMode} onHurricaneClick={onHurricaneClick} />
       <MouseTracker groupRef={groupRef} mouseLocal={mouseLocal} />
       {/* PostProcessing is now fully static — no selection prop */}

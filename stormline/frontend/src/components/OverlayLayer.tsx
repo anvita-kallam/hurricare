@@ -119,10 +119,10 @@ export default function OverlayLayer() {
           lon: trackPoint.lon + severityLonOffset
         }
         
-        const redIntensity = Math.floor(100 + severity * 155)
+        const greyIntensity = Math.floor(100 + severity * 155)
         overlays.push({
           ...severityCoords,
-          color: `rgb(${redIntensity}, 0, 0)`,
+          color: `rgb(${greyIntensity}, ${greyIntensity}, ${greyIntensity})`,
           opacity: 0.5 + (severity * 0.4),
           type: 'severity',
           admin1: cov.admin1
@@ -142,10 +142,10 @@ export default function OverlayLayer() {
           lon: trackPoint.lon + coverageLonOffset
         }
         
-        const blueIntensity = Math.floor(100 + coverageRatio * 155)
+        const covGreyIntensity = Math.floor(100 + coverageRatio * 155)
         overlays.push({
           ...coverageCoords,
-          color: `rgb(0, 0, ${blueIntensity})`,
+          color: `rgb(${covGreyIntensity}, ${covGreyIntensity}, ${covGreyIntensity})`,
           opacity: 0.5 + (coverageRatio * 0.4),
           type: 'coverage',
           admin1: cov.admin1
@@ -190,7 +190,7 @@ export default function OverlayLayer() {
             )
             // If overlays are close (within 5 degrees), show intersection as purple
             if (distance < 5) {
-              finalColor = '#9b59b6' // Purple for intersection
+              finalColor = '#888888' // Grey for intersection
               finalOpacity = 0.7
             }
             // Otherwise, keep original color (red for severity, blue for coverage)

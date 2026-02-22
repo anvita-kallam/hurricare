@@ -76,15 +76,15 @@ export default function ImpactCallout({
         }}
       >
         <div
-          className="bg-black/90 backdrop-blur-sm border border-cyan-500/50 rounded-lg p-1.5 text-white font-exo"
+          className="bg-black/90 backdrop-blur-sm border border-white/[0.08] rounded-lg p-1.5 text-white font-rajdhani"
           style={{
             minWidth: '120px',
             maxWidth: '150px',
-            boxShadow: '0 0 15px rgba(6, 182, 212, 0.5)',
+            boxShadow: '0 0 15px rgba(255, 255, 255, 0.12)',
             fontSize: '10px'
           }}
         >
-          <div className="text-cyan-400 font-orbitron text-[10px] mb-0.5">
+          <div className="text-white/50 font-rajdhani text-[10px] mb-0.5">
             T+{event.time_hours} {event.time_hours === 1 ? 'Hr' : 'Hrs'}
           </div>
           <div className="font-bold text-[10px] mb-0.5">{event.location.name}</div>

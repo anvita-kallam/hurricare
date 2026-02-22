@@ -43,12 +43,12 @@ const CLUSTER_SHORT: Record<string, string> = {
 }
 
 const CLUSTER_COLORS: Record<string, string> = {
-  'Emergency Shelter and NFI': '#4488aa',
-  'Food Security': '#55aa77',
-  'Health': '#aa5588',
-  'Water Sanitation Hygiene': '#44aaaa',
-  'Logistics': '#aa7744',
-  'Early Recovery': '#7755aa',
+  'Emergency Shelter and NFI': 'rgba(255,255,255,0.55)',
+  'Food Security': 'rgba(255,255,255,0.45)',
+  'Health': 'rgba(255,255,255,0.4)',
+  'Water Sanitation Hygiene': 'rgba(255,255,255,0.35)',
+  'Logistics': 'rgba(255,255,255,0.3)',
+  'Early Recovery': 'rgba(255,255,255,0.25)',
 }
 
 /** 3D Donut pie chart with depth/extrusion showing budget by category */
@@ -91,6 +91,12 @@ function ClusterDonut3D({ clusterTotals, totalBudget, totalAllocated }: {
 
     const remaining = totalBudget - totalAllocated
 
+    // Parse rgba color string to extract alpha as brightness level
+    function parseClusterAlpha(color: string): number {
+      const m = color.match(/rgba\(\s*255\s*,\s*255\s*,\s*255\s*,\s*([\d.]+)\s*\)/)
+      return m ? parseFloat(m[1]) : 0.4
+    }
+
     // Draw the 3D extrusion (bottom layer) first
     let startAngle = -Math.PI / 2
     entries.forEach((e) => {
@@ -113,10 +119,9 @@ function ClusterDonut3D({ clusterTotals, totalBudget, totalAllocated }: {
           ctx.lineTo(x1, y1 + extrudeH)
           ctx.closePath()
 
-          const r = parseInt(e.color.slice(1, 3), 16)
-          const g = parseInt(e.color.slice(3, 5), 16)
-          const b = parseInt(e.color.slice(5, 7), 16)
-          ctx.fillStyle = `rgba(${Math.floor(r * 0.5)},${Math.floor(g * 0.5)},${Math.floor(b * 0.5)},0.8)`
+          const alpha = parseClusterAlpha(e.color)
+          const grey = Math.floor(255 * alpha * 0.5)
+          ctx.fillStyle = `rgba(${grey},${grey},${grey},0.8)`
           ctx.fill()
         }
       }
@@ -135,13 +140,13 @@ function ClusterDonut3D({ clusterTotals, totalBudget, totalAllocated }: {
       ctx.arc(cx, cy, innerR, startAngle + sweep, startAngle, true)
       ctx.closePath()
 
-      const r = parseInt(e.color.slice(1, 3), 16)
-      const g = parseInt(e.color.slice(3, 5), 16)
-      const b = parseInt(e.color.slice(5, 7), 16)
+      const alpha = parseClusterAlpha(e.color)
+      const grey = Math.floor(255 * alpha)
+      const greyDark = Math.floor(grey * 0.7)
 
       const grad = ctx.createRadialGradient(cx, cy, innerR, cx, cy, outerR)
-      grad.addColorStop(0, `rgba(${r},${g},${b},0.9)`)
-      grad.addColorStop(1, `rgba(${Math.floor(r * 0.7)},${Math.floor(g * 0.7)},${Math.floor(b * 0.7)},0.85)`)
+      grad.addColorStop(0, `rgba(${grey},${grey},${grey},0.9)`)
+      grad.addColorStop(1, `rgba(${greyDark},${greyDark},${greyDark},0.85)`)
       ctx.fillStyle = grad
       ctx.fill()
 
@@ -280,10 +285,11 @@ function SeverityHeightMap({ data, totalBudget, activeIndex }: {
       const allocHeight = totalBudget > 0 ? Math.max(2, (d.total / (totalBudget * 0.3)) * maxHeight * 0.4) : 2
       const isActive = i === activeIndex
 
-      // Severity color
-      const sevR = d.severity > 0.7 ? 200 : d.severity > 0.4 ? 200 : 60
-      const sevG = d.severity > 0.7 ? 60 : d.severity > 0.4 ? 160 : 160
-      const sevB = d.severity > 0.7 ? 60 : d.severity > 0.4 ? 60 : 100
+      // Severity brightness (monochrome)
+      const sevGrey = d.severity > 0.7 ? 200 : d.severity > 0.4 ? 150 : 100
+      const sevR = sevGrey
+      const sevG = sevGrey
+      const sevB = sevGrey
       const activeBoost = isActive ? 1.3 : 1.0
       const baseSevAlpha = isActive ? 0.85 : 0.55
 
@@ -343,14 +349,14 @@ function SeverityHeightMap({ data, totalBudget, activeIndex }: {
 
         // Allocation bar (on the face)
         const aGrad = ctx.createLinearGradient(aBarX, baseY, aBarX, baseY - aBarH)
-        aGrad.addColorStop(0, `rgba(80,170,210,${intensity * 0.5})`)
-        aGrad.addColorStop(1, `rgba(100,190,230,${intensity})`)
+        aGrad.addColorStop(0, `rgba(200,200,200,${intensity * 0.5})`)
+        aGrad.addColorStop(1, `rgba(220,220,220,${intensity})`)
         ctx.fillStyle = aGrad
         ctx.fillRect(aBarX, baseY - aBarH, aBarW, aBarH)
 
         // Allocation glow
         if (isActive) {
-          ctx.shadowColor = 'rgba(100,180,230,0.3)'
+          ctx.shadowColor = 'rgba(200,200,200,0.3)'
           ctx.shadowBlur = 8
           ctx.fillRect(aBarX, baseY - aBarH, aBarW, aBarH)
           ctx.shadowBlur = 0
@@ -390,7 +396,7 @@ function SeverityHeightMap({ data, totalBudget, activeIndex }: {
 
       // Allocation amount
       if (d.total > 0) {
-        ctx.fillStyle = isActive ? 'rgba(100,190,230,0.9)' : 'rgba(100,190,230,0.6)'
+        ctx.fillStyle = isActive ? 'rgba(220,220,220,0.9)' : 'rgba(200,200,200,0.6)'
         ctx.font = '9px DM Mono, monospace'
         ctx.fillText(formatBudget(d.total), tileMid, baseY + 26)
       }
@@ -401,12 +407,12 @@ function SeverityHeightMap({ data, totalBudget, activeIndex }: {
     ctx.font = '9px Rajdhani'
     ctx.textAlign = 'left'
     // Severity
-    ctx.fillStyle = 'rgba(200,100,60,0.6)'
+    ctx.fillStyle = 'rgba(180,180,180,0.6)'
     ctx.fillRect(8, 8, 12, 8)
     ctx.fillStyle = 'rgba(255,255,255,0.5)'
     ctx.fillText('Severity (height)', 24, 16)
     // Allocation
-    ctx.fillStyle = 'rgba(80,170,210,0.7)'
+    ctx.fillStyle = 'rgba(200,200,200,0.7)'
     ctx.fillRect(8, 22, 12, 8)
     ctx.fillStyle = 'rgba(255,255,255,0.5)'
     ctx.fillText('Your Allocation', 24, 30)
@@ -617,11 +623,11 @@ export default function Step2Allocation() {
           <div className="text-white/40 font-rajdhani text-[10px] tracking-widest uppercase">Total</div>
         </div>
         <div className="text-center">
-          <div className="text-[#64b4dc] font-mono text-sm font-bold">{formatBudget(totalAllocated)}</div>
+          <div className="text-white/70 font-mono text-sm font-bold">{formatBudget(totalAllocated)}</div>
           <div className="text-white/40 font-rajdhani text-[10px] tracking-widest uppercase">Allocated</div>
         </div>
         <div className="text-center">
-          <div className={`font-mono text-sm font-bold ${remaining < 0 ? 'text-[#cc5566]' : 'text-white/70'}`}>
+          <div className={`font-mono text-sm font-bold ${remaining < 0 ? 'text-white/90' : 'text-white/70'}`}>
             {formatBudget(Math.abs(remaining))}
           </div>
           <div className="text-white/40 font-rajdhani text-[10px] tracking-widest uppercase">
@@ -649,8 +655,8 @@ export default function Step2Allocation() {
           style={{
             width: `${Math.min(utilizationPct, 100)}%`,
             background: remaining < 0
-              ? 'linear-gradient(90deg, #cc5566, #aa3344)'
-              : 'linear-gradient(90deg, rgba(80,160,210,0.6), rgba(100,180,220,0.8))',
+              ? 'linear-gradient(90deg, rgba(255,255,255,0.7), rgba(255,255,255,0.5))'
+              : 'linear-gradient(90deg, rgba(255,255,255,0.35), rgba(255,255,255,0.55))',
           }}
         />
       </div>
@@ -708,7 +714,7 @@ export default function Step2Allocation() {
             className={`flex-1 overflow-hidden ${slideClass}`}
             style={{
               animation: slideDir ? undefined : 'none',
-              background: 'linear-gradient(180deg, rgba(0,0,2,0.85) 0%, rgba(0,0,4,0.9) 50%, rgba(0,0,3,0.85) 100%)',
+              background: 'linear-gradient(180deg, rgba(0,0,0,0.85) 0%, rgba(0,0,0,0.9) 50%, rgba(0,0,0,0.85) 100%)',
               border: '1px solid rgba(255,255,255,0.06)',
               backgroundImage: 'radial-gradient(circle, rgba(255,255,255,0.012) 0.5px, transparent 0.5px)',
               backgroundSize: '10px 10px',
@@ -722,7 +728,7 @@ export default function Step2Allocation() {
                   className="w-3 h-3 rounded-full shrink-0"
                   style={{
                     backgroundColor: cov
-                      ? cov.severity > 0.7 ? '#cc4444' : cov.severity > 0.4 ? '#ccaa44' : '#44aa77'
+                      ? cov.severity > 0.7 ? 'rgba(255,255,255,0.7)' : cov.severity > 0.4 ? 'rgba(255,255,255,0.45)' : 'rgba(255,255,255,0.25)'
                       : 'rgba(255,255,255,0.15)',
                   }}
                 />
@@ -736,7 +742,7 @@ export default function Step2Allocation() {
                 </div>
               </div>
               <div className="text-right">
-                <div className="text-[#64b4dc] font-mono text-sm font-bold">{formatBudget(regionTotal)}</div>
+                <div className="text-white/70 font-mono text-sm font-bold">{formatBudget(regionTotal)}</div>
                 <div className="text-white/30 font-rajdhani text-[8px] tracking-widest uppercase">allocated</div>
               </div>
             </div>
@@ -828,21 +834,21 @@ export default function Step2Allocation() {
           width: 14px;
           height: 14px;
           border-radius: 50%;
-          background: radial-gradient(circle at 40% 35%, rgba(255,255,255,0.95), rgba(180,200,220,0.8));
-          box-shadow: 0 0 6px rgba(100,180,230,0.4), 0 1px 3px rgba(0,0,0,0.5);
+          background: radial-gradient(circle at 40% 35%, rgba(255,255,255,0.95), rgba(200,200,200,0.8));
+          box-shadow: 0 0 6px rgba(200,200,200,0.4), 0 1px 3px rgba(0,0,0,0.5);
           cursor: pointer;
           border: 1px solid rgba(255,255,255,0.1);
           transition: box-shadow 0.15s;
         }
         input[type="range"]::-webkit-slider-thumb:hover {
-          box-shadow: 0 0 12px rgba(100,180,230,0.6), 0 2px 6px rgba(0,0,0,0.5);
+          box-shadow: 0 0 12px rgba(200,200,200,0.6), 0 2px 6px rgba(0,0,0,0.5);
         }
         input[type="range"]::-moz-range-thumb {
           width: 14px;
           height: 14px;
           border-radius: 50%;
-          background: radial-gradient(circle at 40% 35%, rgba(255,255,255,0.95), rgba(180,200,220,0.8));
-          box-shadow: 0 0 6px rgba(100,180,230,0.4), 0 1px 3px rgba(0,0,0,0.5);
+          background: radial-gradient(circle at 40% 35%, rgba(255,255,255,0.95), rgba(200,200,200,0.8));
+          box-shadow: 0 0 6px rgba(200,200,200,0.4), 0 1px 3px rgba(0,0,0,0.5);
           cursor: pointer;
           border: 1px solid rgba(255,255,255,0.1);
         }

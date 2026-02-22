@@ -3,18 +3,18 @@ import { useStore } from '../state/useStore'
 import * as THREE from 'three'
 import { Html } from '@react-three/drei'
 
-// Extended color palette for unique storm colors
+// Extended color palette for unique storm colors (monochrome grey shades)
 const stormColors = [
-  '#FF6B6B', '#4ECDC4', '#45B7D1', '#FFA07A', '#98D8C8',
-  '#F7DC6F', '#BB8FCE', '#85C1E2', '#F8B739', '#52BE80',
-  '#EC7063', '#5DADE2', '#F4D03F', '#AF7AC5', '#76D7C4',
-  '#F39C12', '#E74C3C', '#3498DB', '#2ECC71', '#9B59B6',
-  '#1ABC9C', '#E67E22', '#34495E', '#16A085', '#27AE60',
-  '#2980B9', '#8E44AD', '#C0392B', '#D35400', '#7F8C8D',
-  '#F1C40F', '#E91E63', '#00BCD4', '#FF9800', '#9C27B0',
-  '#3F51B5', '#009688', '#CDDC39', '#FF5722', '#795548',
-  '#607D8B', '#FFC107', '#00E676', '#FF1744', '#3D5AFE',
-  '#1DE9B6', '#FF9100', '#E040FB', '#00B0FF', '#64FFDA',
+  '#b3b3b3', '#999999', '#8c8c8c', '#808080', '#737373',
+  '#666666', '#a6a6a6', '#595959', '#949494', '#7a7a7a',
+  '#9e9e9e', '#6b6b6b', '#878787', '#616161', '#8f8f8f',
+  '#707070', '#ababab', '#858585', '#787878', '#5c5c5c',
+  '#969696', '#8a8a8a', '#686868', '#a0a0a0', '#757575',
+  '#919191', '#5f5f5f', '#828282', '#6d6d6d', '#7d7d7d',
+  '#9c9c9c', '#636363', '#a3a3a3', '#565656', '#949494',
+  '#737373', '#878787', '#adadad', '#6b6b6b', '#8c8c8c',
+  '#7a7a7a', '#9e9e9e', '#616161', '#a8a8a8', '#707070',
+  '#919191', '#808080', '#5c5c5c', '#999999', '#757575',
 ]
 
 function getStormColor(hurricaneId: string): string {

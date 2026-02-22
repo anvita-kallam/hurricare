@@ -94,11 +94,11 @@ function WindSpeedChart({ track, progress }: {
 
     // Category thresholds
     const cats = [
-      { wind: 74, label: 'Cat 1', c: 'rgba(255,200,50,' },
-      { wind: 96, label: 'Cat 2', c: 'rgba(255,170,50,' },
-      { wind: 111, label: 'Cat 3', c: 'rgba(255,120,50,' },
-      { wind: 130, label: 'Cat 4', c: 'rgba(255,80,50,' },
-      { wind: 157, label: 'Cat 5', c: 'rgba(255,50,50,' },
+      { wind: 74, label: 'Cat 1', c: 'rgba(200,200,200,' },
+      { wind: 96, label: 'Cat 2', c: 'rgba(185,185,185,' },
+      { wind: 111, label: 'Cat 3', c: 'rgba(170,170,170,' },
+      { wind: 130, label: 'Cat 4', c: 'rgba(155,155,155,' },
+      { wind: 157, label: 'Cat 5', c: 'rgba(140,140,140,' },
     ]
     cats.forEach(cat => {
       if (cat.wind <= maxWind * 1.1) {
@@ -121,11 +121,11 @@ function WindSpeedChart({ track, progress }: {
     })
     ctx.lineTo(padL + plotW, padT + plotH); ctx.closePath()
     const aG = ctx.createLinearGradient(0, padT, 0, padT + plotH)
-    aG.addColorStop(0, 'rgba(255,80,80,0.06)'); aG.addColorStop(1, 'rgba(255,80,80,0.01)')
+    aG.addColorStop(0, 'rgba(200,200,200,0.06)'); aG.addColorStop(1, 'rgba(200,200,200,0.01)')
     ctx.fillStyle = aG; ctx.fill()
 
     // Full path (dim)
-    ctx.beginPath(); ctx.strokeStyle = 'rgba(255,100,100,0.12)'; ctx.lineWidth = 1
+    ctx.beginPath(); ctx.strokeStyle = 'rgba(180,180,180,0.12)'; ctx.lineWidth = 1
     track.forEach((p, i) => {
       const x = padL + (i / (track.length - 1)) * plotW
       const y = padT + plotH * (1 - p.wind / maxWind)
@@ -141,11 +141,11 @@ function WindSpeedChart({ track, progress }: {
     ctx.lineTo(padL + (currentIdx / (track.length - 1)) * plotW, padT + plotH)
     ctx.closePath()
     const pG = ctx.createLinearGradient(0, padT, 0, padT + plotH)
-    pG.addColorStop(0, 'rgba(255,80,80,0.18)'); pG.addColorStop(1, 'rgba(255,80,80,0.02)')
+    pG.addColorStop(0, 'rgba(200,200,200,0.18)'); pG.addColorStop(1, 'rgba(200,200,200,0.02)')
     ctx.fillStyle = pG; ctx.fill()
 
     // Progress path (bright)
-    ctx.beginPath(); ctx.strokeStyle = 'rgba(255,100,100,0.85)'; ctx.lineWidth = 2
+    ctx.beginPath(); ctx.strokeStyle = 'rgba(180,180,180,0.85)'; ctx.lineWidth = 2
     for (let i = 0; i <= currentIdx; i++) {
       const x = padL + (i / (track.length - 1)) * plotW
       const y = padT + plotH * (1 - track[i].wind / maxWind)
@@ -158,10 +158,10 @@ function WindSpeedChart({ track, progress }: {
       const cx = padL + (currentIdx / (track.length - 1)) * plotW
       const cy = padT + plotH * (1 - track[currentIdx].wind / maxWind)
       const g = ctx.createRadialGradient(cx, cy, 0, cx, cy, 10)
-      g.addColorStop(0, 'rgba(255,100,100,0.7)'); g.addColorStop(0.5, 'rgba(255,100,100,0.15)'); g.addColorStop(1, 'rgba(255,100,100,0)')
+      g.addColorStop(0, 'rgba(180,180,180,0.7)'); g.addColorStop(0.5, 'rgba(180,180,180,0.15)'); g.addColorStop(1, 'rgba(180,180,180,0)')
       ctx.fillStyle = g; ctx.fillRect(cx - 10, cy - 10, 20, 20)
       ctx.beginPath(); ctx.arc(cx, cy, 3, 0, Math.PI * 2)
-      ctx.fillStyle = '#ff6b6b'; ctx.fill()
+      ctx.fillStyle = '#aaaaaa'; ctx.fill()
     }
 
     // Header
@@ -222,10 +222,10 @@ function SeverityMiniChart({ data }: {
       const barW = Math.max(4, (d.peopleInNeed / maxNeed) * barMaxW)
 
       const color = d.severity > 0.7
-        ? 'rgba(200, 60, 60,'
+        ? 'rgba(150,150,150,'
         : d.severity > 0.4
-          ? 'rgba(200, 160, 60,'
-          : 'rgba(60, 160, 100,'
+          ? 'rgba(170,170,170,'
+          : 'rgba(130,130,130,'
 
       // 3D depth
       const depth = 3
@@ -359,7 +359,7 @@ function HurricaneTrack({ track }: { track: Array<{ lat: number; lon: number; wi
           itemSize={3}
         />
       </bufferGeometry>
-      <lineBasicMaterial color="#ff6b6b" linewidth={5} transparent opacity={0.8} />
+      <lineBasicMaterial color="#aaaaaa" linewidth={5} transparent opacity={0.8} />
     </line>
   )
 }
@@ -400,7 +400,7 @@ function HurricaneTrail({
     'line' as any,
     { geometry: trailGeometry },
     createElement('lineBasicMaterial', {
-      color: new THREE.Color(1.0, 0.8, 0.2),
+      color: new THREE.Color(0.75, 0.75, 0.75),
       transparent: true,
       opacity: 0.7,
       linewidth: 4
@@ -584,8 +584,8 @@ export default function CinematicIntro({
       <Canvas camera={{ position: [0, 0, 4], fov: 50 }}>
         <Suspense fallback={null}>
           <ambientLight intensity={0.05} />
-          <pointLight position={[0, 0, 4]} intensity={0.2} color="#2244ff" distance={10} />
-          <pointLight position={[-3, 1, 2]} intensity={0.12} color="#9900ff" distance={12} />
+          <pointLight position={[0, 0, 4]} intensity={0.2} color="#ffffff" distance={10} />
+          <pointLight position={[-3, 1, 2]} intensity={0.12} color="#cccccc" distance={12} />
 
           <CinematicGlobe />
 
@@ -789,7 +789,7 @@ export default function CinematicIntro({
             {currentTrackPoint.category > 0 && (
               <div className="flex items-center justify-between">
                 <span className="text-sm text-white/40 font-rajdhani tracking-wider">Category</span>
-                <span className="text-lg font-bold font-mono" style={{ color: currentTrackPoint.category >= 4 ? '#ff6060' : currentTrackPoint.category >= 2 ? '#ffaa60' : '#60cc90' }}>
+                <span className="text-lg font-bold font-mono" style={{ color: currentTrackPoint.category >= 4 ? '#aaaaaa' : currentTrackPoint.category >= 2 ? '#999999' : '#888888' }}>
                   Cat {currentTrackPoint.category}
                 </span>
               </div>
@@ -806,11 +806,11 @@ export default function CinematicIntro({
                 style={{
                   width: `${stormIntensity * 100}%`,
                   background: stormIntensity > 0.8
-                    ? 'linear-gradient(90deg, #cc3333, #ff4444)'
+                    ? 'linear-gradient(90deg, #aaaaaa, #cccccc)'
                     : stormIntensity > 0.5
-                      ? 'linear-gradient(90deg, #cc8833, #ffaa44)'
-                      : 'linear-gradient(90deg, #33aa66, #44cc77)',
-                  boxShadow: stormIntensity > 0.5 ? '0 0 8px rgba(255,100,80,0.3)' : 'none',
+                      ? 'linear-gradient(90deg, #999999, #bbbbbb)'
+                      : 'linear-gradient(90deg, #777777, #999999)',
+                  boxShadow: stormIntensity > 0.5 ? '0 0 8px rgba(180,180,180,0.3)' : 'none',
                 }}
               />
             </div>

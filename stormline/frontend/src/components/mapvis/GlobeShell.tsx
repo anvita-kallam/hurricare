@@ -1,13 +1,13 @@
 import * as THREE from 'three'
 
 const LAYERS = [
-  { r: 1.01, color: '#7733ff', opacity: 0.12 },
-  { r: 1.03, color: '#6622ee', opacity: 0.09 },
-  { r: 1.06, color: '#5511cc', opacity: 0.06 },
-  { r: 1.10, color: '#4400aa', opacity: 0.04 },
-  { r: 1.17, color: '#330088', opacity: 0.025 },
-  { r: 1.26, color: '#220066', opacity: 0.015 },
-  { r: 1.40, color: '#160044', opacity: 0.008 },
+  { r: 1.01, color: '#cccccc', opacity: 0.06 },
+  { r: 1.03, color: '#aaaaaa', opacity: 0.045 },
+  { r: 1.06, color: '#888888', opacity: 0.035 },
+  { r: 1.10, color: '#666666', opacity: 0.025 },
+  { r: 1.17, color: '#444444', opacity: 0.018 },
+  { r: 1.26, color: '#333333', opacity: 0.01 },
+  { r: 1.40, color: '#222222', opacity: 0.005 },
 ]
 
 export default function GlobeShell() {
@@ -16,14 +16,14 @@ export default function GlobeShell() {
       {/* Base globe sphere with ocean color — renderOrder 1 */}
       <mesh renderOrder={1}>
         <sphereGeometry args={[1, 128, 128]} />
-        <meshBasicMaterial color="#0a2a42" />
+        <meshBasicMaterial color="#0a0a0e" />
       </mesh>
 
       {/* Water/Ocean borders with subtle outline — renderOrder 2 */}
       <mesh renderOrder={2}>
         <sphereGeometry args={[1.033, 64, 64]} />
         <meshBasicMaterial
-          color="#1a4a6a"
+          color="#1a1a1e"
           transparent
           opacity={0.4}
           depthWrite={false}
@@ -35,7 +35,7 @@ export default function GlobeShell() {
       <mesh renderOrder={3}>
         <sphereGeometry args={[1.035, 32, 32]} />
         <meshBasicMaterial
-          color="#2a6a9a"
+          color="#2a2a2e"
           transparent
           opacity={0.15}
           wireframe={false}

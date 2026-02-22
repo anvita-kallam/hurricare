@@ -18,8 +18,18 @@ import AmbientProvider from './audio/AmbientProvider'
 import { useGlobalClickSounds } from './hooks/useGlobalClickSounds'
 import { playHover, playButtonPress } from './audio/SoundEngine'
 import TypewriterText from './components/TypewriterText'
+import FilmGrain from './components/shared/FilmGrain'
 
 const API_BASE = 'http://localhost:8000'
+
+function AppWithGrain() {
+  return (
+    <>
+      <FilmGrain />
+      <App />
+    </>
+  )
+}
 
 function App() {
   const {
@@ -428,7 +438,7 @@ function App() {
               </button>
               {postSimulationMapMode && (
                 <div className="flex items-center gap-2 px-3 py-1 rounded bg-white/[0.05] border border-white/[0.08]">
-                  <div className="w-1.5 h-1.5 rounded-full bg-red-400/80" />
+                  <div className="w-1.5 h-1.5 rounded-full bg-white/40" />
                   <span className="text-xs font-rajdhani text-white/50 tracking-wider uppercase">Analysis Mode</span>
                 </div>
               )}
@@ -588,4 +598,4 @@ function App() {
   )
 }
 
-export default App
+export default AppWithGrain

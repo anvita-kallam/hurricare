@@ -68,17 +68,17 @@ export default function AllocationPanel() {
   
   if (!selectedHurricane) {
     return (
-      <div className="bg-black/40 backdrop-blur-sm rounded-lg border border-cyan-500/30 p-4 glow-cyan">
-        <h2 className="text-xl font-bold mb-4 text-glow-cyan font-orbitron">Allocation Simulator</h2>
-        <p className="text-cyan-300/80 font-exo">Select a hurricane to begin simulation</p>
+      <div className="bg-black/40 backdrop-blur-sm rounded-lg border border-white/[0.06] p-4">
+        <h2 className="text-xl font-bold mb-4 font-rajdhani">Allocation Simulator</h2>
+        <p className="text-cyan-300/80 font-rajdhani">Select a hurricane to begin simulation</p>
       </div>
     )
   }
   
   return (
-    <div className="bg-black/40 backdrop-blur-sm rounded-lg border border-cyan-500/30 p-4 h-full flex flex-col glow-cyan">
-      <h2 className="text-xl font-bold mb-4 text-glow-cyan font-orbitron">Allocation Simulator</h2>
-      <div className="text-sm text-cyan-300/80 mb-4 font-exo">
+    <div className="bg-black/40 backdrop-blur-sm rounded-lg border border-white/[0.06] p-4 h-full flex flex-col">
+      <h2 className="text-xl font-bold mb-4 font-rajdhani">Allocation Simulator</h2>
+      <div className="text-sm text-cyan-300/80 mb-4 font-rajdhani">
         Adjust budget allocations per region and simulate impact
       </div>
       
@@ -89,7 +89,7 @@ export default function AllocationPanel() {
           const maxBudget = cov ? cov.estimated_need_budget * 1.5 : 10000000
           
           return (
-            <div key={region} className="border border-cyan-500/30 rounded p-3 bg-black/40 backdrop-blur-sm glow-cyan">
+            <div key={region} className="border border-white/[0.06] rounded p-3 bg-black/40 backdrop-blur-sm">
               <div className="flex justify-between items-center mb-2">
                 <div>
                   <div className="font-semibold text-cyan-200">{region}</div>
@@ -129,26 +129,26 @@ export default function AllocationPanel() {
       <button
         onClick={runSimulation}
         disabled={loading}
-        className="w-full bg-cyan-600 text-white py-2 px-4 rounded hover:bg-cyan-700 disabled:bg-gray-600 disabled:text-gray-400 glow-cyan transition-all font-semibold font-orbitron"
+        className="w-full bg-cyan-600 text-white py-2 px-4 rounded hover:bg-cyan-700 disabled:bg-gray-600 disabled:text-gray-400 transition-all font-semibold font-rajdhani"
       >
         {loading ? 'Running Simulation...' : 'Run Simulation'}
       </button>
       
       {simulationResult && (
-        <div className="mt-4 p-3 bg-cyan-500/10 border border-cyan-500/30 rounded space-y-3 glow-cyan backdrop-blur-sm">
-          <h3 className="font-semibold mb-2 text-glow-cyan font-orbitron">Simulation Results</h3>
+        <div className="mt-4 p-3 bg-white/[0.03] border border-white/[0.06] rounded space-y-3 backdrop-blur-sm">
+          <h3 className="font-semibold mb-2 font-rajdhani">Simulation Results</h3>
           
           {/* Overall Impact Score */}
-          <div className="pb-2 border-b border-cyan-500/30">
-            <div className="text-lg font-bold text-glow-cyan">
+          <div className="pb-2 border-b border-white/[0.06]">
+            <div className="text-lg font-bold">
               Impact Score: {simulationResult.impact_score.toFixed(0).toLocaleString()}
             </div>
           </div>
           
           {/* Hard Priorities (Non-negotiable) */}
           {simulationResult.hard_priorities && (
-            <div className="pb-2 border-b border-cyan-500/30">
-              <div className="font-semibold text-red-400 mb-1 glow">Hard Priorities (Non-negotiable):</div>
+            <div className="pb-2 border-b border-white/[0.06]">
+              <div className="font-semibold text-white/40 mb-1">Hard Priorities (Non-negotiable):</div>
               <div className="text-xs space-y-1 pl-2 text-cyan-200">
                 <div>
                   <span className="font-medium text-cyan-300">Lives Saved:</span> {Math.round(simulationResult.hard_priorities.lives_saved).toLocaleString()}
@@ -165,8 +165,8 @@ export default function AllocationPanel() {
           
           {/* Soft Priorities (Trade-offs) */}
           {simulationResult.soft_priorities && (
-            <div className="pb-2 border-b border-cyan-500/30">
-              <div className="font-semibold text-orange-400 mb-1 glow">Soft Priorities (Trade-offs):</div>
+            <div className="pb-2 border-b border-white/[0.06]">
+              <div className="font-semibold text-white/40 mb-1">Soft Priorities (Trade-offs):</div>
               <div className="text-xs space-y-1 pl-2 text-cyan-200">
                 <div>
                   <span className="font-medium text-cyan-300">Economic Loss Reduction:</span> ${Math.round(simulationResult.soft_priorities.economic_loss_reduction).toLocaleString()}
@@ -180,8 +180,8 @@ export default function AllocationPanel() {
           
           {/* Constraints */}
           {simulationResult.constraints && (
-            <div className="pb-2 border-b border-cyan-500/30">
-              <div className="font-semibold text-yellow-400 mb-1 glow">Constraints (Penalties):</div>
+            <div className="pb-2 border-b border-white/[0.06]">
+              <div className="font-semibold text-white/40 mb-1">Constraints (Penalties):</div>
               <div className="text-xs space-y-1 pl-2 text-cyan-200">
                 <div>
                   <span className="font-medium text-cyan-300">Logistics Penalty:</span> {(simulationResult.constraints.logistics_penalty * 100).toFixed(1)}%
@@ -197,7 +197,7 @@ export default function AllocationPanel() {
           )}
           
           {/* Unmet Need */}
-          <div className="pb-2 border-b border-cyan-500/30">
+          <div className="pb-2 border-b border-white/[0.06]">
             <div className="font-semibold text-cyan-300 mb-1">Critical Metrics:</div>
             <div className="text-xs space-y-1 pl-2 text-cyan-200">
               <div>
@@ -218,7 +218,7 @@ export default function AllocationPanel() {
                   Simulated: {Math.round(simulationResult.comparison.simulated_lives_covered).toLocaleString()} lives saved
                 </div>
                 <div className={`font-semibold ${
-                  simulationResult.comparison.improvement > 0 ? 'text-green-400 glow-green' : 'text-red-400 glow'
+                  simulationResult.comparison.improvement > 0 ? 'text-white/40' : 'text-white/40'
                 }`}>
                   Improvement: {Math.round(simulationResult.comparison.improvement).toLocaleString()} lives
                 </div>

@@ -36,22 +36,22 @@ interface AffectedAreaHeightMapProps {
 
 const THEME_COLORS = {
   severity: {
-    high: [200, 60, 60],
-    mid: [200, 160, 60],
-    low: [60, 160, 100],
-    accent: [100, 180, 230],
+    high: [200, 200, 200],
+    mid: [140, 140, 140],
+    low: [80, 80, 80],
+    accent: [180, 180, 180],
   },
   coverage: {
-    high: [60, 160, 200],
-    mid: [100, 180, 140],
-    low: [60, 100, 160],
-    accent: [136, 85, 170],
+    high: [180, 180, 180],
+    mid: [130, 130, 130],
+    low: [90, 90, 90],
+    accent: [150, 150, 150],
   },
   delta: {
-    high: [200, 100, 60],
-    mid: [200, 160, 100],
-    low: [100, 180, 120],
-    accent: [255, 160, 60],
+    high: [190, 190, 190],
+    mid: [150, 150, 150],
+    low: [100, 100, 100],
+    accent: [170, 170, 170],
   },
 }
 
@@ -208,8 +208,8 @@ export default function AffectedAreaHeightMap({
         const intensity = Math.min(0.3 + d.metricB * 0.5, 0.85)
 
         const bGrad = ctx.createLinearGradient(aBarX, baseY, aBarX, baseY - aBarH)
-        bGrad.addColorStop(0, `rgba(136,85,170,${intensity * 0.4})`)
-        bGrad.addColorStop(1, `rgba(136,85,170,${intensity})`)
+        bGrad.addColorStop(0, `rgba(150,150,150,${intensity * 0.4})`)
+        bGrad.addColorStop(1, `rgba(150,150,150,${intensity})`)
         ctx.fillStyle = bGrad
         ctx.fillRect(aBarX, baseY - aBarH, aBarW, aBarH)
       }
@@ -252,7 +252,7 @@ export default function AffectedAreaHeightMap({
 
       // Value label (budget, coverage, etc.)
       if (d.valueLabel) {
-        ctx.fillStyle = isActive ? 'rgba(100,190,230,0.9)' : 'rgba(100,190,230,0.55)'
+        ctx.fillStyle = isActive ? 'rgba(255,255,255,0.7)' : 'rgba(255,255,255,0.4)'
         ctx.font = '8px DM Mono, monospace'
         ctx.textAlign = 'center'
         ctx.textBaseline = 'top'

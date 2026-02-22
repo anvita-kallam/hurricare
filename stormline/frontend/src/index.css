@@ -276,17 +276,17 @@ input[type="range"]::-webkit-slider-thumb {
   height: 16px;
   border-radius: 50%;
   background: rgba(255, 255, 255, 0.85);
-  border: 2px solid rgba(100, 180, 220, 0.6);
+  border: 2px solid rgba(255, 255, 255, 0.25);
   cursor: pointer;
   transition: all 0.15s ease;
-  box-shadow: 0 0 6px rgba(100, 180, 220, 0.3);
+  box-shadow: 0 0 6px rgba(255, 255, 255, 0.08);
 }
 
 input[type="range"]::-webkit-slider-thumb:hover {
   background: rgba(255, 255, 255, 1);
-  border-color: rgba(100, 180, 220, 0.9);
+  border-color: rgba(255, 255, 255, 0.5);
   transform: scale(1.15);
-  box-shadow: 0 0 10px rgba(100, 180, 220, 0.5);
+  box-shadow: 0 0 10px rgba(255, 255, 255, 0.12);
 }
 
 input[type="range"]::-moz-range-thumb {
@@ -294,9 +294,9 @@ input[type="range"]::-moz-range-thumb {
   height: 16px;
   border-radius: 50%;
   background: rgba(255, 255, 255, 0.85);
-  border: 2px solid rgba(100, 180, 220, 0.6);
+  border: 2px solid rgba(255, 255, 255, 0.25);
   cursor: pointer;
-  box-shadow: 0 0 6px rgba(100, 180, 220, 0.3);
+  box-shadow: 0 0 6px rgba(255, 255, 255, 0.08);
 }
 
 /* ─── Immersive Panel Overlay (Game Flow) ──────────────────────────────────── */

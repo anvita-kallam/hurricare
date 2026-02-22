@@ -70,16 +70,16 @@ export default function ProjectTable() {
   }
   
   return (
-    <div className="bg-black/40 backdrop-blur-sm rounded-lg border border-cyan-500/30 p-4 h-full flex flex-col glow-cyan">
-      <h2 className="text-xl font-bold mb-4 text-glow-cyan font-orbitron">Project Analysis</h2>
+    <div className="bg-black/40 backdrop-blur-sm rounded-lg border border-white/[0.06] p-4 h-full flex flex-col">
+      <h2 className="text-xl font-bold mb-4 font-rajdhani">Project Analysis</h2>
       
       <div className="mb-4 flex gap-4 flex-wrap">
         <div>
-          <label className="block text-sm font-medium mb-1 text-cyan-200">Filter by Cluster</label>
+          <label className="block text-sm font-medium mb-1 text-white/60">Filter by Cluster</label>
           <select
             value={filterCluster}
             onChange={(e) => setFilterCluster(e.target.value)}
-            className="border border-cyan-500/30 rounded px-2 py-1 bg-black/60 text-cyan-200 focus:border-cyan-400 focus:glow-cyan"
+            className="border border-white/[0.06] rounded px-2 py-1 bg-black/60 text-white/60 focus:border-white/20"
           >
             <option value="" className="bg-black">All Clusters</option>
             {clusters.map(cluster => (
@@ -94,52 +94,52 @@ export default function ProjectTable() {
             id="flagged-only"
             checked={showOnlyFlagged}
             onChange={(e) => setShowOnlyFlagged(e.target.checked)}
-            className="w-4 h-4 accent-cyan-500"
+            className="w-4 h-4 accent-white/60"
           />
-          <label htmlFor="flagged-only" className="text-sm text-cyan-200">Show only flagged</label>
+          <label htmlFor="flagged-only" className="text-sm text-white/60">Show only flagged</label>
         </div>
         
-        <div className="text-sm text-cyan-300/80">
+        <div className="text-sm text-white/50">
           Showing {sortedProjects.length} of {projects.length} projects
         </div>
       </div>
       
       <div className="overflow-auto flex-1">
         <table className="w-full text-sm">
-          <thead className="bg-cyan-500/20 border-b border-cyan-500/30 sticky top-0">
+          <thead className="bg-white/[0.04] border-b border-white/[0.06] sticky top-0">
             <tr>
               <th 
-                className="px-2 py-2 text-left cursor-pointer text-cyan-200 hover:text-cyan-100 hover:bg-cyan-500/20 transition"
+                className="px-2 py-2 text-left cursor-pointer text-white/60 hover:text-white/70 hover:bg-white/[0.04] transition"
                 onClick={() => handleSort('project_id')}
               >
                 Project ID {sortField === 'project_id' && (sortDirection === 'asc' ? '↑' : '↓')}
               </th>
               <th 
-                className="px-2 py-2 text-left cursor-pointer text-cyan-200 hover:text-cyan-100 hover:bg-cyan-500/20 transition"
+                className="px-2 py-2 text-left cursor-pointer text-white/60 hover:text-white/70 hover:bg-white/[0.04] transition"
                 onClick={() => handleSort('cluster')}
               >
                 Cluster {sortField === 'cluster' && (sortDirection === 'asc' ? '↑' : '↓')}
               </th>
               <th 
-                className="px-2 py-2 text-right cursor-pointer text-cyan-200 hover:text-cyan-100 hover:bg-cyan-500/20 transition"
+                className="px-2 py-2 text-right cursor-pointer text-white/60 hover:text-white/70 hover:bg-white/[0.04] transition"
                 onClick={() => handleSort('budget_usd')}
               >
                 Budget (USD) {sortField === 'budget_usd' && (sortDirection === 'asc' ? '↑' : '↓')}
               </th>
               <th 
-                className="px-2 py-2 text-right cursor-pointer text-cyan-200 hover:text-cyan-100 hover:bg-cyan-500/20 transition"
+                className="px-2 py-2 text-right cursor-pointer text-white/60 hover:text-white/70 hover:bg-white/[0.04] transition"
                 onClick={() => handleSort('beneficiaries')}
               >
                 Beneficiaries {sortField === 'beneficiaries' && (sortDirection === 'asc' ? '↑' : '↓')}
               </th>
               <th 
-                className="px-2 py-2 text-right cursor-pointer text-cyan-200 hover:text-cyan-100 hover:bg-cyan-500/20 transition"
+                className="px-2 py-2 text-right cursor-pointer text-white/60 hover:text-white/70 hover:bg-white/[0.04] transition"
                 onClick={() => handleSort('budget_per_beneficiary')}
               >
                 $/Beneficiary {sortField === 'budget_per_beneficiary' && (sortDirection === 'asc' ? '↑' : '↓')}
               </th>
-              <th className="px-2 py-2 text-left text-cyan-200">Pooled Fund</th>
-              <th className="px-2 py-2 text-left text-cyan-200">Status</th>
+              <th className="px-2 py-2 text-left text-white/60">Pooled Fund</th>
+              <th className="px-2 py-2 text-left text-white/60">Status</th>
             </tr>
           </thead>
           <tbody>
@@ -152,34 +152,34 @@ export default function ProjectTable() {
               return (
                 <tr
                   key={project.project_id}
-                  className={`border-b border-cyan-500/10 hover:bg-cyan-500/10 transition ${
-                    flagInfo ? (flagInfo.flag_type === 'high_outlier' ? 'bg-red-500/20' : 'bg-yellow-500/20') : ''
+                  className={`border-b border-white/[0.03] hover:bg-white/[0.03] transition ${
+                    flagInfo ? (flagInfo.flag_type === 'high_outlier' ? 'bg-white/[0.04]' : 'bg-white/[0.03]') : ''
                   }`}
                 >
-                  <td className="px-2 py-2 text-cyan-200">{project.project_id}</td>
-                  <td className="px-2 py-2 text-cyan-300">{project.cluster}</td>
-                  <td className="px-2 py-2 text-right text-cyan-200">
+                  <td className="px-2 py-2 text-white/60">{project.project_id}</td>
+                  <td className="px-2 py-2 text-white/50">{project.cluster}</td>
+                  <td className="px-2 py-2 text-right text-white/60">
                     ${project.budget_usd.toLocaleString(undefined, { maximumFractionDigits: 0 })}
                   </td>
-                  <td className="px-2 py-2 text-right text-cyan-200">
+                  <td className="px-2 py-2 text-right text-white/60">
                     {project.beneficiaries.toLocaleString()}
                   </td>
-                  <td className="px-2 py-2 text-right text-cyan-200">
+                  <td className="px-2 py-2 text-right text-white/60">
                     ${budgetPerBeneficiary.toFixed(2)}
                   </td>
                   <td className="px-2 py-2">
                     {project.pooled_fund ? (
-                      <span className="text-green-400 font-semibold glow-green">Yes</span>
+                      <span className="text-white/40 font-semibold">Yes</span>
                     ) : (
-                      <span className="text-cyan-400/60">No</span>
+                      <span className="text-white/40">No</span>
                     )}
                   </td>
                   <td className="px-2 py-2">
                     {flagInfo && (
                       <span className={`text-xs px-2 py-1 rounded ${
                         flagInfo.flag_type === 'high_outlier' 
-                          ? 'bg-red-500/30 text-red-300 glow' 
-                          : 'bg-yellow-500/30 text-yellow-300 glow'
+                          ? 'bg-white/[0.06] text-white/40'
+                          : 'bg-white/[0.05] text-white/40'
                       }`}>
                         {flagInfo.flag_type === 'high_outlier' ? 'High' : 'Low'}
                       </span>

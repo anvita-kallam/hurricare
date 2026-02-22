@@ -351,7 +351,7 @@ export default function Step3Confirm({ onPipelineComplete }: Step3ConfirmProps) 
     return (
       <div className="space-y-6 py-4">
         <div className="text-center space-y-2">
-          <div className="text-[#cc5566]/60 font-rajdhani text-[9px] tracking-[0.3em] uppercase">
+          <div className="text-white/40 font-rajdhani text-[9px] tracking-[0.3em] uppercase">
             Analysis Error
           </div>
           <h2 className="text-white/70 font-rajdhani font-bold text-xl tracking-wider">
@@ -360,8 +360,8 @@ export default function Step3Confirm({ onPipelineComplete }: Step3ConfirmProps) 
         </div>
 
         {pipelineError && (
-          <div className="mx-auto max-w-sm bg-[#cc5566]/10 border border-[#cc5566]/20 p-3 rounded">
-            <div className="text-[#cc5566]/80 font-mono text-[10px] text-center">
+          <div className="mx-auto max-w-sm bg-white/[0.04] border border-white/[0.08] p-3 rounded-sm">
+            <div className="text-white/50 font-mono text-[10px] text-center">
               {pipelineError}
             </div>
           </div>

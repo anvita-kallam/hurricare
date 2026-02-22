@@ -179,7 +179,7 @@ export default function Step5Summary() {
               width={W}
               height={80}
               seed={seed + 10}
-              accentColor="rgba(255,160,60,0.5)"
+              accentColor="rgba(255,255,255,0.4)"
             />
           </div>
 
@@ -198,7 +198,7 @@ export default function Step5Summary() {
               width={W}
               height={70}
               seed={seed + 20}
-              colors={['rgba(136,85,170,0.12)', 'rgba(170,68,68,0.08)']}
+              colors={['rgba(255,255,255,0.1)', 'rgba(255,255,255,0.06)']}
             />
           </div>
 
@@ -259,7 +259,7 @@ export default function Step5Summary() {
               width={W}
               height={64}
               seed={seed + 40}
-              accentColor="rgba(255,160,60,0.4)"
+              accentColor="rgba(255,255,255,0.3)"
             />
           </div>
 
@@ -275,7 +275,7 @@ export default function Step5Summary() {
               width={W}
               height={48}
               seed={seed + 50}
-              color="rgba(255,160,60,0.12)"
+              color="rgba(255,255,255,0.1)"
               secondaryData={coverageGapSeries.length > 1 ? coverageGapSeries : [0, 25]}
             />
           </div>
@@ -328,7 +328,7 @@ export default function Step5Summary() {
             </div>
             <div className="flex items-center gap-3">
               <div className="flex items-center gap-1">
-                <div className="w-2 h-2 rounded-sm" style={{ background: 'rgba(255,160,60,0.6)' }} />
+                <div className="w-2 h-2 rounded-sm" style={{ background: 'rgba(255,255,255,0.5)' }} />
                 <span className="text-white/30 font-mono text-[7px]">Gap</span>
               </div>
             </div>
@@ -351,7 +351,7 @@ export default function Step5Summary() {
       <div className="space-y-3 pt-2 border-t border-white/[0.06]">
         {mostUnderfunded && (
           <div className="flex items-start gap-3">
-            <div className="w-1.5 h-1.5 rounded-full bg-[#cc5566] mt-1.5 shrink-0" />
+            <div className="w-1.5 h-1.5 rounded-full bg-white/40 mt-1.5 shrink-0" />
             <div>
               <div className="text-white/40 font-rajdhani text-[10px] tracking-wider uppercase">Largest Gap</div>
               <div className="text-white/50 font-mono text-[10px]">
@@ -362,7 +362,7 @@ export default function Step5Summary() {
         )}
 
         <div className="flex items-start gap-3">
-          <div className="w-1.5 h-1.5 rounded-full bg-[#4488aa] mt-1.5 shrink-0" />
+          <div className="w-1.5 h-1.5 rounded-full bg-white/30 mt-1.5 shrink-0" />
           <div>
             <div className="text-white/40 font-rajdhani text-[10px] tracking-wider uppercase">Your Performance</div>
             <div className="text-white/50 font-mono text-[10px]">
