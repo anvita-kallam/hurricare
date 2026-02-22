@@ -161,7 +161,7 @@ export default function ImmersivePanelOverlay() {
       {/* Full-screen immersive game flow container */}
       <div className="w-full h-full flex flex-col">
         {/* Header — step progress and exit */}
-        <div className="flex items-center justify-between px-8 py-6 border-b border-white/[0.06]">
+        <div className="flex items-center justify-between px-8 py-6 border-b border-white/[0.12]">
           {/* Step progress dots — minimal, left aligned */}
           <div className="flex items-center gap-3">
             {[1, 2, 3].map(step => (
@@ -185,7 +185,7 @@ export default function ImmersivePanelOverlay() {
                   }
                 `} />
                 {gameFlowStep === step && (
-                  <span className="text-white/70 font-rajdhani text-sm tracking-widest uppercase">
+                  <span className="text-white/90 font-rajdhani text-sm tracking-widest uppercase">
                     {stepLabels[step - 1]}
                   </span>
                 )}
@@ -197,7 +197,7 @@ export default function ImmersivePanelOverlay() {
           <button
             onClick={handleExit}
             disabled={isRunningPipeline}
-            className="text-white/40 hover:text-white/70 font-rajdhani text-sm tracking-wider uppercase px-4 py-2 border border-white/[0.08] hover:border-white/20 transition-colors disabled:opacity-10 disabled:cursor-not-allowed"
+            className="text-white/75 hover:text-white/95 font-rajdhani text-sm tracking-wider uppercase px-4 py-2 border border-white/[0.08] hover:border-white/20 transition-colors disabled:opacity-10 disabled:cursor-not-allowed"
           >
             Exit
           </button>
@@ -221,7 +221,7 @@ export default function ImmersivePanelOverlay() {
         >
           <div className="max-w-5xl mx-auto relative">
             {/* Frosted glass backdrop for readability over grid — compositing-safe */}
-            <div className="absolute inset-0 -mx-6 -my-4 bg-black/60 rounded-2xl border border-white/[0.03]" style={{ boxShadow: '0 0 80px rgba(0,0,0,0.6)', backfaceVisibility: 'hidden', transform: 'translateZ(0)' }} />
+            <div className="absolute inset-0 -mx-6 -my-4 bg-black/40 rounded-2xl border border-white/[0.08]" style={{ boxShadow: '0 0 80px rgba(0,0,0,0.6)', backfaceVisibility: 'hidden', transform: 'translateZ(0)' }} />
             <div className="relative z-10">
               {gameFlowStep === 1 && <Step1Situation />}
               {gameFlowStep === 2 && <Step2Allocation />}
@@ -268,12 +268,12 @@ export default function ImmersivePanelOverlay() {
         </div>
 
         {/* Footer navigation */}
-        <div className="flex items-center justify-between px-8 py-4 border-t border-white/[0.06]">
+        <div className="flex items-center justify-between px-8 py-4 border-t border-white/[0.12]">
           <button
             onClick={handlePrev}
             onMouseEnter={() => playHover()}
             disabled={gameFlowStep === 1 || isRunningPipeline}
-            className="flex items-center gap-2 px-4 py-2 text-sm font-rajdhani tracking-wider uppercase transition-all text-white/50 hover:text-white/80 disabled:opacity-10 disabled:cursor-not-allowed"
+            className="flex items-center gap-2 px-4 py-2 text-sm font-rajdhani tracking-wider uppercase transition-all text-white/70 hover:text-white/95 disabled:opacity-10 disabled:cursor-not-allowed"
           >
             <span className="text-sm">&#9666;</span> Previous
           </button>
@@ -283,7 +283,7 @@ export default function ImmersivePanelOverlay() {
               <div
                 key={step}
                 className={`h-[4px] rounded-full transition-all duration-500 ${
-                  step === gameFlowStep ? 'w-8 bg-white/50' : step < gameFlowStep ? 'w-3 bg-white/20' : 'w-3 bg-white/[0.08]'
+                  step === gameFlowStep ? 'w-8 bg-white/70' : step < gameFlowStep ? 'w-3 bg-white/20' : 'w-3 bg-white/[0.15]'
                 }`}
               />
             ))}
@@ -294,7 +294,7 @@ export default function ImmersivePanelOverlay() {
               onClick={handleNext}
               onMouseEnter={() => playHover()}
               disabled={isRunningPipeline}
-              className="flex items-center gap-2 px-4 py-2 text-sm font-rajdhani tracking-wider uppercase transition-all text-white/50 hover:text-white/80 disabled:opacity-10 disabled:cursor-not-allowed"
+              className="flex items-center gap-2 px-4 py-2 text-sm font-rajdhani tracking-wider uppercase transition-all text-white/70 hover:text-white/95 disabled:opacity-10 disabled:cursor-not-allowed"
             >
               Next <span className="text-sm">&#9656;</span>
             </button>
@@ -305,7 +305,7 @@ export default function ImmersivePanelOverlay() {
                 handleExit()
               }}
               onMouseEnter={() => playHover()}
-              className="flex items-center gap-2 px-4 py-2 text-sm font-rajdhani tracking-wider uppercase transition-all text-white/60 hover:text-white/90 border border-white/[0.1] hover:border-white/[0.2]"
+              className="flex items-center gap-2 px-4 py-2 text-sm font-rajdhani tracking-wider uppercase transition-all text-white/75 hover:text-white/95 border border-white/[0.1] hover:border-white/[0.2]"
             >
               Complete
             </button>

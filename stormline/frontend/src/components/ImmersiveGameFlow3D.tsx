@@ -27,22 +27,22 @@ const gridFragmentShader = /* glsl */ `
   void main() {
     vec2 uv = vUv;
 
-    // Major grid
-    float g1 = grid(uv, 0.05, 0.001) * 0.04;
-    // Minor grid
-    float g2 = grid(uv, 0.2, 0.001) * 0.08;
+    // Major grid — bright
+    float g1 = grid(uv, 0.05, 0.0012) * 0.12;
+    // Minor grid — bright
+    float g2 = grid(uv, 0.2, 0.0012) * 0.22;
 
     // Horizontal scan line
     float scanY = fract(uTime * 0.03);
     float scanDist = abs(uv.y - scanY);
-    float scan = exp(-scanDist * 80.0) * 0.06;
+    float scan = exp(-scanDist * 80.0) * 0.15;
 
     // Edge fade
-    float edgeFade = smoothstep(0.0, 0.3, uv.x) * smoothstep(1.0, 0.7, uv.x) *
-                     smoothstep(0.0, 0.2, uv.y) * smoothstep(1.0, 0.8, uv.y);
+    float edgeFade = smoothstep(0.0, 0.2, uv.x) * smoothstep(1.0, 0.8, uv.x) *
+                     smoothstep(0.0, 0.15, uv.y) * smoothstep(1.0, 0.85, uv.y);
 
     float alpha = (g1 + g2 + scan) * edgeFade;
-    gl_FragColor = vec4(0.2, 0.4, 0.8, alpha);
+    gl_FragColor = vec4(0.3, 0.5, 0.9, alpha);
   }
 `
 

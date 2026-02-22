@@ -121,17 +121,17 @@ export function TriangularAreaFill({
     <svg width={width} height={height} className="block">
       <FadeMask id={id} />
       <g mask={`url(#${id}-m)`}>
-        <path d={areaPath} fill="rgba(255,255,255,0.04)" />
-        <path d={topLine} fill="none" stroke="rgba(255,255,255,0.3)" strokeWidth="0.8" />
-        <path d={botLine} fill="none" stroke={accentColor} strokeWidth="0.6" strokeDasharray="2 3" />
+        <path d={areaPath} fill="rgba(255,255,255,0.1)" />
+        <path d={topLine} fill="none" stroke="rgba(255,255,255,0.55)" strokeWidth="1" />
+        <path d={botLine} fill="none" stroke={accentColor} strokeWidth="0.8" strokeDasharray="2 3" />
         <line x1={cx} y1={pad} x2={cx} y2={height - pad}
-          stroke="rgba(255,255,255,0.1)" strokeWidth="0.5" strokeDasharray="1 3" />
+          stroke="rgba(255,255,255,0.2)" strokeWidth="0.5" strokeDasharray="1 3" />
         <line x1={pad} y1={cy} x2={width - pad} y2={cy}
-          stroke="rgba(255,255,255,0.08)" strokeWidth="0.5" strokeDasharray="1 3" />
-        <circle cx={cx} cy={cy} r="2.5" fill="none" stroke={accentColor} strokeWidth="0.6" />
-        <circle cx={cx} cy={cy} r="0.8" fill={accentColor} />
+          stroke="rgba(255,255,255,0.15)" strokeWidth="0.5" strokeDasharray="1 3" />
+        <circle cx={cx} cy={cy} r="2.5" fill="none" stroke={accentColor} strokeWidth="0.8" />
+        <circle cx={cx} cy={cy} r="1" fill={accentColor} />
         {dots.map((d, i) => (
-          <circle key={i} cx={d.x} cy={d.y} r={d.r} fill="rgba(255,255,255,0.5)" opacity={d.o} />
+          <circle key={i} cx={d.x} cy={d.y} r={d.r} fill="rgba(255,255,255,0.7)" opacity={Math.min(d.o * 1.8, 0.6)} />
         ))}
       </g>
     </svg>
@@ -152,7 +152,7 @@ interface RidgeChartProps {
 
 export function RidgeChart({
   series, width, height, seed = 2,
-  colors = ['rgba(255,255,255,0.12)', 'rgba(255,180,60,0.08)', 'rgba(255,255,255,0.06)'],
+  colors = ['rgba(255,255,255,0.25)', 'rgba(255,180,60,0.18)', 'rgba(255,255,255,0.14)'],
 }: RidgeChartProps) {
   const id = `rc-${seed}`
   const count = series.length
@@ -178,7 +178,7 @@ export function RidgeChart({
           const linePath = pts.map((p, i) => `${i === 0 ? 'M' : 'L'}${p.x.toFixed(1)},${p.y.toFixed(1)}`).join(' ')
           const areaPath = `${linePath} L${width},${baseY} L0,${baseY} Z`
           const color = colors[si % colors.length]
-          const strokeColor = color.replace(/[\d.]+\)$/, '0.4)')
+          const strokeColor = color.replace(/[\d.]+\)$/, '0.6)')
           return (
             <g key={si}>
               <path d={areaPath} fill={color} />
@@ -229,12 +229,12 @@ export function FanBurst({
           return (
             <line key={i}
               x1={ox} y1={oy} x2={ex} y2={ey}
-              stroke={accent ? accentColor : 'rgba(255,255,255,0.1)'}
-              strokeWidth={accent ? 0.9 : 0.35}
+              stroke={accent ? accentColor : 'rgba(255,255,255,0.22)'}
+              strokeWidth={accent ? 1.2 : 0.5}
             />
           )
         })}
-        <circle cx={ox} cy={oy} r="1.5" fill="rgba(255,255,255,0.3)" />
+        <circle cx={ox} cy={oy} r="2" fill="rgba(255,255,255,0.5)" />
       </g>
     </svg>
   )
@@ -265,13 +265,13 @@ export function ConcentricRadar({
       {/* Background rings */}
       {Array.from({ length: n + 1 }, (_, i) => (
         <circle key={`bg${i}`} cx={cx} cy={cy} r={ringGap * (i + 1)}
-          fill="none" stroke="rgba(255,255,255,0.04)" strokeWidth="0.3" />
+          fill="none" stroke="rgba(255,255,255,0.1)" strokeWidth="0.4" />
       ))}
       {/* Cross lines */}
       <line x1={cx - maxR} y1={cy} x2={cx + maxR} y2={cy}
-        stroke="rgba(255,255,255,0.04)" strokeWidth="0.3" />
+        stroke="rgba(255,255,255,0.1)" strokeWidth="0.3" />
       <line x1={cx} y1={cy - maxR} x2={cx} y2={cy + maxR}
-        stroke="rgba(255,255,255,0.04)" strokeWidth="0.3" />
+        stroke="rgba(255,255,255,0.1)" strokeWidth="0.3" />
       {/* Data arcs */}
       {values.map((v, i) => {
         const r = ringGap * (i + 1.5)
@@ -285,13 +285,13 @@ export function ConcentricRadar({
         const y2 = cy + Math.sin(ea) * r
         const large = arcLen > Math.PI ? 1 : 0
         const accent = norm > 0.55
-        const col = accent ? 'rgba(255,180,60,0.45)' : 'rgba(255,255,255,0.22)'
+        const col = accent ? 'rgba(255,180,60,0.7)' : 'rgba(255,255,255,0.4)'
         return (
           <g key={i}>
             <path d={`M ${x1} ${y1} A ${r} ${r} 0 ${large} 1 ${x2} ${y2}`}
-              fill="none" stroke={col} strokeWidth={1.2} />
-            <circle cx={x2} cy={y2} r="1.5"
-              fill={accent ? 'rgba(255,180,60,0.65)' : 'rgba(255,255,255,0.35)'} />
+              fill="none" stroke={col} strokeWidth={1.5} />
+            <circle cx={x2} cy={y2} r="1.8"
+              fill={accent ? 'rgba(255,180,60,0.8)' : 'rgba(255,255,255,0.55)'} />
           </g>
         )
       })}
@@ -334,7 +334,7 @@ export function ThinVerticalBars({
       <FadeMask id={id} />
       <g mask={`url(#${id}-m)`}>
         <line x1="0" y1={plotH} x2={width} y2={plotH}
-          stroke="rgba(255,255,255,0.04)" strokeWidth="0.3" />
+          stroke="rgba(255,255,255,0.12)" strokeWidth="0.4" />
         {data.map((v, i) => {
           const norm = v / maxVal
           const h = norm * (plotH - 4)
@@ -343,20 +343,20 @@ export function ThinVerticalBars({
           return (
             <g key={i}>
               <rect x={x} y={plotH - h} width={barW} height={h}
-                fill={accent ? 'rgba(255,180,60,0.45)' : 'rgba(255,255,255,0.18)'} />
+                fill={accent ? 'rgba(255,180,60,0.7)' : 'rgba(255,255,255,0.35)'} />
               {/* Value on top */}
               {norm > 0.3 && (
                 <text x={i * gap + gap / 2} y={plotH - h - 2}
-                  textAnchor="middle" fill="rgba(255,255,255,0.3)"
-                  fontSize="5.5" fontFamily="'DM Mono', monospace">
+                  textAnchor="middle" fill="rgba(255,255,255,0.6)"
+                  fontSize="6" fontFamily="'DM Mono', monospace">
                   {v >= 1e6 ? `${(v / 1e6).toFixed(1)}M` : v >= 1e3 ? `${(v / 1e3).toFixed(0)}K` : v.toFixed(0)}
                 </text>
               )}
               {/* Label below bar */}
               {hasLabels && labels[i] && (
                 <text x={i * gap + gap / 2} y={plotH + 10}
-                  textAnchor="middle" fill="rgba(255,255,255,0.25)"
-                  fontSize="6" fontFamily="'Rajdhani', sans-serif" fontWeight="600"
+                  textAnchor="middle" fill="rgba(255,255,255,0.55)"
+                  fontSize="6.5" fontFamily="'Rajdhani', sans-serif" fontWeight="600"
                   letterSpacing="0.05em">
                   {labels[i].length > Math.floor(gap / 4.5)
                     ? labels[i].slice(0, Math.floor(gap / 4.5)) + '..'
@@ -368,7 +368,7 @@ export function ThinVerticalBars({
         })}
         {/* Unit label */}
         {unit && (
-          <text x={2} y={8} fill="rgba(255,255,255,0.15)"
+          <text x={2} y={8} fill="rgba(255,255,255,0.4)"
             fontSize="6" fontFamily="'DM Mono', monospace">
             {unit}
           </text>
@@ -404,7 +404,7 @@ export function PerspectiveGrid({
     const t = r / (rows - 1)
     const y = baseY - (baseY - vanishY) * t * t
     const scale = 1 - t * 0.65
-    rowLines.push({ y, scale, opacity: 0.06 + (1 - t) * 0.14 })
+    rowLines.push({ y, scale, opacity: 0.12 + (1 - t) * 0.22 })
   }
 
   return (
@@ -439,7 +439,7 @@ export function PerspectiveGrid({
           return (
             <rect key={`d${i}`} x={x - 1.5} y={rowLines[0].y - barH}
               width={3} height={barH}
-              fill={accent ? 'rgba(255,180,60,0.3)' : 'rgba(255,255,255,0.13)'} />
+              fill={accent ? 'rgba(255,180,60,0.55)' : 'rgba(255,255,255,0.28)'} />
           )
         })}
       </g>
@@ -462,10 +462,10 @@ interface LargePercentReadoutProps {
 export function LargePercentReadout({
   value, label, subValue, trend, alert = false,
 }: LargePercentReadoutProps) {
-  const numColor = alert ? 'rgba(255,180,60,0.85)' : 'rgba(255,255,255,0.8)'
+  const numColor = alert ? 'rgba(255,180,60,0.95)' : 'rgba(255,255,255,0.92)'
   const trendChar = trend === 'up' ? '\u2191' : trend === 'down' ? '\u2193' : '\u2014'
-  const trendCol = trend === 'up' ? 'rgba(120,220,120,0.5)' :
-    trend === 'down' ? 'rgba(255,160,60,0.5)' : 'rgba(255,255,255,0.15)'
+  const trendCol = trend === 'up' ? 'rgba(120,220,120,0.7)' :
+    trend === 'down' ? 'rgba(255,160,60,0.7)' : 'rgba(255,255,255,0.3)'
 
   return (
     <div style={{ display: 'flex', alignItems: 'baseline', gap: 8 }}>
@@ -478,14 +478,14 @@ export function LargePercentReadout({
         letterSpacing: '-0.02em',
       }}>
         {value}
-        <span style={{ fontSize: '0.8rem', color: 'rgba(255,255,255,0.25)', marginLeft: 1 }}>%</span>
+        <span style={{ fontSize: '0.8rem', color: 'rgba(255,255,255,0.5)', marginLeft: 1 }}>%</span>
       </span>
       <div style={{ display: 'flex', flexDirection: 'column', gap: 0 }}>
         <span style={{
           fontFamily: "'Rajdhani', sans-serif",
           fontSize: '0.45rem',
           fontWeight: 600,
-          color: 'rgba(255,255,255,0.2)',
+          color: 'rgba(255,255,255,0.5)',
           letterSpacing: '0.14em',
           textTransform: 'uppercase' as const,
         }}>{label}</span>
@@ -494,7 +494,7 @@ export function LargePercentReadout({
             <span style={{
               fontFamily: "'DM Mono', monospace",
               fontSize: '0.55rem',
-              color: 'rgba(255,255,255,0.35)',
+              color: 'rgba(255,255,255,0.6)',
             }}>{subValue}</span>
           )}
           {trend && (
@@ -539,21 +539,21 @@ export function SegmentedHorizontalBars({
           <g key={i}>
             <text x={labelW - 3} y={y + barH * 0.85}
               textAnchor="end"
-              fill="rgba(255,255,255,0.25)" fontSize="6.5"
+              fill="rgba(255,255,255,0.6)" fontSize="7"
               fontFamily="'Rajdhani', sans-serif" fontWeight="600" letterSpacing="0.08em">
               {bar.label}
             </text>
             <rect x={labelW} y={y} width={barAreaW} height={barH}
-              fill="rgba(255,255,255,0.03)" rx="0.5" />
+              fill="rgba(255,255,255,0.08)" rx="0.5" />
             <rect x={labelW} y={y} width={filledW} height={barH}
-              fill={high ? 'rgba(255,180,60,0.3)' : 'rgba(255,255,255,0.12)'} rx="0.5" />
+              fill={high ? 'rgba(255,180,60,0.6)' : 'rgba(255,255,255,0.28)'} rx="0.5" />
             {[0.25, 0.5, 0.75].map(t => (
               <line key={t} x1={labelW + t * barAreaW} y1={y}
                 x2={labelW + t * barAreaW} y2={y + barH}
-                stroke="rgba(255,255,255,0.04)" strokeWidth="0.3" />
+                stroke="rgba(255,255,255,0.1)" strokeWidth="0.3" />
             ))}
             <text x={labelW + barAreaW + 3} y={y + barH * 0.85}
-              fill="rgba(255,255,255,0.35)" fontSize="6"
+              fill="rgba(255,255,255,0.65)" fontSize="6.5"
               fontFamily="'DM Mono', monospace">
               {bar.value}
             </text>
@@ -597,8 +597,8 @@ export function CircularGauge({
     return `M ${x1} ${y1} A ${r} ${r} 0 ${large} 1 ${x2} ${y2}`
   }
 
-  const accentCol = alert ? 'rgba(255,180,60,0.6)' : 'rgba(255,255,255,0.35)'
-  const valCol = alert ? 'rgba(255,180,60,0.85)' : 'rgba(255,255,255,0.75)'
+  const accentCol = alert ? 'rgba(255,180,60,0.8)' : 'rgba(255,255,255,0.55)'
+  const valCol = alert ? 'rgba(255,180,60,0.95)' : 'rgba(255,255,255,0.92)'
 
   const ticks = Array.from({ length: 13 }, (_, i) => {
     const a = sa + (i / 12) * totalArc
@@ -613,13 +613,13 @@ export function CircularGauge({
   return (
     <div style={{ display: 'inline-flex', flexDirection: 'column', alignItems: 'center' }}>
       <svg width={size} height={size} className="block">
-        <path d={arc(sa, sa + totalArc)} fill="none" stroke="rgba(255,255,255,0.06)"
+        <path d={arc(sa, sa + totalArc)} fill="none" stroke="rgba(255,255,255,0.15)"
           strokeWidth="2.5" strokeLinecap="round" />
         <path d={arc(sa, ea)} fill="none" stroke={accentCol}
           strokeWidth="2.5" strokeLinecap="round" />
         {ticks.map((t, i) => (
           <line key={i} x1={t.x1} y1={t.y1} x2={t.x2} y2={t.y2}
-            stroke="rgba(255,255,255,0.08)" strokeWidth="0.4" />
+            stroke="rgba(255,255,255,0.18)" strokeWidth="0.5" />
         ))}
         <text x={cx} y={cy + 1} textAnchor="middle" dominantBaseline="middle"
           fill={valCol} fontSize="11" fontFamily="'DM Mono', monospace" fontWeight="500">
@@ -630,7 +630,7 @@ export function CircularGauge({
         fontFamily: "'Rajdhani', sans-serif",
         fontSize: '0.45rem',
         fontWeight: 600,
-        color: 'rgba(255,255,255,0.2)',
+        color: 'rgba(255,255,255,0.55)',
         letterSpacing: '0.14em',
         textTransform: 'uppercase' as const,
         marginTop: -2,
@@ -654,7 +654,7 @@ interface MountainSilhouetteProps {
 
 export function MountainSilhouette({
   data, width, height, seed = 10,
-  color = 'rgba(255,255,255,0.1)',
+  color = 'rgba(255,255,255,0.2)',
   secondaryData,
 }: MountainSilhouetteProps) {
   const id = `ms-${seed}`
@@ -726,13 +726,13 @@ export function DotBarStrip({
       <FadeMask id={id} />
       <g mask={`url(#${id}-m)`}>
         <line x1="0" y1={midY} x2={width} y2={midY}
-          stroke="rgba(255,255,255,0.04)" strokeWidth="0.3" />
+          stroke="rgba(255,255,255,0.12)" strokeWidth="0.4" />
         {events.map((ev, i) => {
           const x = (ev.position / (span || 1)) * width
           const norm = ev.magnitude / maxMag
           const barH = norm * (height * 0.38)
           const high = norm > 0.6
-          const col = high ? 'rgba(255,180,60,0.5)' : 'rgba(255,255,255,0.25)'
+          const col = high ? 'rgba(255,180,60,0.7)' : 'rgba(255,255,255,0.45)'
 
           if (i % 2 === 0) {
             return (
@@ -782,8 +782,8 @@ export function StatReadout({ label, value, unit, alert = false }: StatReadoutPr
 export function TrendIndicator({ trend }: { trend: 'improving' | 'stable' | 'declining' | 'worsening' }) {
   const symbol = trend === 'improving' ? '\u2191' :
     trend === 'declining' || trend === 'worsening' ? '\u2193' : '\u2014'
-  const color = trend === 'improving' ? 'rgba(120,220,120,0.4)' :
-    trend === 'declining' || trend === 'worsening' ? 'rgba(255,160,60,0.4)' :
-    'rgba(255,255,255,0.15)'
+  const color = trend === 'improving' ? 'rgba(120,220,120,0.65)' :
+    trend === 'declining' || trend === 'worsening' ? 'rgba(255,160,60,0.65)' :
+    'rgba(255,255,255,0.35)'
   return <span className="fdp-trend" style={{ color }}>{symbol}</span>
 }

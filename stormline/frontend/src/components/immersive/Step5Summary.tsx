@@ -99,10 +99,10 @@ export default function Step5Summary() {
     return (
       <div className="space-y-6 py-8">
         <div className="text-center">
-          <div className="text-white/60 font-rajdhani text-sm tracking-[0.3em] uppercase">
+          <div className="text-white/85 font-rajdhani text-sm tracking-[0.3em] uppercase">
             Loading Summary
           </div>
-          <div className="text-white/60 font-mono text-sm mt-2">
+          <div className="text-white/85 font-mono text-sm mt-2">
             Waiting for analysis data...
           </div>
         </div>
@@ -121,7 +121,7 @@ export default function Step5Summary() {
       {/* Title */}
       <ScrollRevealSection animation="blur-resolve" staggerDelay={0}>
         <div className="text-center space-y-1">
-          <TypewriterText text="Delta Insights" emphasis="soft" delayMs={100} className="text-white/60 font-rajdhani text-sm tracking-[0.3em] uppercase" as="div" />
+          <TypewriterText text="Delta Insights" emphasis="soft" delayMs={100} className="text-white/85 font-rajdhani text-sm tracking-[0.3em] uppercase" as="div" />
           <h2 className="text-white/95 font-rajdhani font-bold text-2xl tracking-wider">
             <TypewriterText text="What Could Have Changed" emphasis="headline" delayMs={300} charIntervalMs={35} />
           </h2>
@@ -133,7 +133,7 @@ export default function Step5Summary() {
       {/* Key delta insight — one line */}
       <ScrollRevealSection animation="fade-up" staggerDelay={100}>
         <div className="text-center">
-          <div className="text-white/70 font-mono text-sm leading-relaxed">
+          <div className="text-white/90 font-mono text-sm leading-relaxed">
             {coverageDelta > 0
               ? `${coverageDelta.toLocaleString()} additional people reachable with ideal allocation`
               : `Historical response covered ${Math.abs(coverageDelta).toLocaleString()} more than ML ideal`
@@ -149,14 +149,14 @@ export default function Step5Summary() {
       <div className="flex gap-4">
         {/* Left Panel — Budget Delta Intelligence */}
         <div className="flex-1 flex flex-col gap-0" style={{
-          background: 'linear-gradient(180deg, rgba(0,0,2,0.85) 0%, rgba(0,0,4,0.9) 50%, rgba(0,0,3,0.85) 100%)',
-          border: '1px solid rgba(255,255,255,0.04)',
+          background: 'linear-gradient(180deg, rgba(8,12,24,0.55) 0%, rgba(10,14,28,0.6) 50%, rgba(8,12,22,0.55) 100%)',
+          border: '1px solid rgba(255,255,255,0.12)',
           padding: '14px 16px 18px',
-          backgroundImage: 'radial-gradient(circle, rgba(255,255,255,0.02) 0.5px, transparent 0.5px)',
+          backgroundImage: 'radial-gradient(circle, rgba(255,255,255,0.04) 0.5px, transparent 0.5px)',
           backgroundSize: '12px 12px',
         }}>
           {/* Coverage Delta */}
-          <div style={{ fontFamily: "'Rajdhani', sans-serif", fontSize: '0.8rem', fontWeight: 600, color: 'rgba(255,255,255,0.5)', letterSpacing: '0.18em', textTransform: 'uppercase' as const, marginBottom: 4 }}>
+          <div style={{ fontFamily: "'Rajdhani', sans-serif", fontSize: '0.8rem', fontWeight: 600, color: 'rgba(255,255,255,0.85)', letterSpacing: '0.18em', textTransform: 'uppercase' as const, marginBottom: 4 }}>
             COVERAGE DELTA
           </div>
           <InteractiveChartWrapper label="Coverage Delta" explanation="The average gap between ML-optimized allocation and historical response across all regions. A higher percentage means more people could have been reached with better resource distribution.">
@@ -169,7 +169,7 @@ export default function Step5Summary() {
             />
           </InteractiveChartWrapper>
 
-          <div style={{ height: 1, background: 'rgba(255,255,255,0.04)', margin: '6px 0', flexShrink: 0 }} />
+          <div style={{ height: 1, background: 'rgba(255,255,255,0.1)', margin: '6px 0', flexShrink: 0 }} />
 
           {/* Stats */}
           <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '4px 8px', marginBottom: 2 }}>
@@ -179,10 +179,10 @@ export default function Step5Summary() {
             <StatReadout label="YOU VS ML" value={userVsMl > 0 ? `+${(userVsMl / 1e3).toFixed(0)}K` : `${(userVsMl / 1e3).toFixed(0)}K`} />
           </div>
 
-          <div style={{ height: 1, background: 'rgba(255,255,255,0.04)', margin: '6px 0', flexShrink: 0 }} />
+          <div style={{ height: 1, background: 'rgba(255,255,255,0.1)', margin: '6px 0', flexShrink: 0 }} />
 
           {/* TriangularAreaFill — ML vs Real budget */}
-          <div style={{ fontFamily: "'Rajdhani', sans-serif", fontSize: '0.8rem', fontWeight: 600, color: 'rgba(255,255,255,0.5)', letterSpacing: '0.18em', textTransform: 'uppercase' as const, marginBottom: 4 }}>
+          <div style={{ fontFamily: "'Rajdhani', sans-serif", fontSize: '0.8rem', fontWeight: 600, color: 'rgba(255,255,255,0.85)', letterSpacing: '0.18em', textTransform: 'uppercase' as const, marginBottom: 4 }}>
             ML / HISTORICAL DIVERGENCE
           </div>
           <InteractiveChartWrapper label="ML / Historical Divergence" explanation="The filled area between ML-optimal and historical budget curves reveals where funding priorities diverged most. Wider gaps represent the largest opportunities for improved humanitarian outcomes through better allocation.">
@@ -198,10 +198,10 @@ export default function Step5Summary() {
             </div>
           </InteractiveChartWrapper>
 
-          <div style={{ height: 1, background: 'rgba(255,255,255,0.04)', margin: '6px 0', flexShrink: 0 }} />
+          <div style={{ height: 1, background: 'rgba(255,255,255,0.1)', margin: '6px 0', flexShrink: 0 }} />
 
           {/* RidgeChart — ML vs real coverage */}
-          <div style={{ fontFamily: "'Rajdhani', sans-serif", fontSize: '0.8rem', fontWeight: 600, color: 'rgba(255,255,255,0.5)', letterSpacing: '0.18em', textTransform: 'uppercase' as const, marginBottom: 4 }}>
+          <div style={{ fontFamily: "'Rajdhani', sans-serif", fontSize: '0.8rem', fontWeight: 600, color: 'rgba(255,255,255,0.85)', letterSpacing: '0.18em', textTransform: 'uppercase' as const, marginBottom: 4 }}>
             COVERAGE PROFILES
           </div>
           <InteractiveChartWrapper label="Coverage Profiles" explanation="Layered coverage profiles comparing ML-ideal and historical approaches. Where the ML profile exceeds historical, data-driven allocation would have reached more people. The gap pattern reveals systematic biases in traditional response.">
@@ -219,10 +219,10 @@ export default function Step5Summary() {
             </div>
           </InteractiveChartWrapper>
 
-          <div style={{ height: 1, background: 'rgba(255,255,255,0.04)', margin: '6px 0', flexShrink: 0 }} />
+          <div style={{ height: 1, background: 'rgba(255,255,255,0.1)', margin: '6px 0', flexShrink: 0 }} />
 
           {/* ThinVerticalBars — delta magnitudes */}
-          <div style={{ fontFamily: "'Rajdhani', sans-serif", fontSize: '0.8rem', fontWeight: 600, color: 'rgba(255,255,255,0.5)', letterSpacing: '0.18em', textTransform: 'uppercase' as const, marginBottom: 4 }}>
+          <div style={{ fontFamily: "'Rajdhani', sans-serif", fontSize: '0.8rem', fontWeight: 600, color: 'rgba(255,255,255,0.85)', letterSpacing: '0.18em', textTransform: 'uppercase' as const, marginBottom: 4 }}>
             DELTA MAGNITUDE
           </div>
           <InteractiveChartWrapper label="Delta Magnitude" explanation="The absolute budget difference between ML-optimal and historical allocation for each region. Taller bars indicate where the largest reallocation would have the most impact on coverage.">
@@ -241,14 +241,14 @@ export default function Step5Summary() {
 
         {/* Right Panel — Gap Analysis */}
         <div className="flex-1 flex flex-col gap-0" style={{
-          background: 'linear-gradient(180deg, rgba(0,0,2,0.85) 0%, rgba(0,0,4,0.9) 50%, rgba(0,0,3,0.85) 100%)',
-          border: '1px solid rgba(255,255,255,0.04)',
+          background: 'linear-gradient(180deg, rgba(8,12,24,0.55) 0%, rgba(10,14,28,0.6) 50%, rgba(8,12,22,0.55) 100%)',
+          border: '1px solid rgba(255,255,255,0.12)',
           padding: '14px 16px 18px',
-          backgroundImage: 'radial-gradient(circle, rgba(255,255,255,0.02) 0.5px, transparent 0.5px)',
+          backgroundImage: 'radial-gradient(circle, rgba(255,255,255,0.04) 0.5px, transparent 0.5px)',
           backgroundSize: '12px 12px',
         }}>
           {/* Gap gauge */}
-          <div style={{ fontFamily: "'Rajdhani', sans-serif", fontSize: '0.8rem', fontWeight: 600, color: 'rgba(255,255,255,0.5)', letterSpacing: '0.18em', textTransform: 'uppercase' as const, marginBottom: 4 }}>
+          <div style={{ fontFamily: "'Rajdhani', sans-serif", fontSize: '0.8rem', fontWeight: 600, color: 'rgba(255,255,255,0.85)', letterSpacing: '0.18em', textTransform: 'uppercase' as const, marginBottom: 4 }}>
             PERFORMANCE
           </div>
           <InteractiveChartWrapper label="Performance" explanation="Overall gap gauge showing how far actual response deviated from optimal. The companion metrics show total people reached under each strategy — ML ideal, historical, and your plan.">
@@ -268,10 +268,10 @@ export default function Step5Summary() {
             </div>
           </InteractiveChartWrapper>
 
-          <div style={{ height: 1, background: 'rgba(255,255,255,0.04)', margin: '6px 0', flexShrink: 0 }} />
+          <div style={{ height: 1, background: 'rgba(255,255,255,0.1)', margin: '6px 0', flexShrink: 0 }} />
 
           {/* FanBurst — gap dispersion */}
-          <div style={{ fontFamily: "'Rajdhani', sans-serif", fontSize: '0.8rem', fontWeight: 600, color: 'rgba(255,255,255,0.5)', letterSpacing: '0.18em', textTransform: 'uppercase' as const, marginBottom: 4 }}>
+          <div style={{ fontFamily: "'Rajdhani', sans-serif", fontSize: '0.8rem', fontWeight: 600, color: 'rgba(255,255,255,0.85)', letterSpacing: '0.18em', textTransform: 'uppercase' as const, marginBottom: 4 }}>
             GAP DISPERSION
           </div>
           <InteractiveChartWrapper label="Gap Dispersion" explanation="Radiating lines visualize how coverage gaps fan out across regions. Concentrated patterns suggest a few regions drive most of the gap, while dispersed patterns indicate broad systemic challenges.">
@@ -286,10 +286,10 @@ export default function Step5Summary() {
             </div>
           </InteractiveChartWrapper>
 
-          <div style={{ height: 1, background: 'rgba(255,255,255,0.04)', margin: '6px 0', flexShrink: 0 }} />
+          <div style={{ height: 1, background: 'rgba(255,255,255,0.1)', margin: '6px 0', flexShrink: 0 }} />
 
           {/* MountainSilhouette — severity vs gap */}
-          <div style={{ fontFamily: "'Rajdhani', sans-serif", fontSize: '0.8rem', fontWeight: 600, color: 'rgba(255,255,255,0.5)', letterSpacing: '0.18em', textTransform: 'uppercase' as const, marginBottom: 4 }}>
+          <div style={{ fontFamily: "'Rajdhani', sans-serif", fontSize: '0.8rem', fontWeight: 600, color: 'rgba(255,255,255,0.85)', letterSpacing: '0.18em', textTransform: 'uppercase' as const, marginBottom: 4 }}>
             SEVERITY / GAP DENSITY
           </div>
           <InteractiveChartWrapper label="Severity / Gap Density" explanation="Overlapping terrain showing severity distribution and coverage gaps. Peaks where both align represent the most critical humanitarian failures — high-severity regions with the largest response gaps.">
@@ -305,10 +305,10 @@ export default function Step5Summary() {
             </div>
           </InteractiveChartWrapper>
 
-          <div style={{ height: 1, background: 'rgba(255,255,255,0.04)', margin: '6px 0', flexShrink: 0 }} />
+          <div style={{ height: 1, background: 'rgba(255,255,255,0.1)', margin: '6px 0', flexShrink: 0 }} />
 
           {/* Biggest gap region bars */}
-          <div style={{ fontFamily: "'Rajdhani', sans-serif", fontSize: '0.8rem', fontWeight: 600, color: 'rgba(255,255,255,0.5)', letterSpacing: '0.18em', textTransform: 'uppercase' as const, marginBottom: 4 }}>
+          <div style={{ fontFamily: "'Rajdhani', sans-serif", fontSize: '0.8rem', fontWeight: 600, color: 'rgba(255,255,255,0.85)', letterSpacing: '0.18em', textTransform: 'uppercase' as const, marginBottom: 4 }}>
             REGIONAL GAPS
           </div>
           <InteractiveChartWrapper label="Regional Gaps" explanation="Per-region coverage gap sorted by magnitude. These are the regions where reallocation would have the largest positive impact on humanitarian outcomes.">
@@ -330,7 +330,7 @@ export default function Step5Summary() {
 
           {mostUnderfunded && (
             <>
-              <div style={{ height: 1, background: 'rgba(255,255,255,0.04)', margin: '6px 0', flexShrink: 0 }} />
+              <div style={{ height: 1, background: 'rgba(255,255,255,0.1)', margin: '6px 0', flexShrink: 0 }} />
               <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '4px 8px' }}>
                 <StatReadout label="TOP GAP" value={mostUnderfunded.region} alert />
                 <StatReadout label="AMOUNT" value={formatBudget(Math.abs(mostUnderfunded.delta))} alert />
@@ -347,20 +347,20 @@ export default function Step5Summary() {
       {deltaData.length > 0 && (
       <ScrollRevealSection animation="depth-emerge" staggerDelay={450} sound="settle">
         <div style={{
-          background: 'linear-gradient(180deg, rgba(0,0,2,0.85) 0%, rgba(0,0,4,0.9) 50%, rgba(0,0,3,0.85) 100%)',
-          border: '1px solid rgba(255,255,255,0.04)',
+          background: 'linear-gradient(180deg, rgba(8,12,24,0.55) 0%, rgba(10,14,28,0.6) 50%, rgba(8,12,22,0.55) 100%)',
+          border: '1px solid rgba(255,255,255,0.12)',
           padding: '14px 16px 10px',
-          backgroundImage: 'radial-gradient(circle, rgba(255,255,255,0.02) 0.5px, transparent 0.5px)',
+          backgroundImage: 'radial-gradient(circle, rgba(255,255,255,0.04) 0.5px, transparent 0.5px)',
           backgroundSize: '12px 12px',
         }}>
           <div className="flex items-center justify-between mb-2">
-            <div style={{ fontFamily: "'Rajdhani', sans-serif", fontSize: '0.8rem', fontWeight: 600, color: 'rgba(255,255,255,0.5)', letterSpacing: '0.18em', textTransform: 'uppercase' as const }}>
+            <div style={{ fontFamily: "'Rajdhani', sans-serif", fontSize: '0.8rem', fontWeight: 600, color: 'rgba(255,255,255,0.85)', letterSpacing: '0.18em', textTransform: 'uppercase' as const }}>
               COVERAGE GAP TERRAIN — ML IDEAL vs HISTORICAL
             </div>
             <div className="flex items-center gap-3">
               <div className="flex items-center gap-1">
                 <div className="w-2 h-2 rounded-sm" style={{ background: 'rgba(255,160,60,0.6)' }} />
-                <span className="text-white/65 font-mono text-xs">Gap</span>
+                <span className="text-white/85 font-mono text-xs">Gap</span>
               </div>
             </div>
           </div>
@@ -390,8 +390,8 @@ export default function Step5Summary() {
           <div className="flex items-start gap-3">
             <div className="w-1.5 h-1.5 rounded-full bg-[#cc5566] mt-1.5 shrink-0" />
             <div>
-              <div className="text-white/70 font-rajdhani text-sm tracking-wider uppercase">Largest Gap</div>
-              <div className="text-white/75 font-mono text-sm">
+              <div className="text-white/90 font-rajdhani text-sm tracking-wider uppercase">Largest Gap</div>
+              <div className="text-white/90 font-mono text-sm">
                 {mostUnderfunded.region}: {mostUnderfunded.delta > 0 ? 'underfunded' : 'overfunded'} by {formatBudget(Math.abs(mostUnderfunded.delta))}
               </div>
             </div>
@@ -401,8 +401,8 @@ export default function Step5Summary() {
         <div className="flex items-start gap-3">
           <div className="w-1.5 h-1.5 rounded-full bg-[#4488aa] mt-1.5 shrink-0" />
           <div>
-            <div className="text-white/70 font-rajdhani text-sm tracking-wider uppercase">Your Performance</div>
-            <div className="text-white/75 font-mono text-sm">
+            <div className="text-white/90 font-rajdhani text-sm tracking-wider uppercase">Your Performance</div>
+            <div className="text-white/90 font-mono text-sm">
               {userVsMl > 0
                 ? `You covered ${userVsMl.toLocaleString()} more people than the ML ideal`
                 : userVsMl < 0
