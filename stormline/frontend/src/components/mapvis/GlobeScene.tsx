@@ -71,17 +71,36 @@ function MouseTracker({ groupRef, mouseLocal }: { groupRef: React.MutableRefObje
   return null
 }
 
-function CameraRig({ selected }: { selected: string | null }) {
+function CameraRig({ selected, selectedHurricane }: { selected: string | null; selectedHurricane?: any }) {
   const ctrlRef = useRef<any>(null)
   const selectedCentroid = useRef<THREE.Vector3 | null>(null)
   const prevSelected = useRef<string | null>(null)
+  const prevHurricane = useRef<any>(null)
+
+  const calculateHurricaneCentroid = (hurricane: any): THREE.Vector3 | null => {
+    if (!hurricane?.track || hurricane.track.length === 0) return null
+
+    const points = hurricane.track.map((point: any) => {
+      const phi = (90 - point.lat) * (Math.PI / 180)
+      const theta = (point.lon + 180) * (Math.PI / 180)
+      return new THREE.Vector3(
+        -Math.sin(phi) * Math.cos(theta),
+        Math.cos(phi),
+        Math.sin(phi) * Math.sin(theta)
+      )
+    })
+
+    const sum = points.reduce((a, p) => a.add(p), new THREE.Vector3(0, 0, 0))
+    return sum.normalize()
+  }
 
   useFrame(({ camera }) => {
     const ctrl = ctrlRef.current
     if (!ctrl) return
 
-    const zooming = !!selected
+    const zooming = !!selected || !!selectedHurricane
 
+    // Handle country selection
     if (selected !== prevSelected.current) {
       prevSelected.current = selected
       if (selected) {
@@ -89,7 +108,17 @@ function CameraRig({ selected }: { selected: string | null }) {
         const country = polygons.reduce((best, p) =>
           p.points.length > best.points.length ? p : best, polygons[0])
         selectedCentroid.current = country ? getCentroid(country.points) : null
-      } else {
+      } else if (!selectedHurricane) {
+        selectedCentroid.current = null
+      }
+    }
+
+    // Handle hurricane selection
+    if (selectedHurricane !== prevHurricane.current) {
+      prevHurricane.current = selectedHurricane
+      if (selectedHurricane) {
+        selectedCentroid.current = calculateHurricaneCentroid(selectedHurricane)
+      } else if (!selected) {
         selectedCentroid.current = null
       }
     }
@@ -173,9 +202,10 @@ interface GlobeSceneProps {
   selected?: string | null
   onSelect?: (name: string) => void
   onHurricaneClick?: (hurricaneId: string) => void
+  selectedHurricane?: any
 }
 
-export default function GlobeScene({ selectedCountry, onCountrySelect, hoverEnabled = false, fundingDisparityMode = false, selected, onSelect, onHurricaneClick }: GlobeSceneProps) {
+export default function GlobeScene({ selectedCountry, onCountrySelect, hoverEnabled = false, fundingDisparityMode = false, selected, onSelect, onHurricaneClick, selectedHurricane }: GlobeSceneProps) {
   const groupRef = useRef<THREE.Group>(null)
   const mouseLocal = useRef<THREE.Vector3 | null>(null)
 
@@ -202,7 +232,7 @@ export default function GlobeScene({ selectedCountry, onCountrySelect, hoverEnab
       <MouseTracker groupRef={groupRef} mouseLocal={mouseLocal} />
       {/* PostProcessing is now fully static — no selection prop */}
       <PostProcessing />
-      <CameraRig selected={activeSelected} />
+      <CameraRig selected={activeSelected} selectedHurricane={selectedHurricane} />
     </>
   )
 }
