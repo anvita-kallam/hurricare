@@ -9,6 +9,8 @@
 
 import { useMemo, useRef, useEffect } from 'react'
 import { useStore } from '../../state/useStore'
+import TypewriterText, { CountUpText } from '../TypewriterText'
+// Sound removed — only hover/click sounds kept
 
 function formatBudget(n: number): string {
   if (n >= 1e9) return `$${(n / 1e9).toFixed(1)}B`
@@ -176,15 +178,24 @@ export default function Step1Situation() {
     <div className="space-y-6">
       {/* Title */}
       <div className="text-center space-y-2">
-        <div className="text-white/20 font-rajdhani text-[9px] tracking-[0.3em] uppercase">
-          Situation Assessment
-        </div>
+        <TypewriterText
+          text="Situation Assessment"
+          emphasis="soft"
+          delayMs={100}
+          className="text-white/20 font-rajdhani text-[9px] tracking-[0.3em] uppercase"
+          as="div"
+        />
         <h2 className="text-white/90 font-rajdhani font-bold text-2xl tracking-wider">
-          {selectedHurricane.name}
+          <TypewriterText text={selectedHurricane.name} emphasis="headline" delayMs={400} charIntervalMs={55} />
         </h2>
         <div className="text-white/30 font-mono text-xs">
-          {selectedHurricane.year} &mdash; Category {selectedHurricane.max_category} &mdash;{' '}
-          {selectedHurricane.estimated_population_affected.toLocaleString()} affected
+          <TypewriterText
+            text={`${selectedHurricane.year} \u2014 Category ${selectedHurricane.max_category} \u2014 ${selectedHurricane.estimated_population_affected.toLocaleString()} affected`}
+            emphasis="normal"
+            delayMs={800}
+            charIntervalMs={18}
+            onComplete={() => {}}
+          />
         </div>
       </div>
 
@@ -192,27 +203,21 @@ export default function Step1Situation() {
       <div className="flex justify-center gap-8">
         <div className="text-center">
           <div className="text-white/60 font-mono text-sm">
-            {regionData.length}
+            <CountUpText value={regionData.length} delayMs={1000} duration={600} />
           </div>
-          <div className="text-white/20 font-rajdhani text-[9px] tracking-widest uppercase">
-            Regions
-          </div>
+          <TypewriterText text="Regions" emphasis="soft" delayMs={1000} className="text-white/20 font-rajdhani text-[9px] tracking-widest uppercase" as="div" />
         </div>
         <div className="text-center">
           <div className="text-white/60 font-mono text-sm">
             {formatBudget(gameTotalBudget)}
           </div>
-          <div className="text-white/20 font-rajdhani text-[9px] tracking-widest uppercase">
-            Budget
-          </div>
+          <TypewriterText text="Budget" emphasis="soft" delayMs={1100} className="text-white/20 font-rajdhani text-[9px] tracking-widest uppercase" as="div" />
         </div>
         <div className="text-center">
           <div className="text-white/60 font-mono text-sm">
-            {totalPeopleInNeed.toLocaleString()}
+            <CountUpText value={totalPeopleInNeed} delayMs={1200} duration={1500} />
           </div>
-          <div className="text-white/20 font-rajdhani text-[9px] tracking-widest uppercase">
-            People in Need
-          </div>
+          <TypewriterText text="People in Need" emphasis="soft" delayMs={1200} className="text-white/20 font-rajdhani text-[9px] tracking-widest uppercase" as="div" />
         </div>
       </div>
 
