@@ -73,26 +73,44 @@ export default function Step3Confirm({ onPipelineComplete }: Step3ConfirmProps) 
       setStage('validating')
       setProgress(10)
 
-      // Only include regions the backend knows about
+      // Build known regions from coverage data
       const knownRegions = new Set(
         coverage
           .filter(c => c.hurricane_id === selectedHurricane.id)
           .map(c => c.admin1)
       )
+
+      // Map allocations to known region names
       const completeAllocations: Record<string, number> = {}
-      Object.entries(gameAllocations).forEach(([region, amount]) => {
-        if (knownRegions.size > 0 && !knownRegions.has(region)) {
-          // Try resolved name
-          const resolved = resolveRegion(region)
-          if (knownRegions.has(resolved)) {
-            completeAllocations[resolved] = (completeAllocations[resolved] || 0) + (amount || 0)
+      if (Object.keys(gameAllocations).length === 0 && knownRegions.size > 0) {
+        // No allocations set — distribute evenly across known regions
+        const perRegion = Math.floor(gameTotalBudget / knownRegions.size)
+        knownRegions.forEach(region => {
+          completeAllocations[region] = perRegion
+        })
+      } else {
+        Object.entries(gameAllocations).forEach(([region, amount]) => {
+          if (knownRegions.size > 0 && !knownRegions.has(region)) {
+            // Try resolved name
+            const resolved = resolveRegion(region)
+            if (knownRegions.has(resolved)) {
+              completeAllocations[resolved] = (completeAllocations[resolved] || 0) + (amount || 0)
+            } else {
+              // Try case-insensitive match against known regions
+              const match = [...knownRegions].find(
+                k => k.toLowerCase() === region.toLowerCase()
+              )
+              if (match) {
+                completeAllocations[match] = (completeAllocations[match] || 0) + (amount || 0)
+              } else {
+                console.warn(`[Step3] Skipping unmappable region: ${region}`)
+              }
+            }
           } else {
-            console.warn(`[Step3] Skipping unknown region: ${region}`)
+            completeAllocations[region] = amount || 0
           }
-        } else {
-          completeAllocations[region] = amount || 0
-        }
-      })
+        })
+      }
 
       const userRes = await axios.post(`${API_BASE}/simulation/stage1/user-plan`, {
         hurricane_id: selectedHurricane.id,
@@ -174,21 +192,33 @@ export default function Step3Confirm({ onPipelineComplete }: Step3ConfirmProps) 
       setStage('error')
       setIsRunningPipeline(false)
 
-      const errorMessage = error.response?.data?.detail?.message
-        || error.response?.data?.detail
-        || error.message
-        || 'Analysis failed. Please try again.'
+      const detail = error.response?.data?.detail
+      let errorMessage: string
 
-      // Guard against region errors
-      const isRegionError = typeof errorMessage === 'string'
-        && (errorMessage.toLowerCase().includes('unknown region')
-          || errorMessage.toLowerCase().includes('region not found')
-          || errorMessage.toLowerCase().includes('invalid region'))
+      if (detail && typeof detail === 'object') {
+        // Backend returns {message: "...", errors: [...], warnings: [...]}
+        const errors: string[] = detail.errors || []
+        const message = detail.message || 'Analysis failed'
+        if (errors.length > 0) {
+          errorMessage = `${message}: ${errors.join('; ')}`
+        } else {
+          errorMessage = message
+        }
+      } else if (typeof detail === 'string') {
+        errorMessage = detail
+      } else {
+        errorMessage = error.message || 'Analysis failed. Please try again.'
+      }
+
+      // Guard against region errors — provide a helpful message
+      const isRegionError = errorMessage.toLowerCase().includes('unknown region')
+        || errorMessage.toLowerCase().includes('region not found')
+        || errorMessage.toLowerCase().includes('invalid region')
 
       if (isRegionError) {
-        setPipelineError('Region mapping issue detected. Some regions may not have full data. Try adjusting allocations.')
+        setPipelineError(`Region mapping issue: ${errorMessage}. Try adjusting allocations.`)
       } else {
-        setPipelineError(typeof errorMessage === 'string' ? errorMessage : 'Analysis failed. Please try again.')
+        setPipelineError(errorMessage)
       }
     }
   }, [selectedHurricane, stage, coverage, gameAllocations, gameTotalBudget, gameResponseWindow, setComparisonData, setLastSimulationScore, setIsRunningPipeline, setPipelineError, onPipelineComplete])
