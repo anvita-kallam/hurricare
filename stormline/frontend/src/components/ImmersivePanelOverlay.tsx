@@ -23,6 +23,7 @@ import Step4Results from './immersive/Step4Results'
 import Step5Summary from './immersive/Step5Summary'
 import ImmersiveGameFlow3D from './ImmersiveGameFlow3D'
 import { playButtonPress, playHover } from '../audio/SoundEngine'
+import '../styles/mapvis.css'
 
 export default function ImmersivePanelOverlay() {
   const {
@@ -157,14 +158,18 @@ export default function ImmersivePanelOverlay() {
           </button>
         </div>
 
-        {/* Main content area — centered with comfortable max width */}
+        {/* Main content area — centered with comfortable max width + frosted glass backdrop */}
         <div className={`flex-1 overflow-y-auto px-8 py-6 ${contentClass}`}>
-          <div className="max-w-5xl mx-auto">
-            {gameFlowStep === 1 && <Step1Situation />}
-            {gameFlowStep === 2 && <Step2Allocation />}
-            {gameFlowStep === 3 && <Step3Confirm onPipelineComplete={handlePipelineComplete} />}
-            {gameFlowStep === 4 && <Step4Results />}
-            {gameFlowStep === 5 && <Step5Summary />}
+          <div className="max-w-5xl mx-auto relative">
+            {/* Frosted glass backdrop for readability over grid */}
+            <div className="absolute inset-0 -mx-6 -my-4 bg-black/50 backdrop-blur-xl rounded-2xl border border-white/[0.03]" style={{ boxShadow: '0 0 80px rgba(0,0,0,0.6)' }} />
+            <div className="relative z-10">
+              {gameFlowStep === 1 && <Step1Situation />}
+              {gameFlowStep === 2 && <Step2Allocation />}
+              {gameFlowStep === 3 && <Step3Confirm onPipelineComplete={handlePipelineComplete} />}
+              {gameFlowStep === 4 && <Step4Results />}
+              {gameFlowStep === 5 && <Step5Summary />}
+            </div>
           </div>
         </div>
 

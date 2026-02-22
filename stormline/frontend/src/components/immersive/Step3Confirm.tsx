@@ -12,6 +12,12 @@ import { useStore } from '../../state/useStore'
 import { resolveRegion } from '../../utils/regionRegistry'
 import TypewriterText from '../TypewriterText'
 import { playButtonPress, playHover } from '../../audio/SoundEngine'
+import {
+  CircularGauge,
+  StatReadout,
+  SegmentedHorizontalBars,
+  ThinVerticalBars,
+} from '../mapvis/charts/ChartPrimitives'
 
 const API_BASE = 'http://localhost:8000'
 
@@ -377,9 +383,26 @@ export default function Step3Confirm({ onPipelineComplete }: Step3ConfirmProps) 
     )
   }
 
-  // Idle state — confirmation panel
+  // Build region allocation bars data
+  const regionAllocBars = useMemo(() => {
+    return Object.entries(gameAllocations)
+      .filter(([, amount]) => (amount || 0) > 0)
+      .sort(([, a], [, b]) => (b || 0) - (a || 0))
+      .slice(0, 6)
+      .map(([region, amount]) => ({
+        label: region.slice(0, 6).toUpperCase(),
+        value: Math.round(((amount || 0) / gameTotalBudget) * 100),
+        max: 100,
+      }))
+  }, [gameAllocations, gameTotalBudget])
+
+  const allocValues = useMemo(() => {
+    return Object.values(gameAllocations).filter(v => (v || 0) > 0).sort((a, b) => (b || 0) - (a || 0))
+  }, [gameAllocations])
+
+  // Idle state — confirmation panel with FDP-style layout
   return (
-    <div className="space-y-8">
+    <div className="space-y-6">
       {/* Title */}
       <div className="text-center space-y-2">
         <TypewriterText text="Response Plan Prepared" emphasis="soft" delayMs={100} className="text-white/20 font-rajdhani text-[9px] tracking-[0.3em] uppercase" as="div" />
@@ -388,60 +411,82 @@ export default function Step3Confirm({ onPipelineComplete }: Step3ConfirmProps) 
         </h2>
       </div>
 
-      {/* Budget utilization ring */}
-      <div className="flex flex-col items-center gap-6">
-        <div className="relative w-28 h-28">
-          <svg width={112} height={112} className="transform -rotate-90">
-            <circle
-              cx={56} cy={56} r={48}
-              fill="none" stroke="rgba(255,255,255,0.04)" strokeWidth={3}
-            />
-            <circle
-              cx={56} cy={56} r={48}
-              fill="none" stroke="rgba(255,255,255,0.3)" strokeWidth={3}
-              strokeDasharray={2 * Math.PI * 48}
-              strokeDashoffset={2 * Math.PI * 48 * (1 - utilization / 100)}
-              strokeLinecap="round"
-              style={{ transition: 'stroke-dashoffset 1.5s cubic-bezier(0.4, 0, 0.2, 1)' }}
-            />
-          </svg>
-          <div className="absolute inset-0 flex flex-col items-center justify-center">
-            <span className="text-white/80 font-mono text-lg font-medium">
-              {utilization.toFixed(0)}%
-            </span>
-            <span className="text-white/25 font-rajdhani text-[8px] tracking-widest uppercase">
-              Utilized
-            </span>
+      {/* FDP-style confirmation panel */}
+      <div className="max-w-md mx-auto" style={{
+        background: 'linear-gradient(180deg, rgba(0,0,2,0.85) 0%, rgba(0,0,4,0.9) 50%, rgba(0,0,3,0.85) 100%)',
+        border: '1px solid rgba(255,255,255,0.04)',
+        padding: '14px 16px 18px',
+        backgroundImage: 'radial-gradient(circle, rgba(255,255,255,0.02) 0.5px, transparent 0.5px)',
+        backgroundSize: '12px 12px',
+      }}>
+        {/* Utilization gauge */}
+        <div style={{ fontFamily: "'Rajdhani', sans-serif", fontSize: '0.5rem', fontWeight: 600, color: 'rgba(255,255,255,0.2)', letterSpacing: '0.18em', textTransform: 'uppercase' as const, marginBottom: 4 }}>
+          BUDGET UTILIZATION
+        </div>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 2 }}>
+          <CircularGauge
+            value={Math.round(utilization)}
+            max={100}
+            label="UTILIZED"
+            size={80}
+            alert={utilization < 50}
+          />
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
+            <StatReadout label="ALLOCATED" value={formatBudget(totalAllocated)} />
+            <StatReadout label="REGIONS" value={`${regionCount}`} />
+            <StatReadout label="WINDOW" value={`${gameResponseWindow}h`} />
           </div>
         </div>
 
-        {/* Plan summary */}
-        <div className="flex gap-8">
-          <div className="text-center">
-            <div className="text-white/50 font-mono text-sm">{formatBudget(totalAllocated)}</div>
-            <div className="text-white/20 font-rajdhani text-[9px] tracking-widest uppercase">Allocated</div>
-          </div>
-          <div className="text-center">
-            <div className="text-white/50 font-mono text-sm">{regionCount}</div>
-            <div className="text-white/20 font-rajdhani text-[9px] tracking-widest uppercase">Regions</div>
-          </div>
-          <div className="text-center">
-            <div className="text-white/50 font-mono text-sm">{gameResponseWindow}h</div>
-            <div className="text-white/20 font-rajdhani text-[9px] tracking-widest uppercase">Window</div>
-          </div>
-        </div>
-      </div>
+        <div style={{ height: 1, background: 'rgba(255,255,255,0.04)', margin: '6px 0', flexShrink: 0 }} />
 
-      {/* Comparison indicators */}
-      <div className="flex items-center justify-center gap-3">
-        {['Your Plan', 'ML Ideal', 'Historical', 'Mismatch'].map((label, i) => (
-          <div key={label} className="flex items-center gap-1.5">
-            <div
-              className="w-1.5 h-1.5 rounded-full bg-white/20"
-            />
-            <span className="text-white/25 font-mono text-[9px]">{label}</span>
-          </div>
-        ))}
+        {/* Region allocation bars */}
+        {regionAllocBars.length > 0 && (
+          <>
+            <div style={{ fontFamily: "'Rajdhani', sans-serif", fontSize: '0.5rem', fontWeight: 600, color: 'rgba(255,255,255,0.2)', letterSpacing: '0.18em', textTransform: 'uppercase' as const, marginBottom: 4 }}>
+              ALLOCATION DISTRIBUTION
+            </div>
+            <div style={{ marginBottom: 2 }}>
+              <SegmentedHorizontalBars
+                bars={regionAllocBars}
+                width={320}
+                height={regionAllocBars.length * 16 + 8}
+              />
+            </div>
+            <div style={{ height: 1, background: 'rgba(255,255,255,0.04)', margin: '6px 0', flexShrink: 0 }} />
+          </>
+        )}
+
+        {/* Budget density */}
+        {allocValues.length > 1 && (
+          <>
+            <div style={{ fontFamily: "'Rajdhani', sans-serif", fontSize: '0.5rem', fontWeight: 600, color: 'rgba(255,255,255,0.2)', letterSpacing: '0.18em', textTransform: 'uppercase' as const, marginBottom: 4 }}>
+              FUNDING DENSITY
+            </div>
+            <div style={{ marginBottom: 2 }}>
+              <ThinVerticalBars
+                data={allocValues as number[]}
+                width={320}
+                height={40}
+                seed={777}
+              />
+            </div>
+            <div style={{ height: 1, background: 'rgba(255,255,255,0.04)', margin: '6px 0', flexShrink: 0 }} />
+          </>
+        )}
+
+        {/* Comparison indicators */}
+        <div style={{ fontFamily: "'Rajdhani', sans-serif", fontSize: '0.5rem', fontWeight: 600, color: 'rgba(255,255,255,0.2)', letterSpacing: '0.18em', textTransform: 'uppercase' as const, marginBottom: 4 }}>
+          ANALYSIS STAGES
+        </div>
+        <div className="flex items-center justify-between" style={{ marginBottom: 6 }}>
+          {['Your Plan', 'ML Ideal', 'Historical', 'Mismatch'].map((label) => (
+            <div key={label} className="flex items-center gap-1.5">
+              <div className="w-1.5 h-1.5 rounded-full bg-white/20" />
+              <span style={{ fontFamily: "'DM Mono', monospace", fontSize: '0.55rem', color: 'rgba(255,255,255,0.3)' }}>{label}</span>
+            </div>
+          ))}
+        </div>
       </div>
 
       {/* Run button */}
