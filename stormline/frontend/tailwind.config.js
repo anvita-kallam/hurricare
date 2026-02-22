@@ -10,6 +10,8 @@ export default {
         'futuristic': ['Orbitron', 'Exo 2', 'sans-serif'],
         'orbitron': ['Orbitron', 'sans-serif'],
         'exo': ['Exo 2', 'sans-serif'],
+        'rajdhani': ['Rajdhani', 'sans-serif'],
+        'mono': ['DM Mono', 'monospace'],
       },
     },
   },

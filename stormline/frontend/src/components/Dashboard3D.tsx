@@ -1,14 +1,13 @@
 import { useState, useRef, useEffect } from 'react'
 import { Canvas, useFrame } from '@react-three/fiber'
-import { Stars } from '@react-three/drei'
 import * as THREE from 'three'
+import GlobeShell from './mapvis/GlobeShell'
 
 interface DashboardOption {
   id: 'search' | 'browse' | 'disparity'
   title: string
   subtitle: string
-  icon: string
-  color: [number, number, number]
+  color: string
 }
 
 const options: DashboardOption[] = [
@@ -16,56 +15,84 @@ const options: DashboardOption[] = [
     id: 'search',
     title: 'SEARCH',
     subtitle: 'Find Specific Hurricanes',
-    icon: '🔍',
-    color: [6, 182, 212]
+    color: '#334488'
   },
   {
     id: 'browse',
     title: 'BROWSE',
     subtitle: 'Explore Historical Events',
-    icon: '📚',
-    color: [168, 85, 247]
+    color: '#443366'
   },
   {
     id: 'disparity',
     title: 'FUNDING',
     subtitle: 'Global Disparity Analysis',
-    icon: '💰',
-    color: [239, 68, 68]
+    color: '#553333'
   }
 ]
 
-function OptionCard({ option, onClick, isSelected }: { option: DashboardOption; onClick: () => void; isSelected: boolean }) {
+function FloatingCard({ option, position, onClick, isSelected }: {
+  option: DashboardOption
+  position: [number, number, number]
+  onClick: () => void
+  isSelected: boolean
+}) {
   const meshRef = useRef<THREE.Mesh>(null)
   const [hovered, setHovered] = useState(false)
+  const baseY = position[1]
 
-  useFrame(() => {
-    if (meshRef.current) {
-      meshRef.current.rotation.x += 0.003
-      meshRef.current.rotation.y += 0.005
+  useFrame(({ clock }) => {
+    if (!meshRef.current) return
+    // Gentle floating motion — no pulsing/breathing
+    meshRef.current.position.y = baseY + Math.sin(clock.elapsedTime * 0.8 + position[0]) * 0.05
+    meshRef.current.rotation.y += 0.003
 
-      // Scale on hover
-      const targetScale = isSelected ? 1.3 : hovered ? 1.15 : 1
-      meshRef.current.scale.lerp(new THREE.Vector3(targetScale, targetScale, targetScale), 0.1)
-    }
+    // Subtle scale on select only
+    const targetScale = isSelected ? 1.15 : 1.0
+    const cur = meshRef.current.scale.x
+    meshRef.current.scale.setScalar(cur + (targetScale - cur) * 0.1)
   })
 
   return (
     <mesh
       ref={meshRef}
+      position={position}
       onClick={onClick}
       onPointerOver={() => setHovered(true)}
       onPointerOut={() => setHovered(false)}
-      position={[0, 0, 0]}
     >
-      <boxGeometry args={[2, 2, 0.5]} />
-      <meshPhongMaterial
-        color={new THREE.Color(option.color[0] / 255, option.color[1] / 255, option.color[2] / 255)}
-        emissive={new THREE.Color(option.color[0] / 255, option.color[1] / 255, option.color[2] / 255)}
-        emissiveIntensity={hovered || isSelected ? 0.8 : 0.3}
-        wireframe={false}
+      <boxGeometry args={[1.6, 2.0, 0.15]} />
+      <meshBasicMaterial
+        color={option.color}
+        transparent
+        opacity={isSelected ? 0.9 : hovered ? 0.7 : 0.5}
+        toneMapped={false}
       />
     </mesh>
+  )
+}
+
+function CardBorder({ position, isSelected }: {
+  position: [number, number, number]
+  isSelected: boolean
+}) {
+  const ref = useRef<THREE.Mesh>(null)
+  const baseY = position[1]
+
+  useFrame(({ clock }) => {
+    if (!ref.current) return
+    ref.current.position.y = baseY + Math.sin(clock.elapsedTime * 0.8 + position[0]) * 0.05
+    ref.current.rotation.y += 0.003
+    const targetScale = isSelected ? 1.15 : 1.0
+    const cur = ref.current.scale.x
+    ref.current.scale.setScalar(cur + (targetScale - cur) * 0.1)
+  })
+
+  return (
+    <lineSegments ref={ref} position={position}>
+      <edgesGeometry args={[new THREE.BoxGeometry(1.6, 2.0, 0.15)]} />
+      <lineBasicMaterial color="#ffffff" transparent opacity={isSelected ? 0.5 : 0.15} />
+    </lineSegments>
   )
 }
 
@@ -77,32 +104,41 @@ function ThreeScene({ onSelect }: { onSelect: (id: 'search' | 'browse' | 'dispar
     setTimeout(() => onSelect(id), 300)
   }
 
+  const cardPositions: [number, number, number][] = [
+    [-2.8, 0, 0],
+    [0, 0, 0],
+    [2.8, 0, 0]
+  ]
+
   return (
-    <Canvas camera={{ position: [0, 0, 6], fov: 60 }}>
+    <>
       <color attach="background" args={['#000000']} />
-      <ambientLight intensity={0.5} />
-      <pointLight position={[10, 10, 10]} intensity={1.5} color="#06b6d4" />
-      <pointLight position={[-10, -10, -10]} intensity={1} color="#a855f7" />
+      <ambientLight intensity={0.05} />
+      <pointLight position={[0, 0, 4]} intensity={0.15} color="#2244ff" distance={10} />
+      <pointLight position={[-3, 1, 2]} intensity={0.1} color="#9900ff" distance={12} />
 
-      <Stars radius={300} depth={50} count={5000} factor={4} />
 
-      <group>
-        {options.map((option, index) => {
-          const angle = (index / options.length) * Math.PI * 2
-          const x = Math.cos(angle) * 3
-          const z = Math.sin(angle) * 3
-          return (
-            <group key={option.id} position={[x, 0, z]}>
-              <OptionCard
-                option={option}
-                onClick={() => handleSelect(option.id)}
-                isSelected={selectedId === option.id}
-              />
-            </group>
-          )
-        })}
+      {/* Small background globe for visual consistency */}
+      <group position={[0, 0, -4]} scale={[0.8, 0.8, 0.8]}>
+        <GlobeShell />
       </group>
-    </Canvas>
+
+      {/* Floating 3D cards */}
+      {options.map((option, index) => (
+        <group key={option.id}>
+          <FloatingCard
+            option={option}
+            position={cardPositions[index]}
+            onClick={() => handleSelect(option.id)}
+            isSelected={selectedId === option.id}
+          />
+          <CardBorder
+            position={cardPositions[index]}
+            isSelected={selectedId === option.id}
+          />
+        </group>
+      ))}
+    </>
   )
 }
 
@@ -112,7 +148,7 @@ interface Dashboard3DProps {
   isLoading: boolean
 }
 
-export default function Dashboard3D({ onEnter, onSelectOption, isLoading }: Dashboard3DProps) {
+export default function Dashboard3D({ onSelectOption, isLoading }: Dashboard3DProps) {
   const [showButton, setShowButton] = useState(false)
 
   useEffect(() => {
@@ -121,25 +157,25 @@ export default function Dashboard3D({ onEnter, onSelectOption, isLoading }: Dash
     }
   }, [isLoading])
 
-  const handleOptionSelect = (id: 'search' | 'browse' | 'disparity') => {
-    onSelectOption(id)
-  }
-
   return (
     <div className="fixed inset-0 z-50 bg-black overflow-hidden">
-      {/* 3D Canvas Background */}
+      {/* 3D Canvas */}
       <div className="absolute inset-0">
-        <ThreeScene onSelect={handleOptionSelect} />
+        <Canvas camera={{ position: [0, 0, 6], fov: 60 }}>
+          <ThreeScene onSelect={onSelectOption} />
+        </Canvas>
       </div>
 
       {/* Overlay UI */}
       <div className="relative z-10 flex flex-col items-center justify-center h-full pointer-events-none">
         {/* Title */}
-        <div className="text-center space-y-8 mb-24">
-          <h1 className="text-7xl font-bold text-glow-cyan font-orbitron animate-pulse">
+        <div className="text-center space-y-4 mb-24">
+          <h1 className="text-7xl font-bold text-white font-rajdhani tracking-wider" style={{
+            textShadow: '0 0 20px rgba(255, 255, 255, 0.15)'
+          }}>
             HURRICARE
           </h1>
-          <p className="text-2xl text-cyan-300 font-exo">
+          <p className="text-xl text-white/50 font-rajdhani tracking-widest">
             Humanitarian Response Simulation
           </p>
         </div>
@@ -149,33 +185,32 @@ export default function Dashboard3D({ onEnter, onSelectOption, isLoading }: Dash
           <div className="absolute bottom-32 left-0 right-0 pointer-events-none">
             <div className="flex justify-around px-16">
               {options.map((option) => (
-                <div key={option.id} className="text-center">
-                  <div className="text-5xl mb-2">{option.icon}</div>
-                  <div className="text-xl font-orbitron font-bold text-cyan-300">{option.title}</div>
-                  <div className="text-sm text-cyan-400 font-exo">{option.subtitle}</div>
+                <div key={option.id} className="text-center w-48">
+                  <div className="text-lg font-rajdhani font-bold text-white/80 tracking-wider">{option.title}</div>
+                  <div className="text-sm text-white/40 font-rajdhani">{option.subtitle}</div>
                 </div>
               ))}
             </div>
           </div>
         )}
 
-        {/* Loading or Info Text */}
+        {/* Loading */}
         {isLoading && (
-          <div className="text-2xl font-orbitron text-glow-cyan">
+          <div className="text-xl font-rajdhani text-white/50 tracking-widest">
             Initializing System...
           </div>
         )}
 
         {showButton && (
           <div className="absolute bottom-8 text-center pointer-events-auto">
-            <p className="text-cyan-300 font-exo text-sm mb-4">Click on an option to continue</p>
+            <p className="text-white/30 font-rajdhani text-sm">Click on an option to continue</p>
           </div>
         )}
       </div>
 
-      {/* Vignette Effect */}
+      {/* Vignette */}
       <div className="absolute inset-0 pointer-events-none" style={{
-        background: 'radial-gradient(ellipse at center, transparent 0%, rgba(0, 0, 0, 0.4) 100%)',
+        background: 'radial-gradient(ellipse at center, transparent 0%, rgba(0, 0, 0, 0.5) 100%)',
         zIndex: 5
       }} />
     </div>
