@@ -1,4 +1,4 @@
-import { useEffect, useState, useCallback } from 'react'
+import { useEffect, useState, useCallback, useRef } from 'react'
 import MapVisGlobe from './components/MapVisGlobe'
 import CoverageChoropleth from './components/CoverageChoropleth'
 import SimulationEngine from './components/SimulationEngine'
@@ -9,6 +9,7 @@ import FundingDisparityGlobe from './components/mapvis/FundingDisparityGlobe'
 import NarrativePopup from './components/NarrativePopup'
 import CinematicIntro from './components/CinematicIntro'
 import HurricaneMatcher from './components/HurricaneMatcher'
+import PostSimulationMap from './components/PostSimulationMap'
 import { useStore } from './state/useStore'
 import axios from 'axios'
 import { ImpactEvent } from './hooks/useCinematicController'
@@ -39,6 +40,8 @@ function App() {
     setNarrativePopup,
     showComparisonPage,
     setShowComparisonPage,
+    postSimulationMapMode,
+    setPostSimulationMapMode,
   } = useStore()
 
   const [loading, setLoading] = useState(true)
@@ -47,6 +50,35 @@ function App() {
   const [pendingHurricane, setPendingHurricane] = useState<string | null>(null)
   const [showMatcher, setShowMatcher] = useState(false)
   const [showFundingDisparity, setShowFundingDisparity] = useState(false)
+  // Map transition: 'globe' | 'fading-out' | 'flat-entering' | 'flat'
+  const [mapPhase, setMapPhase] = useState<'globe' | 'fading-out' | 'flat-entering' | 'flat'>('globe')
+  const transitionTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null)
+
+  // Trigger globe → flat map transition when cinematic completes
+  useEffect(() => {
+    if (cinematicCompleted && selectedHurricane && mapPhase === 'globe') {
+      // Start the transition sequence
+      setMapPhase('fading-out')
+      transitionTimerRef.current = setTimeout(() => {
+        setPostSimulationMapMode(true)
+        setMapPhase('flat-entering')
+        transitionTimerRef.current = setTimeout(() => {
+          setMapPhase('flat')
+        }, 900)
+      }, 600)
+    }
+    return () => {
+      if (transitionTimerRef.current) clearTimeout(transitionTimerRef.current)
+    }
+  }, [cinematicCompleted, selectedHurricane])
+
+  // Reset to globe when selection is cleared
+  useEffect(() => {
+    if (!selectedHurricane && postSimulationMapMode) {
+      setPostSimulationMapMode(false)
+      setMapPhase('globe')
+    }
+  }, [selectedHurricane, postSimulationMapMode])
 
   useEffect(() => {
     const fetchHurricanes = async () => {
@@ -110,12 +142,16 @@ function App() {
       setCinematicPlaying(false)
       setPendingHurricane(null)
       setCinematicCompleted(false)
+      setPostSimulationMapMode(false)
+      setMapPhase('globe')
     } else {
       const hurricane = hurricanes.find(h => h.id === hurricaneId)
       if (hurricane) {
         setSelectedHurricane(hurricane)
         setPendingHurricane(hurricaneId)
         setCinematicCompleted(false)
+        setPostSimulationMapMode(false)
+        setMapPhase('globe')
       }
     }
   }
@@ -142,6 +178,9 @@ function App() {
 
   const handleClearSelection = () => {
     setSelectedHurricane(null)
+    setPostSimulationMapMode(false)
+    setMapPhase('globe')
+    setCinematicCompleted(false)
   }
 
   const handleDashboardOption = (option: 'search' | 'browse' | 'disparity') => {
@@ -249,19 +288,27 @@ function App() {
       {/* Header — near-black bg, hairline white border, no cyan/neon glow */}
       <header className="bg-black/90 border-b border-white/[0.08] p-4 relative z-10">
         <div className="flex items-center justify-between">
-          <div>
+          <div className="flex items-center gap-4">
             <h1 className="text-3xl font-bold text-white font-rajdhani tracking-wider">HurriCare</h1>
+            {postSimulationMapMode && (
+              <div className="flex items-center gap-2 px-3 py-1 rounded bg-white/[0.05] border border-white/[0.08]">
+                <div className="w-1.5 h-1.5 rounded-full bg-red-400/80" />
+                <span className="text-xs font-rajdhani text-white/50 tracking-wider uppercase">Analysis Mode</span>
+              </div>
+            )}
           </div>
           <div className="flex items-center gap-4">
-            <label className="flex items-center gap-2 cursor-pointer text-white/60 hover:text-white/80 transition">
-              <input
-                type="checkbox"
-                checked={autoSpin}
-                onChange={(e) => setAutoSpin(e.target.checked)}
-                className="w-4 h-4 accent-white/50"
-              />
-              <span className="text-sm font-rajdhani">Auto-rotate Globe</span>
-            </label>
+            {!postSimulationMapMode && (
+              <label className="flex items-center gap-2 cursor-pointer text-white/60 hover:text-white/80 transition">
+                <input
+                  type="checkbox"
+                  checked={autoSpin}
+                  onChange={(e) => setAutoSpin(e.target.checked)}
+                  className="w-4 h-4 accent-white/50"
+                />
+                <span className="text-sm font-rajdhani">Auto-rotate Globe</span>
+              </label>
+            )}
             <label className="flex items-center gap-2 cursor-pointer text-white/60 hover:text-white/80 transition">
               <input
                 type="checkbox"
@@ -348,14 +395,32 @@ function App() {
           )}
         </div>
 
-        {/* Center — Globe */}
+        {/* Center — Globe or Post-Simulation Map */}
         <div className="flex-1 relative">
-          <MapVisGlobe
-            selectedHurricane={selectedHurricane}
-            autoSpin={autoSpin}
-            onCountrySelect={(country) => console.log('Selected country:', country)}
-          />
-          <CoverageChoropleth />
+          {/* Globe view (pre-simulation) */}
+          {!postSimulationMapMode && (
+            <div
+              className="w-full h-full"
+              style={{
+                opacity: mapPhase === 'fading-out' ? 0 : 1,
+                transition: 'opacity 0.6s ease-out',
+              }}
+            >
+              <MapVisGlobe
+                selectedHurricane={selectedHurricane}
+                autoSpin={autoSpin}
+                onCountrySelect={(country) => console.log('Selected country:', country)}
+              />
+              <CoverageChoropleth />
+            </div>
+          )}
+
+          {/* Flat tactical map (post-simulation) */}
+          {postSimulationMapMode && (
+            <PostSimulationMap
+              transitionPhase={mapPhase === 'flat-entering' ? 'entering' : 'active'}
+            />
+          )}
         </div>
 
         {/* Right Sidebar — Game Panel */}
