@@ -20,6 +20,7 @@ import {
   MountainSilhouette,
   StatReadout,
 } from '../mapvis/charts/ChartPrimitives'
+import AffectedAreaHeightMap from '../shared/AffectedAreaHeightMap'
 
 function formatBudget(n: number): string {
   if (n >= 1e9) return `$${(n / 1e9).toFixed(1)}B`
@@ -210,8 +211,10 @@ export default function Step1Situation() {
             <ThinVerticalBars
               data={populationDistribution}
               width={W}
-              height={48}
+              height={60}
               seed={seed + 30}
+              labels={regionData.map(r => r.region)}
+              unit="Population"
             />
           </div>
 
@@ -266,7 +269,7 @@ export default function Step1Situation() {
           <div style={{ marginBottom: 2 }}>
             <SegmentedHorizontalBars
               bars={regionData.slice(0, 6).map(r => ({
-                label: r.region.slice(0, 6).toUpperCase(),
+                label: r.region.toUpperCase(),
                 value: Math.round(r.severity * 100),
                 max: 100,
               }))}
@@ -320,13 +323,39 @@ export default function Step1Situation() {
                 <ThinVerticalBars
                   data={fundingDistribution}
                   width={W}
-                  height={48}
+                  height={60}
                   seed={seed + 60}
+                  labels={regionData.map(r => r.region)}
+                  unit="Budget ($)"
                 />
               </div>
             </>
           )}
         </div>
+      </div>
+
+      {/* 2.5D Affected Area Height Map */}
+      <div style={{
+        background: 'linear-gradient(180deg, rgba(0,0,2,0.85) 0%, rgba(0,0,4,0.9) 50%, rgba(0,0,3,0.85) 100%)',
+        border: '1px solid rgba(255,255,255,0.04)',
+        padding: '14px 16px 10px',
+        backgroundImage: 'radial-gradient(circle, rgba(255,255,255,0.02) 0.5px, transparent 0.5px)',
+        backgroundSize: '12px 12px',
+      }}>
+        <div style={{ fontFamily: "'Rajdhani', sans-serif", fontSize: '0.5rem', fontWeight: 600, color: 'rgba(255,255,255,0.2)', letterSpacing: '0.18em', textTransform: 'uppercase' as const, marginBottom: 8 }}>
+          AFFECTED REGIONS — SEVERITY TERRAIN
+        </div>
+        <AffectedAreaHeightMap
+          data={regionData.map(r => ({
+            region: r.region,
+            severity: r.severity,
+            metric: r.coverageRatio,
+            valueLabel: r.peopleInNeed >= 1e6 ? `${(r.peopleInNeed / 1e6).toFixed(1)}M` : r.peopleInNeed >= 1e3 ? `${(r.peopleInNeed / 1e3).toFixed(0)}K` : `${r.peopleInNeed}`,
+          }))}
+          width={600}
+          height={200}
+          theme="severity"
+        />
       </div>
 
       {/* Affected countries */}
