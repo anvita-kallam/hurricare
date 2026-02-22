@@ -27,7 +27,6 @@ const TIME_SCALE = 0.5 // 1 second = 30 minutes = 0.5 hours (not used for fixed 
 
 export function useCinematicController(
   durationHours: number,
-  onComplete: () => void,
   fixedDurationSeconds: number = 10
 ) {
   const [state, setState] = useState<CinematicState>({
@@ -36,24 +35,24 @@ export function useCinematicController(
     progress: 0,
     phase: 'fadeIn'
   })
-  
+
   const animationFrameRef = useRef<number>()
   const startTimeRef = useRef<number>()
   const phaseStartTimeRef = useRef<number>()
   const isRunningRef = useRef<boolean>(false)
-  
+
   const start = useCallback(() => {
     const fadeInDuration = 500 // 0.5 second fade in
     const fadeOutDuration = 1000 // 1 second fade out
     const playDuration = fixedDurationSeconds * 1000 // Fixed duration in ms
-    
+
     // Cancel any existing animation
     if (animationFrameRef.current) {
       cancelAnimationFrame(animationFrameRef.current)
     }
-    
+
     isRunningRef.current = true
-    
+
     setState({
       isPlaying: true,
       currentTime: 0,
@@ -61,7 +60,7 @@ export function useCinematicController(
       phase: 'fadeIn'
     })
     phaseStartTimeRef.current = Date.now()
-    
+
     const animate = () => {
       if (!isRunningRef.current) {
         if (animationFrameRef.current) {
@@ -69,11 +68,11 @@ export function useCinematicController(
         }
         return
       }
-      
+
       const now = Date.now()
       const phaseStart = phaseStartTimeRef.current || now
       const elapsed = now - phaseStart
-      
+
       setState(prev => {
         if (prev.phase === 'fadeIn') {
           if (elapsed >= fadeInDuration) {
@@ -82,20 +81,20 @@ export function useCinematicController(
           }
           return { ...prev, progress: elapsed / fadeInDuration }
         }
-        
+
         if (prev.phase === 'playing') {
           const playElapsed = now - phaseStartTimeRef.current!
           const playProgress = playElapsed / playDuration
-          
+
           // Cap at 24 hours maximum
           const maxHours = 24
           const cappedDurationHours = Math.min(durationHours, maxHours)
-          
+
           if (playProgress >= 1) {
             phaseStartTimeRef.current = now
             return { ...prev, phase: 'fadeOut', progress: 0 }
           }
-          
+
           // Scale time to fit within fixed duration, capped at 24 hours
           const currentTime = Math.min(playProgress * cappedDurationHours, maxHours)
           return {
@@ -104,48 +103,43 @@ export function useCinematicController(
             progress: playProgress
           }
         }
-        
+
         if (prev.phase === 'fadeOut') {
           if (elapsed >= fadeOutDuration) {
-            // STOP ANIMATION IMMEDIATELY
+            // Stop animation — no side effects inside setState
             isRunningRef.current = false
-            // Cancel animation frame BEFORE state update
             if (animationFrameRef.current) {
               cancelAnimationFrame(animationFrameRef.current)
               animationFrameRef.current = undefined
             }
-            // Call onComplete immediately
-            onComplete()
             return { ...prev, phase: 'complete', isPlaying: false }
           }
           return { ...prev, progress: elapsed / fadeOutDuration }
         }
-        
+
         // Complete phase - stop animation
         if (prev.phase === 'complete') {
           isRunningRef.current = false
           return prev
         }
-        
+
         return prev
       })
-      
+
       // Continue animation loop ONLY if still running
-      // Check state AFTER setState has been called
       if (isRunningRef.current) {
         animationFrameRef.current = requestAnimationFrame(animate)
       } else {
-        // Stop immediately if not running
         if (animationFrameRef.current) {
           cancelAnimationFrame(animationFrameRef.current)
           animationFrameRef.current = undefined
         }
       }
     }
-    
+
     // Start the animation loop
     animationFrameRef.current = requestAnimationFrame(animate)
-  }, [durationHours, onComplete, fixedDurationSeconds])
+  }, [durationHours, fixedDurationSeconds])
   
   const stop = useCallback(() => {
     if (animationFrameRef.current) {
