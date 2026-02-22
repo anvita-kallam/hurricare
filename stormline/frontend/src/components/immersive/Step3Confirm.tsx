@@ -307,7 +307,7 @@ export default function Step3Confirm({ onPipelineComplete }: Step3ConfirmProps) 
               autoRunRef.current = false
               setPipelineError(null)
             }}
-            className="px-8 py-3 text-white/70 hover:text-white font-rajdhani text-sm tracking-wider uppercase border border-white/[0.1] hover:border-white/[0.2] transition-all"
+            className="px-8 py-3 text-white/90 hover:text-white font-rajdhani text-sm tracking-wider uppercase border border-white/[0.1] hover:border-white/[0.2] transition-all"
           >
             Try Again
           </button>
@@ -348,7 +348,7 @@ export default function Step3Confirm({ onPipelineComplete }: Step3ConfirmProps) 
       {/* Title */}
       <ScrollRevealSection animation="blur-resolve" staggerDelay={0}>
         <div className="text-center space-y-2">
-          <TypewriterText text="Response Plan Analysis" emphasis="soft" delayMs={100} className="text-white/50 font-rajdhani text-sm tracking-[0.3em] uppercase" as="div" />
+          <TypewriterText text="Response Plan Analysis" emphasis="soft" delayMs={100} className="text-white/80 font-rajdhani text-sm tracking-[0.3em] uppercase" as="div" />
           <h2 className="text-white/95 font-rajdhani font-bold text-3xl tracking-wider">
             <TypewriterText text="Confirm & Analyze" emphasis="headline" delayMs={300} charIntervalMs={40} />
           </h2>
@@ -365,7 +365,7 @@ export default function Step3Confirm({ onPipelineComplete }: Step3ConfirmProps) 
                 style={{ width: `${progress}%` }}
               />
             </div>
-            <div className="text-white/60 font-mono text-sm text-center">
+            <div className="text-white/85 font-mono text-sm text-center">
               {stageLabels[stage]}
             </div>
             <div className="flex items-center justify-center gap-3">
@@ -381,7 +381,7 @@ export default function Step3Confirm({ onPipelineComplete }: Step3ConfirmProps) 
                         isActive ? 'bg-white/60 scale-125 confirm-dot' : isPast ? 'bg-white/30' : 'bg-white/[0.08]'
                       }`}
                     />
-                    <span className={`font-mono text-xs ${isActive ? 'text-white/50' : 'text-white/20'}`}>
+                    <span className={`font-mono text-xs ${isActive ? 'text-white/80' : 'text-white/20'}`}>
                       {['Validate', 'ML', 'Real', 'Analyze', 'Done'][i]}
                     </span>
                   </div>
@@ -395,14 +395,14 @@ export default function Step3Confirm({ onPipelineComplete }: Step3ConfirmProps) 
       {/* FDP-style confirmation panel — always visible */}
       <ScrollRevealSection animation="depth-emerge" staggerDelay={200} sound="slide">
         <div className="max-w-md mx-auto" style={{
-          background: 'linear-gradient(180deg, rgba(0,0,2,0.85) 0%, rgba(0,0,4,0.9) 50%, rgba(0,0,3,0.85) 100%)',
-          border: '1px solid rgba(255,255,255,0.06)',
+          background: 'linear-gradient(180deg, rgba(8,12,24,0.55) 0%, rgba(10,14,28,0.6) 50%, rgba(8,12,22,0.55) 100%)',
+          border: '1px solid rgba(255,255,255,0.12)',
           padding: '16px 20px 20px',
-          backgroundImage: 'radial-gradient(circle, rgba(255,255,255,0.02) 0.5px, transparent 0.5px)',
+          backgroundImage: 'radial-gradient(circle, rgba(255,255,255,0.04) 0.5px, transparent 0.5px)',
           backgroundSize: '12px 12px',
         }}>
           {/* Utilization gauge */}
-          <div style={{ fontFamily: "'Rajdhani', sans-serif", fontSize: '0.75rem', fontWeight: 600, color: 'rgba(255,255,255,0.5)', letterSpacing: '0.18em', textTransform: 'uppercase' as const, marginBottom: 6 }}>
+          <div style={{ fontFamily: "'Rajdhani', sans-serif", fontSize: '0.75rem', fontWeight: 600, color: 'rgba(255,255,255,0.85)', letterSpacing: '0.18em', textTransform: 'uppercase' as const, marginBottom: 6 }}>
             BUDGET UTILIZATION
           </div>
           <div style={{ display: 'flex', alignItems: 'center', gap: 16, marginBottom: 4 }}>
@@ -420,12 +420,12 @@ export default function Step3Confirm({ onPipelineComplete }: Step3ConfirmProps) 
             </div>
           </div>
 
-          <div style={{ height: 1, background: 'rgba(255,255,255,0.06)', margin: '8px 0', flexShrink: 0 }} />
+          <div style={{ height: 1, background: 'rgba(255,255,255,0.1)', margin: '8px 0', flexShrink: 0 }} />
 
           {/* Region allocation bars */}
           {regionAllocBars.length > 0 && (
             <>
-              <div style={{ fontFamily: "'Rajdhani', sans-serif", fontSize: '0.75rem', fontWeight: 600, color: 'rgba(255,255,255,0.5)', letterSpacing: '0.18em', textTransform: 'uppercase' as const, marginBottom: 6 }}>
+              <div style={{ fontFamily: "'Rajdhani', sans-serif", fontSize: '0.75rem', fontWeight: 600, color: 'rgba(255,255,255,0.85)', letterSpacing: '0.18em', textTransform: 'uppercase' as const, marginBottom: 6 }}>
                 ALLOCATION DISTRIBUTION
               </div>
               <div style={{ marginBottom: 4 }}>
@@ -435,14 +435,14 @@ export default function Step3Confirm({ onPipelineComplete }: Step3ConfirmProps) 
                   height={regionAllocBars.length * 18 + 8}
                 />
               </div>
-              <div style={{ height: 1, background: 'rgba(255,255,255,0.06)', margin: '8px 0', flexShrink: 0 }} />
+              <div style={{ height: 1, background: 'rgba(255,255,255,0.1)', margin: '8px 0', flexShrink: 0 }} />
             </>
           )}
 
           {/* Budget density */}
           {allocValues.length > 1 && (
             <>
-              <div style={{ fontFamily: "'Rajdhani', sans-serif", fontSize: '0.75rem', fontWeight: 600, color: 'rgba(255,255,255,0.5)', letterSpacing: '0.18em', textTransform: 'uppercase' as const, marginBottom: 6 }}>
+              <div style={{ fontFamily: "'Rajdhani', sans-serif", fontSize: '0.75rem', fontWeight: 600, color: 'rgba(255,255,255,0.85)', letterSpacing: '0.18em', textTransform: 'uppercase' as const, marginBottom: 6 }}>
                 FUNDING DENSITY
               </div>
               <div style={{ marginBottom: 4 }}>
@@ -453,19 +453,19 @@ export default function Step3Confirm({ onPipelineComplete }: Step3ConfirmProps) 
                   seed={777}
                 />
               </div>
-              <div style={{ height: 1, background: 'rgba(255,255,255,0.06)', margin: '8px 0', flexShrink: 0 }} />
+              <div style={{ height: 1, background: 'rgba(255,255,255,0.1)', margin: '8px 0', flexShrink: 0 }} />
             </>
           )}
 
           {/* Analysis stages */}
-          <div style={{ fontFamily: "'Rajdhani', sans-serif", fontSize: '0.75rem', fontWeight: 600, color: 'rgba(255,255,255,0.5)', letterSpacing: '0.18em', textTransform: 'uppercase' as const, marginBottom: 6 }}>
+          <div style={{ fontFamily: "'Rajdhani', sans-serif", fontSize: '0.75rem', fontWeight: 600, color: 'rgba(255,255,255,0.85)', letterSpacing: '0.18em', textTransform: 'uppercase' as const, marginBottom: 6 }}>
             ANALYSIS STAGES
           </div>
           <div className="flex items-center justify-between" style={{ marginBottom: 6 }}>
             {['Your Plan', 'ML Ideal', 'Historical', 'Mismatch'].map((label) => (
               <div key={label} className="flex items-center gap-1.5">
-                <div className={`w-2 h-2 rounded-full ${comparisonData ? 'bg-white/40' : 'bg-white/15'}`} />
-                <span style={{ fontFamily: "'DM Mono', monospace", fontSize: '0.75rem', color: comparisonData ? 'rgba(255,255,255,0.6)' : 'rgba(255,255,255,0.3)' }}>{label}</span>
+                <div className={`w-2 h-2 rounded-full ${comparisonData ? 'bg-white/65' : 'bg-white/30'}`} />
+                <span style={{ fontFamily: "'DM Mono', monospace", fontSize: '0.75rem', color: comparisonData ? 'rgba(255,255,255,0.85)' : 'rgba(255,255,255,0.55)' }}>{label}</span>
               </div>
             ))}
           </div>
@@ -476,13 +476,13 @@ export default function Step3Confirm({ onPipelineComplete }: Step3ConfirmProps) 
       {heightMapData.length > 0 && (
         <ScrollRevealSection animation="scale-in" staggerDelay={400} sound="settle">
           <div className="max-w-lg mx-auto" style={{
-            background: 'linear-gradient(180deg, rgba(0,0,2,0.85) 0%, rgba(0,0,4,0.9) 50%, rgba(0,0,3,0.85) 100%)',
-            border: '1px solid rgba(255,255,255,0.06)',
+            background: 'linear-gradient(180deg, rgba(8,12,24,0.55) 0%, rgba(10,14,28,0.6) 50%, rgba(8,12,22,0.55) 100%)',
+            border: '1px solid rgba(255,255,255,0.12)',
             padding: '12px 14px 8px',
-            backgroundImage: 'radial-gradient(circle, rgba(255,255,255,0.02) 0.5px, transparent 0.5px)',
+            backgroundImage: 'radial-gradient(circle, rgba(255,255,255,0.04) 0.5px, transparent 0.5px)',
             backgroundSize: '12px 12px',
           }}>
-            <div style={{ fontFamily: "'Rajdhani', sans-serif", fontSize: '0.75rem', fontWeight: 600, color: 'rgba(255,255,255,0.5)', letterSpacing: '0.18em', textTransform: 'uppercase' as const, marginBottom: 8 }}>
+            <div style={{ fontFamily: "'Rajdhani', sans-serif", fontSize: '0.75rem', fontWeight: 600, color: 'rgba(255,255,255,0.85)', letterSpacing: '0.18em', textTransform: 'uppercase' as const, marginBottom: 8 }}>
               YOUR ALLOCATION MAP
             </div>
             <AffectedAreaHeightMap
@@ -514,7 +514,7 @@ export default function Step3Confirm({ onPipelineComplete }: Step3ConfirmProps) 
       {stage === 'complete' && comparisonData && (
         <ScrollRevealSection animation="fade-up" staggerDelay={500}>
           <div className="text-center py-2">
-            <div className="text-white/60 font-rajdhani text-base tracking-wider">
+            <div className="text-white/85 font-rajdhani text-base tracking-wider">
               Analysis complete — scroll down to view results
             </div>
           </div>
