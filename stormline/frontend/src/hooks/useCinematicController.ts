@@ -142,8 +142,10 @@ export function useCinematicController(
   }, [durationHours, fixedDurationSeconds])
   
   const stop = useCallback(() => {
+    isRunningRef.current = false
     if (animationFrameRef.current) {
       cancelAnimationFrame(animationFrameRef.current)
+      animationFrameRef.current = undefined
     }
     setState({
       isPlaying: false,
