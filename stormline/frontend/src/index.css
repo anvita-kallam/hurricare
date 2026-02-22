@@ -263,8 +263,8 @@ button, .font-button {
 input[type="range"] {
   -webkit-appearance: none;
   appearance: none;
-  height: 3px;
-  border-radius: 2px;
+  height: 6px;
+  border-radius: 3px;
   outline: none;
   cursor: pointer;
 }
@@ -272,27 +272,31 @@ input[type="range"] {
 input[type="range"]::-webkit-slider-thumb {
   -webkit-appearance: none;
   appearance: none;
-  width: 10px;
-  height: 10px;
+  width: 16px;
+  height: 16px;
   border-radius: 50%;
-  background: rgba(255, 255, 255, 0.4);
-  border: 1px solid rgba(255, 255, 255, 0.15);
+  background: rgba(255, 255, 255, 0.85);
+  border: 2px solid rgba(100, 180, 220, 0.6);
   cursor: pointer;
   transition: all 0.15s ease;
+  box-shadow: 0 0 6px rgba(100, 180, 220, 0.3);
 }
 
 input[type="range"]::-webkit-slider-thumb:hover {
-  background: rgba(255, 255, 255, 0.6);
-  transform: scale(1.2);
+  background: rgba(255, 255, 255, 1);
+  border-color: rgba(100, 180, 220, 0.9);
+  transform: scale(1.15);
+  box-shadow: 0 0 10px rgba(100, 180, 220, 0.5);
 }
 
 input[type="range"]::-moz-range-thumb {
-  width: 10px;
-  height: 10px;
+  width: 16px;
+  height: 16px;
   border-radius: 50%;
-  background: rgba(255, 255, 255, 0.4);
-  border: 1px solid rgba(255, 255, 255, 0.15);
+  background: rgba(255, 255, 255, 0.85);
+  border: 2px solid rgba(100, 180, 220, 0.6);
   cursor: pointer;
+  box-shadow: 0 0 6px rgba(100, 180, 220, 0.3);
 }
 
 /* ─── Immersive Panel Overlay (Game Flow) ──────────────────────────────────── */
