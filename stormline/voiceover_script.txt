@@ -1,19 +1,17 @@
-When a hurricane hits, relief coordinators have hours to decide how billions of dollars get split across entire regions. Who gets medical aid first. Which areas get shelter funding. How much goes to food versus water versus logistics. They make these calls with incomplete data, and there is no way to practice.
+When a hurricane makes landfall, relief coordinators have hours to allocate billions of dollars across affected regions — splitting funding between shelter, food, health, water, logistics, and recovery, with incomplete data and no margin for error. There is currently no system that lets them rehearse these decisions before they have to make them for real.
 
-HurriCare changes that. It is a simulation platform built on real historical disaster data — every hurricane, every funding record, every coverage outcome from the past several decades — all in one place.
+The core issue is structural. Decades of disaster response data — severity assessments, population displacement figures, funding allocations, coverage outcomes — exist across fragmented sources. No coordinator can synthesize it all under time pressure. The result: the same funding gaps repeat across disasters, and lessons from past responses never reach the next response team in a usable form.
 
-Here is how it works.
+HurriCare consolidates this data into a single analytical platform and turns every historical disaster into a playable simulation. Coordinators practice real allocation decisions using real constraints, then receive a quantitative comparison of their performance.
 
-You start by browsing a 3D globe of historical hurricanes. Pick one — say, Hurricane Matthew — and the system drops you into a full cinematic briefing: the storm's track across the map, wind speeds climbing through categories, region-by-region severity, and exactly how many people were affected.
+The workflow is direct. Select a historical hurricane from a 3D globe. The system generates a full operational briefing — storm trajectory, wind speed progression, region-by-region severity indices, total population affected — reconstructed from actual humanitarian records.
 
-Then you get the situation assessment. Population in need by region. Severity breakdowns. Coverage gaps. Everything a real coordinator would see in a crisis room, pulled from actual data.
+From there, you allocate. You receive the documented relief budget and a response window, then distribute funding across affected regions and six humanitarian clusters. The budget is zero-sum — every dollar routed to one cluster in one region is unavailable elsewhere. The constraints mirror real operational tradeoffs.
 
-Now you make the hard decisions. You are given the real relief budget and a response window, and you allocate funding across regions and humanitarian clusters — shelter, food, health, water, logistics, recovery. Every dollar you assign to one area is a dollar you cannot spend somewhere else. The tradeoffs are real because the numbers are real.
+Once submitted, the system runs your plan through a machine learning pipeline and returns a three-way comparison: your allocation, an ML-optimized distribution that maximizes projected coverage, and the actual historical allocation — what was really spent.
 
-Once you lock in your plan, the system runs it through a machine learning pipeline and compares your allocation against two benchmarks: an ML-optimized plan that calculates the mathematically ideal distribution, and the actual historical response — what really happened.
+This comparison is the analytical core of the platform. It surfaces exactly where a user's plan diverges from the mathematical optimum, and where the real-world response diverged from both. Chronic underfunding patterns, regional blind spots, and cluster-level gaps that historically required months of post-crisis analysis become visible immediately.
 
-That three-way comparison is the core of HurriCare. You see exactly where your instincts were right, where you underfunded a region that needed more, and where the real-world response fell short too. Funding gaps that took months of post-crisis analysis to uncover show up instantly.
+A global funding disparity layer maps where relief funding has systematically fallen short of estimated need across the full dataset — exposing structural gaps at the institutional level.
 
-There is also a global funding disparity view — a heatmap showing where relief money consistently falls short of estimated need, across every disaster in the dataset.
-
-The goal is not to replace the people making these decisions. It is to make sure they have practiced before the real thing happens — with real data, real tradeoffs, and real consequences laid bare.
+The output is measurable. Coordinators using HurriCare enter real crises having already executed these allocation decisions under realistic constraints, with a quantified understanding of where response systems consistently fail. The platform does not replace human judgment — it ensures those judgments are informed by the full weight of historical evidence, not made cold.
