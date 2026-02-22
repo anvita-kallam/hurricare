@@ -1,13 +1,13 @@
 import * as THREE from 'three'
 
 const LAYERS = [
-  { r: 1.01, color: '#7733ff', opacity: 0.22 },
-  { r: 1.03, color: '#6622ee', opacity: 0.17 },
-  { r: 1.06, color: '#5511cc', opacity: 0.12 },
-  { r: 1.10, color: '#4400aa', opacity: 0.08 },
-  { r: 1.17, color: '#330088', opacity: 0.05 },
-  { r: 1.26, color: '#220066', opacity: 0.03 },
-  { r: 1.40, color: '#160044', opacity: 0.016 },
+  { r: 1.01, color: '#7733ff', opacity: 0.12 },
+  { r: 1.03, color: '#6622ee', opacity: 0.09 },
+  { r: 1.06, color: '#5511cc', opacity: 0.06 },
+  { r: 1.10, color: '#4400aa', opacity: 0.04 },
+  { r: 1.17, color: '#330088', opacity: 0.025 },
+  { r: 1.26, color: '#220066', opacity: 0.015 },
+  { r: 1.40, color: '#160044', opacity: 0.008 },
 ]
 
 export default function GlobeShell() {

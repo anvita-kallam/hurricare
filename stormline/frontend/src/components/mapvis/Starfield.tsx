@@ -70,10 +70,10 @@ const constellationVertexShader = /* glsl */ `
     vColor = aColor;
 
     float brightness = max(0.5, 1.0 - gl_VertexID / 100.0);
-    float baseSize = 2.0 + brightness * 4.0;
+    float baseSize = 1.5 + brightness * 2.5;
 
     vec4 mvPos = modelViewMatrix * vec4(position, 1.0);
-    gl_PointSize = baseSize * (300.0 / length(mvPos));
+    gl_PointSize = baseSize * (200.0 / length(mvPos));
     gl_Position = projectionMatrix * mvPos;
   }
 `
@@ -90,7 +90,7 @@ const constellationFragmentShader = /* glsl */ `
     float glow = exp(-d * d * 1.2) * 0.8;
 
     vec3 color = vColor;
-    float alpha = (core + glow) * 0.9;
+    float alpha = (core + glow) * 0.55;
     gl_FragColor = vec4(color, alpha);
   }
 `
@@ -126,7 +126,7 @@ const backgroundFragmentShader = /* glsl */ `
     float glow = exp(-d * d * 1.2) * 0.4;
 
     vec3 color = vec3(1.0, 1.0, 1.0);
-    float alpha = (core + glow) * 0.7 * vTwinkle;
+    float alpha = (core + glow) * 0.45 * vTwinkle;
     gl_FragColor = vec4(color, alpha);
   }
 `
@@ -237,10 +237,10 @@ export default function Starfield() {
     const constellationLineMatl = new THREE.LineBasicMaterial({
       color: 0xffffff,
       transparent: true,
-      opacity: 0.9,
+      opacity: 0.25,
       fog: false,
       depthWrite: false,
-      linewidth: 2,
+      linewidth: 1,
     })
 
     return {
