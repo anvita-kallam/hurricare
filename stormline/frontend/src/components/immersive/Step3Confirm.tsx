@@ -115,6 +115,7 @@ export default function Step3Confirm({ onPipelineComplete }: Step3ConfirmProps) 
             severity_weighted_impact: severity,
             people_covered: Math.floor((userBudget / need) * [3200000, 2800000, 1500000, 1200000, 900000][i]),
             people_in_need: [3200000, 2800000, 1500000, 1200000, 900000][i],
+            unmet_need: Math.max(0, [3200000, 2800000, 1500000, 1200000, 900000][i] - Math.floor((userBudget / need) * [3200000, 2800000, 1500000, 1200000, 900000][i])),
           },
           clusters: {
             'Food Security': Math.floor(userBudget * 0.25),
@@ -133,6 +134,7 @@ export default function Step3Confirm({ onPipelineComplete }: Step3ConfirmProps) 
             severity_weighted_impact: severity,
             people_covered: Math.floor((mlBudget / need) * [3200000, 2800000, 1500000, 1200000, 900000][i]),
             people_in_need: [3200000, 2800000, 1500000, 1200000, 900000][i],
+            unmet_need: Math.max(0, [3200000, 2800000, 1500000, 1200000, 900000][i] - Math.floor((mlBudget / need) * [3200000, 2800000, 1500000, 1200000, 900000][i])),
           },
           clusters: {
             'Food Security': Math.floor(mlBudget * 0.22),
@@ -151,6 +153,7 @@ export default function Step3Confirm({ onPipelineComplete }: Step3ConfirmProps) 
             severity_weighted_impact: severity,
             people_covered: Math.floor((realBudget / need) * [3200000, 2800000, 1500000, 1200000, 900000][i]),
             people_in_need: [3200000, 2800000, 1500000, 1200000, 900000][i],
+            unmet_need: Math.max(0, [3200000, 2800000, 1500000, 1200000, 900000][i] - Math.floor((realBudget / need) * [3200000, 2800000, 1500000, 1200000, 900000][i])),
           },
           clusters: {
             'Food Security': Math.floor(realBudget * 0.30),
@@ -372,20 +375,19 @@ export default function Step3Confirm({ onPipelineComplete }: Step3ConfirmProps) 
       // Fallback: generate minimal comparison data so user doesn't see black screen
       if (!comparisonData) {
         const fallbackRegions = selectedHurricane.affected_countries || ['Region 1']
-        const fallbackPlan: Record<string, any> = {}
-        fallbackRegions.forEach(region => {
-          fallbackPlan[region] = {
-            admin1: region,
-            allocated_budget: Math.floor(gameTotalBudget / fallbackRegions.length),
-            coverage_estimate: {
-              coverage_ratio: 0.3,
-              severity_weighted_impact: 0.5,
-              people_covered: 10000,
-              people_in_need: 30000,
-            },
-            clusters: {}
-          }
-        })
+        const fallbackAllocations = fallbackRegions.map(region => ({
+          region,
+          budget: Math.floor(gameTotalBudget / fallbackRegions.length),
+          coverage_estimate: {
+            coverage_ratio: 0.3,
+            severity_weighted_impact: 0.5,
+            people_covered: 10000,
+            people_in_need: 30000,
+            unmet_need: 20000,
+          },
+          clusters: {}
+        }))
+        const fallbackPlan = { allocations: fallbackAllocations }
         setComparisonData({
           userPlan: fallbackPlan,
           mlPlan: fallbackPlan,
