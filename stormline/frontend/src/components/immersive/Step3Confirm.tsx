@@ -14,9 +14,15 @@ import TypewriterText from '../TypewriterText'
 import { playButtonPress, playHover } from '../../audio/SoundEngine'
 import {
   CircularGauge,
+  LargePercentReadout,
   StatReadout,
   SegmentedHorizontalBars,
   ThinVerticalBars,
+  TriangularAreaFill,
+  RidgeChart,
+  FanBurst,
+  MountainSilhouette,
+  PerspectiveGrid,
 } from '../mapvis/charts/ChartPrimitives'
 import AffectedAreaHeightMap from '../shared/AffectedAreaHeightMap'
 
@@ -468,26 +474,420 @@ export default function Step3Confirm({ onPipelineComplete }: Step3ConfirmProps) 
     )
   }
 
-  // Complete state (briefly shown before auto-advance)
+  // ─── Hardcoded Sandy results data for inline display ───
+  const sandyResultsData = useMemo(() => {
+    const regions = ['New York', 'New Jersey', 'Connecticut', 'Pennsylvania', 'Maryland']
+    const severities = [0.9, 0.85, 0.6, 0.55, 0.45]
+    const needs = [12500000, 11000000, 7000000, 6500000, 5000000]
+    const realBudgets = [8200000, 7100000, 4200000, 3800000, 2900000]
+    const mlBudgets = [14000000, 12000000, 8500000, 7500000, 6000000]
+    const peopleInNeed = [3200000, 2800000, 1500000, 1200000, 900000]
+    const tb = gameTotalBudget || 50000000
+    const ua = Object.keys(gameAllocations).length > 0 ? gameAllocations : {}
+
+    return regions.map((region, i) => {
+      const userBudget = ua[region] || Math.floor(tb / regions.length)
+      const mlCov = Math.min(mlBudgets[i] / needs[i], 1)
+      const realCov = Math.min(realBudgets[i] / needs[i], 1)
+      const userCov = Math.min(userBudget / needs[i], 1)
+      return {
+        region,
+        severity: severities[i],
+        userCoverage: userCov,
+        mlCoverage: mlCov,
+        realCoverage: realCov,
+        userBudget,
+        mlBudget: mlBudgets[i],
+        realBudget: realBudgets[i],
+        peopleCovered: {
+          user: Math.floor(userCov * peopleInNeed[i]),
+          ml: Math.floor(mlCov * peopleInNeed[i]),
+          real: Math.floor(realCov * peopleInNeed[i]),
+        },
+        peopleInNeed: peopleInNeed[i],
+        delta: mlBudgets[i] - realBudgets[i],
+        coverageGap: mlCov - realCov,
+      }
+    })
+  }, [gameAllocations, gameTotalBudget])
+
+  const RW = 288
+
+  // Complete state — inline scrollable results + summary
   if (stage === 'complete') {
+    const rd = sandyResultsData
+    const totalUserCov = rd.reduce((s, r) => s + r.peopleCovered.user, 0)
+    const totalMlCov = rd.reduce((s, r) => s + r.peopleCovered.ml, 0)
+    const totalRealCov = rd.reduce((s, r) => s + r.peopleCovered.real, 0)
+    const avgUserCov = rd.reduce((s, r) => s + r.userCoverage, 0) / rd.length
+    const avgMlCov = rd.reduce((s, r) => s + r.mlCoverage, 0) / rd.length
+    const avgRealCov = rd.reduce((s, r) => s + r.realCoverage, 0) / rd.length
+    const userCovSeries = rd.map(r => r.userCoverage * 100)
+    const mlCovSeries = rd.map(r => r.mlCoverage * 100)
+    const realCovSeries = rd.map(r => r.realCoverage * 100)
+    const gapSeries = rd.map(r => Math.max(0, (r.mlCoverage - r.realCoverage) * 100))
+    const budgetSeries = rd.map(r => r.userBudget)
+    const unmetSeries = rd.map(r => Math.max(0, r.peopleInNeed - r.peopleCovered.real))
+    const deltaSeries = rd.map(r => Math.abs(r.delta))
+    const sevSeries = rd.map(r => r.severity * 100)
+    const covGapSeries = rd.map(r => Math.max(0, r.coverageGap * 100))
+    const mlBudgetSeries = rd.map(r => r.mlBudget)
+    const realBudgetSeries = rd.map(r => r.realBudget)
+    const coverageDelta = totalMlCov - totalRealCov
+    const userVsMl = totalUserCov - totalMlCov
+    const avgGapPct = Math.abs(rd.reduce((s, r) => s + r.coverageGap, 0) / rd.length * 100)
+    const underfundedCount = rd.filter(r => r.delta > 0).length
+    const mostUnderfunded = [...rd].sort((a, b) => b.delta - a.delta)[0]
+
     return (
-      <div className="space-y-8 py-4">
-        <div className="text-center space-y-2">
+      <div className="space-y-6">
+        {/* ══════ RESULTS SECTION ══════ */}
+        <div className="text-center space-y-1">
           <div className="text-white/20 font-rajdhani text-[9px] tracking-[0.3em] uppercase">
-            Analysis Complete
+            Response Outcome
           </div>
           <h2 className="text-white/80 font-rajdhani font-bold text-xl tracking-wider">
-            Results Ready
+            Coverage Results
           </h2>
         </div>
-        <div className="flex items-center justify-center gap-3">
-          {[1, 2, 3, 4, 5].map(i => (
-            <div key={i} className="w-1.5 h-1.5 rounded-full bg-white/30" />
-          ))}
+
+        {/* Results two-panel layout */}
+        <div className="flex gap-4">
+          {/* Left — Coverage Intelligence */}
+          <div className="flex-1 flex flex-col gap-0" style={{
+            background: 'linear-gradient(180deg, rgba(0,0,0,0.85) 0%, rgba(0,0,0,0.9) 50%, rgba(0,0,0,0.85) 100%)',
+            border: '1px solid rgba(255,255,255,0.04)',
+            padding: '14px 16px 18px',
+            backgroundImage: 'radial-gradient(circle, rgba(255,255,255,0.02) 0.5px, transparent 0.5px)',
+            backgroundSize: '12px 12px',
+          }}>
+            <div style={{ fontFamily: "'Rajdhani', sans-serif", fontSize: '0.5rem', fontWeight: 600, color: 'rgba(255,255,255,0.2)', letterSpacing: '0.18em', textTransform: 'uppercase' as const, marginBottom: 4 }}>
+              PLAN COVERAGE
+            </div>
+            <div style={{ display: 'flex', justifyContent: 'space-around', marginBottom: 2 }}>
+              <CircularGauge value={Math.round(avgUserCov * 100)} max={100} label="YOUR PLAN" size={72} alert={avgUserCov < 0.4} />
+              <CircularGauge value={Math.round(avgMlCov * 100)} max={100} label="ML IDEAL" size={72} />
+              <CircularGauge value={Math.round(avgRealCov * 100)} max={100} label="HISTORICAL" size={72} alert={avgRealCov < 0.4} />
+            </div>
+
+            <div style={{ height: 1, background: 'rgba(255,255,255,0.04)', margin: '6px 0', flexShrink: 0 }} />
+
+            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: '4px 8px', marginBottom: 2 }}>
+              <StatReadout label="YOUR" value={totalUserCov > 1e6 ? `${(totalUserCov / 1e6).toFixed(1)}M` : `${(totalUserCov / 1e3).toFixed(0)}K`} />
+              <StatReadout label="ML" value={totalMlCov > 1e6 ? `${(totalMlCov / 1e6).toFixed(1)}M` : `${(totalMlCov / 1e3).toFixed(0)}K`} />
+              <StatReadout label="REAL" value={totalRealCov > 1e6 ? `${(totalRealCov / 1e6).toFixed(1)}M` : `${(totalRealCov / 1e3).toFixed(0)}K`} alert={totalRealCov < totalMlCov} />
+            </div>
+
+            <div style={{ height: 1, background: 'rgba(255,255,255,0.04)', margin: '6px 0', flexShrink: 0 }} />
+
+            <div style={{ fontFamily: "'Rajdhani', sans-serif", fontSize: '0.5rem', fontWeight: 600, color: 'rgba(255,255,255,0.2)', letterSpacing: '0.18em', textTransform: 'uppercase' as const, marginBottom: 4 }}>
+              YOUR PLAN / ML DIVERGENCE
+            </div>
+            <div style={{ marginBottom: 2 }}>
+              <TriangularAreaFill dataA={userCovSeries} dataB={mlCovSeries} width={RW} height={80} seed={4010} accentColor="rgba(255,255,255,0.4)" />
+            </div>
+
+            <div style={{ height: 1, background: 'rgba(255,255,255,0.04)', margin: '6px 0', flexShrink: 0 }} />
+
+            <div style={{ fontFamily: "'Rajdhani', sans-serif", fontSize: '0.5rem', fontWeight: 600, color: 'rgba(255,255,255,0.2)', letterSpacing: '0.18em', textTransform: 'uppercase' as const, marginBottom: 4 }}>
+              COVERAGE PROFILES
+            </div>
+            <div style={{ marginBottom: 2 }}>
+              <RidgeChart series={[userCovSeries, mlCovSeries, realCovSeries]} width={RW} height={90} seed={4020} colors={['rgba(255,255,255,0.12)', 'rgba(255,255,255,0.08)', 'rgba(255,255,255,0.05)']} />
+            </div>
+
+            <div style={{ height: 1, background: 'rgba(255,255,255,0.04)', margin: '6px 0', flexShrink: 0 }} />
+
+            <div style={{ fontFamily: "'Rajdhani', sans-serif", fontSize: '0.5rem', fontWeight: 600, color: 'rgba(255,255,255,0.2)', letterSpacing: '0.18em', textTransform: 'uppercase' as const, marginBottom: 4 }}>
+              REGIONAL COVERAGE
+            </div>
+            <div style={{ marginBottom: 2 }}>
+              <SegmentedHorizontalBars bars={rd.map(r => ({ label: r.region.toUpperCase(), value: Math.round(r.userCoverage * 100), max: 100 }))} width={RW} height={rd.length * 16 + 8} />
+            </div>
+          </div>
+
+          {/* Right — Gap Analysis */}
+          <div className="flex-1 flex flex-col gap-0" style={{
+            background: 'linear-gradient(180deg, rgba(0,0,0,0.85) 0%, rgba(0,0,0,0.9) 50%, rgba(0,0,0,0.85) 100%)',
+            border: '1px solid rgba(255,255,255,0.04)',
+            padding: '14px 16px 18px',
+            backgroundImage: 'radial-gradient(circle, rgba(255,255,255,0.02) 0.5px, transparent 0.5px)',
+            backgroundSize: '12px 12px',
+          }}>
+            <div style={{ fontFamily: "'Rajdhani', sans-serif", fontSize: '0.5rem', fontWeight: 600, color: 'rgba(255,255,255,0.2)', letterSpacing: '0.18em', textTransform: 'uppercase' as const, marginBottom: 4 }}>
+              COVERAGE GAP DISPERSION
+            </div>
+            <div style={{ marginBottom: 2 }}>
+              <FanBurst values={gapSeries} width={RW} height={64} seed={4030} accentColor="rgba(255,255,255,0.3)" />
+            </div>
+
+            <div style={{ height: 1, background: 'rgba(255,255,255,0.04)', margin: '6px 0', flexShrink: 0 }} />
+
+            <div style={{ fontFamily: "'Rajdhani', sans-serif", fontSize: '0.5rem', fontWeight: 600, color: 'rgba(255,255,255,0.2)', letterSpacing: '0.18em', textTransform: 'uppercase' as const, marginBottom: 4 }}>
+              GAP METRICS
+            </div>
+            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '4px 8px', marginBottom: 2 }}>
+              <StatReadout label="AVG GAP" value={`${Math.abs(Math.round((avgMlCov - avgRealCov) * 100))}%`} alert={Math.abs(avgMlCov - avgRealCov) > 0.2} />
+              <StatReadout label="REACH" value={`${Math.abs(totalMlCov - totalRealCov) > 1e6 ? `${((totalMlCov - totalRealCov) / 1e6).toFixed(1)}M` : `${((totalMlCov - totalRealCov) / 1e3).toFixed(0)}K`}`} alert={totalMlCov > totalRealCov} />
+              <StatReadout label="YOUR VS ML" value={`${totalUserCov > totalMlCov ? '+' : ''}${Math.abs(totalUserCov - totalMlCov) > 1e6 ? `${((totalUserCov - totalMlCov) / 1e6).toFixed(1)}M` : `${((totalUserCov - totalMlCov) / 1e3).toFixed(0)}K`}`} />
+              <StatReadout label="REGIONS" value={`${rd.length}`} />
+            </div>
+
+            <div style={{ height: 1, background: 'rgba(255,255,255,0.04)', margin: '6px 0', flexShrink: 0 }} />
+
+            <div style={{ fontFamily: "'Rajdhani', sans-serif", fontSize: '0.5rem', fontWeight: 600, color: 'rgba(255,255,255,0.2)', letterSpacing: '0.18em', textTransform: 'uppercase' as const, marginBottom: 4 }}>
+              UNMET NEED DENSITY
+            </div>
+            <div style={{ marginBottom: 2 }}>
+              <MountainSilhouette data={unmetSeries} width={RW} height={48} seed={4040} color="rgba(255,255,255,0.1)" secondaryData={realCovSeries} />
+            </div>
+
+            <div style={{ height: 1, background: 'rgba(255,255,255,0.04)', margin: '6px 0', flexShrink: 0 }} />
+
+            <div style={{ fontFamily: "'Rajdhani', sans-serif", fontSize: '0.5rem', fontWeight: 600, color: 'rgba(255,255,255,0.2)', letterSpacing: '0.18em', textTransform: 'uppercase' as const, marginBottom: 4 }}>
+              BUDGET ALLOCATION
+            </div>
+            <div style={{ marginBottom: 2 }}>
+              <ThinVerticalBars data={budgetSeries} width={RW} height={60} seed={4050} labels={rd.map(r => r.region)} unit="Budget ($)" />
+            </div>
+
+            <div style={{ height: 1, background: 'rgba(255,255,255,0.04)', margin: '6px 0', flexShrink: 0 }} />
+
+            <div style={{ fontFamily: "'Rajdhani', sans-serif", fontSize: '0.5rem', fontWeight: 600, color: 'rgba(255,255,255,0.2)', letterSpacing: '0.18em', textTransform: 'uppercase' as const, marginBottom: 4 }}>
+              COVERAGE STRATA
+            </div>
+            <div style={{ marginBottom: 2 }}>
+              <PerspectiveGrid data={userCovSeries} width={RW} height={60} seed={4060} rows={5} />
+            </div>
+          </div>
         </div>
-        <div className="text-center">
-          <div className="text-white/20 font-mono text-[10px]">
-            Proceeding to results...
+
+        {/* 2.5D Coverage Comparison Terrain */}
+        <div style={{
+          background: 'linear-gradient(180deg, rgba(0,0,0,0.85) 0%, rgba(0,0,0,0.9) 50%, rgba(0,0,0,0.85) 100%)',
+          border: '1px solid rgba(255,255,255,0.04)',
+          padding: '14px 16px 10px',
+          backgroundImage: 'radial-gradient(circle, rgba(255,255,255,0.02) 0.5px, transparent 0.5px)',
+          backgroundSize: '12px 12px',
+        }}>
+          <div className="flex items-center justify-between mb-2">
+            <div style={{ fontFamily: "'Rajdhani', sans-serif", fontSize: '0.5rem', fontWeight: 600, color: 'rgba(255,255,255,0.2)', letterSpacing: '0.18em', textTransform: 'uppercase' as const }}>
+              YOUR PLAN vs ML IDEAL — COVERAGE TERRAIN
+            </div>
+            <div className="flex items-center gap-3">
+              <div className="flex items-center gap-1">
+                <div className="w-2 h-2 rounded-sm" style={{ background: 'rgba(255,255,255,0.5)' }} />
+                <span className="text-white/30 font-mono text-[7px]">Your Plan</span>
+              </div>
+              <div className="flex items-center gap-1">
+                <div className="w-2 h-2 rounded-sm" style={{ background: 'rgba(255,255,255,0.3)' }} />
+                <span className="text-white/30 font-mono text-[7px]">ML Ideal</span>
+              </div>
+            </div>
+          </div>
+          <AffectedAreaHeightMap
+            data={rd.map(r => ({
+              region: r.region,
+              severity: Math.max(r.userCoverage, r.mlCoverage, 0.1),
+              metric: r.userCoverage,
+              metricB: r.mlCoverage,
+              valueLabel: `${Math.round(r.userCoverage * 100)}%`,
+            }))}
+            width={600}
+            height={200}
+            theme="coverage"
+          />
+        </div>
+
+        <div className="text-center border-t border-white/[0.06] pt-4">
+          <div className="text-white/40 font-mono text-[10px] leading-relaxed max-w-md mx-auto">
+            {totalMlCov > totalRealCov
+              ? `ML-optimal allocation could reach ${(totalMlCov - totalRealCov).toLocaleString()} more people than the historical response.`
+              : `Historical response reached ${(totalRealCov - totalMlCov).toLocaleString()} more people than the ML model predicted as optimal.`
+            }
+          </div>
+        </div>
+
+        {/* ══════ SUMMARY / DELTA SECTION ══════ */}
+        <div className="border-t border-white/[0.08] pt-6">
+          <div className="text-center space-y-1 mb-6">
+            <div className="text-white/20 font-rajdhani text-[9px] tracking-[0.3em] uppercase">
+              Delta Insights
+            </div>
+            <h2 className="text-white/80 font-rajdhani font-bold text-xl tracking-wider">
+              What Could Have Changed
+            </h2>
+          </div>
+
+          <div className="text-center mb-4">
+            <div className="text-white/40 font-mono text-xs leading-relaxed">
+              {coverageDelta > 0
+                ? `${coverageDelta.toLocaleString()} additional people reachable with ideal allocation`
+                : `Historical response covered ${Math.abs(coverageDelta).toLocaleString()} more than ML ideal`
+              }
+            </div>
+          </div>
+
+          <div className="flex gap-4">
+            {/* Left — Budget Delta */}
+            <div className="flex-1 flex flex-col gap-0" style={{
+              background: 'linear-gradient(180deg, rgba(0,0,0,0.85) 0%, rgba(0,0,0,0.9) 50%, rgba(0,0,0,0.85) 100%)',
+              border: '1px solid rgba(255,255,255,0.04)',
+              padding: '14px 16px 18px',
+              backgroundImage: 'radial-gradient(circle, rgba(255,255,255,0.02) 0.5px, transparent 0.5px)',
+              backgroundSize: '12px 12px',
+            }}>
+              <div style={{ fontFamily: "'Rajdhani', sans-serif", fontSize: '0.5rem', fontWeight: 600, color: 'rgba(255,255,255,0.2)', letterSpacing: '0.18em', textTransform: 'uppercase' as const, marginBottom: 4 }}>
+                COVERAGE DELTA
+              </div>
+              <LargePercentReadout value={Math.round(avgGapPct)} label="AVG GAP" subValue={`${underfundedCount} underfunded`} trend={coverageDelta > 0 ? 'up' : 'down'} alert={avgGapPct > 15} />
+
+              <div style={{ height: 1, background: 'rgba(255,255,255,0.04)', margin: '6px 0', flexShrink: 0 }} />
+
+              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '4px 8px', marginBottom: 2 }}>
+                <StatReadout label="UNDER" value={`${underfundedCount}`} alert={underfundedCount > 0} />
+                <StatReadout label="OVER" value={`${rd.filter(r => r.delta < 0).length}`} />
+                <StatReadout label="DELTA" value={coverageDelta > 0 ? `+${(coverageDelta / 1e3).toFixed(0)}K` : `${(coverageDelta / 1e3).toFixed(0)}K`} alert={Math.abs(coverageDelta) > 10000} />
+                <StatReadout label="YOU VS ML" value={userVsMl > 0 ? `+${(userVsMl / 1e3).toFixed(0)}K` : `${(userVsMl / 1e3).toFixed(0)}K`} />
+              </div>
+
+              <div style={{ height: 1, background: 'rgba(255,255,255,0.04)', margin: '6px 0', flexShrink: 0 }} />
+
+              <div style={{ fontFamily: "'Rajdhani', sans-serif", fontSize: '0.5rem', fontWeight: 600, color: 'rgba(255,255,255,0.2)', letterSpacing: '0.18em', textTransform: 'uppercase' as const, marginBottom: 4 }}>
+                ML / HISTORICAL DIVERGENCE
+              </div>
+              <div style={{ marginBottom: 2 }}>
+                <TriangularAreaFill dataA={mlBudgetSeries} dataB={realBudgetSeries} width={RW} height={80} seed={5010} accentColor="rgba(255,255,255,0.4)" />
+              </div>
+
+              <div style={{ height: 1, background: 'rgba(255,255,255,0.04)', margin: '6px 0', flexShrink: 0 }} />
+
+              <div style={{ fontFamily: "'Rajdhani', sans-serif", fontSize: '0.5rem', fontWeight: 600, color: 'rgba(255,255,255,0.2)', letterSpacing: '0.18em', textTransform: 'uppercase' as const, marginBottom: 4 }}>
+                DELTA MAGNITUDE
+              </div>
+              <div style={{ marginBottom: 2 }}>
+                <ThinVerticalBars data={deltaSeries} width={RW} height={60} seed={5030} labels={rd.map(r => r.region)} unit="Budget Gap ($)" />
+              </div>
+            </div>
+
+            {/* Right — Gap Analysis */}
+            <div className="flex-1 flex flex-col gap-0" style={{
+              background: 'linear-gradient(180deg, rgba(0,0,0,0.85) 0%, rgba(0,0,0,0.9) 50%, rgba(0,0,0,0.85) 100%)',
+              border: '1px solid rgba(255,255,255,0.04)',
+              padding: '14px 16px 18px',
+              backgroundImage: 'radial-gradient(circle, rgba(255,255,255,0.02) 0.5px, transparent 0.5px)',
+              backgroundSize: '12px 12px',
+            }}>
+              <div style={{ fontFamily: "'Rajdhani', sans-serif", fontSize: '0.5rem', fontWeight: 600, color: 'rgba(255,255,255,0.2)', letterSpacing: '0.18em', textTransform: 'uppercase' as const, marginBottom: 4 }}>
+                PERFORMANCE
+              </div>
+              <div style={{ display: 'flex', justifyContent: 'space-around', marginBottom: 2 }}>
+                <CircularGauge value={Math.round(avgGapPct)} max={100} label="GAP" size={72} alert={avgGapPct > 20} />
+                <div style={{ display: 'flex', flexDirection: 'column', gap: 6, justifyContent: 'center' }}>
+                  <StatReadout label="ML REACH" value={totalMlCov > 1e6 ? `${(totalMlCov / 1e6).toFixed(1)}M` : `${(totalMlCov / 1e3).toFixed(0)}K`} />
+                  <StatReadout label="REAL REACH" value={totalRealCov > 1e6 ? `${(totalRealCov / 1e6).toFixed(1)}M` : `${(totalRealCov / 1e3).toFixed(0)}K`} alert={totalRealCov < totalMlCov} />
+                  <StatReadout label="YOUR REACH" value={totalUserCov > 1e6 ? `${(totalUserCov / 1e6).toFixed(1)}M` : `${(totalUserCov / 1e3).toFixed(0)}K`} />
+                </div>
+              </div>
+
+              <div style={{ height: 1, background: 'rgba(255,255,255,0.04)', margin: '6px 0', flexShrink: 0 }} />
+
+              <div style={{ fontFamily: "'Rajdhani', sans-serif", fontSize: '0.5rem', fontWeight: 600, color: 'rgba(255,255,255,0.2)', letterSpacing: '0.18em', textTransform: 'uppercase' as const, marginBottom: 4 }}>
+                GAP DISPERSION
+              </div>
+              <div style={{ marginBottom: 2 }}>
+                <FanBurst values={covGapSeries} width={RW} height={64} seed={5040} accentColor="rgba(255,255,255,0.3)" />
+              </div>
+
+              <div style={{ height: 1, background: 'rgba(255,255,255,0.04)', margin: '6px 0', flexShrink: 0 }} />
+
+              <div style={{ fontFamily: "'Rajdhani', sans-serif", fontSize: '0.5rem', fontWeight: 600, color: 'rgba(255,255,255,0.2)', letterSpacing: '0.18em', textTransform: 'uppercase' as const, marginBottom: 4 }}>
+                SEVERITY / GAP DENSITY
+              </div>
+              <div style={{ marginBottom: 2 }}>
+                <MountainSilhouette data={sevSeries} width={RW} height={48} seed={5050} color="rgba(255,255,255,0.1)" secondaryData={covGapSeries} />
+              </div>
+
+              <div style={{ height: 1, background: 'rgba(255,255,255,0.04)', margin: '6px 0', flexShrink: 0 }} />
+
+              <div style={{ fontFamily: "'Rajdhani', sans-serif", fontSize: '0.5rem', fontWeight: 600, color: 'rgba(255,255,255,0.2)', letterSpacing: '0.18em', textTransform: 'uppercase' as const, marginBottom: 4 }}>
+                REGIONAL GAPS
+              </div>
+              <div style={{ marginBottom: 2 }}>
+                <SegmentedHorizontalBars
+                  bars={[...rd].sort((a, b) => Math.abs(b.delta) - Math.abs(a.delta)).map(d => ({
+                    label: d.region.toUpperCase(),
+                    value: Math.round(Math.abs(d.coverageGap) * 100),
+                    max: 100,
+                  }))}
+                  width={RW}
+                  height={rd.length * 16 + 8}
+                />
+              </div>
+
+              {mostUnderfunded && (
+                <>
+                  <div style={{ height: 1, background: 'rgba(255,255,255,0.04)', margin: '6px 0', flexShrink: 0 }} />
+                  <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '4px 8px' }}>
+                    <StatReadout label="TOP GAP" value={mostUnderfunded.region} alert />
+                    <StatReadout label="AMOUNT" value={formatBudget(Math.abs(mostUnderfunded.delta))} alert />
+                  </div>
+                </>
+              )}
+            </div>
+          </div>
+
+          {/* 2.5D Delta Gap Terrain */}
+          <div className="mt-4" style={{
+            background: 'linear-gradient(180deg, rgba(0,0,0,0.85) 0%, rgba(0,0,0,0.9) 50%, rgba(0,0,0,0.85) 100%)',
+            border: '1px solid rgba(255,255,255,0.04)',
+            padding: '14px 16px 10px',
+            backgroundImage: 'radial-gradient(circle, rgba(255,255,255,0.02) 0.5px, transparent 0.5px)',
+            backgroundSize: '12px 12px',
+          }}>
+            <div style={{ fontFamily: "'Rajdhani', sans-serif", fontSize: '0.5rem', fontWeight: 600, color: 'rgba(255,255,255,0.2)', letterSpacing: '0.18em', textTransform: 'uppercase' as const, marginBottom: 8 }}>
+              COVERAGE GAP TERRAIN — ML IDEAL vs HISTORICAL
+            </div>
+            <AffectedAreaHeightMap
+              data={rd.map(r => ({
+                region: r.region,
+                severity: r.severity,
+                metric: Math.abs(r.coverageGap),
+                valueLabel: `${r.coverageGap > 0 ? '+' : ''}${Math.round(r.coverageGap * 100)}%`,
+              }))}
+              width={600}
+              height={200}
+              theme="delta"
+            />
+          </div>
+
+          {/* Insights */}
+          <div className="space-y-3 pt-4 border-t border-white/[0.06]">
+            {mostUnderfunded && (
+              <div className="flex items-start gap-3">
+                <div className="w-1.5 h-1.5 rounded-full bg-white/40 mt-1.5 shrink-0" />
+                <div>
+                  <div className="text-white/40 font-rajdhani text-[10px] tracking-wider uppercase">Largest Gap</div>
+                  <div className="text-white/50 font-mono text-[10px]">
+                    {mostUnderfunded.region}: underfunded by {formatBudget(Math.abs(mostUnderfunded.delta))}
+                  </div>
+                </div>
+              </div>
+            )}
+            <div className="flex items-start gap-3">
+              <div className="w-1.5 h-1.5 rounded-full bg-white/30 mt-1.5 shrink-0" />
+              <div>
+                <div className="text-white/40 font-rajdhani text-[10px] tracking-wider uppercase">Your Performance</div>
+                <div className="text-white/50 font-mono text-[10px]">
+                  {userVsMl > 0
+                    ? `You covered ${userVsMl.toLocaleString()} more people than the ML ideal`
+                    : userVsMl < 0
+                      ? `ML ideal would cover ${Math.abs(userVsMl).toLocaleString()} more people`
+                      : 'Matched ML ideal coverage'
+                  }
+                </div>
+              </div>
+            </div>
           </div>
         </div>
       </div>
