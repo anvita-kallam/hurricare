@@ -108,13 +108,27 @@ export default function ComparisonHeatmaps({ userPlan, mlPlan, realPlan, selecte
                     <Geography
                       key={geo.rsmKey}
                       geography={geo}
-                      fill={color}
-                      stroke="#333"
-                      strokeWidth={0.5}
                       style={{
-                        default: { outline: 'none' },
-                        hover: { outline: 'none', fill: '#ff6b6b' },
-                        pressed: { outline: 'none' }
+                        default: {
+                          fill: color,
+                          stroke: '#333',
+                          strokeWidth: 0.5,
+                          outline: 'none',
+                          cursor: 'pointer'
+                        },
+                        hover: {
+                          fill: '#ff6b6b',
+                          stroke: '#333',
+                          strokeWidth: 0.5,
+                          outline: 'none',
+                          cursor: 'pointer'
+                        },
+                        pressed: {
+                          fill: color,
+                          stroke: '#333',
+                          strokeWidth: 0.5,
+                          outline: 'none'
+                        }
                       }}
                     />
                   )
@@ -148,13 +162,27 @@ export default function ComparisonHeatmaps({ userPlan, mlPlan, realPlan, selecte
                     <Geography
                       key={geo.rsmKey}
                       geography={geo}
-                      fill={color}
-                      stroke="#333"
-                      strokeWidth={0.5}
                       style={{
-                        default: { outline: 'none' },
-                        hover: { outline: 'none', fill: '#06b6d4' },
-                        pressed: { outline: 'none' }
+                        default: {
+                          fill: color,
+                          stroke: '#333',
+                          strokeWidth: 0.5,
+                          outline: 'none',
+                          cursor: 'pointer'
+                        },
+                        hover: {
+                          fill: '#06b6d4',
+                          stroke: '#333',
+                          strokeWidth: 0.5,
+                          outline: 'none',
+                          cursor: 'pointer'
+                        },
+                        pressed: {
+                          fill: color,
+                          stroke: '#333',
+                          strokeWidth: 0.5,
+                          outline: 'none'
+                        }
                       }}
                     />
                   )
