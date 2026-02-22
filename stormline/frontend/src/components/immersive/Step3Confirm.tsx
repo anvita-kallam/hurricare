@@ -25,6 +25,26 @@ import { isSandyHurricane, SANDY_COMPARISON_DATA } from '../../data/sandyHardcod
 
 const API_BASE = 'http://localhost:8000'
 
+// Starfield background pattern for simulation panels
+const STARFIELD_BG = {
+  background: '#000',
+  backgroundImage: `
+    radial-gradient(2px 2px at 20% 30%, white, rgba(255,255,255,0)),
+    radial-gradient(2px 2px at 60% 70%, white, rgba(255,255,255,0)),
+    radial-gradient(1px 1px at 50% 50%, white, rgba(255,255,255,0)),
+    radial-gradient(1px 1px at 80% 10%, white, rgba(255,255,255,0)),
+    radial-gradient(2px 2px at 90% 60%, white, rgba(255,255,255,0)),
+    radial-gradient(1px 1px at 30% 80%, white, rgba(255,255,255,0)),
+    radial-gradient(1.5px 1.5px at 70% 20%, white, rgba(255,255,255,0)),
+    radial-gradient(1px 1px at 40% 40%, white, rgba(255,255,255,0)),
+    radial-gradient(2px 2px at 10% 90%, white, rgba(255,255,255,0)),
+    radial-gradient(1px 1px at 85% 85%, white, rgba(255,255,255,0))
+  `,
+  backgroundRepeat: 'repeat',
+  backgroundSize: '200px 200px',
+  backgroundAttachment: 'fixed'
+}
+
 function formatBudget(n: number): string {
   if (n >= 1e9) return `$${(n / 1e9).toFixed(1)}B`
   if (n >= 1e6) return `$${(n / 1e6).toFixed(1)}M`
@@ -395,7 +415,7 @@ export default function Step3Confirm({ onPipelineComplete }: Step3ConfirmProps) 
       {/* FDP-style confirmation panel — always visible */}
       <ScrollRevealSection animation="depth-emerge" staggerDelay={200} sound="slide">
         <div className="max-w-md mx-auto" style={{
-          background: '#000',
+          ...STARFIELD_BG,
           border: '1px solid rgba(255,255,255,0.12)',
           padding: '16px 20px 20px',
         }}>
@@ -474,7 +494,7 @@ export default function Step3Confirm({ onPipelineComplete }: Step3ConfirmProps) 
       {heightMapData.length > 0 && (
         <ScrollRevealSection animation="scale-in" staggerDelay={400} sound="settle">
           <div className="max-w-lg mx-auto" style={{
-            background: '#000',
+            ...STARFIELD_BG,
             border: '1px solid rgba(255,255,255,0.12)',
             padding: '12px 14px 8px',
           }}>

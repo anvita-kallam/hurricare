@@ -32,6 +32,26 @@ function formatBudget(n: number): string {
 
 const W = 288
 
+// Starfield background pattern for simulation panels
+const STARFIELD_BG = {
+  background: '#000',
+  backgroundImage: `
+    radial-gradient(2px 2px at 20% 30%, white, rgba(255,255,255,0)),
+    radial-gradient(2px 2px at 60% 70%, white, rgba(255,255,255,0)),
+    radial-gradient(1px 1px at 50% 50%, white, rgba(255,255,255,0)),
+    radial-gradient(1px 1px at 80% 10%, white, rgba(255,255,255,0)),
+    radial-gradient(2px 2px at 90% 60%, white, rgba(255,255,255,0)),
+    radial-gradient(1px 1px at 30% 80%, white, rgba(255,255,255,0)),
+    radial-gradient(1.5px 1.5px at 70% 20%, white, rgba(255,255,255,0)),
+    radial-gradient(1px 1px at 40% 40%, white, rgba(255,255,255,0)),
+    radial-gradient(2px 2px at 10% 90%, white, rgba(255,255,255,0)),
+    radial-gradient(1px 1px at 85% 85%, white, rgba(255,255,255,0))
+  `,
+  backgroundRepeat: 'repeat',
+  backgroundSize: '200px 200px',
+  backgroundAttachment: 'fixed'
+}
+
 export default function Step1Situation() {
   const { selectedHurricane, coverage, gameTotalBudget } = useStore()
 
@@ -142,7 +162,7 @@ export default function Step1Situation() {
       <div className="flex gap-4">
         {/* Left Panel — Severity Intelligence */}
         <div className="flex-1 flex flex-col gap-0" style={{
-          background: '#000',
+          ...STARFIELD_BG,
           border: '1px solid rgba(255,255,255,0.12)',
           padding: '14px 16px 18px',
         }}>
@@ -244,7 +264,7 @@ export default function Step1Situation() {
 
         {/* Right Panel — Impact Assessment */}
         <div className="flex-1 flex flex-col gap-0" style={{
-          background: '#000',
+          ...STARFIELD_BG,
           border: '1px solid rgba(255,255,255,0.12)',
           padding: '14px 16px 18px',
         }}>
@@ -349,7 +369,7 @@ export default function Step1Situation() {
 
       {/* 2.5D Affected Area Height Map */}
       <div style={{
-        background: '#000',
+        ...STARFIELD_BG,
         border: '1px solid rgba(255,255,255,0.12)',
         padding: '14px 16px 10px',
       }}>
