@@ -1,16 +1,25 @@
 /**
  * Step 1 — Situation / System Framing
  *
- * Minimal text. One primary 3D/depth-based visualization.
- * Purpose: establish spatial severity & context.
+ * FDP-style intelligence panels with ChartPrimitives.
+ * Purpose: establish spatial severity & context using dense telemetry visuals.
  *
  * Uses ONLY hurricane + coverage data — no comparisonData required.
  */
 
-import { useMemo, useRef, useEffect } from 'react'
+import { useMemo } from 'react'
 import { useStore } from '../../state/useStore'
 import TypewriterText, { CountUpText } from '../TypewriterText'
-// Sound removed — only hover/click sounds kept
+import {
+  LargePercentReadout,
+  RidgeChart,
+  ConcentricRadar,
+  ThinVerticalBars,
+  PerspectiveGrid,
+  SegmentedHorizontalBars,
+  MountainSilhouette,
+  StatReadout,
+} from '../mapvis/charts/ChartPrimitives'
 
 function formatBudget(n: number): string {
   if (n >= 1e9) return `$${(n / 1e9).toFixed(1)}B`
@@ -19,130 +28,7 @@ function formatBudget(n: number): string {
   return `$${n.toLocaleString()}`
 }
 
-/** Canvas-based extruded severity surface */
-function SeveritySurface({ regionData }: { regionData: Array<{ region: string; severity: number; peopleInNeed: number }> }) {
-  const canvasRef = useRef<HTMLCanvasElement>(null)
-
-  useEffect(() => {
-    const canvas = canvasRef.current
-    if (!canvas) return
-    const ctx = canvas.getContext('2d')
-    if (!ctx) return
-
-    const w = canvas.width
-    const h = canvas.height
-    ctx.clearRect(0, 0, w, h)
-
-    if (regionData.length === 0) return
-
-    const cols = regionData.length
-    const cellW = w / cols
-    const perspective = 0.6
-    const maxBarH = h * 0.65
-    const baseY = h * 0.85
-    const depthOffset = 20
-
-    const sorted = [...regionData].sort((a, b) => a.severity - b.severity)
-
-    sorted.forEach((region) => {
-      const x = (regionData.indexOf(region) * cellW) + cellW * 0.15
-      const barW = cellW * 0.7
-      const barH = Math.max(4, region.severity * maxBarH)
-
-      // Back face (depth)
-      ctx.fillStyle = severityToColor(region.severity, 0.3)
-      ctx.beginPath()
-      ctx.moveTo(x, baseY)
-      ctx.lineTo(x + depthOffset * perspective, baseY - depthOffset)
-      ctx.lineTo(x + depthOffset * perspective, baseY - depthOffset - barH)
-      ctx.lineTo(x, baseY - barH)
-      ctx.closePath()
-      ctx.fill()
-
-      // Right face (depth)
-      ctx.fillStyle = severityToColor(region.severity, 0.2)
-      ctx.beginPath()
-      ctx.moveTo(x + barW, baseY)
-      ctx.lineTo(x + barW + depthOffset * perspective, baseY - depthOffset)
-      ctx.lineTo(x + barW + depthOffset * perspective, baseY - depthOffset - barH)
-      ctx.lineTo(x + barW, baseY - barH)
-      ctx.closePath()
-      ctx.fill()
-
-      // Top face
-      ctx.fillStyle = severityToColor(region.severity, 0.5)
-      ctx.beginPath()
-      ctx.moveTo(x, baseY - barH)
-      ctx.lineTo(x + depthOffset * perspective, baseY - depthOffset - barH)
-      ctx.lineTo(x + barW + depthOffset * perspective, baseY - depthOffset - barH)
-      ctx.lineTo(x + barW, baseY - barH)
-      ctx.closePath()
-      ctx.fill()
-
-      // Front face
-      ctx.fillStyle = severityToColor(region.severity, 0.7)
-      ctx.fillRect(x, baseY - barH, barW, barH)
-
-      // Contour lines on front face
-      ctx.strokeStyle = 'rgba(255,255,255,0.06)'
-      ctx.lineWidth = 0.5
-      const contourCount = Math.floor(barH / 12)
-      for (let c = 0; c < contourCount; c++) {
-        const cy = baseY - (c * 12) - 6
-        ctx.beginPath()
-        ctx.moveTo(x, cy)
-        ctx.lineTo(x + barW, cy)
-        ctx.stroke()
-      }
-
-      // Region label
-      ctx.fillStyle = 'rgba(255,255,255,0.35)'
-      ctx.font = '9px Rajdhani'
-      ctx.textAlign = 'center'
-      ctx.fillText(
-        region.region.length > 10 ? region.region.slice(0, 10) + '..' : region.region,
-        x + barW / 2,
-        baseY + 14
-      )
-
-      // Severity value
-      ctx.fillStyle = 'rgba(255,255,255,0.5)'
-      ctx.font = '10px DM Mono, monospace'
-      ctx.fillText(
-        (region.severity * 10).toFixed(1),
-        x + barW / 2,
-        baseY - barH - 8
-      )
-    })
-
-    // Grid lines on base
-    ctx.strokeStyle = 'rgba(255,255,255,0.04)'
-    ctx.lineWidth = 0.5
-    for (let g = 0; g < cols + 1; g++) {
-      const gx = g * cellW
-      ctx.beginPath()
-      ctx.moveTo(gx, baseY)
-      ctx.lineTo(gx + depthOffset * perspective, baseY - depthOffset)
-      ctx.stroke()
-    }
-  }, [regionData])
-
-  return (
-    <canvas
-      ref={canvasRef}
-      width={520}
-      height={280}
-      className="w-full h-auto"
-      style={{ imageRendering: 'auto' }}
-    />
-  )
-}
-
-function severityToColor(severity: number, alpha: number): string {
-  if (severity > 0.7) return `rgba(200, 60, 60, ${alpha})`
-  if (severity > 0.4) return `rgba(200, 160, 60, ${alpha})`
-  return `rgba(60, 160, 100, ${alpha})`
-}
+const W = 288
 
 export default function Step1Situation() {
   const { selectedHurricane, coverage, gameTotalBudget } = useStore()
@@ -151,28 +37,79 @@ export default function Step1Situation() {
   const regionData = useMemo(() => {
     if (!selectedHurricane) return []
 
-    // Get regions from coverage data
     const fromCoverage = coverage
       .filter(c => c.hurricane_id === selectedHurricane.id)
       .map(c => ({
         region: c.admin1,
         severity: Math.min(c.severity_index / 10, 1),
         peopleInNeed: c.people_in_need,
+        coverageRatio: c.coverage_ratio,
+        pooledFundBudget: c.pooled_fund_budget,
       }))
 
     if (fromCoverage.length > 0) return fromCoverage
 
-    // Fallback: use affected_countries with default severity
-    return (selectedHurricane.affected_countries || []).map(country => ({
+    return (selectedHurricane.affected_countries || []).map((country: string) => ({
       region: country,
       severity: 0.5,
       peopleInNeed: Math.round(selectedHurricane.estimated_population_affected / (selectedHurricane.affected_countries.length || 1)),
+      coverageRatio: 0,
+      pooledFundBudget: 0,
     }))
   }, [selectedHurricane, coverage])
+
+  // Derived data for chart primitives
+  const seed = useMemo(() => {
+    if (!selectedHurricane) return 100
+    let h = 0
+    for (let i = 0; i < selectedHurricane.name.length; i++)
+      h = ((h << 5) - h + selectedHurricane.name.charCodeAt(i)) | 0
+    return Math.abs(h)
+  }, [selectedHurricane])
+
+  // Severity time-series (synthetic from region data for ridge chart)
+  const severityTimeSeries = useMemo(() => {
+    if (regionData.length === 0) return [Array(12).fill(0.5)]
+    return [
+      // Severity profile
+      regionData.map(r => r.severity * 100),
+      // Population need profile (normalized)
+      regionData.map(r => {
+        const maxNeed = Math.max(...regionData.map(d => d.peopleInNeed), 1)
+        return (r.peopleInNeed / maxNeed) * 80
+      }),
+      // Coverage ratio profile
+      regionData.map(r => r.coverageRatio * 100),
+    ]
+  }, [regionData])
+
+  // Population distribution for thin bars
+  const populationDistribution = useMemo(() => {
+    return regionData.map(r => r.peopleInNeed)
+  }, [regionData])
+
+  // Severity distribution for mountain silhouette
+  const severityDistribution = useMemo(() => {
+    return regionData.map(r => r.severity * 100)
+  }, [regionData])
+
+  // Funding distribution
+  const fundingDistribution = useMemo(() => {
+    return regionData.map(r => r.pooledFundBudget)
+  }, [regionData])
 
   if (!selectedHurricane) return null
 
   const totalPeopleInNeed = regionData.reduce((s, r) => s + r.peopleInNeed, 0)
+  const avgSeverity = regionData.length > 0
+    ? regionData.reduce((s, r) => s + r.severity, 0) / regionData.length
+    : 0
+  const maxSeverity = regionData.length > 0
+    ? Math.max(...regionData.map(r => r.severity))
+    : 0
+  const avgCoverage = regionData.length > 0
+    ? regionData.reduce((s, r) => s + r.coverageRatio, 0) / regionData.length
+    : 0
 
   return (
     <div className="space-y-6">
@@ -199,34 +136,197 @@ export default function Step1Situation() {
         </div>
       </div>
 
-      {/* Key stats row — very minimal */}
-      <div className="flex justify-center gap-8">
-        <div className="text-center">
-          <div className="text-white/60 font-mono text-sm">
-            <CountUpText value={regionData.length} delayMs={1000} duration={600} />
+      {/* FDP-style two-panel layout */}
+      <div className="flex gap-4">
+        {/* Left Panel — Severity Intelligence */}
+        <div className="flex-1 flex flex-col gap-0" style={{
+          background: 'linear-gradient(180deg, rgba(0,0,2,0.85) 0%, rgba(0,0,4,0.9) 50%, rgba(0,0,3,0.85) 100%)',
+          border: '1px solid rgba(255,255,255,0.04)',
+          padding: '14px 16px 18px',
+          backgroundImage: 'radial-gradient(circle, rgba(255,255,255,0.02) 0.5px, transparent 0.5px)',
+          backgroundSize: '12px 12px',
+        }}>
+          {/* Header */}
+          <div className="mb-1">
+            <div style={{ fontFamily: "'Rajdhani', sans-serif", fontWeight: 700, fontSize: '1rem', color: 'rgba(255,255,255,0.85)', letterSpacing: '0.08em', lineHeight: 1.1 }}>
+              {selectedHurricane.name}
+            </div>
+            <div style={{ fontFamily: "'DM Mono', monospace", fontSize: '0.5rem', letterSpacing: '0.16em', marginTop: 2, color: maxSeverity > 0.7 ? 'rgba(255,100,80,0.6)' : maxSeverity > 0.4 ? 'rgba(255,220,100,0.6)' : 'rgba(120,220,120,0.6)' }}>
+              CATEGORY {selectedHurricane.max_category} — {selectedHurricane.year}
+            </div>
           </div>
-          <TypewriterText text="Regions" emphasis="soft" delayMs={1000} className="text-white/20 font-rajdhani text-[9px] tracking-widest uppercase" as="div" />
-        </div>
-        <div className="text-center">
-          <div className="text-white/60 font-mono text-sm">
-            {formatBudget(gameTotalBudget)}
-          </div>
-          <TypewriterText text="Budget" emphasis="soft" delayMs={1100} className="text-white/20 font-rajdhani text-[9px] tracking-widest uppercase" as="div" />
-        </div>
-        <div className="text-center">
-          <div className="text-white/60 font-mono text-sm">
-            <CountUpText value={totalPeopleInNeed} delayMs={1200} duration={1500} />
-          </div>
-          <TypewriterText text="People in Need" emphasis="soft" delayMs={1200} className="text-white/20 font-rajdhani text-[9px] tracking-widest uppercase" as="div" />
-        </div>
-      </div>
 
-      {/* Primary 3D visualization — extruded severity surface */}
-      <div>
-        <div className="text-white/15 font-rajdhani text-[9px] tracking-widest uppercase mb-2 text-center">
-          Regional Severity Terrain
+          <div className="fdp-divider" style={{ height: 1, background: 'rgba(255,255,255,0.04)', margin: '6px 0', flexShrink: 0 }} />
+
+          {/* LargePercentReadout — overall severity score */}
+          <div style={{ fontFamily: "'Rajdhani', sans-serif", fontSize: '0.5rem', fontWeight: 600, color: 'rgba(255,255,255,0.2)', letterSpacing: '0.18em', textTransform: 'uppercase' as const, marginBottom: 4, display: 'flex', alignItems: 'center', gap: 6 }}>
+            SEVERITY INDEX
+          </div>
+          <LargePercentReadout
+            value={Math.round(avgSeverity * 100)}
+            label="AVG SEVERITY"
+            subValue={`peak ${(maxSeverity * 10).toFixed(1)}`}
+            trend={maxSeverity > 0.7 ? 'up' : maxSeverity > 0.4 ? 'flat' : 'down'}
+            alert={avgSeverity > 0.5}
+          />
+
+          <div style={{ height: 1, background: 'rgba(255,255,255,0.04)', margin: '6px 0', flexShrink: 0 }} />
+
+          {/* Stats grid */}
+          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '4px 8px', marginBottom: 2 }}>
+            <StatReadout label="REGIONS" value={`${regionData.length}`} />
+            <StatReadout label="BUDGET" value={formatBudget(gameTotalBudget)} />
+            <StatReadout label="POP" value={`${(totalPeopleInNeed / 1e6).toFixed(1)}M`} alert={totalPeopleInNeed > 1e6} />
+            <StatReadout label="CAT" value={`${selectedHurricane.max_category}`} alert={selectedHurricane.max_category >= 4} />
+          </div>
+
+          <div style={{ height: 1, background: 'rgba(255,255,255,0.04)', margin: '6px 0', flexShrink: 0 }} />
+
+          {/* RidgeChart — severity / population / coverage profiles */}
+          <div style={{ fontFamily: "'Rajdhani', sans-serif", fontSize: '0.5rem', fontWeight: 600, color: 'rgba(255,255,255,0.2)', letterSpacing: '0.18em', textTransform: 'uppercase' as const, marginBottom: 4 }}>
+            SEVERITY / NEED / COVERAGE
+          </div>
+          <div style={{ marginBottom: 2 }}>
+            <RidgeChart
+              series={severityTimeSeries}
+              width={W}
+              height={90}
+              seed={seed + 10}
+              colors={[
+                'rgba(255,100,80,0.12)',
+                'rgba(255,180,60,0.09)',
+                'rgba(100,180,220,0.08)',
+              ]}
+            />
+          </div>
+
+          <div style={{ height: 1, background: 'rgba(255,255,255,0.04)', margin: '6px 0', flexShrink: 0 }} />
+
+          {/* ThinVerticalBars — population by region */}
+          <div style={{ fontFamily: "'Rajdhani', sans-serif", fontSize: '0.5rem', fontWeight: 600, color: 'rgba(255,255,255,0.2)', letterSpacing: '0.18em', textTransform: 'uppercase' as const, marginBottom: 4 }}>
+            POPULATION DENSITY
+          </div>
+          <div style={{ marginBottom: 2 }}>
+            <ThinVerticalBars
+              data={populationDistribution}
+              width={W}
+              height={48}
+              seed={seed + 30}
+            />
+          </div>
+
+          <div style={{ height: 1, background: 'rgba(255,255,255,0.04)', margin: '6px 0', flexShrink: 0 }} />
+
+          {/* PerspectiveGrid — severity strata */}
+          <div style={{ fontFamily: "'Rajdhani', sans-serif", fontSize: '0.5rem', fontWeight: 600, color: 'rgba(255,255,255,0.2)', letterSpacing: '0.18em', textTransform: 'uppercase' as const, marginBottom: 4 }}>
+            SEVERITY STRATA
+          </div>
+          <div style={{ marginBottom: 2 }}>
+            <PerspectiveGrid
+              data={severityDistribution}
+              width={W}
+              height={60}
+              seed={seed + 40}
+              rows={5}
+            />
+          </div>
         </div>
-        <SeveritySurface regionData={regionData} />
+
+        {/* Right Panel — Impact Assessment */}
+        <div className="flex-1 flex flex-col gap-0" style={{
+          background: 'linear-gradient(180deg, rgba(0,0,2,0.85) 0%, rgba(0,0,4,0.9) 50%, rgba(0,0,3,0.85) 100%)',
+          border: '1px solid rgba(255,255,255,0.04)',
+          padding: '14px 16px 18px',
+          backgroundImage: 'radial-gradient(circle, rgba(255,255,255,0.02) 0.5px, transparent 0.5px)',
+          backgroundSize: '12px 12px',
+        }}>
+          {/* ConcentricRadar — multi-metric overview */}
+          <div style={{ fontFamily: "'Rajdhani', sans-serif", fontSize: '0.5rem', fontWeight: 600, color: 'rgba(255,255,255,0.2)', letterSpacing: '0.18em', textTransform: 'uppercase' as const, marginBottom: 4 }}>
+            RISK EXPOSURE
+          </div>
+          <div style={{ display: 'flex', justifyContent: 'center', marginBottom: 2 }}>
+            <ConcentricRadar
+              values={[
+                { label: 'SEV', value: avgSeverity * 100, max: 100 },
+                { label: 'POP', value: Math.min((totalPeopleInNeed / 5e6) * 100, 100), max: 100 },
+                { label: 'CAT', value: (selectedHurricane.max_category / 5) * 100, max: 100 },
+                { label: 'COV', value: avgCoverage * 100, max: 100 },
+              ]}
+              size={120}
+              seed={seed + 20}
+            />
+          </div>
+
+          <div style={{ height: 1, background: 'rgba(255,255,255,0.04)', margin: '6px 0', flexShrink: 0 }} />
+
+          {/* SegmentedHorizontalBars — per-region severity */}
+          <div style={{ fontFamily: "'Rajdhani', sans-serif", fontSize: '0.5rem', fontWeight: 600, color: 'rgba(255,255,255,0.2)', letterSpacing: '0.18em', textTransform: 'uppercase' as const, marginBottom: 4 }}>
+            REGIONAL SEVERITY
+          </div>
+          <div style={{ marginBottom: 2 }}>
+            <SegmentedHorizontalBars
+              bars={regionData.slice(0, 6).map(r => ({
+                label: r.region.slice(0, 6).toUpperCase(),
+                value: Math.round(r.severity * 100),
+                max: 100,
+              }))}
+              width={W}
+              height={Math.min(regionData.length, 6) * 16 + 8}
+            />
+          </div>
+
+          <div style={{ height: 1, background: 'rgba(255,255,255,0.04)', margin: '6px 0', flexShrink: 0 }} />
+
+          {/* MountainSilhouette — severity/population distribution */}
+          <div style={{ fontFamily: "'Rajdhani', sans-serif", fontSize: '0.5rem', fontWeight: 600, color: 'rgba(255,255,255,0.2)', letterSpacing: '0.18em', textTransform: 'uppercase' as const, marginBottom: 4 }}>
+            SEVERITY DENSITY
+          </div>
+          <div style={{ marginBottom: 2 }}>
+            <MountainSilhouette
+              data={severityDistribution}
+              width={W}
+              height={48}
+              seed={seed + 50}
+              color={avgSeverity > 0.5 ? 'rgba(255,100,80,0.12)' : 'rgba(255,255,255,0.1)'}
+              secondaryData={populationDistribution.map(p => {
+                const maxP = Math.max(...populationDistribution, 1)
+                return (p / maxP) * Math.max(...severityDistribution, 1)
+              })}
+            />
+          </div>
+
+          <div style={{ height: 1, background: 'rgba(255,255,255,0.04)', margin: '6px 0', flexShrink: 0 }} />
+
+          {/* Response metrics */}
+          <div style={{ fontFamily: "'Rajdhani', sans-serif", fontSize: '0.5rem', fontWeight: 600, color: 'rgba(255,255,255,0.2)', letterSpacing: '0.18em', textTransform: 'uppercase' as const, marginBottom: 4 }}>
+            RESPONSE METRICS
+          </div>
+          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '4px 8px', marginBottom: 2 }}>
+            <StatReadout label="AVG COV" value={`${(avgCoverage * 100).toFixed(0)}%`} alert={avgCoverage < 0.5} />
+            <StatReadout label="PEAK SEV" value={`${(maxSeverity * 10).toFixed(1)}`} alert={maxSeverity > 0.7} />
+            <StatReadout label="COUNTRIES" value={`${selectedHurricane.affected_countries.length}`} />
+            <StatReadout label="BUDGET" value={formatBudget(gameTotalBudget)} />
+          </div>
+
+          {fundingDistribution.some(f => f > 0) && (
+            <>
+              <div style={{ height: 1, background: 'rgba(255,255,255,0.04)', margin: '6px 0', flexShrink: 0 }} />
+
+              {/* Funding distribution */}
+              <div style={{ fontFamily: "'Rajdhani', sans-serif", fontSize: '0.5rem', fontWeight: 600, color: 'rgba(255,255,255,0.2)', letterSpacing: '0.18em', textTransform: 'uppercase' as const, marginBottom: 4 }}>
+                FUNDING ALLOCATION
+              </div>
+              <div style={{ marginBottom: 2 }}>
+                <ThinVerticalBars
+                  data={fundingDistribution}
+                  width={W}
+                  height={48}
+                  seed={seed + 60}
+                />
+              </div>
+            </>
+          )}
+        </div>
       </div>
 
       {/* Affected countries */}

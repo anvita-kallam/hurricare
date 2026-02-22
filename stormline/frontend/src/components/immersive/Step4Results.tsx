@@ -1,14 +1,25 @@
 /**
  * Step 4 — Results Play Out
  *
- * Shows coverage results animating in.
- * One explanatory panel with short anchored insights.
+ * FDP-style intelligence panels with ChartPrimitives.
+ * Shows coverage results with dense telemetry visuals.
  * Regions rise/fall, coverage spreads, gaps appear.
  */
 
-import { useMemo, useRef, useEffect } from 'react'
+import { useMemo } from 'react'
 import { useStore } from '../../state/useStore'
 import TypewriterText, { CountUpText } from '../TypewriterText'
+import {
+  CircularGauge,
+  TriangularAreaFill,
+  RidgeChart,
+  FanBurst,
+  MountainSilhouette,
+  SegmentedHorizontalBars,
+  ThinVerticalBars,
+  PerspectiveGrid,
+  StatReadout,
+} from '../mapvis/charts/ChartPrimitives'
 
 function formatBudget(n: number): string {
   if (n >= 1e9) return `$${(n / 1e9).toFixed(1)}B`
@@ -17,123 +28,19 @@ function formatBudget(n: number): string {
   return `$${n.toLocaleString()}`
 }
 
-/** Coverage surface visualization — shows regions rising/falling by coverage */
-function CoverageTerrainCanvas({ regionData }: {
-  regionData: Array<{
-    region: string
-    userCoverage: number
-    mlCoverage: number
-    realCoverage: number
-    unmetNeed: number
-    peopleCovered: { user: number; ml: number; real: number }
-  }>
-}) {
-  const canvasRef = useRef<HTMLCanvasElement>(null)
-
-  useEffect(() => {
-    const canvas = canvasRef.current
-    if (!canvas) return
-    const ctx = canvas.getContext('2d')
-    if (!ctx) return
-
-    const w = canvas.width
-    const h = canvas.height
-    ctx.clearRect(0, 0, w, h)
-
-    if (regionData.length === 0) return
-
-    const cols = regionData.length
-    const cellW = (w - 40) / cols
-    const maxH = h * 0.5
-    const baseY = h * 0.8
-    const tiltX = 0.3
-    const tiltY = 0.6
-
-    // Draw perspective grid base
-    ctx.strokeStyle = 'rgba(255,255,255,0.03)'
-    ctx.lineWidth = 0.5
-    for (let g = 0; g <= cols; g++) {
-      const x = 20 + g * cellW
-      ctx.beginPath()
-      ctx.moveTo(x, baseY)
-      ctx.lineTo(x + 15 * tiltX, baseY - 15 * tiltY)
-      ctx.stroke()
-    }
-
-    // Draw coverage bars for each plan, per region
-    regionData.forEach((r, i) => {
-      const x = 20 + i * cellW + cellW * 0.1
-      const barW = cellW * 0.25
-
-      // User coverage bar
-      const userH = r.userCoverage * maxH
-      drawExtrudedBar(ctx, x, baseY, barW, userH, 'rgba(68, 136, 170,', 4)
-
-      // ML coverage bar
-      const mlH = r.mlCoverage * maxH
-      drawExtrudedBar(ctx, x + barW + 2, baseY, barW, mlH, 'rgba(136, 85, 170,', 4)
-
-      // Real coverage bar
-      const realH = r.realCoverage * maxH
-      drawExtrudedBar(ctx, x + (barW + 2) * 2, baseY, barW, realH, 'rgba(170, 68, 68,', 4)
-
-      // Region label
-      ctx.fillStyle = 'rgba(255,255,255,0.3)'
-      ctx.font = '9px Rajdhani'
-      ctx.textAlign = 'center'
-      ctx.fillText(
-        r.region.length > 10 ? r.region.slice(0, 10) + '..' : r.region,
-        x + cellW * 0.4,
-        baseY + 16
-      )
-    })
-  }, [regionData])
-
-  return (
-    <canvas
-      ref={canvasRef}
-      width={520}
-      height={260}
-      className="w-full h-auto"
-      style={{ imageRendering: 'auto' }}
-    />
-  )
-}
-
-function drawExtrudedBar(
-  ctx: CanvasRenderingContext2D,
-  x: number, baseY: number, w: number, h: number,
-  colorBase: string, depth: number
-) {
-  if (h < 1) return
-
-  // Right depth face
-  ctx.fillStyle = `${colorBase} 0.2)`
-  ctx.beginPath()
-  ctx.moveTo(x + w, baseY)
-  ctx.lineTo(x + w + depth, baseY - depth)
-  ctx.lineTo(x + w + depth, baseY - depth - h)
-  ctx.lineTo(x + w, baseY - h)
-  ctx.closePath()
-  ctx.fill()
-
-  // Top depth face
-  ctx.fillStyle = `${colorBase} 0.4)`
-  ctx.beginPath()
-  ctx.moveTo(x, baseY - h)
-  ctx.lineTo(x + depth, baseY - depth - h)
-  ctx.lineTo(x + w + depth, baseY - depth - h)
-  ctx.lineTo(x + w, baseY - h)
-  ctx.closePath()
-  ctx.fill()
-
-  // Front face
-  ctx.fillStyle = `${colorBase} 0.6)`
-  ctx.fillRect(x, baseY - h, w, h)
-}
+const W = 288
 
 export default function Step4Results() {
   const { comparisonData } = useStore()
+
+  const seed = useMemo(() => {
+    if (!comparisonData?.realPlan) return 400
+    const regions = comparisonData.realPlan.allocations.map((a: any) => a.region).join('')
+    let h = 0
+    for (let i = 0; i < regions.length; i++)
+      h = ((h << 5) - h + regions.charCodeAt(i)) | 0
+    return Math.abs(h) + 4000
+  }, [comparisonData])
 
   const regionData = useMemo(() => {
     if (!comparisonData?.realPlan) return []
@@ -146,6 +53,9 @@ export default function Step4Results() {
         mlCoverage: ma?.coverage_estimate?.coverage_ratio || 0,
         realCoverage: ra.coverage_estimate?.coverage_ratio || 0,
         unmetNeed: ra.coverage_estimate?.unmet_need || 0,
+        userBudget: ua?.budget || 0,
+        mlBudget: ma?.budget || 0,
+        realBudget: ra.budget || 0,
         peopleCovered: {
           user: ua?.coverage_estimate?.people_covered || 0,
           ml: ma?.coverage_estimate?.people_covered || 0,
@@ -165,6 +75,14 @@ export default function Step4Results() {
     ? regionData.reduce((s: number, r: any) => s + r.mlCoverage, 0) / regionData.length : 0
   const avgRealCoverage = regionData.length > 0
     ? regionData.reduce((s: number, r: any) => s + r.realCoverage, 0) / regionData.length : 0
+
+  // Derived data for charts
+  const userCoverageSeries = regionData.map((r: any) => r.userCoverage * 100)
+  const mlCoverageSeries = regionData.map((r: any) => r.mlCoverage * 100)
+  const realCoverageSeries = regionData.map((r: any) => r.realCoverage * 100)
+  const unmetNeedSeries = regionData.map((r: any) => r.unmetNeed)
+  const gapSeries = regionData.map((r: any) => Math.max(0, (r.mlCoverage - r.realCoverage) * 100))
+  const budgetSeries = regionData.map((r: any) => r.userBudget)
 
   // Loading state if data isn't ready yet
   if (!comparisonData) {
@@ -201,47 +119,197 @@ export default function Step4Results() {
         </h2>
       </div>
 
-      {/* Coverage overview — three rings */}
-      <div className="flex justify-center gap-8">
-        {[
-          { label: 'Your Plan', value: avgUserCoverage, covered: totalUserCovered, color: '#4488aa' },
-          { label: 'ML Ideal', value: avgMlCoverage, covered: totalMlCovered, color: '#8855aa' },
-          { label: 'Historical', value: avgRealCoverage, covered: totalRealCovered, color: '#aa4444' },
-        ].map((plan) => {
-          const circumference = 2 * Math.PI * 28
-          return (
-            <div key={plan.label} className="flex flex-col items-center gap-1">
-              <div className="relative w-16 h-16">
-                <svg width={64} height={64} className="transform -rotate-90">
-                  <circle cx={32} cy={32} r={28} fill="none" stroke="rgba(255,255,255,0.04)" strokeWidth={2} />
-                  <circle
-                    cx={32} cy={32} r={28}
-                    fill="none" stroke={plan.color} strokeWidth={2.5}
-                    strokeDasharray={circumference}
-                    strokeDashoffset={circumference * (1 - plan.value)}
-                    strokeLinecap="round"
-                    style={{ transition: 'stroke-dashoffset 1.2s cubic-bezier(0.4, 0, 0.2, 1)' }}
-                  />
-                </svg>
-                <div className="absolute inset-0 flex items-center justify-center">
-                  <span className="text-white/80 font-mono text-xs">
-                    {(plan.value * 100).toFixed(0)}%
-                  </span>
-                </div>
-              </div>
-              <span className="text-white/30 font-rajdhani text-[9px] tracking-wider uppercase">{plan.label}</span>
-              <span className="text-white/20 font-mono text-[8px]">{plan.covered.toLocaleString()}</span>
-            </div>
-          )
-        })}
-      </div>
+      {/* FDP-style two-panel layout */}
+      <div className="flex gap-4">
+        {/* Left Panel — Coverage Intelligence */}
+        <div className="flex-1 flex flex-col gap-0" style={{
+          background: 'linear-gradient(180deg, rgba(0,0,2,0.85) 0%, rgba(0,0,4,0.9) 50%, rgba(0,0,3,0.85) 100%)',
+          border: '1px solid rgba(255,255,255,0.04)',
+          padding: '14px 16px 18px',
+          backgroundImage: 'radial-gradient(circle, rgba(255,255,255,0.02) 0.5px, transparent 0.5px)',
+          backgroundSize: '12px 12px',
+        }}>
+          {/* Coverage Gauges */}
+          <div style={{ fontFamily: "'Rajdhani', sans-serif", fontSize: '0.5rem', fontWeight: 600, color: 'rgba(255,255,255,0.2)', letterSpacing: '0.18em', textTransform: 'uppercase' as const, marginBottom: 4 }}>
+            PLAN COVERAGE
+          </div>
+          <div style={{ display: 'flex', justifyContent: 'space-around', marginBottom: 2 }}>
+            <CircularGauge
+              value={Math.round(avgUserCoverage * 100)}
+              max={100}
+              label="YOUR PLAN"
+              size={72}
+              alert={avgUserCoverage < 0.4}
+            />
+            <CircularGauge
+              value={Math.round(avgMlCoverage * 100)}
+              max={100}
+              label="ML IDEAL"
+              size={72}
+            />
+            <CircularGauge
+              value={Math.round(avgRealCoverage * 100)}
+              max={100}
+              label="HISTORICAL"
+              size={72}
+              alert={avgRealCoverage < 0.4}
+            />
+          </div>
 
-      {/* Primary 3D visualization — coverage terrain */}
-      <div>
-        <div className="text-white/15 font-rajdhani text-[9px] tracking-widest uppercase mb-2 text-center">
-          Coverage by Region
+          <div style={{ height: 1, background: 'rgba(255,255,255,0.04)', margin: '6px 0', flexShrink: 0 }} />
+
+          {/* People covered stats */}
+          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: '4px 8px', marginBottom: 2 }}>
+            <StatReadout label="YOUR" value={totalUserCovered > 1e6 ? `${(totalUserCovered / 1e6).toFixed(1)}M` : `${(totalUserCovered / 1e3).toFixed(0)}K`} />
+            <StatReadout label="ML" value={totalMlCovered > 1e6 ? `${(totalMlCovered / 1e6).toFixed(1)}M` : `${(totalMlCovered / 1e3).toFixed(0)}K`} />
+            <StatReadout label="REAL" value={totalRealCovered > 1e6 ? `${(totalRealCovered / 1e6).toFixed(1)}M` : `${(totalRealCovered / 1e3).toFixed(0)}K`} alert={totalRealCovered < totalMlCovered} />
+          </div>
+
+          <div style={{ height: 1, background: 'rgba(255,255,255,0.04)', margin: '6px 0', flexShrink: 0 }} />
+
+          {/* TriangularAreaFill — user coverage vs ML coverage */}
+          <div style={{ fontFamily: "'Rajdhani', sans-serif", fontSize: '0.5rem', fontWeight: 600, color: 'rgba(255,255,255,0.2)', letterSpacing: '0.18em', textTransform: 'uppercase' as const, marginBottom: 4 }}>
+            YOUR PLAN / ML DIVERGENCE
+          </div>
+          <div style={{ marginBottom: 2 }}>
+            <TriangularAreaFill
+              dataA={userCoverageSeries.length > 1 ? userCoverageSeries : [0, 50]}
+              dataB={mlCoverageSeries.length > 1 ? mlCoverageSeries : [0, 50]}
+              width={W}
+              height={80}
+              seed={seed + 10}
+              accentColor={avgUserCoverage < avgMlCoverage ? 'rgba(255,160,60,0.6)' : 'rgba(100,180,220,0.5)'}
+            />
+          </div>
+
+          <div style={{ height: 1, background: 'rgba(255,255,255,0.04)', margin: '6px 0', flexShrink: 0 }} />
+
+          {/* RidgeChart — all three coverage profiles */}
+          <div style={{ fontFamily: "'Rajdhani', sans-serif", fontSize: '0.5rem', fontWeight: 600, color: 'rgba(255,255,255,0.2)', letterSpacing: '0.18em', textTransform: 'uppercase' as const, marginBottom: 4 }}>
+            COVERAGE PROFILES
+          </div>
+          <div style={{ marginBottom: 2 }}>
+            <RidgeChart
+              series={[
+                userCoverageSeries.length > 1 ? userCoverageSeries : [0],
+                mlCoverageSeries.length > 1 ? mlCoverageSeries : [0],
+                realCoverageSeries.length > 1 ? realCoverageSeries : [0],
+              ]}
+              width={W}
+              height={90}
+              seed={seed + 20}
+              colors={[
+                'rgba(68,136,170,0.15)',
+                'rgba(136,85,170,0.1)',
+                'rgba(170,68,68,0.08)',
+              ]}
+            />
+          </div>
+
+          <div style={{ height: 1, background: 'rgba(255,255,255,0.04)', margin: '6px 0', flexShrink: 0 }} />
+
+          {/* SegmentedHorizontalBars — per-region user coverage */}
+          <div style={{ fontFamily: "'Rajdhani', sans-serif", fontSize: '0.5rem', fontWeight: 600, color: 'rgba(255,255,255,0.2)', letterSpacing: '0.18em', textTransform: 'uppercase' as const, marginBottom: 4 }}>
+            REGIONAL COVERAGE
+          </div>
+          <div style={{ marginBottom: 2 }}>
+            <SegmentedHorizontalBars
+              bars={regionData.slice(0, 6).map((r: any) => ({
+                label: r.region.slice(0, 6).toUpperCase(),
+                value: Math.round(r.userCoverage * 100),
+                max: 100,
+              }))}
+              width={W}
+              height={Math.min(regionData.length, 6) * 16 + 8}
+            />
+          </div>
         </div>
-        <CoverageTerrainCanvas regionData={regionData} />
+
+        {/* Right Panel — Gap Analysis */}
+        <div className="flex-1 flex flex-col gap-0" style={{
+          background: 'linear-gradient(180deg, rgba(0,0,2,0.85) 0%, rgba(0,0,4,0.9) 50%, rgba(0,0,3,0.85) 100%)',
+          border: '1px solid rgba(255,255,255,0.04)',
+          padding: '14px 16px 18px',
+          backgroundImage: 'radial-gradient(circle, rgba(255,255,255,0.02) 0.5px, transparent 0.5px)',
+          backgroundSize: '12px 12px',
+        }}>
+          {/* FanBurst — gap dispersion */}
+          <div style={{ fontFamily: "'Rajdhani', sans-serif", fontSize: '0.5rem', fontWeight: 600, color: 'rgba(255,255,255,0.2)', letterSpacing: '0.18em', textTransform: 'uppercase' as const, marginBottom: 4 }}>
+            COVERAGE GAP DISPERSION
+          </div>
+          <div style={{ marginBottom: 2 }}>
+            <FanBurst
+              values={gapSeries.length > 1 ? gapSeries : [0, 50]}
+              width={W}
+              height={64}
+              seed={seed + 30}
+              accentColor={avgRealCoverage < avgMlCoverage ? 'rgba(255,160,60,0.4)' : 'rgba(100,220,120,0.3)'}
+            />
+          </div>
+
+          <div style={{ height: 1, background: 'rgba(255,255,255,0.04)', margin: '6px 0', flexShrink: 0 }} />
+
+          {/* Gap stats */}
+          <div style={{ fontFamily: "'Rajdhani', sans-serif", fontSize: '0.5rem', fontWeight: 600, color: 'rgba(255,255,255,0.2)', letterSpacing: '0.18em', textTransform: 'uppercase' as const, marginBottom: 4 }}>
+            GAP METRICS
+          </div>
+          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '4px 8px', marginBottom: 2 }}>
+            <StatReadout label="AVG GAP" value={`${Math.abs(Math.round((avgMlCoverage - avgRealCoverage) * 100))}%`}
+              alert={Math.abs(avgMlCoverage - avgRealCoverage) > 0.2} />
+            <StatReadout label="REACH" value={`${Math.abs(totalMlCovered - totalRealCovered) > 1e6 ? `${((totalMlCovered - totalRealCovered) / 1e6).toFixed(1)}M` : `${((totalMlCovered - totalRealCovered) / 1e3).toFixed(0)}K`}`}
+              alert={totalMlCovered > totalRealCovered} />
+            <StatReadout label="YOUR VS ML" value={`${totalUserCovered > totalMlCovered ? '+' : ''}${Math.abs(totalUserCovered - totalMlCovered) > 1e6 ? `${((totalUserCovered - totalMlCovered) / 1e6).toFixed(1)}M` : `${((totalUserCovered - totalMlCovered) / 1e3).toFixed(0)}K`}`} />
+            <StatReadout label="REGIONS" value={`${regionData.length}`} />
+          </div>
+
+          <div style={{ height: 1, background: 'rgba(255,255,255,0.04)', margin: '6px 0', flexShrink: 0 }} />
+
+          {/* MountainSilhouette — unmet need distribution */}
+          <div style={{ fontFamily: "'Rajdhani', sans-serif", fontSize: '0.5rem', fontWeight: 600, color: 'rgba(255,255,255,0.2)', letterSpacing: '0.18em', textTransform: 'uppercase' as const, marginBottom: 4 }}>
+            UNMET NEED DENSITY
+          </div>
+          <div style={{ marginBottom: 2 }}>
+            <MountainSilhouette
+              data={unmetNeedSeries.length > 1 ? unmetNeedSeries : [0, 100]}
+              width={W}
+              height={48}
+              seed={seed + 40}
+              color="rgba(255,160,60,0.12)"
+              secondaryData={realCoverageSeries.length > 1 ? realCoverageSeries : [0, 50]}
+            />
+          </div>
+
+          <div style={{ height: 1, background: 'rgba(255,255,255,0.04)', margin: '6px 0', flexShrink: 0 }} />
+
+          {/* ThinVerticalBars — budget distribution */}
+          <div style={{ fontFamily: "'Rajdhani', sans-serif", fontSize: '0.5rem', fontWeight: 600, color: 'rgba(255,255,255,0.2)', letterSpacing: '0.18em', textTransform: 'uppercase' as const, marginBottom: 4 }}>
+            BUDGET ALLOCATION
+          </div>
+          <div style={{ marginBottom: 2 }}>
+            <ThinVerticalBars
+              data={budgetSeries.length > 1 ? budgetSeries : [0, 100]}
+              width={W}
+              height={48}
+              seed={seed + 50}
+            />
+          </div>
+
+          <div style={{ height: 1, background: 'rgba(255,255,255,0.04)', margin: '6px 0', flexShrink: 0 }} />
+
+          {/* PerspectiveGrid — coverage depth */}
+          <div style={{ fontFamily: "'Rajdhani', sans-serif", fontSize: '0.5rem', fontWeight: 600, color: 'rgba(255,255,255,0.2)', letterSpacing: '0.18em', textTransform: 'uppercase' as const, marginBottom: 4 }}>
+            COVERAGE STRATA
+          </div>
+          <div style={{ marginBottom: 2 }}>
+            <PerspectiveGrid
+              data={userCoverageSeries.length > 1 ? userCoverageSeries : [0, 50]}
+              width={W}
+              height={60}
+              seed={seed + 60}
+              rows={5}
+            />
+          </div>
+        </div>
       </div>
 
       {/* Anchored insight */}
