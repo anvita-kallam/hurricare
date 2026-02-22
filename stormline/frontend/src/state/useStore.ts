@@ -62,6 +62,13 @@ export interface NarrativePopup {
   type?: 'story' | 'info' | 'warning'
 }
 
+// Game phase controls the two-phase UI:
+// 'pre-sim'      — hurricane selection, globe view
+// 'sim-running'  — cinematic/simulation playing, minimal HUD
+// 'sim-complete' — map-only view with "Begin Game" button
+// 'game-flow'    — immersive step-by-step panel overlay
+export type GamePhase = 'pre-sim' | 'sim-running' | 'sim-complete' | 'game-flow'
+
 interface Store {
   hurricanes: Hurricane[]
   selectedHurricane: Hurricane | null
@@ -85,6 +92,10 @@ interface Store {
   } | null
   postSimulationMapMode: boolean
 
+  // New game-phase state
+  gamePhase: GamePhase
+  gameFlowStep: number // 1-5 for immersive panels
+
   setHurricanes: (hurricanes: Hurricane[]) => void
   setSelectedHurricane: (hurricane: Hurricane | null) => void
   setProjects: (projects: Project[]) => void
@@ -101,6 +112,8 @@ interface Store {
   setShowComparisonPage: (show: boolean) => void
   setComparisonData: (data: { userPlan: any; mlPlan: any; realPlan: any; mismatchAnalysis: any } | null) => void
   setPostSimulationMapMode: (mode: boolean) => void
+  setGamePhase: (phase: GamePhase) => void
+  setGameFlowStep: (step: number) => void
 }
 
 export const useStore = create<Store>((set) => ({
@@ -120,6 +133,8 @@ export const useStore = create<Store>((set) => ({
   showComparisonPage: false,
   comparisonData: null,
   postSimulationMapMode: false,
+  gamePhase: 'pre-sim' as GamePhase,
+  gameFlowStep: 1,
 
   setHurricanes: (hurricanes) => set({ hurricanes }),
   setSelectedHurricane: (hurricane) => set({ selectedHurricane: hurricane }),
@@ -137,4 +152,6 @@ export const useStore = create<Store>((set) => ({
   setShowComparisonPage: (showComparisonPage) => set({ showComparisonPage }),
   setComparisonData: (comparisonData) => set({ comparisonData }),
   setPostSimulationMapMode: (postSimulationMapMode) => set({ postSimulationMapMode }),
+  setGamePhase: (gamePhase) => set({ gamePhase }),
+  setGameFlowStep: (gameFlowStep) => set({ gameFlowStep }),
 }))

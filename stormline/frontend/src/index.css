@@ -294,3 +294,98 @@ input[type="range"]::-moz-range-thumb {
   border: 1px solid rgba(255, 255, 255, 0.15);
   cursor: pointer;
 }
+
+/* ─── Immersive Panel Overlay (Game Flow) ──────────────────────────────────── */
+
+.immersive-backdrop {
+  animation: immersive-fade-in 0.6s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+}
+
+@keyframes immersive-fade-in {
+  from { opacity: 0; backdrop-filter: blur(0px); }
+  to   { opacity: 1; backdrop-filter: blur(12px); }
+}
+
+.immersive-panel {
+  will-change: opacity, transform;
+}
+
+.immersive-panel::-webkit-scrollbar {
+  width: 3px;
+}
+
+.immersive-panel::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.immersive-panel::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.06);
+  border-radius: 2px;
+}
+
+/* Forward transitions for immersive panels */
+.immersive-enter-forward {
+  opacity: 0;
+  transform: translateY(30px) scale(0.97);
+}
+
+.immersive-enter-forward.immersive-enter-active {
+  opacity: 1;
+  transform: translateY(0) scale(1);
+  transition: opacity 0.45s cubic-bezier(0.4, 0, 0.2, 1),
+              transform 0.45s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.immersive-exit-forward {
+  opacity: 0;
+  transform: translateY(-20px) scale(0.98);
+  transition: opacity 0.3s cubic-bezier(0.4, 0, 0.2, 1),
+              transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* Backward transitions for immersive panels */
+.immersive-enter-backward {
+  opacity: 0;
+  transform: translateY(-30px) scale(0.97);
+}
+
+.immersive-enter-backward.immersive-enter-active {
+  opacity: 1;
+  transform: translateY(0) scale(1);
+  transition: opacity 0.45s cubic-bezier(0.4, 0, 0.2, 1),
+              transform 0.45s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.immersive-exit-backward {
+  opacity: 0;
+  transform: translateY(20px) scale(0.98);
+  transition: opacity 0.3s cubic-bezier(0.4, 0, 0.2, 1),
+              transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* ─── Begin Game Button ──────────────────────────────────────────────────── */
+
+.begin-game-btn {
+  animation: begin-game-pulse 3s ease-in-out infinite;
+}
+
+@keyframes begin-game-pulse {
+  0%, 100% { border-color: rgba(255, 255, 255, 0.12); }
+  50%      { border-color: rgba(255, 255, 255, 0.25); }
+}
+
+.begin-game-btn-pressed {
+  transform: scale(0.95);
+  opacity: 0;
+  transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* Confirm step dots */
+.confirm-dot {
+  animation: confirm-pulse 1.5s ease-in-out infinite;
+}
+
+@keyframes confirm-pulse {
+  0%, 100% { opacity: 0.4; transform: scale(1); }
+  50%      { opacity: 0.8; transform: scale(1.3); }
+}
