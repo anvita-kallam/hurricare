@@ -3,6 +3,7 @@ import MapVisGlobe from './components/MapVisGlobe'
 import CoverageChoropleth from './components/CoverageChoropleth'
 import SimulationEngine from './components/SimulationEngine'
 import ComparisonPage from './components/ComparisonPage'
+import CommandCenter from './components/CommandCenter'
 import Leaderboard from './components/Leaderboard'
 import Dashboard3D from './components/Dashboard3D'
 import FundingDisparityGlobe from './components/mapvis/FundingDisparityGlobe'
@@ -271,9 +272,9 @@ function App() {
         />
       )}
 
-      {/* Comparison Page */}
+      {/* Immersive Results / Command Center */}
       {showComparisonPage ? (
-        <ComparisonPage />
+        <CommandCenter />
       ) : (
         <div
           className="w-screen h-screen flex flex-col bg-black relative"
