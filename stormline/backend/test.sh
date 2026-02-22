@@ -1,0 +1,53 @@
+#!/bin/bash
+# 🚀 Quick test script for Databricks integration
+
+echo "╔════════════════════════════════════════════════════════════════════╗"
+echo "║       ✅ DATABRICKS INTEGRATION - QUICK TEST                       ║"
+echo "╚════════════════════════════════════════════════════════════════════╝"
+
+cd "$(dirname "$0")"
+
+echo ""
+echo "📦 Step 1: Check dependencies..."
+python3 -m pip install duckdb requests python-dotenv -q 2>/dev/null
+echo "✓ Dependencies ready"
+
+echo ""
+echo "🧪 Step 2: Run unit tests..."
+python3 test_integration.py
+
+echo ""
+echo "════════════════════════════════════════════════════════════════════"
+echo ""
+echo "🚀 Step 3: Start the backend server"
+echo ""
+echo "   Run this command in a new terminal:"
+echo "   "
+echo "   cd $(pwd)"
+echo "   python3 -m uvicorn main:app --reload"
+echo ""
+echo "════════════════════════════════════════════════════════════════════"
+echo ""
+echo "Then test the API endpoints:"
+echo ""
+echo "   # Get all hurricanes"
+echo "   curl http://localhost:8000/hurricanes | jq '.[:2]'"
+echo ""
+echo "   # Find matching hurricane"
+echo "   curl 'http://localhost:8000/hurricanes/match?region=USA&category=3'"
+echo ""
+echo "   # Get projects"
+echo "   curl http://localhost:8000/projects | jq '.[:2]'"
+echo ""
+echo "   # Get coverage analysis"
+echo "   curl 'http://localhost:8000/coverage' | jq '.[:2]'"
+echo ""
+echo "════════════════════════════════════════════════════════════════════"
+echo ""
+echo "✅ Integration test complete!"
+echo ""
+echo "Read the docs to understand what was done:"
+echo "  • INTEGRATION_SUMMARY.md     (what changed)"
+echo "  • DATABRICKS_INTEGRATION.md  (how to set up)"
+echo "  • EXAMPLES.md                (code examples)"
+echo ""
