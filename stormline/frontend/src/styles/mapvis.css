@@ -120,3 +120,34 @@ canvas {
   text-transform: uppercase;
   font-family: 'Arial', sans-serif;
 }
+
+/* Hover elevation toggle button */
+.hover-toggle-btn {
+  position: absolute;
+  top: 20px;
+  right: 20px;
+  background: rgba(13, 32, 96, 0.7);
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  color: rgba(255, 255, 255, 0.8);
+  padding: 8px 16px;
+  font-size: 0.75rem;
+  cursor: pointer;
+  border-radius: 3px;
+  letter-spacing: 0.1em;
+  transition: all 0.2s ease;
+  text-transform: uppercase;
+  font-weight: 500;
+  z-index: 20;
+  backdrop-filter: blur(8px);
+}
+
+.hover-toggle-btn:hover {
+  background: rgba(13, 32, 96, 0.9);
+  border-color: rgba(255, 255, 255, 0.6);
+  color: #ffffff;
+  box-shadow: 0 0 12px rgba(34, 68, 255, 0.3);
+}
+
+.hover-toggle-btn:active {
+  transform: scale(0.98);
+}
