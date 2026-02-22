@@ -22,7 +22,7 @@ import Step3Confirm from './immersive/Step3Confirm'
 import Step4Results from './immersive/Step4Results'
 import Step5Summary from './immersive/Step5Summary'
 import ImmersiveGameFlow3D from './ImmersiveGameFlow3D'
-import { playStepTransition, playPanelSlide, playPanelSettle, playMagneticTick, playButtonPress, playHover } from '../audio/SoundEngine'
+import { playButtonPress, playHover } from '../audio/SoundEngine'
 
 export default function ImmersivePanelOverlay() {
   const {
@@ -59,16 +59,9 @@ export default function ImmersivePanelOverlay() {
     setIsTransitioning(true)
     setPanelRevealed(false)
 
-    // Sound: step transition
-    playStepTransition(dir)
-
     setTimeout(() => {
       setGameFlowStep(next)
       setIsTransitioning(false)
-      // Sound: panel slides in + settles
-      playPanelSlide()
-      setTimeout(() => playPanelSettle(), 300)
-      setTimeout(() => playMagneticTick(), 450)
     }, 350)
   }, [gameFlowStep, isTransitioning, isRunningPipeline, setGameFlowStep])
 

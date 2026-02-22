@@ -8,7 +8,7 @@
  */
 
 import { useEffect, useRef } from 'react'
-import { initAudio, startAmbient } from './SoundEngine'
+import { initAudio } from './SoundEngine'
 
 export default function AmbientProvider() {
   const startedRef = useRef(false)
@@ -19,9 +19,7 @@ export default function AmbientProvider() {
       startedRef.current = true
 
       initAudio()
-      startAmbient()
 
-      // Remove all listeners after first interaction
       window.removeEventListener('click', start)
       window.removeEventListener('touchstart', start)
       window.removeEventListener('keydown', start)

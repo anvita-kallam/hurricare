@@ -161,6 +161,37 @@ export function playTypeClick(emphasis: 'normal' | 'headline' | 'metric' | 'soft
   tactileOsc.stop(now + timingJitter + 0.09)
 }
 
+// ─── Gentle Typewriter Blip (extremely subtle) ────────────────────────────
+
+/** Ultra-soft typewriter tap — barely perceptible, gentle sine blip */
+export function playTypeSoft(emphasis: 'normal' | 'headline' | 'metric' | 'soft' = 'normal'): void {
+  const c = getCtx()
+  const master = getMaster()
+  const now = c.currentTime
+
+  // Extremely quiet — felt more than heard
+  const volumeMap = { headline: 0.018, metric: 0.014, normal: 0.01, soft: 0.005 }
+  const vol = volumeMap[emphasis]
+
+  // Gentle pitch variation
+  const pitch = 900 + (Math.random() - 0.5) * 200
+
+  const osc = c.createOscillator()
+  osc.type = 'sine'
+  osc.frequency.setValueAtTime(pitch, now)
+  osc.frequency.exponentialRampToValueAtTime(pitch * 0.85, now + 0.04)
+
+  const gain = c.createGain()
+  gain.gain.setValueAtTime(0, now)
+  gain.gain.linearRampToValueAtTime(vol, now + 0.004) // Very soft attack
+  gain.gain.exponentialRampToValueAtTime(0.0001, now + 0.05) // Quick gentle fade
+
+  osc.connect(gain)
+  gain.connect(master)
+  osc.start(now)
+  osc.stop(now + 0.06)
+}
+
 // ─── UI Micro-Sounds ───────────────────────────────────────────────────────
 
 /** Soft mechanical glide — for panels sliding in */

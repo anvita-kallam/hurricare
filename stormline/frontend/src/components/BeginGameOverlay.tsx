@@ -8,7 +8,7 @@
 import { useState } from 'react'
 import { useStore } from '../state/useStore'
 import TypewriterText from './TypewriterText'
-import { playButtonPress, playHover, playLockIn } from '../audio/SoundEngine'
+import { playButtonPress, playHover } from '../audio/SoundEngine'
 
 export default function BeginGameOverlay() {
   const { setGamePhase, setGameFlowStep } = useStore()
@@ -16,7 +16,6 @@ export default function BeginGameOverlay() {
 
   const handleBeginGame = () => {
     playButtonPress()
-    setTimeout(() => playLockIn(), 200)
     setPressed(true)
     // Small delay for the press animation before transitioning
     setTimeout(() => {

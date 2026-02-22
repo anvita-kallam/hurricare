@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react'
 import TypewriterText from './TypewriterText'
-import { playPanelSlide, playPanelSettle } from '../audio/SoundEngine'
+// Sound removed — only hover/click sounds kept
 
 interface NarrativePopupProps {
   title: string
@@ -20,11 +20,9 @@ export default function NarrativePopup({
   const [isVisible, setIsVisible] = useState(false)
 
   useEffect(() => {
-    // Trigger fade-in animation + sound
+    // Trigger fade-in animation
     setTimeout(() => {
       setIsVisible(true)
-      playPanelSlide()
-      setTimeout(() => playPanelSettle(), 300)
     }, 100)
 
     // Auto-close if specified

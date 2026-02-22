@@ -3,9 +3,9 @@
  *
  * Full cluster-level allocation per region (6 humanitarian clusters × N regions):
  *   - Emergency Shelter and NFI, Food Security, Health, WASH, Logistics, Early Recovery
- *   - 3D topography terrain chart showing severity landscape
+ *   - 2.5D isometric severity height map
  *   - Donut pie chart with 3D depth showing budget distribution by category
- *   - ALL regions visible with per-cluster sliders (no collapsing)
+ *   - Single-region slider view with left/right navigation arrows
  *   - Response window setting
  */
 
@@ -13,7 +13,6 @@ import { useMemo, useRef, useEffect, useCallback, useState } from 'react'
 import axios from 'axios'
 import { useStore } from '../../state/useStore'
 import TypewriterText from '../TypewriterText'
-import RegionAllocationViz from '../RegionAllocationViz'
 
 const API_BASE = 'http://localhost:8000'
 
@@ -99,7 +98,6 @@ function ClusterDonut3D({ clusterTotals, totalBudget, totalAllocated }: {
       const sweep = pct * Math.PI * 2
       if (sweep < 0.01) return
 
-      // Extrusion (side walls) — only draw bottom half of arc
       for (let a = startAngle; a < startAngle + sweep; a += 0.02) {
         const endA = Math.min(a + 0.04, startAngle + sweep)
         const x1 = cx + Math.cos(a) * outerR
@@ -107,7 +105,6 @@ function ClusterDonut3D({ clusterTotals, totalBudget, totalAllocated }: {
         const x2 = cx + Math.cos(endA) * outerR
         const y2 = cy + Math.sin(endA) * outerR
 
-        // Only draw extrusion for bottom-facing parts
         if (Math.sin(a) > -0.3) {
           ctx.beginPath()
           ctx.moveTo(x1, y1)
@@ -142,19 +139,16 @@ function ClusterDonut3D({ clusterTotals, totalBudget, totalAllocated }: {
       const g = parseInt(e.color.slice(3, 5), 16)
       const b = parseInt(e.color.slice(5, 7), 16)
 
-      // Gradient fill for depth look
       const grad = ctx.createRadialGradient(cx, cy, innerR, cx, cy, outerR)
       grad.addColorStop(0, `rgba(${r},${g},${b},0.9)`)
       grad.addColorStop(1, `rgba(${Math.floor(r * 0.7)},${Math.floor(g * 0.7)},${Math.floor(b * 0.7)},0.85)`)
       ctx.fillStyle = grad
       ctx.fill()
 
-      // Segment border
       ctx.strokeStyle = 'rgba(0,0,0,0.5)'
       ctx.lineWidth = 1
       ctx.stroke()
 
-      // Label for segments > 6%
       if (pct > 0.06) {
         const mid = startAngle + sweep / 2
         const lr = outerR + 16
@@ -223,10 +217,11 @@ function ClusterDonut3D({ clusterTotals, totalBudget, totalAllocated }: {
   )
 }
 
-/** 3D Topography terrain chart — severity landscape with allocation peaks */
-function SeverityTerrainChart({ data, totalBudget }: {
+/** 2.5D Isometric Severity Height Map — terrain tiles with height = severity */
+function SeverityHeightMap({ data, totalBudget, activeIndex }: {
   data: Array<{ region: string; total: number; severity: number; needPct: number; need: number }>
   totalBudget: number
+  activeIndex: number
 }) {
   const canvasRef = useRef<HTMLCanvasElement>(null)
 
@@ -237,165 +232,178 @@ function SeverityTerrainChart({ data, totalBudget }: {
     if (!ctx) return
 
     const dpr = window.devicePixelRatio || 1
-    canvas.width = 600 * dpr
-    canvas.height = 220 * dpr
+    const cw = 600
+    const ch = 260
+    canvas.width = cw * dpr
+    canvas.height = ch * dpr
     ctx.scale(dpr, dpr)
-    canvas.style.width = '600px'
-    canvas.style.height = '220px'
+    canvas.style.width = `${cw}px`
+    canvas.style.height = `${ch}px`
 
-    const w = 600
-    const h = 220
-    ctx.clearRect(0, 0, w, h)
+    ctx.clearRect(0, 0, cw, ch)
     if (data.length === 0) return
 
-    const maxVal = Math.max(totalBudget * 0.35, ...data.map(d => d.total), 1)
     const cols = data.length
-    const cellW = (w - 80) / cols
-    const maxBarH = h * 0.50
-    const baseY = h * 0.78
-    const depth = 10
-    const perspSkew = 0.4
+    // Isometric tile dimensions
+    const tileW = Math.min(80, (cw - 60) / cols)
+    const tileD = tileW * 0.5 // depth in perspective
+    const maxHeight = ch * 0.45
+    const startX = (cw - cols * tileW) / 2
+    const baseY = ch * 0.82
 
-    // Terrain grid lines
-    ctx.strokeStyle = 'rgba(255,255,255,0.03)'
+    // Draw from back to front (painter's algorithm)
+    // Sort by severity descending so taller ones don't occlude shorter in front
+    const sorted = data.map((d, i) => ({ ...d, origIdx: i }))
+
+    // Draw ground grid
+    ctx.strokeStyle = 'rgba(255,255,255,0.04)'
     ctx.lineWidth = 0.5
-    for (let y = 0; y <= 5; y++) {
-      const gridY = baseY - (y / 5) * maxBarH
+    for (let i = 0; i <= cols; i++) {
+      const gx = startX + i * tileW
+      // Vertical grid line
       ctx.beginPath()
-      ctx.moveTo(40, gridY)
-      ctx.lineTo(w - 30, gridY)
+      ctx.moveTo(gx, baseY)
+      ctx.lineTo(gx + tileD * 0.5, baseY - tileD)
+      ctx.stroke()
+      // Horizontal grid line
+      ctx.beginPath()
+      ctx.moveTo(startX + i * tileW, baseY)
+      ctx.lineTo(startX + cols * tileW, baseY - (cols - i) * 0)
       ctx.stroke()
     }
 
-    // Ground terrain effect — gradient base
-    const groundGrad = ctx.createLinearGradient(40, baseY, w - 30, baseY)
-    data.forEach((d, i) => {
-      const t = i / Math.max(cols - 1, 1)
-      const sev = d.severity
-      if (sev > 0.7) {
-        groundGrad.addColorStop(t, 'rgba(180,50,50,0.15)')
-      } else if (sev > 0.4) {
-        groundGrad.addColorStop(t, 'rgba(180,160,50,0.1)')
-      } else {
-        groundGrad.addColorStop(t, 'rgba(50,150,80,0.08)')
-      }
-    })
-    ctx.fillStyle = groundGrad
-    ctx.fillRect(40, baseY, w - 70, 3)
+    // Draw tiles
+    sorted.forEach((d) => {
+      const i = d.origIdx
+      const x = startX + i * tileW
+      const sevHeight = Math.max(8, d.severity * maxHeight)
+      const allocHeight = totalBudget > 0 ? Math.max(2, (d.total / (totalBudget * 0.3)) * maxHeight * 0.4) : 2
+      const isActive = i === activeIndex
 
-    // Legend
-    ctx.fillStyle = 'rgba(255,255,255,0.5)'
-    ctx.font = '10px Rajdhani'
-    ctx.textAlign = 'left'
+      // Severity color
+      const sevR = d.severity > 0.7 ? 200 : d.severity > 0.4 ? 200 : 60
+      const sevG = d.severity > 0.7 ? 60 : d.severity > 0.4 ? 160 : 160
+      const sevB = d.severity > 0.7 ? 60 : d.severity > 0.4 ? 60 : 100
+      const activeBoost = isActive ? 1.3 : 1.0
+      const baseSevAlpha = isActive ? 0.85 : 0.55
 
-    // Severity terrain bar (behind)
-    ctx.fillStyle = 'rgba(200,80,80,0.5)'
-    ctx.fillRect(42, 8, 10, 8)
-    ctx.fillStyle = 'rgba(255,255,255,0.5)'
-    ctx.fillText('Severity Need', 56, 16)
+      // --- Severity terrain tile (isometric) ---
+      const tileLeft = x + 2
+      const tileRight = tileLeft + tileW - 4
+      const tileMid = (tileLeft + tileRight) / 2
+      const perspOff = tileD * 0.4
 
-    // Allocation bar (in front)
-    ctx.fillStyle = 'rgba(80,170,210,0.6)'
-    ctx.fillRect(150, 8, 10, 8)
-    ctx.fillStyle = 'rgba(255,255,255,0.5)'
-    ctx.fillText('Your Allocation', 164, 16)
-
-    data.forEach((d, i) => {
-      const x = 50 + i * cellW
-      const barW = cellW * 0.35
-
-      // Severity/need mountain (back layer)
-      const needH = Math.max(4, d.needPct * maxBarH)
-      const sevColor = d.severity > 0.7 ? [200, 60, 60] : d.severity > 0.4 ? [200, 160, 60] : [60, 160, 100]
-
-      // Back mountain — wider, like terrain
-      const mtnW = barW * 1.6
-      const mtnX = x - (mtnW - barW) / 2
-
-      // Mountain terrain shape (polygon)
+      // Right face
       ctx.beginPath()
-      ctx.moveTo(mtnX - 4, baseY)
-      ctx.lineTo(mtnX + mtnW * 0.3, baseY - needH * 0.7)
-      ctx.lineTo(mtnX + mtnW * 0.5, baseY - needH)
-      ctx.lineTo(mtnX + mtnW * 0.7, baseY - needH * 0.8)
-      ctx.lineTo(mtnX + mtnW + 4, baseY)
+      ctx.moveTo(tileRight, baseY)
+      ctx.lineTo(tileRight + perspOff, baseY - perspOff)
+      ctx.lineTo(tileRight + perspOff, baseY - perspOff - sevHeight)
+      ctx.lineTo(tileRight, baseY - sevHeight)
       ctx.closePath()
-      const mtnGrad = ctx.createLinearGradient(mtnX, baseY, mtnX, baseY - needH)
-      mtnGrad.addColorStop(0, `rgba(${sevColor[0]},${sevColor[1]},${sevColor[2]},0.15)`)
-      mtnGrad.addColorStop(0.5, `rgba(${sevColor[0]},${sevColor[1]},${sevColor[2]},0.4)`)
-      mtnGrad.addColorStop(1, `rgba(${sevColor[0]},${sevColor[1]},${sevColor[2]},0.6)`)
-      ctx.fillStyle = mtnGrad
+      ctx.fillStyle = `rgba(${Math.floor(sevR * 0.5)},${Math.floor(sevG * 0.5)},${Math.floor(sevB * 0.5)},${baseSevAlpha * 0.7})`
       ctx.fill()
 
-      // Contour lines on the mountain
-      for (let c = 0.2; c < 1; c += 0.25) {
-        const cy2 = baseY - needH * c
-        const spread = mtnW * (1 - c * 0.3) / 2
+      // Front face — gradient
+      const frontGrad = ctx.createLinearGradient(tileLeft, baseY, tileLeft, baseY - sevHeight)
+      frontGrad.addColorStop(0, `rgba(${sevR},${sevG},${sevB},${baseSevAlpha * 0.3})`)
+      frontGrad.addColorStop(0.5, `rgba(${sevR},${sevG},${sevB},${baseSevAlpha * 0.7})`)
+      frontGrad.addColorStop(1, `rgba(${sevR},${sevG},${sevB},${baseSevAlpha})`)
+      ctx.fillStyle = frontGrad
+      ctx.fillRect(tileLeft, baseY - sevHeight, tileRight - tileLeft, sevHeight)
+
+      // Top face (isometric)
+      ctx.beginPath()
+      ctx.moveTo(tileLeft, baseY - sevHeight)
+      ctx.lineTo(tileLeft + perspOff, baseY - perspOff - sevHeight)
+      ctx.lineTo(tileRight + perspOff, baseY - perspOff - sevHeight)
+      ctx.lineTo(tileRight, baseY - sevHeight)
+      ctx.closePath()
+      ctx.fillStyle = `rgba(${Math.min(255, Math.floor(sevR * activeBoost))},${Math.min(255, Math.floor(sevG * activeBoost))},${Math.min(255, Math.floor(sevB * activeBoost))},${baseSevAlpha * 0.9})`
+      ctx.fill()
+
+      // Contour lines on front face
+      ctx.strokeStyle = `rgba(255,255,255,${isActive ? 0.12 : 0.06})`
+      ctx.lineWidth = 0.5
+      const contours = Math.floor(sevHeight / 16)
+      for (let c = 1; c <= contours; c++) {
+        const cy = baseY - (c * 16)
+        if (cy < baseY - sevHeight) break
         ctx.beginPath()
-        ctx.moveTo(mtnX + mtnW / 2 - spread, cy2)
-        ctx.lineTo(mtnX + mtnW / 2 + spread, cy2)
-        ctx.strokeStyle = `rgba(${sevColor[0]},${sevColor[1]},${sevColor[2]},0.15)`
-        ctx.lineWidth = 0.5
+        ctx.moveTo(tileLeft, cy)
+        ctx.lineTo(tileRight, cy)
         ctx.stroke()
       }
 
-      // Allocation bar — 3D extruded block (front layer)
-      const allocX = x + barW * 0.2
-      const aH = Math.max(3, (d.total / maxVal) * maxBarH)
-      const intensity = Math.min(0.4 + (d.total / maxVal) * 0.55, 0.95)
+      // --- Allocation overlay bar on front face ---
+      if (d.total > 0) {
+        const aBarH = Math.min(allocHeight, sevHeight * 0.8)
+        const aBarW = (tileRight - tileLeft) * 0.35
+        const aBarX = tileMid - aBarW / 2
+        const intensity = Math.min(0.4 + (d.total / (totalBudget * 0.3)) * 0.5, 0.95)
 
-      // Front face
-      const barGrad = ctx.createLinearGradient(allocX, baseY - aH, allocX, baseY)
-      barGrad.addColorStop(0, `rgba(80,170,210,${intensity})`)
-      barGrad.addColorStop(1, `rgba(50,130,170,${intensity * 0.7})`)
-      ctx.fillStyle = barGrad
-      ctx.fillRect(allocX, baseY - aH, barW, aH)
+        // Allocation bar (on the face)
+        const aGrad = ctx.createLinearGradient(aBarX, baseY, aBarX, baseY - aBarH)
+        aGrad.addColorStop(0, `rgba(80,170,210,${intensity * 0.5})`)
+        aGrad.addColorStop(1, `rgba(100,190,230,${intensity})`)
+        ctx.fillStyle = aGrad
+        ctx.fillRect(aBarX, baseY - aBarH, aBarW, aBarH)
 
-      // Top face (3D)
-      ctx.fillStyle = `rgba(100,190,230,${intensity * 0.7})`
-      ctx.beginPath()
-      ctx.moveTo(allocX, baseY - aH)
-      ctx.lineTo(allocX + depth * perspSkew, baseY - aH - depth * 0.6)
-      ctx.lineTo(allocX + barW + depth * perspSkew, baseY - aH - depth * 0.6)
-      ctx.lineTo(allocX + barW, baseY - aH)
-      ctx.closePath()
-      ctx.fill()
+        // Allocation glow
+        if (isActive) {
+          ctx.shadowColor = 'rgba(100,180,230,0.3)'
+          ctx.shadowBlur = 8
+          ctx.fillRect(aBarX, baseY - aBarH, aBarW, aBarH)
+          ctx.shadowBlur = 0
+        }
+      }
 
-      // Right face (3D)
-      ctx.fillStyle = `rgba(50,130,170,${intensity * 0.4})`
-      ctx.beginPath()
-      ctx.moveTo(allocX + barW, baseY)
-      ctx.lineTo(allocX + barW + depth * perspSkew, baseY - depth * 0.6)
-      ctx.lineTo(allocX + barW + depth * perspSkew, baseY - aH - depth * 0.6)
-      ctx.lineTo(allocX + barW, baseY - aH)
-      ctx.closePath()
-      ctx.fill()
+      // Active highlight border
+      if (isActive) {
+        ctx.strokeStyle = 'rgba(255,255,255,0.35)'
+        ctx.lineWidth = 1.5
+        ctx.strokeRect(tileLeft - 1, baseY - sevHeight - 1, tileRight - tileLeft + 2, sevHeight + 2)
+      }
 
-      // Value on top
-      ctx.fillStyle = `rgba(255,255,255,${intensity > 0.5 ? 0.8 : 0.5})`
-      ctx.font = 'bold 9px DM Mono, monospace'
+      // Region label below
+      ctx.fillStyle = isActive ? 'rgba(255,255,255,0.9)' : 'rgba(255,255,255,0.5)'
+      ctx.font = `${isActive ? 'bold ' : ''}10px Rajdhani`
       ctx.textAlign = 'center'
-      ctx.fillText(formatBudget(d.total), allocX + barW / 2 + 3, baseY - Math.max(aH, needH) - 14)
+      const label = d.region.length > 10 ? d.region.slice(0, 10) + '..' : d.region
+      ctx.fillText(label, tileMid, baseY + 14)
 
-      // Region label
-      ctx.fillStyle = 'rgba(255,255,255,0.6)'
-      ctx.font = '10px Rajdhani'
+      // Severity value on top
+      ctx.fillStyle = isActive ? 'rgba(255,255,255,0.85)' : 'rgba(255,255,255,0.5)'
+      ctx.font = `bold 10px DM Mono, monospace`
       ctx.textAlign = 'center'
-      const label = d.region.length > 12 ? d.region.slice(0, 12) + '..' : d.region
-      ctx.fillText(label, x + barW * 0.5, baseY + 16)
+      ctx.fillText(
+        `${(d.severity * 10).toFixed(1)}`,
+        tileMid + perspOff * 0.3,
+        baseY - sevHeight - perspOff * 0.5 - 6
+      )
 
-      // Severity indicator dot
-      const dotColor = d.severity > 0.7 ? '#cc4444' : d.severity > 0.4 ? '#ccaa44' : '#44aa77'
-      ctx.fillStyle = dotColor
-      ctx.beginPath()
-      ctx.arc(x + barW * 0.5, baseY + 26, 2.5, 0, Math.PI * 2)
-      ctx.fill()
-
-      ctx.fillStyle = 'rgba(255,255,255,0.3)'
-      ctx.font = '8px DM Mono, monospace'
-      ctx.fillText(`Sev ${(d.severity * 10).toFixed(1)}`, x + barW * 0.5, baseY + 36)
+      // Allocation amount
+      if (d.total > 0) {
+        ctx.fillStyle = isActive ? 'rgba(100,190,230,0.9)' : 'rgba(100,190,230,0.6)'
+        ctx.font = '9px DM Mono, monospace'
+        ctx.fillText(formatBudget(d.total), tileMid, baseY + 26)
+      }
     })
-  }, [data, totalBudget])
+
+    // Legend
+    ctx.fillStyle = 'rgba(255,255,255,0.4)'
+    ctx.font = '9px Rajdhani'
+    ctx.textAlign = 'left'
+    // Severity
+    ctx.fillStyle = 'rgba(200,100,60,0.6)'
+    ctx.fillRect(8, 8, 12, 8)
+    ctx.fillStyle = 'rgba(255,255,255,0.5)'
+    ctx.fillText('Severity (height)', 24, 16)
+    // Allocation
+    ctx.fillStyle = 'rgba(80,170,210,0.7)'
+    ctx.fillRect(8, 22, 12, 8)
+    ctx.fillStyle = 'rgba(255,255,255,0.5)'
+    ctx.fillText('Your Allocation', 24, 30)
+  }, [data, totalBudget, activeIndex])
 
   return (
     <canvas
@@ -420,7 +428,8 @@ export default function Step2Allocation() {
     setGameResponseWindow,
   } = useStore()
 
-  const [activeRegion, setActiveRegion] = useState<string | null>(null)
+  const [regionIndex, setRegionIndex] = useState(0)
+  const [slideDir, setSlideDir] = useState<'left' | 'right' | null>(null)
   const [backendRegions, setBackendRegions] = useState<Array<{ admin1: string; severity_index: number; people_in_need: number }>>([])
 
   // Fetch valid regions from backend API — this is the source of truth
@@ -510,13 +519,6 @@ export default function Step2Allocation() {
     }
   }, [regions, gameClusterAllocations, gameTotalBudget, coverageLookup, setGameClusterAllocations])
 
-  // Auto-highlight first region
-  useEffect(() => {
-    if (regions.length > 0 && !activeRegion) {
-      setActiveRegion(regions[0])
-    }
-  }, [regions, activeRegion])
-
   const totalAllocated = useMemo(() => {
     return Object.values(gameAllocations).reduce((s, v) => s + (v || 0), 0)
   }, [gameAllocations])
@@ -555,22 +557,38 @@ export default function Step2Allocation() {
     }))
   }, [regions, gameAllocations, coverageLookup])
 
+  // Navigation for single-region slider
+  const goToRegion = useCallback((idx: number) => {
+    if (idx < 0 || idx >= regions.length) return
+    setSlideDir(idx > regionIndex ? 'right' : 'left')
+    setRegionIndex(idx)
+    // Clear animation class after transition
+    setTimeout(() => setSlideDir(null), 350)
+  }, [regions.length, regionIndex])
+
+  const goNext = useCallback(() => {
+    if (regionIndex < regions.length - 1) goToRegion(regionIndex + 1)
+  }, [regionIndex, regions.length, goToRegion])
+
+  const goPrev = useCallback(() => {
+    if (regionIndex > 0) goToRegion(regionIndex - 1)
+  }, [regionIndex, goToRegion])
+
   if (!selectedHurricane) return null
 
   const utilizationPct = gameTotalBudget > 0 ? (totalAllocated / gameTotalBudget) * 100 : 0
+  const currentRegion = regions[regionIndex]
+  const cov = currentRegion ? coverageLookup[currentRegion] : null
+  const regionTotal = currentRegion ? (gameAllocations[currentRegion] || 0) : 0
+  const historicalClusters = currentRegion ? (historicalClusterBudgets[currentRegion] || {}) : {}
+  const sliderMax = Math.max(Math.ceil(gameTotalBudget / Math.max(regions.length, 1)), 1)
 
-  // Prepare region data for 2.5D visualization
-  const vizRegions = useMemo(() => {
-    return regions.map(region => ({
-      name: region,
-      lat: Math.random() * 30 - 15, // Rough positioning for 2.5D
-      lon: Math.random() * 60 - 30,
-      severity: coverageLookup[region]?.severity || 0.5,
-      allocation: Object.values(gameClusterAllocations[region] || {}).reduce((s, v) => s + v, 0),
-      need: coverageLookup[region]?.need || 100000,
-      population: coverageLookup[region]?.need || 100000,
-    }))
-  }, [regions, coverageLookup, gameClusterAllocations])
+  // Slide animation CSS
+  const slideClass = slideDir === 'right'
+    ? 'animate-slide-in-right'
+    : slideDir === 'left'
+      ? 'animate-slide-in-left'
+      : ''
 
   return (
     <div className="space-y-5">
@@ -630,27 +648,7 @@ export default function Step2Allocation() {
         />
       </div>
 
-      {/* 2.5D Region Impact Visualization */}
-      <div className="bg-[#0a0a0f] border border-white/[0.08] rounded overflow-hidden" style={{ height: '400px' }}>
-        <div className="p-3 border-b border-white/[0.06] bg-white/[0.02]">
-          <div className="text-white/50 font-rajdhani text-[10px] tracking-widest uppercase">2.5D Region Funding Status</div>
-          <div className="text-white/30 font-mono text-[9px] mt-1">Interactive visualization of allocation impact by region</div>
-        </div>
-        {vizRegions.length > 0 ? (
-          <RegionAllocationViz
-            regions={vizRegions}
-            maxAllocation={gameTotalBudget}
-            width={800}
-            height={360}
-          />
-        ) : (
-          <div className="w-full h-full flex items-center justify-center text-white/40">
-            Loading region data...
-          </div>
-        )}
-      </div>
-
-      {/* Charts row: Donut + Terrain stacked or side by side */}
+      {/* Charts row: Donut + 2.5D Height Map */}
       <div className="flex gap-3 items-start">
         {/* Left: 3D Donut */}
         <div className="shrink-0 w-[280px]">
@@ -672,103 +670,148 @@ export default function Step2Allocation() {
           </div>
         </div>
 
-        {/* Right: Terrain chart — fills remaining space */}
+        {/* Right: 2.5D Severity Height Map */}
         <div className="flex-1 min-w-0 overflow-hidden">
           <div className="text-white/25 font-rajdhani text-[9px] tracking-widest uppercase mb-1 text-center">
-            Severity Terrain vs Your Allocation
+            Severity Height Map
           </div>
-          <SeverityTerrainChart data={terrainData} totalBudget={gameTotalBudget} />
+          <SeverityHeightMap data={terrainData} totalBudget={gameTotalBudget} activeIndex={regionIndex} />
         </div>
       </div>
 
-      {/* Region-by-region cluster allocation — ALL visible */}
-      <div className="space-y-2 max-h-[380px] overflow-y-auto pr-1">
-        <div className="text-white/25 font-rajdhani text-[9px] tracking-widest uppercase text-center pb-1">
-          Per-Region Category Allocation
+      {/* Single-region slider with left/right navigation */}
+      <div className="relative">
+        <div className="text-white/25 font-rajdhani text-[9px] tracking-widest uppercase text-center pb-2">
+          Region {regionIndex + 1} of {regions.length}
         </div>
-        {regions.map(region => {
-          const cov = coverageLookup[region]
-          const regionTotal = gameAllocations[region] || 0
-          const isActive = activeRegion === region
-          const historicalClusters = historicalClusterBudgets[region] || {}
-          // Max per slider = region fair share (so slider range is visually useful)
-          const sliderMax = Math.max(Math.ceil(gameTotalBudget / Math.max(regions.length, 1)), 1)
 
-          return (
-            <div
-              key={region}
-              className={`rounded border transition-all duration-200 ${
-                isActive
-                  ? 'bg-white/[0.04] border-white/[0.12]'
-                  : 'bg-white/[0.015] border-white/[0.05] hover:border-white/[0.08]'
-              }`}
-            >
-              {/* Region header */}
-              <button
-                onClick={() => setActiveRegion(isActive ? null : region)}
-                className="w-full text-left px-3 py-2 flex items-center justify-between"
-              >
-                <div className="flex items-center gap-2">
-                  <div
-                    className="w-2.5 h-2.5 rounded-full shrink-0"
-                    style={{
-                      backgroundColor: cov
-                        ? cov.severity > 0.7 ? '#cc4444' : cov.severity > 0.4 ? '#ccaa44' : '#44aa77'
-                        : 'rgba(255,255,255,0.15)',
-                    }}
-                  />
-                  <span className="text-white/80 font-rajdhani text-sm font-semibold tracking-wide">{region}</span>
+        <div className="flex items-center gap-3">
+          {/* Left arrow */}
+          <button
+            onClick={goPrev}
+            disabled={regionIndex === 0}
+            className="shrink-0 w-9 h-9 flex items-center justify-center rounded border border-white/[0.08] hover:border-white/[0.2] text-white/40 hover:text-white/70 transition-all disabled:opacity-10 disabled:cursor-not-allowed"
+          >
+            <span className="text-lg">&#9666;</span>
+          </button>
+
+          {/* Region card */}
+          <div
+            key={currentRegion}
+            className={`flex-1 rounded border bg-white/[0.03] border-white/[0.1] overflow-hidden ${slideClass}`}
+            style={{
+              animation: slideDir ? undefined : 'none',
+            }}
+          >
+            {/* Region header */}
+            <div className="px-4 py-3 border-b border-white/[0.06] flex items-center justify-between bg-white/[0.02]">
+              <div className="flex items-center gap-3">
+                <div
+                  className="w-3 h-3 rounded-full shrink-0"
+                  style={{
+                    backgroundColor: cov
+                      ? cov.severity > 0.7 ? '#cc4444' : cov.severity > 0.4 ? '#ccaa44' : '#44aa77'
+                      : 'rgba(255,255,255,0.15)',
+                  }}
+                />
+                <div>
+                  <span className="text-white/90 font-rajdhani text-base font-bold tracking-wide">{currentRegion}</span>
                   {cov && (
-                    <span className="text-white/30 font-mono text-[9px]">
-                      Sev {(cov.severity * 10).toFixed(1)} &bull; {cov.need.toLocaleString()} in need
-                    </span>
+                    <div className="text-white/30 font-mono text-[9px] mt-0.5">
+                      Severity {(cov.severity * 10).toFixed(1)} &bull; {cov.need.toLocaleString()} people in need
+                    </div>
                   )}
                 </div>
-                <span className="text-white/50 font-mono text-[10px] font-medium">{formatBudget(regionTotal)}</span>
-              </button>
-
-              {/* 6 cluster sliders — always visible, single column */}
-              <div className="px-3 pb-3 space-y-2">
-                {CLUSTERS.map(cluster => {
-                  const value = gameClusterAllocations[region]?.[cluster] || 0
-                  const fillPct = sliderMax > 0 ? (value / sliderMax) * 100 : 0
-                  const historicalVal = historicalClusters[cluster] || 0
-                  const color = CLUSTER_COLORS[cluster]
-
-                  return (
-                    <div key={cluster}>
-                      <div className="flex items-center gap-2">
-                        <div className="w-2 h-2 rounded-sm shrink-0" style={{ backgroundColor: color }} />
-                        <span className="text-white/55 font-rajdhani text-[10px] tracking-wide font-medium w-16 shrink-0">
-                          {CLUSTER_SHORT[cluster]}
-                        </span>
-                        <input
-                          type="range"
-                          min={0}
-                          max={sliderMax}
-                          step={Math.max(1000, Math.floor(sliderMax / 100))}
-                          value={value}
-                          onChange={(e) => handleClusterChange(region, cluster, Number(e.target.value))}
-                          className="flex-1 h-[6px] appearance-none rounded-full cursor-pointer"
-                          style={{
-                            background: `linear-gradient(to right, ${color} 0%, ${color} ${Math.min(fillPct, 100)}%, rgba(255,255,255,0.08) ${Math.min(fillPct, 100)}%, rgba(255,255,255,0.08) 100%)`,
-                          }}
-                        />
-                        <span className="text-white/60 font-mono text-[9px] w-12 text-right shrink-0">{formatBudget(value)}</span>
-                      </div>
-                      {historicalVal > 0 && (
-                        <div className="text-white/20 font-mono text-[8px] ml-[88px]">
-                          hist: {formatBudget(historicalVal)}
-                        </div>
-                      )}
-                    </div>
-                  )
-                })}
+              </div>
+              <div className="text-right">
+                <div className="text-[#64b4dc] font-mono text-sm font-bold">{formatBudget(regionTotal)}</div>
+                <div className="text-white/30 font-rajdhani text-[8px] tracking-widest uppercase">allocated</div>
               </div>
             </div>
-          )
-        })}
+
+            {/* 6 cluster sliders */}
+            <div className="px-4 py-3 space-y-2.5">
+              {CLUSTERS.map(cluster => {
+                const value = gameClusterAllocations[currentRegion]?.[cluster] || 0
+                const fillPct = sliderMax > 0 ? (value / sliderMax) * 100 : 0
+                const historicalVal = historicalClusters[cluster] || 0
+                const color = CLUSTER_COLORS[cluster]
+
+                return (
+                  <div key={cluster}>
+                    <div className="flex items-center gap-2">
+                      <div className="w-2 h-2 rounded-sm shrink-0" style={{ backgroundColor: color }} />
+                      <span className="text-white/55 font-rajdhani text-[10px] tracking-wide font-medium w-16 shrink-0">
+                        {CLUSTER_SHORT[cluster]}
+                      </span>
+                      <input
+                        type="range"
+                        min={0}
+                        max={sliderMax}
+                        step={Math.max(1000, Math.floor(sliderMax / 100))}
+                        value={value}
+                        onChange={(e) => handleClusterChange(currentRegion, cluster, Number(e.target.value))}
+                        className="flex-1 h-[6px] appearance-none rounded-full cursor-pointer"
+                        style={{
+                          background: `linear-gradient(to right, ${color} 0%, ${color} ${Math.min(fillPct, 100)}%, rgba(255,255,255,0.08) ${Math.min(fillPct, 100)}%, rgba(255,255,255,0.08) 100%)`,
+                        }}
+                      />
+                      <span className="text-white/60 font-mono text-[9px] w-12 text-right shrink-0">{formatBudget(value)}</span>
+                    </div>
+                    {historicalVal > 0 && (
+                      <div className="text-white/20 font-mono text-[8px] ml-[88px]">
+                        hist: {formatBudget(historicalVal)}
+                      </div>
+                    )}
+                  </div>
+                )
+              })}
+            </div>
+          </div>
+
+          {/* Right arrow */}
+          <button
+            onClick={goNext}
+            disabled={regionIndex >= regions.length - 1}
+            className="shrink-0 w-9 h-9 flex items-center justify-center rounded border border-white/[0.08] hover:border-white/[0.2] text-white/40 hover:text-white/70 transition-all disabled:opacity-10 disabled:cursor-not-allowed"
+          >
+            <span className="text-lg">&#9656;</span>
+          </button>
+        </div>
+
+        {/* Region dots */}
+        <div className="flex items-center justify-center gap-1.5 mt-3">
+          {regions.map((r, i) => (
+            <button
+              key={r}
+              onClick={() => goToRegion(i)}
+              className={`rounded-full transition-all duration-300 ${
+                i === regionIndex
+                  ? 'w-5 h-1.5 bg-white/40'
+                  : 'w-1.5 h-1.5 bg-white/10 hover:bg-white/20'
+              }`}
+            />
+          ))}
+        </div>
       </div>
+
+      {/* Inline keyframe styles for slide animations */}
+      <style>{`
+        @keyframes slideInRight {
+          from { transform: translateX(40px); opacity: 0.3; }
+          to { transform: translateX(0); opacity: 1; }
+        }
+        @keyframes slideInLeft {
+          from { transform: translateX(-40px); opacity: 0.3; }
+          to { transform: translateX(0); opacity: 1; }
+        }
+        .animate-slide-in-right {
+          animation: slideInRight 0.3s ease-out;
+        }
+        .animate-slide-in-left {
+          animation: slideInLeft 0.3s ease-out;
+        }
+      `}</style>
     </div>
   )
 }
