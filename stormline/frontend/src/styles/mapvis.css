@@ -1,0 +1,344 @@
+/* MapVis Globe Styles */
+
+.mapvis-container {
+  width: 100%;
+  height: 100%;
+  position: relative;
+  overflow: hidden;
+  background: #000;
+}
+
+.globe-container {
+  width: 100%;
+  height: 100%;
+  filter: blur(0px);
+  transition: filter 0.8s ease-out;
+}
+
+.globe-container.motion-blur {
+  filter: blur(6px);
+  transition: filter 0s;
+}
+
+canvas {
+  display: block;
+}
+
+/* Edge-darkening vignette */
+.zoom-vignette {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background: radial-gradient(
+    ellipse 50% 50% at 50% 50%,
+    transparent 35%,
+    rgba(0, 0, 5, 0.5) 75%,
+    rgba(0, 0, 5, 0.85) 100%
+  );
+  z-index: 5;
+}
+
+/* Country info panel */
+.country-panel {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  padding: 28px 44px 40px;
+  background: linear-gradient(to top, rgba(0, 0, 5, 0.97) 55%, transparent);
+  z-index: 10;
+  animation: slideUp 0.45s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+@keyframes slideUp {
+  from {
+    transform: translateY(50px);
+    opacity: 0;
+  }
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+
+.back-btn {
+  background: none;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  color: rgba(255, 255, 255, 0.6);
+  padding: 8px 20px;
+  font-size: 0.8rem;
+  cursor: pointer;
+  border-radius: 3px;
+  letter-spacing: 0.12em;
+  transition: all 0.2s;
+  margin-bottom: 18px;
+  display: inline-block;
+  text-transform: uppercase;
+  font-family: 'Rajdhani', sans-serif;
+}
+
+.back-btn:hover {
+  background: rgba(255, 255, 255, 0.05);
+  border-color: rgba(255, 255, 255, 0.2);
+  color: #ffffff;
+}
+
+.country-name {
+  margin: 0 0 24px;
+  font-size: clamp(1.8rem, 4vw, 3rem);
+  font-weight: 700;
+  color: #fff;
+  letter-spacing: 0.05em;
+  font-family: 'Rajdhani', sans-serif;
+}
+
+.stats-grid {
+  display: flex;
+  gap: 44px;
+  flex-wrap: wrap;
+}
+
+.stat {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+}
+
+.stat-val {
+  font-size: clamp(1.1rem, 2.5vw, 1.55rem);
+  font-weight: 700;
+  color: #ffffff;
+  font-family: 'DM Mono', monospace;
+}
+
+.stat-lbl {
+  font-size: 0.68rem;
+  color: rgba(255, 255, 255, 0.35);
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  font-family: 'Rajdhani', sans-serif;
+}
+
+/* ═══════════════════════════════════════════════════════════════════════════
+   Funding Disparity Intelligence Panels
+   Signal-density upgrade: telemetry > analytics, complexity > clarity
+   ═══════════════════════════════════════════════════════════════════════════ */
+
+/* Container — anchors left and right panels beside the globe */
+.fdp-container {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  z-index: 10;
+  display: flex;
+  justify-content: space-between;
+  align-items: stretch;
+}
+
+/* Panel base — shared between left and right */
+.fdp-panel {
+  pointer-events: auto;
+  width: 320px;
+  background:
+    linear-gradient(
+      180deg,
+      rgba(0, 0, 2, 0.94) 0%,
+      rgba(0, 0, 4, 0.96) 50%,
+      rgba(0, 0, 3, 0.93) 100%
+    );
+  border: 1px solid rgba(255, 255, 255, 0.04);
+  overflow-y: auto;
+  overflow-x: hidden;
+  padding: 14px 16px 18px;
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+
+  /* Faint dotted background grid — tighter */
+  background-image:
+    radial-gradient(circle, rgba(255, 255, 255, 0.02) 0.5px, transparent 0.5px);
+  background-size: 12px 12px;
+
+  /* Subtle scrollbar */
+  scrollbar-width: thin;
+  scrollbar-color: rgba(255, 255, 255, 0.06) transparent;
+}
+
+.fdp-panel::-webkit-scrollbar {
+  width: 2px;
+}
+
+.fdp-panel::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.fdp-panel::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.08);
+  border-radius: 1px;
+}
+
+/* Left panel — slides in from left */
+.fdp-panel-left {
+  border-right: 1px solid rgba(255, 255, 255, 0.04);
+  border-left: none;
+  animation: fdpSlideInLeft 0.35s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+/* Right panel — slides in from right */
+.fdp-panel-right {
+  border-left: 1px solid rgba(255, 255, 255, 0.04);
+  border-right: none;
+  animation: fdpSlideInRight 0.35s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+@keyframes fdpSlideInLeft {
+  from {
+    transform: translateX(-16px);
+    opacity: 0;
+  }
+  to {
+    transform: translateX(0);
+    opacity: 1;
+  }
+}
+
+@keyframes fdpSlideInRight {
+  from {
+    transform: translateX(16px);
+    opacity: 0;
+  }
+  to {
+    transform: translateX(0);
+    opacity: 1;
+  }
+}
+
+/* Panel header — compact */
+.fdp-panel-header {
+  margin-bottom: 2px;
+}
+
+.fdp-country-name {
+  font-family: 'Rajdhani', sans-serif;
+  font-weight: 700;
+  font-size: 1rem;
+  color: rgba(255, 255, 255, 0.85);
+  letter-spacing: 0.08em;
+  line-height: 1.1;
+  margin: 0;
+}
+
+.fdp-disparity-badge {
+  font-family: 'DM Mono', monospace;
+  font-size: 0.5rem;
+  letter-spacing: 0.16em;
+  margin-top: 2px;
+  opacity: 0.8;
+}
+
+/* Section divider — ultra-thin */
+.fdp-divider {
+  height: 1px;
+  background: rgba(255, 255, 255, 0.04);
+  margin: 6px 0;
+  flex-shrink: 0;
+}
+
+/* Section label — reduced */
+.fdp-section-label {
+  font-family: 'Rajdhani', sans-serif;
+  font-size: 0.5rem;
+  font-weight: 600;
+  color: rgba(255, 255, 255, 0.2);
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  margin-bottom: 4px;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+/* Stat grid — tighter */
+.fdp-stat-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 4px 8px;
+  margin-bottom: 2px;
+}
+
+.fdp-stat-grid-2 {
+  grid-template-columns: 1fr 1fr;
+}
+
+/* Individual stat — compressed */
+.fdp-stat {
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+}
+
+.fdp-stat-label {
+  font-family: 'Rajdhani', sans-serif;
+  font-size: 0.5rem;
+  font-weight: 600;
+  color: rgba(255, 255, 255, 0.55);
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+}
+
+.fdp-stat-row {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.fdp-stat-value {
+  font-family: 'DM Mono', monospace;
+  font-size: 0.85rem;
+  font-weight: 500;
+  color: rgba(255, 255, 255, 0.92);
+  line-height: 1;
+}
+
+.fdp-stat-unit {
+  font-size: 0.55rem;
+  color: rgba(255, 255, 255, 0.5);
+  margin-left: 1px;
+}
+
+/* Chart container — tight */
+.fdp-chart-container {
+  margin-bottom: 2px;
+}
+
+/* Trend indicator — subtle */
+.fdp-trend {
+  font-family: 'DM Mono', monospace;
+  font-size: 0.45rem;
+  letter-spacing: 0.04em;
+}
+
+/* Deselect button */
+.fdp-deselect-btn {
+  position: absolute;
+  top: 16px;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 20;
+  background: rgba(0, 0, 0, 0.5);
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  color: rgba(255, 255, 255, 0.35);
+  padding: 4px 14px;
+  font-family: 'Rajdhani', sans-serif;
+  font-size: 0.6rem;
+  font-weight: 600;
+  letter-spacing: 0.16em;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.fdp-deselect-btn:hover {
+  background: rgba(255, 255, 255, 0.06);
+  color: rgba(255, 255, 255, 0.6);
+  border-color: rgba(255, 255, 255, 0.12);
+}

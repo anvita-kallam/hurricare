@@ -96,8 +96,9 @@ class SimulationEngine:
         
         if not result:
             return NativeResources()
-        
-        people_in_need, severity = result[1], result[0]
+
+        # Query returns (estimated_people_in_need, severity_index)
+        people_in_need, severity = result[0], result[1]
         
         # Synthetic resource generation
         # More developed regions have more resources

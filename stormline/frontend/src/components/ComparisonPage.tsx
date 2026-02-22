@@ -1,11 +1,12 @@
 import { useState, useEffect } from 'react'
 import axios from 'axios'
 import { useStore } from '../state/useStore'
-import { 
-  FundingVsNeedHeatmap, 
-  SeverityVsFundingScatter, 
-  RegionalHeatmap 
+import {
+  FundingVsNeedHeatmap,
+  SeverityVsFundingScatter,
+  RegionalHeatmap
 } from './DataVisualizations'
+import InteractiveChartWrapper from './shared/InteractiveChartWrapper'
 
 const API_BASE = 'http://localhost:8000'
 
@@ -381,27 +382,45 @@ export default function ComparisonPage() {
             </div>
             
             <div className="bg-black/60 border border-cyan-500/20 p-6 rounded">
-              <FundingVsNeedHeatmap 
-                userPlan={userPlan} 
-                mlPlan={mlPlan} 
-                realPlan={realPlan} 
-              />
+              <InteractiveChartWrapper
+                label="Funding vs Need"
+                explanation={`This chart compares funding allocations against humanitarian need across all affected regions for ${selectedHurricane?.name}. Taller red bars indicate regions with higher populations in need. When your allocation (cyan) closely matches the ML-optimized ideal (purple), it suggests efficient resource targeting. Gaps between real-world funding (red) and ideal funding reveal where systemic under-investment left vulnerable populations without adequate support.`}
+                modalScale={1.4}
+              >
+                <FundingVsNeedHeatmap
+                  userPlan={userPlan}
+                  mlPlan={mlPlan}
+                  realPlan={realPlan}
+                />
+              </InteractiveChartWrapper>
             </div>
-            
+
             <div className="bg-black/60 border border-cyan-500/20 p-6 rounded">
-              <SeverityVsFundingScatter 
-                userPlan={userPlan} 
-                mlPlan={mlPlan} 
-                realPlan={realPlan} 
-              />
+              <InteractiveChartWrapper
+                label="Severity vs Funding"
+                explanation={`This visualization plots crisis severity against actual funding received for each region during ${selectedHurricane?.name}. In an ideal response, higher-severity regions would receive proportionally more funding. Mismatches — where severity is high but funding is low — indicate areas where the response failed to prioritize based on need. The ML-optimized plan corrects these imbalances by weighting allocations toward the most severely affected areas.`}
+                modalScale={1.4}
+              >
+                <SeverityVsFundingScatter
+                  userPlan={userPlan}
+                  mlPlan={mlPlan}
+                  realPlan={realPlan}
+                />
+              </InteractiveChartWrapper>
             </div>
-            
+
             <div className="bg-black/60 border border-cyan-500/20 p-6 rounded">
-              <RegionalHeatmap 
-                userPlan={userPlan} 
-                mlPlan={mlPlan} 
-                realPlan={realPlan} 
-              />
+              <InteractiveChartWrapper
+                label="Regional Intensity Heatmap"
+                explanation={`This heatmap breaks each administrative region into sub-zones, showing crisis intensity (red) versus funding coverage (green) at a granular level. Large mismatches between the two bars — where crisis intensity far exceeds funding — indicate localized pockets of unmet need. These sub-regional disparities are often invisible in aggregate data but represent the areas where targeted intervention could save the most lives.`}
+                modalScale={1.4}
+              >
+                <RegionalHeatmap
+                  userPlan={userPlan}
+                  mlPlan={mlPlan}
+                  realPlan={realPlan}
+                />
+              </InteractiveChartWrapper>
             </div>
           </div>
         )}
