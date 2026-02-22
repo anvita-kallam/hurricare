@@ -228,7 +228,10 @@ function App() {
 
   const handleDashboardOption = (option: 'search' | 'browse' | 'disparity') => {
     if (option === 'search' || option === 'browse') {
-      setShowMatcher(true)
+      // Merge search + browse: both enter the main globe view directly
+      // No matcher popup on initial entry — deferred to HUD search bar
+      setGameStarted(true)
+      setShowWelcomePopup(true)
     } else if (option === 'disparity') {
       setShowFundingDisparity(true)
     }
@@ -253,19 +256,11 @@ function App() {
   // Dashboard entry screen
   if (!gameStarted && !showFundingDisparity) {
     return (
-      <>
-        <Dashboard3D
-          onSelectOption={handleDashboardOption}
-          onEnter={() => {}}
-          isLoading={loading}
-        />
-        {showMatcher && !loading && (
-          <HurricaneMatcher
-            onMatchFound={handleMatcherMatch}
-            onSkip={handleMatcherSkip}
-          />
-        )}
-      </>
+      <Dashboard3D
+        onSelectOption={handleDashboardOption}
+        onEnter={() => {}}
+        isLoading={loading}
+      />
     )
   }
 
@@ -332,6 +327,16 @@ function App() {
   // ═══════════════════════════════════════════════════════════════════════════
   return (
     <>
+      {/* HurricaneMatcher — deferred search overlay (appears only when user clicks search bar) */}
+      {showMatcher && (
+        <div className="fixed inset-0 z-[60]" style={{ animation: 'matcherFadeIn 0.3s ease-out' }}>
+          <HurricaneMatcher
+            onMatchFound={handleMatcherMatch}
+            onSkip={handleMatcherSkip}
+          />
+        </div>
+      )}
+
       {/* Cinematic Intro */}
       {isCinematicPlaying && cinematicHurricane && (
         <CinematicIntro
@@ -370,6 +375,22 @@ function App() {
                   <div className="w-1.5 h-1.5 rounded-full bg-red-400/80" />
                   <span className="text-xs font-rajdhani text-white/50 tracking-wider uppercase">Analysis Mode</span>
                 </div>
+              )}
+              {/* Integrated HUD search bar — deferred search trigger */}
+              {!postSimulationMapMode && (
+                <button
+                  onClick={() => setShowMatcher(true)}
+                  className="flex items-center gap-2 px-3 py-1.5 rounded bg-white/[0.04] hover:bg-white/[0.08] border border-white/[0.06] hover:border-white/[0.12] transition-all duration-300 group ml-2"
+                >
+                  <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="text-white/30 group-hover:text-white/50 transition">
+                    <circle cx="11" cy="11" r="8" />
+                    <path d="m21 21-4.35-4.35" />
+                  </svg>
+                  <span className="text-[10px] font-mono text-white/25 group-hover:text-white/40 tracking-[0.15em] transition uppercase">
+                    SEARCH HURRICANES
+                  </span>
+                  <span className="text-[8px] font-mono text-white/15 tracking-wider ml-1">/</span>
+                </button>
               )}
             </div>
             <div className="flex items-center gap-4">
