@@ -272,10 +272,17 @@ function App() {
         />
       )}
 
-      {/* Immersive Results — Step-by-Step Analysis */}
-      {showComparisonPage ? (
-        <PostSimulationSteps />
-      ) : (
+      {/* Immersive Results — Step-by-Step Analysis (overlay on top of map) */}
+      {showComparisonPage && (
+        <>
+          <div className="fixed inset-0 z-0 bg-black">
+            <PostSimulationMap transitionPhase="active" />
+          </div>
+          <PostSimulationSteps />
+        </>
+      )}
+
+      {!showComparisonPage && (
         <div
           className="w-screen h-screen flex flex-col bg-black relative"
           style={{

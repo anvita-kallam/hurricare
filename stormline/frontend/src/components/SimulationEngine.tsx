@@ -235,8 +235,15 @@ export default function SimulationEngine({ onStartSimulation }: SimulationEngine
       setPipelineStage('validating')
       setPipelineProgress(10)
 
+      // Only include regions the backend knows about (from coverage/severity data)
+      const knownRegions = new Set(
+        coverage
+          .filter(c => c.hurricane_id === selectedHurricane.id)
+          .map(c => c.admin1)
+      )
       const completeAllocations: Record<string, number> = {}
       regions.forEach(region => {
+        if (knownRegions.size > 0 && !knownRegions.has(region)) return
         const regionTotal = Object.values(clusterAllocations[region] || {}).reduce((sum, v) => sum + (v || 0), 0)
         completeAllocations[region] = regionTotal
       })
@@ -587,7 +594,8 @@ export default function SimulationEngine({ onStartSimulation }: SimulationEngine
                       {CLUSTERS.map(cluster => {
                         const currentAlloc = clusterAllocations[region]?.[cluster] || 0
                         const currentBudget = clusterBudgetsByRegion[region]?.[cluster] || 0
-                        const maxForCluster = Math.max(0, currentAlloc + remainingForRegion)
+                        const sliderMax = totalBudget
+                        const fillPct = sliderMax > 0 ? (currentAlloc / sliderMax) * 100 : 0
 
                         return (
                           <div key={cluster} className="space-y-1">
@@ -598,13 +606,13 @@ export default function SimulationEngine({ onStartSimulation }: SimulationEngine
                             <input
                               type="range"
                               min="0"
-                              max={maxForCluster}
-                              step={Math.max(1000, Math.floor(maxForCluster / 100))}
+                              max={sliderMax}
+                              step={Math.max(1000, Math.floor(sliderMax / 200))}
                               value={currentAlloc}
                               onChange={(e) => handleClusterAllocationChange(region, cluster, Number(e.target.value))}
                               className="w-full h-1 appearance-none bg-white/[0.04] rounded-full cursor-pointer"
                               style={{
-                                background: `linear-gradient(to right, rgba(255,255,255,0.15) 0%, rgba(255,255,255,0.15) ${maxForCluster > 0 ? (currentAlloc / maxForCluster) * 100 : 0}%, rgba(255,255,255,0.04) ${maxForCluster > 0 ? (currentAlloc / maxForCluster) * 100 : 0}%, rgba(255,255,255,0.04) 100%)`,
+                                background: `linear-gradient(to right, rgba(255,255,255,0.15) 0%, rgba(255,255,255,0.15) ${fillPct}%, rgba(255,255,255,0.04) ${fillPct}%, rgba(255,255,255,0.04) 100%)`,
                               }}
                             />
                             {currentBudget > 0 && (
