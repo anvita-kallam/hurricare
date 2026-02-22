@@ -236,9 +236,9 @@ function App() {
     setComparisonData(null)
   }
 
-  const handleDashboardOption = (option: 'search' | 'browse' | 'disparity') => {
-    if (option === 'search' || option === 'browse') {
-      // Merge search + browse: both enter the main globe view directly
+  const handleDashboardOption = (option: 'browse' | 'disparity') => {
+    if (option === 'browse') {
+      // Enter the main globe view with hurricane paths
       // No matcher popup on initial entry — deferred to HUD search bar
       setGameStarted(true)
       setShowWelcomePopup(true)
@@ -533,6 +533,7 @@ function App() {
                   selectedHurricane={selectedHurricane}
                   autoSpin={autoSpin}
                   onCountrySelect={(country) => console.log('Selected country:', country)}
+                  onHurricaneSelect={handleHurricaneSelect}
                 />
                 <CoverageChoropleth />
               </div>
