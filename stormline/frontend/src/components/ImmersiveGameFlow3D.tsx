@@ -2,74 +2,7 @@ import { useRef, useEffect, useState, useMemo } from 'react'
 import { Canvas, useFrame, useThree } from '@react-three/fiber'
 import { EffectComposer, Vignette } from '@react-three/postprocessing'
 import * as THREE from 'three'
-
-/**
- * Grid Shader Background — Animated perspective grid matching Dashboard3D
- */
-const gridVertexShader = /* glsl */ `
-  varying vec2 vUv;
-  void main() {
-    vUv = uv;
-    gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0);
-  }
-`
-
-const gridFragmentShader = /* glsl */ `
-  uniform float uTime;
-  varying vec2 vUv;
-
-  float grid(vec2 uv, float spacing, float thickness) {
-    vec2 g = abs(fract(uv / spacing - 0.5) - 0.5) * spacing;
-    float line = min(g.x, g.y);
-    return 1.0 - smoothstep(0.0, thickness, line);
-  }
-
-  void main() {
-    vec2 uv = vUv;
-
-    // Major grid — bright
-    float g1 = grid(uv, 0.05, 0.0012) * 0.12;
-    // Minor grid — bright
-    float g2 = grid(uv, 0.2, 0.0012) * 0.22;
-
-    // Horizontal scan line
-    float scanY = fract(uTime * 0.03);
-    float scanDist = abs(uv.y - scanY);
-    float scan = exp(-scanDist * 80.0) * 0.15;
-
-    // Edge fade
-    float edgeFade = smoothstep(0.0, 0.2, uv.x) * smoothstep(1.0, 0.8, uv.x) *
-                     smoothstep(0.0, 0.15, uv.y) * smoothstep(1.0, 0.85, uv.y);
-
-    float alpha = (g1 + g2 + scan) * edgeFade;
-    gl_FragColor = vec4(0.3, 0.5, 0.9, alpha);
-  }
-`
-
-function BackgroundGrid() {
-  const matRef = useRef<THREE.ShaderMaterial>(null)
-
-  useFrame(({ clock }) => {
-    if (matRef.current) {
-      matRef.current.uniforms.uTime.value = clock.elapsedTime
-    }
-  })
-
-  return (
-    <mesh position={[0, 0, -3]} renderOrder={0}>
-      <planeGeometry args={[20, 12]} />
-      <shaderMaterial
-        ref={matRef}
-        vertexShader={gridVertexShader}
-        fragmentShader={gridFragmentShader}
-        uniforms={{ uTime: { value: 0 } }}
-        transparent
-        depthWrite={false}
-        blending={THREE.AdditiveBlending}
-      />
-    </mesh>
-  )
-}
+import Starfield from './mapvis/Starfield'
 
 function ThreeScene() {
   return (
@@ -80,7 +13,7 @@ function ThreeScene() {
       <pointLight position={[-4, 1, 3]} intensity={0.08} color="#9900ff" distance={14} />
       <pointLight position={[4, -1, 3]} intensity={0.06} color="#0055ff" distance={14} />
 
-      <BackgroundGrid />
+      <Starfield />
 
       <EffectComposer>
         <Vignette offset={0.3} darkness={0.6} />
