@@ -1,6 +1,7 @@
 import { useMemo, useRef } from 'react'
 import { useFrame } from '@react-three/fiber'
 import * as THREE from 'three'
+import { playButtonPress } from '../../audio/SoundEngine'
 
 interface CountryData {
   name: string
@@ -138,7 +139,7 @@ export default function CountryMesh({ country, radius, selected, globalSelected,
     <>
       {/* Country fill — renderOrder 10 */}
       <mesh ref={meshRef} geometry={geometry}
-        onClick={(e) => { e.stopPropagation(); onSelect(country.name) }}
+        onClick={(e) => { e.stopPropagation(); playButtonPress(); onSelect(country.name) }}
         renderOrder={10}
       >
         <meshBasicMaterial

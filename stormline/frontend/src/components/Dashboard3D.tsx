@@ -4,6 +4,8 @@ import { EffectComposer, Vignette } from '@react-three/postprocessing'
 import { Effect } from 'postprocessing'
 import * as THREE from 'three'
 import MiniGlobePreview from './MiniGlobePreview'
+import TypewriterText from './TypewriterText'
+import { playButtonPress } from '../audio/SoundEngine'
 
 /* ─── Option definitions ──────────────────────────────────────────────────── */
 
@@ -549,7 +551,9 @@ export default function Dashboard3D({ onSelectOption, isLoading }: Dashboard3DPr
 
   useEffect(() => {
     if (!isLoading) {
-      setTimeout(() => setShowUI(true), 600)
+      setTimeout(() => {
+        setShowUI(true)
+      }, 600)
     }
   }, [isLoading])
 
@@ -584,6 +588,8 @@ export default function Dashboard3D({ onSelectOption, isLoading }: Dashboard3DPr
       setZoomTarget(GLOBE_POSITIONS[idx])
       setZooming(true)
       setUiVisible(false)
+
+      playButtonPress()
 
       // Begin fade overlay
       setTimeout(() => setFadeOpacity(1), 1000)
@@ -770,9 +776,13 @@ export default function Dashboard3D({ onSelectOption, isLoading }: Dashboard3DPr
           {/* Pre-title micro label */}
           <div className="flex items-center gap-2 mb-3">
             <div className="w-6 h-[1px] bg-white/10" />
-            <span className="text-[9px] font-mono text-white/20 tracking-[0.3em] uppercase">
-              HUMANITARIAN RESPONSE INTERFACE
-            </span>
+            <TypewriterText
+              text="HUMANITARIAN RESPONSE INTERFACE"
+              emphasis="soft"
+              delayMs={400}
+              charIntervalMs={15}
+              className="text-[9px] font-mono text-white/20 tracking-[0.3em] uppercase"
+            />
             <div className="w-6 h-[1px] bg-white/10" />
           </div>
 
@@ -783,16 +793,20 @@ export default function Dashboard3D({ onSelectOption, isLoading }: Dashboard3DPr
               textShadow: '0 0 40px rgba(68, 136, 255, 0.08)',
             }}
           >
-            HURRICARE
+            <TypewriterText text="HURRICARE" emphasis="headline" delayMs={800} charIntervalMs={80} />
           </h1>
 
           {/* Subtitle in structured frame */}
           <div className="flex items-center gap-3 mt-3">
             <div className="w-3 h-[1px] bg-white/8" />
             <div className="border border-white/[0.06] px-4 py-1">
-              <span className="text-[11px] font-rajdhani text-white/30 tracking-[0.25em] uppercase">
-                Global Response Simulation System
-              </span>
+              <TypewriterText
+                text="Global Response Simulation System"
+                emphasis="soft"
+                delayMs={1600}
+                charIntervalMs={20}
+                className="text-[11px] font-rajdhani text-white/30 tracking-[0.25em] uppercase"
+              />
             </div>
             <div className="w-3 h-[1px] bg-white/8" />
           </div>
@@ -863,7 +877,7 @@ export default function Dashboard3D({ onSelectOption, isLoading }: Dashboard3DPr
           {/* Center prompt */}
           {showUI && (
             <span className="text-[10px] font-rajdhani text-white/20 tracking-[0.15em] dashboard-prompt-fade">
-              SELECT A GLOBE TO BEGIN
+              <TypewriterText text="SELECT A GLOBE TO BEGIN" emphasis="soft" delayMs={2200} charIntervalMs={40} />
             </span>
           )}
 

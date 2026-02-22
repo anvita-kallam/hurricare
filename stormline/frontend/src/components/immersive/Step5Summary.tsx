@@ -7,6 +7,7 @@
 
 import { useMemo, useRef, useEffect } from 'react'
 import { useStore } from '../../state/useStore'
+import TypewriterText from '../TypewriterText'
 
 function formatBudget(n: number): string {
   if (n >= 1e9) return `$${(n / 1e9).toFixed(1)}B`
@@ -206,11 +207,9 @@ export default function Step5Summary() {
     <div className="space-y-6">
       {/* Title */}
       <div className="text-center space-y-1">
-        <div className="text-white/20 font-rajdhani text-[9px] tracking-[0.3em] uppercase">
-          Delta Insights
-        </div>
+        <TypewriterText text="Delta Insights" emphasis="soft" delayMs={100} className="text-white/20 font-rajdhani text-[9px] tracking-[0.3em] uppercase" as="div" />
         <h2 className="text-white/80 font-rajdhani font-bold text-xl tracking-wider">
-          What Could Have Changed
+          <TypewriterText text="What Could Have Changed" emphasis="headline" delayMs={300} charIntervalMs={35} />
         </h2>
       </div>
 

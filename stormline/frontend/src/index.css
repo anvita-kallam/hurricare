@@ -452,3 +452,124 @@ input[type="range"]::-moz-range-thumb {
     backdrop-filter: blur(8px);
   }
 }
+
+/* ─── Cinematic Panel In (for floating data panels) ──────────────────────── */
+
+@keyframes cinematic-panel-in {
+  from {
+    opacity: 0;
+    transform: translateY(12px) scale(0.96);
+    filter: blur(4px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+    filter: blur(0);
+  }
+}
+
+/* ─── Kinetic Text & TypewriterText ──────────────────────────────────────── */
+
+.typewriter-text {
+  display: inline-block;
+}
+
+.typewriter-char {
+  will-change: opacity, filter, transform;
+}
+
+/* Resolve shimmer: subtle highlight pass on reveal */
+.typewriter-char-active {
+  text-shadow: 0 0 6px rgba(255, 255, 255, 0.12);
+}
+
+/* ─── Motion-Sound Panel Reveal ──────────────────────────────────────────── */
+
+.panel-slide-in-left {
+  animation: panelSlideInLeft 0.45s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+@keyframes panelSlideInLeft {
+  from {
+    opacity: 0;
+    transform: translateX(-16px);
+    filter: blur(3px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+    filter: blur(0);
+  }
+}
+
+.panel-slide-in-right {
+  animation: panelSlideInRight 0.45s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+@keyframes panelSlideInRight {
+  from {
+    opacity: 0;
+    transform: translateX(16px);
+    filter: blur(3px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+    filter: blur(0);
+  }
+}
+
+.panel-slide-in-up {
+  animation: panelSlideInUp 0.5s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+@keyframes panelSlideInUp {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+    filter: blur(4px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+    filter: blur(0);
+  }
+}
+
+/* Depth reveal — elements emerge from depth */
+.depth-reveal {
+  animation: depthReveal 0.6s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+@keyframes depthReveal {
+  from {
+    opacity: 0;
+    transform: scale(0.92) translateZ(-20px);
+    filter: blur(6px);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1) translateZ(0);
+    filter: blur(0);
+  }
+}
+
+/* Idle breathing — subtle scale pulse for "alive" feeling */
+.idle-breathe {
+  animation: idleBreathe 4s ease-in-out infinite;
+}
+
+@keyframes idleBreathe {
+  0%, 100% { transform: scale(1); }
+  50%      { transform: scale(1.003); }
+}
+
+/* Micro-float — very subtle vertical oscillation */
+.micro-float {
+  animation: microFloat 6s ease-in-out infinite;
+}
+
+@keyframes microFloat {
+  0%, 100% { transform: translateY(0); }
+  50%      { transform: translateY(-2px); }
+}

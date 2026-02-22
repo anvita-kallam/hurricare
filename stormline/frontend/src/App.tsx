@@ -14,6 +14,10 @@ import ImmersivePanelOverlay from './components/ImmersivePanelOverlay'
 import { useStore } from './state/useStore'
 import axios from 'axios'
 import { ImpactEvent } from './hooks/useCinematicController'
+import AmbientProvider from './audio/AmbientProvider'
+import { useGlobalClickSounds } from './hooks/useGlobalClickSounds'
+import { playHover, playButtonPress } from './audio/SoundEngine'
+import TypewriterText from './components/TypewriterText'
 
 const API_BASE = 'http://localhost:8000'
 
@@ -58,7 +62,13 @@ function App() {
   const [showWelcomePopup, setShowWelcomePopup] = useState(false)
   const [pendingHurricane, setPendingHurricane] = useState<string | null>(null)
   const [showMatcher, setShowMatcher] = useState(false)
+
+  const sidebarRef = useRef<HTMLDivElement>(null)
+
+  // Sound: satisfying click on every button/interactive element
+  useGlobalClickSounds(true)
   const [showFundingDisparity, setShowFundingDisparity] = useState(false)
+  const [disparityClosing, setDisparityClosing] = useState(false)
   // Map transition: 'globe' | 'fading-out' | 'flat-entering' | 'flat'
   const [mapPhase, setMapPhase] = useState<'globe' | 'fading-out' | 'flat-entering' | 'flat'>('globe')
   const transitionTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null)
@@ -250,22 +260,35 @@ function App() {
   }
 
   const handleCloseFundingDisparity = () => {
-    setShowFundingDisparity(false)
+    // Brief transition: unmount the Canvas first, then mount Dashboard3D
+    // Avoids WebGL context conflict between two Canvas instances
+    setDisparityClosing(true)
+    setTimeout(() => {
+      setShowFundingDisparity(false)
+      setDisparityClosing(false)
+    }, 100)
   }
 
   // Dashboard entry screen
   if (!gameStarted && !showFundingDisparity) {
     return (
-      <Dashboard3D
-        onSelectOption={handleDashboardOption}
-        onEnter={() => {}}
-        isLoading={loading}
-      />
+      <>
+        <AmbientProvider />
+        <Dashboard3D
+          onSelectOption={handleDashboardOption}
+          onEnter={() => {}}
+          isLoading={loading}
+        />
+      </>
     )
   }
 
   // Funding disparity globe
   if (showFundingDisparity) {
+    // During close transition: show black screen while Canvas disposes
+    if (disparityClosing) {
+      return <div className="fixed inset-0 bg-[#020408]" />
+    }
     return (
       <FundingDisparityGlobe onClose={handleCloseFundingDisparity} />
     )
@@ -294,6 +317,7 @@ function App() {
   if (gamePhase === 'sim-complete') {
     return (
       <>
+        <AmbientProvider />
         {/* Full-screen post-simulation map — ONLY visual */}
         <div className="fixed inset-0 z-0 bg-black">
           <PostSimulationMap transitionPhase="active" />
@@ -311,6 +335,7 @@ function App() {
   if (gamePhase === 'game-flow') {
     return (
       <>
+        <AmbientProvider />
         {/* Background map — visible behind the blur */}
         <div className="fixed inset-0 z-0 bg-black">
           <PostSimulationMap transitionPhase="active" />
@@ -327,6 +352,8 @@ function App() {
   // ═══════════════════════════════════════════════════════════════════════════
   return (
     <>
+      <AmbientProvider />
+
       {/* HurricaneMatcher — deferred search overlay (appears only when user clicks search bar) */}
       {showMatcher && (
         <div className="fixed inset-0 z-[60]" style={{ animation: 'matcherFadeIn 0.3s ease-out' }}>
@@ -442,7 +469,7 @@ function App() {
         {/* Main Content */}
         <div className="flex-1 flex overflow-hidden relative z-10">
           {/* Left Sidebar — Hurricane Selection */}
-          <div className="w-64 bg-black/80 border-r border-white/[0.08] p-4 overflow-y-auto">
+          <div ref={sidebarRef} className="w-64 bg-black/80 border-r border-white/[0.08] p-4 overflow-y-auto">
             <div className="flex items-center justify-between mb-4">
               <h2 className="text-xl font-bold text-white/90 font-rajdhani">Historical Hurricanes</h2>
               {selectedHurricane && (

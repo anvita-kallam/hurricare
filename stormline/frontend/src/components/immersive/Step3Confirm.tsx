@@ -10,6 +10,8 @@ import { useMemo, useState, useCallback, useEffect } from 'react'
 import axios from 'axios'
 import { useStore } from '../../state/useStore'
 import { resolveRegion } from '../../utils/regionRegistry'
+import TypewriterText from '../TypewriterText'
+import { playButtonPress, playHover } from '../../audio/SoundEngine'
 
 const API_BASE = 'http://localhost:8000'
 
@@ -380,11 +382,9 @@ export default function Step3Confirm({ onPipelineComplete }: Step3ConfirmProps) 
     <div className="space-y-8">
       {/* Title */}
       <div className="text-center space-y-2">
-        <div className="text-white/20 font-rajdhani text-[9px] tracking-[0.3em] uppercase">
-          Response Plan Prepared
-        </div>
+        <TypewriterText text="Response Plan Prepared" emphasis="soft" delayMs={100} className="text-white/20 font-rajdhani text-[9px] tracking-[0.3em] uppercase" as="div" />
         <h2 className="text-white/80 font-rajdhani font-bold text-xl tracking-wider">
-          Confirm & Analyze
+          <TypewriterText text="Confirm & Analyze" emphasis="headline" delayMs={300} charIntervalMs={40} />
         </h2>
       </div>
 
@@ -447,7 +447,8 @@ export default function Step3Confirm({ onPipelineComplete }: Step3ConfirmProps) 
       {/* Run button */}
       <div className="text-center">
         <button
-          onClick={runPipeline}
+          onClick={() => { playButtonPress(); runPipeline() }}
+          onMouseEnter={() => playHover()}
           className="px-8 py-3 text-white/60 hover:text-white/90 font-rajdhani font-semibold text-sm tracking-widest uppercase transition-all border border-white/[0.08] hover:border-white/[0.2] bg-white/[0.03] hover:bg-white/[0.06]"
         >
           Run Analysis
