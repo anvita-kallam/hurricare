@@ -140,6 +140,9 @@ export default function CountryMesh({ country, radius, selected, globalSelected,
           depthWrite={true}
           depthTest={true}
           toneMapped={false}
+          polygonOffset={true}
+          polygonOffsetFactor={1}
+          polygonOffsetUnits={1}
         />
       </mesh>
 
