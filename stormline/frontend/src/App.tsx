@@ -271,9 +271,9 @@ function App() {
 
   const handleReturnToMenu = () => {
     // Clear all selections and return to the menu
+    // Always reload data to ensure clean state when returning
     setSelectedHurricane(null)
     setPostSimulationMapMode(false)
-    setGameStarted(false)
     setShowWelcomePopup(false)
     setCinematicPlaying(false)
     setCinematicCompleted(false)
@@ -286,9 +286,13 @@ function App() {
     setMapPhase('globe')
     setShowMatcher(false)
     setShowFundingDisparity(false)
+    // Return to dashboard - use minimal delay to ensure clean unmount/remount
+    setTimeout(() => {
+      setGameStarted(false)
+    }, 50)
   }
 
-  // Dashboard entry screen
+  // Dashboard entry screen — always ensure visible and responsive
   if (!gameStarted && !showFundingDisparity) {
     return (
       <>
@@ -296,7 +300,7 @@ function App() {
         <Dashboard3D
           onSelectOption={handleDashboardOption}
           onEnter={() => {}}
-          isLoading={loading}
+          isLoading={loading || hurricanes.length === 0}
         />
       </>
     )
