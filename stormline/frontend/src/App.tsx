@@ -243,7 +243,7 @@ function App() {
     setMapPhase('globe')
     setCinematicCompleted(false)
     setGamePhase('pre-sim')
-    setGameFlowStep(1)
+    setGameFlowStep(2)
     setGameAllocations({})
     setComparisonData(null)
   }
@@ -293,7 +293,7 @@ function App() {
     setCinematicCompleted(false)
     setShowComparisonPage(false)
     setGamePhase('pre-sim')
-    setGameFlowStep(1)
+    setGameFlowStep(2)
     setGameAllocations({})
     setGameClusterAllocations({})
     setComparisonData(null)

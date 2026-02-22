@@ -19,7 +19,7 @@ export default function BeginGameOverlay() {
     setPressed(true)
     // Small delay for the press animation before transitioning
     setTimeout(() => {
-      setGameFlowStep(1)
+      setGameFlowStep(2)
       setGamePhase('game-flow')
     }, 400)
   }

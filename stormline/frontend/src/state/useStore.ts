@@ -150,7 +150,7 @@ export const useStore = create<Store>((set) => ({
   comparisonData: null,
   postSimulationMapMode: false,
   gamePhase: 'pre-sim' as GamePhase,
-  gameFlowStep: 1,
+  gameFlowStep: 2,
   gameAllocations: {},
   gameClusterAllocations: {},
   gameTotalBudget: 50000000,

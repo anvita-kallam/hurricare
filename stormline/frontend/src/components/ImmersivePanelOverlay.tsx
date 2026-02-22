@@ -16,7 +16,6 @@
 
 import { useState, useCallback, useEffect } from 'react'
 import { useStore } from '../state/useStore'
-import Step1Situation from './immersive/Step1Situation'
 import Step2Allocation from './immersive/Step2Allocation'
 import Step3Confirm from './immersive/Step3Confirm'
 import Step4Results from './immersive/Step4Results'
@@ -53,7 +52,7 @@ export default function ImmersivePanelOverlay() {
 
   const goToStep = useCallback((next: number) => {
     if (next === gameFlowStep || isTransitioning || isRunningPipeline) return
-    if (next < 1 || next > 5) return
+    if (next < 2 || next > 5) return
 
     const dir = next > gameFlowStep ? 'forward' : 'backward'
     setTransitionDir(dir)
@@ -84,7 +83,7 @@ export default function ImmersivePanelOverlay() {
     setPostSimulationMapMode(false)
     setCinematicCompleted(false)
     setGamePhase('pre-sim')
-    setGameFlowStep(1)
+    setGameFlowStep(2)
     setGameAllocations({})
     setGameClusterAllocations({})
     setComparisonData(null)
@@ -104,7 +103,7 @@ export default function ImmersivePanelOverlay() {
       : `immersive-enter-${transitionDir}`
 
   const stepLabels = [
-    'Situation Frame',
+    '',             // Step 1 removed
     'Allocation',
     'Confirm & Run',
     'Results',
@@ -119,7 +118,7 @@ export default function ImmersivePanelOverlay() {
         <div className="flex items-center justify-between px-8 py-6 border-b border-white/[0.06]">
           {/* Step progress dots — minimal, left aligned */}
           <div className="flex items-center gap-3">
-            {[1, 2, 3, 4, 5].map(step => (
+            {[2, 3, 4, 5].map(step => (
               <button
                 key={step}
                 onClick={() => {
@@ -164,7 +163,6 @@ export default function ImmersivePanelOverlay() {
             {/* Frosted glass backdrop for readability over grid */}
             <div className="absolute inset-0 -mx-6 -my-4 bg-black/50 backdrop-blur-xl rounded-2xl border border-white/[0.03]" style={{ boxShadow: '0 0 80px rgba(0,0,0,0.6)' }} />
             <div className="relative z-10">
-              {gameFlowStep === 1 && <Step1Situation />}
               {gameFlowStep === 2 && <Step2Allocation />}
               {gameFlowStep === 3 && <Step3Confirm onPipelineComplete={handlePipelineComplete} />}
               {gameFlowStep === 4 && <Step4Results />}
@@ -178,14 +176,14 @@ export default function ImmersivePanelOverlay() {
           <button
             onClick={handlePrev}
             onMouseEnter={() => playHover()}
-            disabled={gameFlowStep === 1 || isRunningPipeline}
+            disabled={gameFlowStep <= 2 || isRunningPipeline}
             className="flex items-center gap-2 px-4 py-2 text-[11px] font-rajdhani tracking-wider uppercase transition-all text-white/30 hover:text-white/60 disabled:opacity-10 disabled:cursor-not-allowed"
           >
             <span className="text-[10px]">&#9666;</span> Previous
           </button>
 
           <div className="flex items-center gap-1.5">
-            {[1, 2, 3, 4, 5].map(step => (
+            {[2, 3, 4, 5].map(step => (
               <div
                 key={step}
                 className={`h-[3px] rounded-full transition-all duration-500 ${
