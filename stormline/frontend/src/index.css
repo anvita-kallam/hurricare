@@ -37,6 +37,7 @@ button, .font-button {
   box-shadow: 0 0 8px rgba(255, 255, 255, 0.06);
 }
 
+.glow-white,
 .glow-cyan {
   box-shadow: 0 0 6px rgba(255, 255, 255, 0.05);
 }
@@ -68,7 +69,7 @@ button, .font-button {
 /* ─── Command Center ──────────────────────────────────────────────────────────── */
 
 .cc-root {
-  background: #020810;
+  background: #020202;
   position: relative;
 }
 

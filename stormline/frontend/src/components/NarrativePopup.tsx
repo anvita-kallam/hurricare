@@ -43,10 +43,10 @@ export default function NarrativePopup({
   }
 
   const typeGlow = {
-    info: 'glow-cyan',
-    warning: 'glow-orange',
-    success: 'glow-green',
-    story: 'glow-purple'
+    info: 'glow-white',
+    warning: 'glow-white',
+    success: 'glow-white',
+    story: 'glow-white'
   }
 
   return (

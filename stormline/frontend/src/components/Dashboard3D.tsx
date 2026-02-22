@@ -309,7 +309,7 @@ function ThreeScene({
 
   return (
     <>
-      <color attach="background" args={['#020408']} />
+      <color attach="background" args={['#020202']} />
       <ambientLight intensity={0.05} />
       <pointLight position={[0, 2, 5]} intensity={0.12} color="#ffffff" distance={14} />
       <pointLight position={[-4, 1, 3]} intensity={0.08} color="#cccccc" distance={14} />
@@ -596,7 +596,7 @@ export default function Dashboard3D({ onSelectOption, isLoading }: Dashboard3DPr
   }, [onSelectOption])
 
   return (
-    <div className="fixed inset-0 z-50 bg-[#020408] overflow-hidden">
+    <div className="fixed inset-0 z-50 bg-[#020202] overflow-hidden">
       {/* 3D Canvas — reduced FOV for less perspective distortion */}
       <div className="absolute inset-0">
         <Canvas
@@ -951,7 +951,7 @@ export default function Dashboard3D({ onSelectOption, isLoading }: Dashboard3DPr
       <div
         className="absolute inset-0 pointer-events-none z-[20]"
         style={{
-          background: '#020408',
+          background: '#020202',
           opacity: fadeOpacity,
           transition: 'opacity 0.6s ease-in',
         }}

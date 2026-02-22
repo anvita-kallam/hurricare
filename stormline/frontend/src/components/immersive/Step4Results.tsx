@@ -124,7 +124,7 @@ export default function Step4Results() {
       <div className="flex gap-4">
         {/* Left Panel — Coverage Intelligence */}
         <div className="flex-1 flex flex-col gap-0" style={{
-          background: 'linear-gradient(180deg, rgba(0,0,2,0.85) 0%, rgba(0,0,4,0.9) 50%, rgba(0,0,3,0.85) 100%)',
+          background: 'linear-gradient(180deg, rgba(0,0,0,0.85) 0%, rgba(0,0,0,0.9) 50%, rgba(0,0,0,0.85) 100%)',
           border: '1px solid rgba(255,255,255,0.04)',
           padding: '14px 16px 18px',
           backgroundImage: 'radial-gradient(circle, rgba(255,255,255,0.02) 0.5px, transparent 0.5px)',
@@ -228,7 +228,7 @@ export default function Step4Results() {
 
         {/* Right Panel — Gap Analysis */}
         <div className="flex-1 flex flex-col gap-0" style={{
-          background: 'linear-gradient(180deg, rgba(0,0,2,0.85) 0%, rgba(0,0,4,0.9) 50%, rgba(0,0,3,0.85) 100%)',
+          background: 'linear-gradient(180deg, rgba(0,0,0,0.85) 0%, rgba(0,0,0,0.9) 50%, rgba(0,0,0,0.85) 100%)',
           border: '1px solid rgba(255,255,255,0.04)',
           padding: '14px 16px 18px',
           backgroundImage: 'radial-gradient(circle, rgba(255,255,255,0.02) 0.5px, transparent 0.5px)',
@@ -318,7 +318,7 @@ export default function Step4Results() {
       {/* 2.5D Coverage Comparison Terrain */}
       {regionData.length > 0 && (
         <div style={{
-          background: 'linear-gradient(180deg, rgba(0,0,2,0.85) 0%, rgba(0,0,4,0.9) 50%, rgba(0,0,3,0.85) 100%)',
+          background: 'linear-gradient(180deg, rgba(0,0,0,0.85) 0%, rgba(0,0,0,0.9) 50%, rgba(0,0,0,0.85) 100%)',
           border: '1px solid rgba(255,255,255,0.04)',
           padding: '14px 16px 10px',
           backgroundImage: 'radial-gradient(circle, rgba(255,255,255,0.02) 0.5px, transparent 0.5px)',

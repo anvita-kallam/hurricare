@@ -16,14 +16,14 @@ export default function GlobeShell() {
       {/* Base globe sphere with ocean color — renderOrder 1 */}
       <mesh renderOrder={1}>
         <sphereGeometry args={[1, 128, 128]} />
-        <meshBasicMaterial color="#0a0a0e" />
+        <meshBasicMaterial color="#0a0a0a" />
       </mesh>
 
       {/* Water/Ocean borders with subtle outline — renderOrder 2 */}
       <mesh renderOrder={2}>
         <sphereGeometry args={[1.033, 64, 64]} />
         <meshBasicMaterial
-          color="#1a1a1e"
+          color="#1a1a1a"
           transparent
           opacity={0.4}
           depthWrite={false}
@@ -35,7 +35,7 @@ export default function GlobeShell() {
       <mesh renderOrder={3}>
         <sphereGeometry args={[1.035, 32, 32]} />
         <meshBasicMaterial
-          color="#2a2a2e"
+          color="#2a2a2a"
           transparent
           opacity={0.15}
           wireframe={false}

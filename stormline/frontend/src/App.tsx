@@ -331,7 +331,7 @@ function App() {
   if (showFundingDisparity) {
     // During close transition: show black screen while Canvas disposes
     if (disparityClosing) {
-      return <div className="fixed inset-0 bg-[#020408]" />
+      return <div className="fixed inset-0 bg-[#020202]" />
     }
     return (
       <FundingDisparityGlobe onClose={handleCloseFundingDisparity} />

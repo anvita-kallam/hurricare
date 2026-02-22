@@ -210,7 +210,7 @@ function MiniShell({ radius }: { radius: number }) {
       {/* Base dark sphere */}
       <mesh renderOrder={1}>
         <sphereGeometry args={[radius, 64, 64]} />
-        <meshBasicMaterial color="#050510" />
+        <meshBasicMaterial color="#050505" />
       </mesh>
 
       {/* Fresnel rim-light atmosphere */}

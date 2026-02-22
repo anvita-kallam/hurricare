@@ -224,8 +224,8 @@ function NeighborRegionMesh({
       {geometries.map(({ geo }, i) => (
         <mesh key={i} geometry={geo}>
           <meshPhongMaterial
-            color="#0a0a0e"
-            emissive="#050508"
+            color="#0a0a0a"
+            emissive="#050505"
             emissiveIntensity={0.3}
             transparent
             opacity={0.7}

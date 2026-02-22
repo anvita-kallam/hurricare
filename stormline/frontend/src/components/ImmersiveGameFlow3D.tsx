@@ -74,7 +74,7 @@ function BackgroundGrid() {
 function ThreeScene() {
   return (
     <>
-      <color attach="background" args={['#020408']} />
+      <color attach="background" args={['#020202']} />
       <ambientLight intensity={0.04} />
       <pointLight position={[0, 2, 5]} intensity={0.12} color="#ffffff" distance={14} />
       <pointLight position={[-4, 1, 3]} intensity={0.08} color="#cccccc" distance={14} />
@@ -106,7 +106,7 @@ export default function ImmersiveGameFlow3D({ children }: ImmersiveGameFlow3DPro
   }, [])
 
   return (
-    <div className="fixed inset-0 z-0 bg-[#020408] overflow-hidden">
+    <div className="fixed inset-0 z-0 bg-[#020202] overflow-hidden">
       {/* 3D Canvas backdrop */}
       <div className="absolute inset-0">
         <Canvas camera={{ position: [0, 0, 9], fov: 40 }} dpr={[1, 2]}>
