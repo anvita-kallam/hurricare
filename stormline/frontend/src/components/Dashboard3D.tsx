@@ -1,7 +1,6 @@
-import { useState, useRef, useEffect } from 'react'
-import { Canvas, useFrame } from '@react-three/fiber'
-import * as THREE from 'three'
-import GlobeShell from './mapvis/GlobeShell'
+import { useState, useEffect } from 'react'
+import { Canvas } from '@react-three/fiber'
+import MiniGlobePreview from './MiniGlobePreview'
 
 interface DashboardOption {
   id: 'search' | 'browse' | 'disparity'
@@ -31,70 +30,17 @@ const options: DashboardOption[] = [
   }
 ]
 
-function FloatingCard({ option, position, onClick, isSelected }: {
-  option: DashboardOption
-  position: [number, number, number]
-  onClick: () => void
-  isSelected: boolean
-}) {
-  const meshRef = useRef<THREE.Mesh>(null)
-  const [hovered, setHovered] = useState(false)
-  const baseY = position[1]
-
-  useFrame(({ clock }) => {
-    if (!meshRef.current) return
-    // Gentle floating motion — no pulsing/breathing
-    meshRef.current.position.y = baseY + Math.sin(clock.elapsedTime * 0.8 + position[0]) * 0.05
-    meshRef.current.rotation.y += 0.003
-
-    // Subtle scale on select only
-    const targetScale = isSelected ? 1.15 : 1.0
-    const cur = meshRef.current.scale.x
-    meshRef.current.scale.setScalar(cur + (targetScale - cur) * 0.1)
-  })
-
-  return (
-    <mesh
-      ref={meshRef}
-      position={position}
-      onClick={onClick}
-      onPointerOver={() => setHovered(true)}
-      onPointerOut={() => setHovered(false)}
-    >
-      <boxGeometry args={[1.6, 2.0, 0.15]} />
-      <meshBasicMaterial
-        color={option.color}
-        transparent
-        opacity={isSelected ? 0.9 : hovered ? 0.7 : 0.5}
-        toneMapped={false}
-      />
-    </mesh>
-  )
+const VARIANT_MAP: Record<string, 'search' | 'browse' | 'heatmap'> = {
+  search: 'search',
+  browse: 'browse',
+  disparity: 'heatmap',
 }
 
-function CardBorder({ position, isSelected }: {
-  position: [number, number, number]
-  isSelected: boolean
-}) {
-  const ref = useRef<THREE.Mesh>(null)
-  const baseY = position[1]
-
-  useFrame(({ clock }) => {
-    if (!ref.current) return
-    ref.current.position.y = baseY + Math.sin(clock.elapsedTime * 0.8 + position[0]) * 0.05
-    ref.current.rotation.y += 0.003
-    const targetScale = isSelected ? 1.15 : 1.0
-    const cur = ref.current.scale.x
-    ref.current.scale.setScalar(cur + (targetScale - cur) * 0.1)
-  })
-
-  return (
-    <lineSegments ref={ref} position={position}>
-      <edgesGeometry args={[new THREE.BoxGeometry(1.6, 2.0, 0.15)]} />
-      <lineBasicMaterial color="#ffffff" transparent opacity={isSelected ? 0.5 : 0.15} />
-    </lineSegments>
-  )
-}
+const GLOBE_POSITIONS: [number, number, number][] = [
+  [-2.8, 0, 0],
+  [0, 0, 0],
+  [2.8, 0, 0],
+]
 
 function ThreeScene({ onSelect }: { onSelect: (id: 'search' | 'browse' | 'disparity') => void }) {
   const [selectedId, setSelectedId] = useState<'search' | 'browse' | 'disparity' | null>(null)
@@ -104,12 +50,6 @@ function ThreeScene({ onSelect }: { onSelect: (id: 'search' | 'browse' | 'dispar
     setTimeout(() => onSelect(id), 300)
   }
 
-  const cardPositions: [number, number, number][] = [
-    [-2.8, 0, 0],
-    [0, 0, 0],
-    [2.8, 0, 0]
-  ]
-
   return (
     <>
       <color attach="background" args={['#000000']} />
@@ -117,26 +57,14 @@ function ThreeScene({ onSelect }: { onSelect: (id: 'search' | 'browse' | 'dispar
       <pointLight position={[0, 0, 4]} intensity={0.15} color="#2244ff" distance={10} />
       <pointLight position={[-3, 1, 2]} intensity={0.1} color="#9900ff" distance={12} />
 
-
-      {/* Small background globe for visual consistency */}
-      <group position={[0, 0, -4]} scale={[0.8, 0.8, 0.8]}>
-        <GlobeShell />
-      </group>
-
-      {/* Floating 3D cards */}
       {options.map((option, index) => (
-        <group key={option.id}>
-          <FloatingCard
-            option={option}
-            position={cardPositions[index]}
-            onClick={() => handleSelect(option.id)}
-            isSelected={selectedId === option.id}
-          />
-          <CardBorder
-            position={cardPositions[index]}
-            isSelected={selectedId === option.id}
-          />
-        </group>
+        <MiniGlobePreview
+          key={option.id}
+          variant={VARIANT_MAP[option.id]}
+          position={GLOBE_POSITIONS[index]}
+          isSelected={selectedId === option.id}
+          onClick={() => handleSelect(option.id)}
+        />
       ))}
     </>
   )
@@ -203,7 +131,7 @@ export default function Dashboard3D({ onSelectOption, isLoading }: Dashboard3DPr
 
         {showButton && (
           <div className="absolute bottom-8 text-center pointer-events-auto">
-            <p className="text-white/30 font-rajdhani text-sm">Click on an option to continue</p>
+            <p className="text-white/30 font-rajdhani text-sm">Click on a globe to continue</p>
           </div>
         )}
       </div>
