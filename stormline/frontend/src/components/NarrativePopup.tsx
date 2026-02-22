@@ -1,4 +1,6 @@
 import { useEffect, useState } from 'react'
+import TypewriterText from './TypewriterText'
+// Sound removed — only hover/click sounds kept
 
 interface NarrativePopupProps {
   title: string
@@ -19,7 +21,9 @@ export default function NarrativePopup({
 
   useEffect(() => {
     // Trigger fade-in animation
-    setTimeout(() => setIsVisible(true), 100)
+    setTimeout(() => {
+      setIsVisible(true)
+    }, 100)
 
     // Auto-close if specified
     if (autoClose > 0) {
@@ -60,7 +64,7 @@ export default function NarrativePopup({
       >
         <div className="flex justify-between items-start mb-4">
           <h3 className="text-2xl font-bold font-orbitron text-glow-cyan">
-            {title}
+            <TypewriterText text={title} emphasis="headline" delayMs={200} charIntervalMs={40} />
           </h3>
           <button
             onClick={onClose}
@@ -70,7 +74,7 @@ export default function NarrativePopup({
           </button>
         </div>
         <p className="text-lg font-exo leading-relaxed whitespace-pre-line">
-          {message}
+          <TypewriterText text={message} emphasis="normal" delayMs={600} charIntervalMs={12} />
         </p>
         {autoClose > 0 && (
           <div className="mt-4 flex justify-end">

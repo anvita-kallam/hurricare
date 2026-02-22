@@ -90,9 +90,9 @@ export default function ComparisonHeatmaps({ userPlan, mlPlan, realPlan, selecte
   return (
     <div className="w-full h-full grid grid-cols-2 gap-4 p-4">
       {/* Crisis/Severity Heatmap */}
-      <div className="bg-black/80 border-2 border-red-500/50 rounded-lg p-6 glow-red">
+      <div className="bg-black/80 border-2 border-red-500/50 rounded-lg p-6 glow-red flex flex-col">
         <h3 className="text-2xl font-bold mb-4 text-red-300 font-orbitron">Crisis Intensity & Need</h3>
-        <div className="w-full h-[calc(100%-5rem)] bg-black/60 rounded border-2 border-red-500/30">
+        <div className="w-full flex-1 bg-black/60 rounded border-2 border-red-500/30">
           <ComposableMap
             projectionConfig={{ scale: 150 }}
             style={{ width: '100%', height: '100%' }}
@@ -108,13 +108,27 @@ export default function ComparisonHeatmaps({ userPlan, mlPlan, realPlan, selecte
                     <Geography
                       key={geo.rsmKey}
                       geography={geo}
-                      fill={color}
-                      stroke="#333"
-                      strokeWidth={0.5}
                       style={{
-                        default: { outline: 'none' },
-                        hover: { outline: 'none', fill: '#ff6b6b' },
-                        pressed: { outline: 'none' }
+                        default: {
+                          fill: color,
+                          stroke: '#000000',
+                          strokeWidth: 1,
+                          outline: 'none',
+                          cursor: 'pointer'
+                        },
+                        hover: {
+                          fill: color,
+                          stroke: '#ffffff',
+                          strokeWidth: 2,
+                          outline: 'none',
+                          cursor: 'pointer'
+                        },
+                        pressed: {
+                          fill: color,
+                          stroke: '#ffffff',
+                          strokeWidth: 3,
+                          outline: 'none'
+                        }
                       }}
                     />
                   )
@@ -123,15 +137,24 @@ export default function ComparisonHeatmaps({ userPlan, mlPlan, realPlan, selecte
             </Geographies>
           </ComposableMap>
         </div>
-        <div className="mt-2 text-xs text-red-300/70 font-exo">
-          Red intensity indicates crisis severity and people in need
+        {/* Legend */}
+        <div className="mt-3 flex items-center gap-2 p-2 bg-black/40 rounded">
+          <div className="flex-1 flex items-center gap-1">
+            <span className="text-xs text-red-300/70 font-exo">Low</span>
+            {[0, 0.25, 0.5, 0.75, 1].map((val) => (
+              <div key={val} className="flex-1 h-3 rounded-sm" style={{
+                background: getColor(val * maxCrisis, maxCrisis, 'crisis')
+              }} />
+            ))}
+            <span className="text-xs text-red-300/70 font-exo">High</span>
+          </div>
         </div>
       </div>
       
       {/* Funding Heatmap */}
-      <div className="bg-black/80 border-2 border-cyan-500/50 rounded-lg p-6 glow-cyan">
+      <div className="bg-black/80 border-2 border-cyan-500/50 rounded-lg p-6 glow-cyan flex flex-col">
         <h3 className="text-2xl font-bold mb-4 text-cyan-300 font-orbitron">Funding Allocation</h3>
-        <div className="w-full h-[calc(100%-5rem)] bg-black/60 rounded border-2 border-cyan-500/30">
+        <div className="w-full flex-1 bg-black/60 rounded border-2 border-cyan-500/30">
           <ComposableMap
             projectionConfig={{ scale: 150 }}
             style={{ width: '100%', height: '100%' }}
@@ -148,13 +171,27 @@ export default function ComparisonHeatmaps({ userPlan, mlPlan, realPlan, selecte
                     <Geography
                       key={geo.rsmKey}
                       geography={geo}
-                      fill={color}
-                      stroke="#333"
-                      strokeWidth={0.5}
                       style={{
-                        default: { outline: 'none' },
-                        hover: { outline: 'none', fill: '#06b6d4' },
-                        pressed: { outline: 'none' }
+                        default: {
+                          fill: color,
+                          stroke: '#000000',
+                          strokeWidth: 1,
+                          outline: 'none',
+                          cursor: 'pointer'
+                        },
+                        hover: {
+                          fill: color,
+                          stroke: '#ffffff',
+                          strokeWidth: 2,
+                          outline: 'none',
+                          cursor: 'pointer'
+                        },
+                        pressed: {
+                          fill: color,
+                          stroke: '#ffffff',
+                          strokeWidth: 3,
+                          outline: 'none'
+                        }
                       }}
                     />
                   )
@@ -163,8 +200,17 @@ export default function ComparisonHeatmaps({ userPlan, mlPlan, realPlan, selecte
             </Geographies>
           </ComposableMap>
         </div>
-        <div className="mt-2 text-xs text-cyan-300/70 font-exo">
-          Blue intensity indicates funding allocation (Real-World)
+        {/* Legend */}
+        <div className="mt-3 flex items-center gap-2 p-2 bg-black/40 rounded">
+          <div className="flex-1 flex items-center gap-1">
+            <span className="text-xs text-cyan-300/70 font-exo">Low</span>
+            {[0, 0.25, 0.5, 0.75, 1].map((val) => (
+              <div key={val} className="flex-1 h-3 rounded-sm" style={{
+                background: getColor(val * maxFunding, maxFunding, 'funding')
+              }} />
+            ))}
+            <span className="text-xs text-cyan-300/70 font-exo">High</span>
+          </div>
         </div>
       </div>
     </div>

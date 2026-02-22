@@ -4,22 +4,67 @@
 
 body {
   margin: 0;
-  font-family: 'Exo 2', 'Orbitron', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  font-family: 'Rajdhani', 'DM Mono', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   background: #000000;
   color: #ffffff;
+  /* Boost base font size for readability */
+  font-size: 16px;
 }
 
-/* Futuristic font classes */
+/* ─── Global Text Brightness Boost ──────────────────────────────────────── */
+/* Override all overly-dim text to ensure readability */
+* {
+  --tw-text-opacity-boost: 1;
+}
+
+/* Film grain overlay — compositing-safe, won't flicker during scroll */
+.film-grain {
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: 9999;
+  opacity: 0.06;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)'/%3E%3C/svg%3E");
+  animation: grain 0.3s steps(6) infinite;
+  backface-visibility: hidden;
+  will-change: transform;
+}
+
+@keyframes grain {
+  0%, 100% { transform: translate3d(0, 0, 0); }
+  10% { transform: translate3d(-2%, -2%, 0); }
+  20% { transform: translate3d(2%, 2%, 0); }
+  30% { transform: translate3d(-1%, 3%, 0); }
+  40% { transform: translate3d(3%, -1%, 0); }
+  50% { transform: translate3d(-3%, 1%, 0); }
+  60% { transform: translate3d(1%, -3%, 0); }
+  70% { transform: translate3d(-2%, 2%, 0); }
+  80% { transform: translate3d(2%, -2%, 0); }
+  90% { transform: translate3d(-1%, -1%, 0); }
+}
+
+/* Vignette overlay — subtle, compositing-safe */
+.vignette-overlay {
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: 9998;
+  background: radial-gradient(ellipse at center, transparent 60%, rgba(0,0,0,0.35) 100%);
+  backface-visibility: hidden;
+  transform: translateZ(0);
+}
+
+/* Rajdhani for UI headers/labels */
 h1, h2, h3, h4, h5, h6, .font-futuristic {
-  font-family: 'Orbitron', 'Exo 2', sans-serif;
+  font-family: 'Rajdhani', sans-serif;
   font-weight: 700;
   letter-spacing: 0.05em;
 }
 
 button, .font-button {
-  font-family: 'Orbitron', 'Exo 2', sans-serif;
+  font-family: 'Rajdhani', sans-serif;
   font-weight: 600;
   letter-spacing: 0.03em;
 }
@@ -28,79 +73,753 @@ button, .font-button {
   width: 100vw;
   height: 100vh;
   overflow: hidden;
-  background: radial-gradient(ellipse at center, #1a1a2e 0%, #000000 100%);
+  background: #050505;
   position: relative;
 }
 
-/* Space background with stars */
-#root::before {
-  content: '';
-  position: absolute;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  background-image: 
-    radial-gradient(2px 2px at 20% 30%, white, transparent),
-    radial-gradient(2px 2px at 60% 70%, white, transparent),
-    radial-gradient(1px 1px at 50% 50%, white, transparent),
-    radial-gradient(1px 1px at 80% 10%, white, transparent),
-    radial-gradient(2px 2px at 90% 60%, white, transparent),
-    radial-gradient(1px 1px at 33% 80%, white, transparent),
-    radial-gradient(2px 2px at 10% 40%, white, transparent),
-    radial-gradient(1px 1px at 70% 20%, white, transparent);
-  background-repeat: repeat;
-  background-size: 200px 200px;
-  opacity: 0.8;
-  animation: sparkle 20s linear infinite;
-  pointer-events: none;
-  z-index: 0;
-}
-
-@keyframes sparkle {
-  0%, 100% { opacity: 0.8; }
-  50% { opacity: 1.0; }
-}
-
-/* Glowing effects */
+/* No neon/cyan glow — subtle white-only highlights (5-10% opacity) */
 .glow {
-  box-shadow: 0 0 10px rgba(59, 130, 246, 0.5),
-              0 0 20px rgba(59, 130, 246, 0.3),
-              0 0 30px rgba(59, 130, 246, 0.2);
+  box-shadow: 0 0 8px rgba(255, 255, 255, 0.06);
 }
 
 .glow-cyan {
-  box-shadow: 0 0 10px rgba(6, 182, 212, 0.5),
-              0 0 20px rgba(6, 182, 212, 0.3),
-              0 0 30px rgba(6, 182, 212, 0.2);
+  box-shadow: 0 0 6px rgba(255, 255, 255, 0.05);
 }
 
 .glow-purple {
-  box-shadow: 0 0 10px rgba(168, 85, 247, 0.5),
-              0 0 20px rgba(168, 85, 247, 0.3),
-              0 0 30px rgba(168, 85, 247, 0.2);
+  box-shadow: 0 0 6px rgba(255, 255, 255, 0.04);
 }
 
 .glow-green {
-  box-shadow: 0 0 10px rgba(34, 197, 94, 0.5),
-              0 0 20px rgba(34, 197, 94, 0.3),
-              0 0 30px rgba(34, 197, 94, 0.2);
+  box-shadow: 0 0 6px rgba(255, 255, 255, 0.04);
 }
 
 .glow-orange {
-  box-shadow: 0 0 10px rgba(249, 115, 22, 0.5),
-              0 0 20px rgba(249, 115, 22, 0.3),
-              0 0 30px rgba(249, 115, 22, 0.2);
+  box-shadow: 0 0 6px rgba(255, 255, 255, 0.04);
+}
+
+.glow-red {
+  box-shadow: 0 0 6px rgba(255, 255, 255, 0.04);
 }
 
 .text-glow {
-  text-shadow: 0 0 10px rgba(59, 130, 246, 0.8),
-               0 0 20px rgba(59, 130, 246, 0.6),
-               0 0 30px rgba(59, 130, 246, 0.4);
+  text-shadow: none;
 }
 
 .text-glow-cyan {
-  text-shadow: 0 0 10px rgba(6, 182, 212, 0.8),
-               0 0 20px rgba(6, 182, 212, 0.6),
-               0 0 30px rgba(6, 182, 212, 0.4);
+  text-shadow: none;
+}
+
+/* ─── Command Center ──────────────────────────────────────────────────────────── */
+
+.cc-root {
+  background: #020810;
+  position: relative;
+}
+
+.cc-header {
+  backdrop-filter: blur(8px);
+}
+
+.cc-grid {
+  background: repeating-linear-gradient(
+    0deg,
+    transparent,
+    transparent 49.9%,
+    rgba(255, 255, 255, 0.02) 50%,
+    rgba(255, 255, 255, 0.02) 50.1%,
+    transparent 50.2%
+  ),
+  repeating-linear-gradient(
+    90deg,
+    transparent,
+    transparent 49.9%,
+    rgba(255, 255, 255, 0.02) 50%,
+    rgba(255, 255, 255, 0.02) 50.1%,
+    transparent 50.2%
+  );
+  background-size: 60px 60px;
+}
+
+.cc-panel {
+  will-change: opacity, transform;
+}
+
+.cc-panel::-webkit-scrollbar {
+  width: 3px;
+}
+
+.cc-panel::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.cc-panel::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.06);
+  border-radius: 2px;
+}
+
+.cc-panel::-webkit-scrollbar-thumb:hover {
+  background: rgba(255, 255, 255, 0.12);
+}
+
+/* Subtle scan line animation */
+.cc-scanline {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 1px;
+  background: linear-gradient(90deg, transparent 0%, rgba(255, 255, 255, 0.03) 50%, transparent 100%);
+  animation: cc-scan 8s linear infinite;
+  pointer-events: none;
+  z-index: 50;
+}
+
+@keyframes cc-scan {
+  0% { top: 0; opacity: 0; }
+  5% { opacity: 1; }
+  95% { opacity: 1; }
+  100% { top: 100%; opacity: 0; }
+}
+
+/* Region detail expand animation */
+.cc-region-detail {
+  animation: cc-expand 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+@keyframes cc-expand {
+  from {
+    opacity: 0;
+    max-height: 0;
+    transform: translateY(-4px);
+  }
+  to {
+    opacity: 1;
+    max-height: 300px;
+    transform: translateY(0);
+  }
+}
+
+/* ─── Step Transition Animations ──────────────────────────────────────────────── */
+
+/* Forward step transitions (moving right/next) */
+.step-enter-forward {
+  opacity: 0;
+  transform: translateX(40px);
+}
+
+.step-enter-forward.step-enter-active {
+  opacity: 1;
+  transform: translateX(0);
+  transition: opacity 0.4s cubic-bezier(0.4, 0, 0.2, 1),
+              transform 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.step-exit-forward {
+  opacity: 0;
+  transform: translateX(-40px);
+  transition: opacity 0.25s cubic-bezier(0.4, 0, 0.2, 1),
+              transform 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* Backward step transitions (moving left/previous) */
+.step-enter-backward {
+  opacity: 0;
+  transform: translateX(-40px);
+}
+
+.step-enter-backward.step-enter-active {
+  opacity: 1;
+  transform: translateX(0);
+  transition: opacity 0.4s cubic-bezier(0.4, 0, 0.2, 1),
+              transform 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.step-exit-backward {
+  opacity: 0;
+  transform: translateX(40px);
+  transition: opacity 0.25s cubic-bezier(0.4, 0, 0.2, 1),
+              transform 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* ─── Simulation Engine Redesign ──────────────────────────────────────────────── */
+
+.sim-panel {
+  background: rgba(0, 0, 0, 0.4);
+  border: 1px solid rgba(255, 255, 255, 0.05);
+  backdrop-filter: blur(4px);
+}
+
+.sim-panel::-webkit-scrollbar {
+  width: 3px;
+}
+
+.sim-panel::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.sim-panel::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.06);
+  border-radius: 2px;
+}
+
+.sim-progress-bar {
+  position: relative;
+  overflow: hidden;
+}
+
+.sim-progress-bar::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.1), transparent);
+  animation: sim-shimmer 2s infinite;
+}
+
+@keyframes sim-shimmer {
+  0% { left: -100%; }
+  100% { left: 100%; }
+}
+
+/* Processing state animation */
+.sim-processing {
+  position: relative;
+}
+
+.sim-processing::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border: 1px solid transparent;
+  border-radius: inherit;
+  animation: sim-border-pulse 2s ease-in-out infinite;
+}
+
+@keyframes sim-border-pulse {
+  0%, 100% { border-color: rgba(255, 255, 255, 0.03); }
+  50% { border-color: rgba(255, 255, 255, 0.08); }
+}
+
+/* ─── Range Slider Styling ──────────────────────────────────────────────────── */
+
+input[type="range"] {
+  -webkit-appearance: none;
+  appearance: none;
+  height: 6px;
+  border-radius: 3px;
+  outline: none;
+  cursor: pointer;
+}
+
+input[type="range"]::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.85);
+  border: 2px solid rgba(100, 180, 220, 0.6);
+  cursor: pointer;
+  transition: all 0.15s ease;
+  box-shadow: 0 0 6px rgba(100, 180, 220, 0.3);
+}
+
+input[type="range"]::-webkit-slider-thumb:hover {
+  background: rgba(255, 255, 255, 1);
+  border-color: rgba(100, 180, 220, 0.9);
+  transform: scale(1.15);
+  box-shadow: 0 0 10px rgba(100, 180, 220, 0.5);
+}
+
+input[type="range"]::-moz-range-thumb {
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.85);
+  border: 2px solid rgba(100, 180, 220, 0.6);
+  cursor: pointer;
+  box-shadow: 0 0 6px rgba(100, 180, 220, 0.3);
+}
+
+/* ─── Immersive Panel Overlay (Game Flow) ──────────────────────────────────── */
+
+.immersive-backdrop {
+  animation: immersive-fade-in 0.6s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+}
+
+@keyframes immersive-fade-in {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+
+.immersive-panel {
+  will-change: opacity, transform;
+}
+
+.immersive-panel::-webkit-scrollbar {
+  width: 3px;
+}
+
+.immersive-panel::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.immersive-panel::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.06);
+  border-radius: 2px;
+}
+
+/* Forward transitions for immersive panels */
+.immersive-enter-forward {
+  opacity: 0;
+  transform: translateY(30px) scale(0.97);
+}
+
+.immersive-enter-forward.immersive-enter-active {
+  opacity: 1;
+  transform: translateY(0) scale(1);
+  transition: opacity 0.45s cubic-bezier(0.4, 0, 0.2, 1),
+              transform 0.45s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.immersive-exit-forward {
+  opacity: 0;
+  transform: translateY(-20px) scale(0.98);
+  transition: opacity 0.3s cubic-bezier(0.4, 0, 0.2, 1),
+              transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* Backward transitions for immersive panels */
+.immersive-enter-backward {
+  opacity: 0;
+  transform: translateY(-30px) scale(0.97);
+}
+
+.immersive-enter-backward.immersive-enter-active {
+  opacity: 1;
+  transform: translateY(0) scale(1);
+  transition: opacity 0.45s cubic-bezier(0.4, 0, 0.2, 1),
+              transform 0.45s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.immersive-exit-backward {
+  opacity: 0;
+  transform: translateY(20px) scale(0.98);
+  transition: opacity 0.3s cubic-bezier(0.4, 0, 0.2, 1),
+              transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* ─── Begin Game Button ──────────────────────────────────────────────────── */
+
+.begin-game-btn {
+  animation: begin-game-pulse 3s ease-in-out infinite;
+}
+
+@keyframes begin-game-pulse {
+  0%, 100% { border-color: rgba(255, 255, 255, 0.12); }
+  50%      { border-color: rgba(255, 255, 255, 0.25); }
+}
+
+.begin-game-btn-pressed {
+  transform: scale(0.95);
+  opacity: 0;
+  transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* Confirm step dots */
+.confirm-dot {
+  animation: confirm-pulse 1.5s ease-in-out infinite;
+}
+
+@keyframes confirm-pulse {
+  0%, 100% { opacity: 0.4; transform: scale(1); }
+  50%      { opacity: 0.8; transform: scale(1.3); }
+}
+
+/* ─── Dashboard Selection Screen ──────────────────────────────────────────── */
+
+.dashboard-pulse {
+  animation: dashPulse 2.5s ease-in-out infinite;
+}
+
+@keyframes dashPulse {
+  0%, 100% { opacity: 0.4; }
+  50%      { opacity: 0.9; }
+}
+
+.dashboard-option-fade {
+  opacity: 0;
+  transform: translateY(8px);
+  animation: dashOptionIn 0.5s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+}
+
+@keyframes dashOptionIn {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.dashboard-prompt-fade {
+  animation: dashPromptIn 1s ease-out 0.8s both;
+}
+
+@keyframes dashPromptIn {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+
+.dashboard-loading-bar {
+  animation: dashLoadingBar 1.5s ease-in-out infinite;
+}
+
+@keyframes dashLoadingBar {
+  0%   { left: -33%; }
+  100% { left: 100%; }
+}
+
+/* ─── Deferred Search Matcher Overlay ──────────────────────────────────────── */
+
+@keyframes matcherFadeIn {
+  from {
+    opacity: 0;
+    backdrop-filter: blur(0px);
+  }
+  to {
+    opacity: 1;
+    backdrop-filter: blur(8px);
+  }
+}
+
+/* ─── Cinematic Panel In (for floating data panels) ──────────────────────── */
+
+@keyframes cinematic-panel-in {
+  from {
+    opacity: 0;
+    transform: translateY(12px) scale(0.96);
+    filter: blur(4px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+    filter: blur(0);
+  }
+}
+
+/* ─── Kinetic Text & TypewriterText ──────────────────────────────────────── */
+
+.typewriter-text {
+  display: inline-block;
+}
+
+.typewriter-char {
+  will-change: opacity, filter, transform;
+}
+
+/* Resolve shimmer: subtle highlight pass on reveal */
+.typewriter-char-active {
+  text-shadow: 0 0 6px rgba(255, 255, 255, 0.12);
+}
+
+/* ─── Motion-Sound Panel Reveal ──────────────────────────────────────────── */
+
+.panel-slide-in-left {
+  animation: panelSlideInLeft 0.45s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+@keyframes panelSlideInLeft {
+  from {
+    opacity: 0;
+    transform: translateX(-16px);
+    filter: blur(3px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+    filter: blur(0);
+  }
+}
+
+.panel-slide-in-right {
+  animation: panelSlideInRight 0.45s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+@keyframes panelSlideInRight {
+  from {
+    opacity: 0;
+    transform: translateX(16px);
+    filter: blur(3px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+    filter: blur(0);
+  }
+}
+
+.panel-slide-in-up {
+  animation: panelSlideInUp 0.5s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+@keyframes panelSlideInUp {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+    filter: blur(4px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+    filter: blur(0);
+  }
+}
+
+/* Depth reveal — elements emerge from depth */
+.depth-reveal {
+  animation: depthReveal 0.6s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+@keyframes depthReveal {
+  from {
+    opacity: 0;
+    transform: scale(0.92) translateZ(-20px);
+    filter: blur(6px);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1) translateZ(0);
+    filter: blur(0);
+  }
+}
+
+/* Idle breathing — subtle scale pulse for "alive" feeling */
+.idle-breathe {
+  animation: idleBreathe 4s ease-in-out infinite;
+}
+
+@keyframes idleBreathe {
+  0%, 100% { transform: scale(1); }
+  50%      { transform: scale(1.003); }
+}
+
+/* Micro-float — very subtle vertical oscillation */
+.micro-float {
+  animation: microFloat 6s ease-in-out infinite;
+}
+
+@keyframes microFloat {
+  0%, 100% { transform: translateY(0); }
+  50%      { transform: translateY(-2px); }
+}
+
+/* ─── Interactive Chart Zoom ──────────────────────────────────────────── */
+
+.chart-zoom-in {
+  animation: chartZoomIn 0.35s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+@keyframes chartZoomIn {
+  from {
+    opacity: 0;
+    backdrop-filter: blur(0px);
+  }
+  from > div {
+    transform: scale(0.7);
+  }
+  to {
+    opacity: 1;
+    backdrop-filter: blur(20px);
+  }
+}
+
+.chart-zoom-out {
+  animation: chartZoomOut 0.3s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+}
+
+@keyframes chartZoomOut {
+  from {
+    opacity: 1;
+  }
+  to {
+    opacity: 0;
+    transform: scale(0.95);
+  }
+}
+
+/* ─── Kinetic Scroll-Driven Storytelling ────────────────────────────────── */
+
+/* Scroll snap container */
+.scroll-snap-container {
+  scroll-snap-type: y proximity;
+  scroll-behavior: smooth;
+}
+
+.scroll-snap-section {
+  scroll-snap-align: start;
+  scroll-snap-stop: normal;
+}
+
+/* Motion blur during fast scroll (applied via JS) */
+.scroll-motion-blur {
+  transition: filter 0.15s ease-out;
+}
+
+/* ─── Scroll Reveal Animations ──────────────────────────────────────────── */
+
+.scroll-reveal-section {
+  will-change: transform, opacity;
+}
+
+/* Hidden initial states */
+.scroll-reveal-hidden {
+  will-change: transform, opacity, filter;
+}
+
+.scroll-reveal-fade-up-initial {
+  opacity: 0;
+  transform: translateY(40px);
+  filter: blur(3px);
+}
+
+.scroll-reveal-scale-in-initial {
+  opacity: 0;
+  transform: scale(0.88);
+  filter: blur(4px);
+}
+
+.scroll-reveal-slide-left-initial {
+  opacity: 0;
+  transform: translateX(-50px);
+  filter: blur(2px);
+}
+
+.scroll-reveal-slide-right-initial {
+  opacity: 0;
+  transform: translateX(50px);
+  filter: blur(2px);
+}
+
+.scroll-reveal-blur-resolve-initial {
+  opacity: 0;
+  filter: blur(12px);
+  transform: scale(1.03);
+}
+
+.scroll-reveal-depth-emerge-initial {
+  opacity: 0;
+  transform: translateY(30px) scale(0.92) perspective(600px) rotateX(4deg);
+  filter: blur(6px);
+}
+
+/* Visible (revealed) states */
+.scroll-reveal-visible {
+  opacity: 1;
+  transform: none;
+  filter: blur(0);
+  transition:
+    opacity 0.7s cubic-bezier(0.16, 1, 0.3, 1),
+    transform 0.7s cubic-bezier(0.16, 1, 0.3, 1),
+    filter 0.7s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+/* Per-animation-type visible overrides for easing */
+.scroll-reveal-visible.scroll-reveal-fade-up {
+  transition-duration: 0.7s;
+}
+
+.scroll-reveal-visible.scroll-reveal-scale-in {
+  transition-duration: 0.6s;
+  transition-timing-function: cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+.scroll-reveal-visible.scroll-reveal-slide-left,
+.scroll-reveal-visible.scroll-reveal-slide-right {
+  transition-duration: 0.65s;
+}
+
+.scroll-reveal-visible.scroll-reveal-blur-resolve {
+  transition-duration: 0.9s;
+}
+
+.scroll-reveal-visible.scroll-reveal-depth-emerge {
+  transition-duration: 0.8s;
+  transition-timing-function: cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+/* ─── Scroll Divider (line draw animation) ──────────────────────────────── */
+
+.scroll-divider-wrapper {
+  padding: 12px 0;
+  overflow: hidden;
+}
+
+.scroll-divider {
+  height: 1px;
+  background: linear-gradient(90deg, transparent, rgba(255,255,255,0.08), transparent);
+  transform: scaleX(0);
+  transform-origin: left center;
+  transition: transform 0.8s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.scroll-divider-visible {
+  transform: scaleX(1);
+}
+
+/* ─── Parallax depth layers ─────────────────────────────────────────────── */
+
+.parallax-slow {
+  transform: translateY(calc(var(--scroll-y, 0) * -0.05px));
+  transition: transform 0.1s linear;
+}
+
+.parallax-medium {
+  transform: translateY(calc(var(--scroll-y, 0) * -0.12px));
+  transition: transform 0.1s linear;
+}
+
+.parallax-fast {
+  transform: translateY(calc(var(--scroll-y, 0) * -0.2px));
+  transition: transform 0.1s linear;
+}
+
+/* ─── Scroll Progress Indicator ─────────────────────────────────────────── */
+
+.scroll-progress-bar {
+  position: fixed;
+  top: 0;
+  left: 0;
+  height: 2px;
+  background: linear-gradient(90deg, rgba(100,180,230,0.3), rgba(100,180,230,0.6));
+  transform-origin: left;
+  z-index: 200;
+  pointer-events: none;
+  transition: transform 0.1s ease-out;
+}
+
+/* ─── Section entrance orchestration ────────────────────────────────────── */
+
+/* Stagger children within a revealed section */
+.scroll-reveal-visible .stagger-child {
+  opacity: 1;
+  transform: translateY(0);
+  filter: blur(0);
+  transition:
+    opacity 0.5s cubic-bezier(0.16, 1, 0.3, 1),
+    transform 0.5s cubic-bezier(0.16, 1, 0.3, 1),
+    filter 0.5s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.scroll-reveal-hidden .stagger-child,
+.scroll-reveal-fade-up-initial .stagger-child,
+.scroll-reveal-scale-in-initial .stagger-child {
+  opacity: 0;
+  transform: translateY(16px);
+  filter: blur(2px);
 }

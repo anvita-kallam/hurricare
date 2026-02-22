@@ -1,6 +1,7 @@
 import { useState, useEffect, useMemo } from 'react'
 import { useStore } from '../state/useStore'
 import axios from 'axios'
+import { playSliderStretch } from '../audio/SoundEngine'
 
 const API_BASE = 'http://localhost:8000'
 
@@ -110,7 +111,9 @@ export default function AllocationPanel() {
                 max={maxBudget}
                 step={maxBudget / 100}
                 value={currentBudget}
-                onChange={(e) => handleAllocationChange(region, parseFloat(e.target.value))}
+                onChange={(e) => {
+                  handleAllocationChange(region, parseFloat(e.target.value))
+                }}
                 className="w-full accent-cyan-500"
               />
               <div className="flex justify-between text-xs text-cyan-400/60 mt-1">

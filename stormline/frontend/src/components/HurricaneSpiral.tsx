@@ -49,17 +49,10 @@ export default function HurricaneSpiral({
     return arms
   }, [radius, intensity])
   
-  useFrame((state) => {
+  useFrame(() => {
     if (groupRef.current) {
-      // Faster, more visible rotation
+      // Steady rotation — no pulsing/breathing
       groupRef.current.rotation.y += rotationSpeed * 0.05
-    }
-    
-    if (outerSpiralRef.current && innerSpiralRef.current) {
-      // Pulsing effect
-      const pulse = 1 + Math.sin(state.clock.elapsedTime * 3) * 0.05
-      outerSpiralRef.current.scale.setScalar(pulse)
-      innerSpiralRef.current.scale.setScalar(pulse * 0.8)
     }
   })
   
