@@ -71,6 +71,7 @@ function App() {
   const sidebarRef = useRef<HTMLDivElement>(null)
   useScrollSound(sidebarRef, true)
   const [showFundingDisparity, setShowFundingDisparity] = useState(false)
+  const [disparityClosing, setDisparityClosing] = useState(false)
   // Map transition: 'globe' | 'fading-out' | 'flat-entering' | 'flat'
   const [mapPhase, setMapPhase] = useState<'globe' | 'fading-out' | 'flat-entering' | 'flat'>('globe')
   const transitionTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null)
@@ -264,7 +265,13 @@ function App() {
   }
 
   const handleCloseFundingDisparity = () => {
-    setShowFundingDisparity(false)
+    // Brief transition: unmount the Canvas first, then mount Dashboard3D
+    // Avoids WebGL context conflict between two Canvas instances
+    setDisparityClosing(true)
+    setTimeout(() => {
+      setShowFundingDisparity(false)
+      setDisparityClosing(false)
+    }, 100)
   }
 
   // Dashboard entry screen
@@ -283,6 +290,10 @@ function App() {
 
   // Funding disparity globe
   if (showFundingDisparity) {
+    // During close transition: show black screen while Canvas disposes
+    if (disparityClosing) {
+      return <div className="fixed inset-0 bg-[#020408]" />
+    }
     return (
       <FundingDisparityGlobe onClose={handleCloseFundingDisparity} />
     )
