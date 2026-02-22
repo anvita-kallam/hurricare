@@ -1,5 +1,7 @@
 import { useState, useEffect, useRef, useCallback, useMemo } from 'react'
 import { Canvas, useFrame, useThree } from '@react-three/fiber'
+import { EffectComposer, Vignette } from '@react-three/postprocessing'
+import { Effect } from 'postprocessing'
 import * as THREE from 'three'
 import MiniGlobePreview from './MiniGlobePreview'
 
@@ -47,10 +49,11 @@ const VARIANT_MAP: Record<string, 'search' | 'browse' | 'heatmap'> = {
   disparity: 'heatmap',
 }
 
+// Tighter spacing to reduce perspective distortion at edges
 const GLOBE_POSITIONS: [number, number, number][] = [
-  [-2.8, 0, 0],
+  [-2.4, 0, 0],
   [0, 0, 0],
-  [2.8, 0, 0],
+  [2.4, 0, 0],
 ]
 
 /* ─── Background grid shader ──────────────────────────────────────────────── */
@@ -95,6 +98,63 @@ const gridFragmentShader = /* glsl */ `
   }
 `
 
+/* ─── Radial blur post-processing for motion blur ─────────────────────────── */
+
+const radialBlurFragment = /* glsl */ `
+uniform float uStrength;
+
+void mainImage(const in vec4 inputColor, const in vec2 uv, out vec4 outputColor) {
+    if (uStrength < 0.001) {
+        outputColor = inputColor;
+        return;
+    }
+
+    vec2 center = vec2(0.5);
+    vec2 dir = uv - center;
+    float dist = length(dir);
+    vec2 normDir = dist > 0.001 ? normalize(dir) : vec2(0.0);
+
+    vec4 color = vec4(0.0);
+    float total = 0.0;
+    float blurAmt = uStrength * dist;
+
+    for (int i = 0; i < 14; i++) {
+        float t = (float(i) / 13.0 - 0.5) * 2.0;
+        float w = 1.0 - abs(t) * 0.25;
+        vec2 sampleUV = uv + normDir * t * blurAmt * 0.1;
+        sampleUV = clamp(sampleUV, 0.0, 1.0);
+        color += texture2D(inputBuffer, sampleUV) * w;
+        total += w;
+    }
+
+    outputColor = color / total;
+}
+`
+
+class RadialBlurEffectImpl extends Effect {
+  constructor() {
+    super('RadialBlurEffect', radialBlurFragment, {
+      uniforms: new Map([
+        ['uStrength', new THREE.Uniform(0.0)]
+      ])
+    })
+  }
+}
+
+function MotionBlur({ active }: { active: boolean }) {
+  const strength = useRef(0)
+  const effect = useMemo(() => new RadialBlurEffectImpl(), [])
+
+  useFrame(() => {
+    const target = active ? 1.4 : 0
+    strength.current += (target - strength.current) * 0.07
+    if (strength.current < 0.001) strength.current = 0
+    effect.uniforms.get('uStrength')!.value = strength.current
+  })
+
+  return <primitive object={effect} dispose={null} />
+}
+
 /* ─── Background grid plane (3D element) ──────────────────────────────────── */
 
 function BackgroundGrid() {
@@ -134,10 +194,10 @@ function CameraZoom({
   onComplete: () => void
 }) {
   const { camera } = useThree()
-  const startPos = useRef(new THREE.Vector3(0, 0, 6))
+  const startPos = useRef(new THREE.Vector3(0, 0, 9))
   const startTime = useRef(0)
   const completed = useRef(false)
-  const DURATION = 1.4
+  const DURATION = 1.6
 
   useFrame(({ clock }) => {
     if (!active || !target || completed.current) return
@@ -148,16 +208,18 @@ function CameraZoom({
     }
 
     const elapsed = clock.elapsedTime - startTime.current
-    // Smooth easing: ease-in-out cubic
     let t = Math.min(elapsed / DURATION, 1)
-    t = t < 0.5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2
 
-    const endPos = new THREE.Vector3(target[0], target[1], target[2] + 1.0)
+    // Quintic ease-out: smooth single-direction deceleration, zero overshoot
+    t = 1 - Math.pow(1 - t, 5)
+
+    const endPos = new THREE.Vector3(target[0], target[1], target[2] + 1.5)
 
     camera.position.lerpVectors(startPos.current, endPos, t)
     camera.lookAt(new THREE.Vector3(target[0], target[1], target[2]))
 
-    if (t >= 1) {
+    if (t >= 0.999) {
+      camera.position.copy(endPos)
       completed.current = true
       onComplete()
     }
@@ -239,13 +301,11 @@ function ThreeScene({
   zoomTarget,
   zooming,
   onZoomComplete,
-  fadeOpacity,
 }: {
   onSelect: (id: 'search' | 'browse' | 'disparity') => void
   zoomTarget: [number, number, number] | null
   zooming: boolean
   onZoomComplete: () => void
-  fadeOpacity: number
 }) {
   const [selectedId, setSelectedId] = useState<'search' | 'browse' | 'disparity' | null>(null)
 
@@ -266,7 +326,6 @@ function ThreeScene({
       <BackgroundGrid />
       <ParticleField />
 
-      {/* Fade group for zoom transition */}
       <group>
         {options.map((option, index) => (
           <MiniGlobePreview
@@ -279,8 +338,193 @@ function ThreeScene({
         ))}
       </group>
 
+      <EffectComposer>
+        <MotionBlur active={zooming} />
+        <Vignette offset={0.3} darkness={0.6} />
+      </EffectComposer>
+
       <CameraZoom target={zoomTarget} active={zooming} onComplete={onZoomComplete} />
     </>
+  )
+}
+
+/* ─── HUD: Oscilloscope Trace ─────────────────────────────────────────────── */
+
+function OscilloscopeTrace({ width = 100, height = 28 }: { width?: number; height?: number }) {
+  const polyRef = useRef<SVGPolylineElement>(null)
+
+  useEffect(() => {
+    let raf: number
+    const animate = () => {
+      const time = performance.now() * 0.002
+      if (polyRef.current) {
+        const points = Array.from({ length: 50 }, (_, i) => {
+          const x = (i / 49) * width
+          const y = height / 2 + Math.sin(time + i * 0.35) * 6 + Math.sin(time * 1.7 + i * 0.18) * 3 + Math.sin(time * 0.4 + i * 0.6) * 2
+          return `${x},${y}`
+        }).join(' ')
+        polyRef.current.setAttribute('points', points)
+      }
+      raf = requestAnimationFrame(animate)
+    }
+    raf = requestAnimationFrame(animate)
+    return () => cancelAnimationFrame(raf)
+  }, [width, height])
+
+  return (
+    <svg width={width} height={height} className="opacity-[0.12]">
+      <polyline
+        ref={polyRef}
+        fill="none"
+        stroke="rgba(68, 136, 255, 0.8)"
+        strokeWidth="0.8"
+      />
+      {/* Baseline */}
+      <line x1="0" y1={height / 2} x2={width} y2={height / 2} stroke="rgba(68,136,255,0.15)" strokeWidth="0.5" />
+    </svg>
+  )
+}
+
+/* ─── HUD: Second trace (different waveform) ──────────────────────────────── */
+
+function OscilloscopeTrace2({ width = 80, height = 24 }: { width?: number; height?: number }) {
+  const polyRef = useRef<SVGPolylineElement>(null)
+
+  useEffect(() => {
+    let raf: number
+    const animate = () => {
+      const time = performance.now() * 0.0015
+      if (polyRef.current) {
+        const points = Array.from({ length: 40 }, (_, i) => {
+          const x = (i / 39) * width
+          const base = height / 2
+          const y = base + Math.sin(time * 1.2 + i * 0.5) * 5 * Math.exp(-((i - 20) * (i - 20)) / 200)
+          return `${x},${y}`
+        }).join(' ')
+        polyRef.current.setAttribute('points', points)
+      }
+      raf = requestAnimationFrame(animate)
+    }
+    raf = requestAnimationFrame(animate)
+    return () => cancelAnimationFrame(raf)
+  }, [width, height])
+
+  return (
+    <svg width={width} height={height} className="opacity-[0.10]">
+      <polyline
+        ref={polyRef}
+        fill="none"
+        stroke="rgba(68, 204, 170, 0.8)"
+        strokeWidth="0.6"
+      />
+    </svg>
+  )
+}
+
+/* ─── HUD: Radial arc gauge ───────────────────────────────────────────────── */
+
+function RadialGauge({ size = 52, value = 0.72, color = 'rgba(68,136,255,0.35)' }: { size?: number; value?: number; color?: string }) {
+  const r = size / 2 - 4
+  const circumference = 2 * Math.PI * r
+  const offset = circumference * (1 - value)
+  const center = size / 2
+
+  return (
+    <svg width={size} height={size} className="opacity-[0.12]">
+      {/* Background ring */}
+      <circle cx={center} cy={center} r={r} fill="none" stroke="rgba(255,255,255,0.06)" strokeWidth="1" />
+      {/* Value arc */}
+      <circle
+        cx={center} cy={center} r={r}
+        fill="none"
+        stroke={color}
+        strokeWidth="1.5"
+        strokeDasharray={circumference}
+        strokeDashoffset={offset}
+        strokeLinecap="round"
+        transform={`rotate(-90 ${center} ${center})`}
+      />
+      {/* Inner tick marks */}
+      {Array.from({ length: 12 }, (_, i) => {
+        const angle = (i / 12) * Math.PI * 2 - Math.PI / 2
+        const x1 = center + (r - 3) * Math.cos(angle)
+        const y1 = center + (r - 3) * Math.sin(angle)
+        const x2 = center + (r - 1) * Math.cos(angle)
+        const y2 = center + (r - 1) * Math.sin(angle)
+        return <line key={i} x1={x1} y1={y1} x2={x2} y2={y2} stroke="rgba(255,255,255,0.08)" strokeWidth="0.5" />
+      })}
+      {/* Center text */}
+      <text x={center} y={center + 3} textAnchor="middle" fill="rgba(255,255,255,0.2)" fontSize="8" fontFamily="monospace">
+        {Math.round(value * 100)}
+      </text>
+    </svg>
+  )
+}
+
+/* ─── HUD: Mini bar chart ─────────────────────────────────────────────────── */
+
+function MiniBarChart({ values = [0.3, 0.7, 0.5, 0.9, 0.4, 0.6, 0.8, 0.35] }: { values?: number[] }) {
+  return (
+    <div className="flex items-end gap-[1px] h-4 opacity-[0.10]">
+      {values.map((v, i) => (
+        <div
+          key={i}
+          className="w-[2px] rounded-[0.5px]"
+          style={{
+            height: `${v * 100}%`,
+            background: `rgba(68, 136, 255, ${0.3 + v * 0.4})`,
+          }}
+        />
+      ))}
+    </div>
+  )
+}
+
+/* ─── HUD: Animated data ticker ───────────────────────────────────────────── */
+
+function DataTicker() {
+  const [values, setValues] = useState({ sig: 97.3, lat: 0.0, freq: 42.1, amp: 0.84 })
+
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setValues({
+        sig: 95 + Math.random() * 4.5,
+        lat: (Math.random() - 0.5) * 0.4,
+        freq: 40 + Math.random() * 5,
+        amp: 0.7 + Math.random() * 0.3,
+      })
+    }, 2000)
+    return () => clearInterval(interval)
+  }, [])
+
+  return (
+    <div className="flex flex-col gap-1 opacity-[0.10]">
+      <div className="text-[7px] font-mono text-white/60 tracking-[0.15em]">SIG {values.sig.toFixed(1)}%</div>
+      <div className="text-[7px] font-mono text-white/60 tracking-[0.15em]">DLT {values.lat.toFixed(2)}</div>
+      <div className="text-[7px] font-mono text-white/60 tracking-[0.15em]">FRQ {values.freq.toFixed(1)}</div>
+      <div className="text-[7px] font-mono text-white/60 tracking-[0.15em]">AMP {values.amp.toFixed(2)}</div>
+    </div>
+  )
+}
+
+/* ─── HUD: Horizontal scan bars ───────────────────────────────────────────── */
+
+function HorizontalScanBars() {
+  return (
+    <div className="flex flex-col gap-[3px] opacity-[0.08]">
+      {[0.6, 0.8, 0.3, 0.9, 0.5].map((w, i) => (
+        <div key={i} className="flex items-center gap-1">
+          <div
+            className="h-[1px] rounded"
+            style={{
+              width: `${w * 40}px`,
+              background: 'rgba(68,136,255,0.5)',
+            }}
+          />
+          <div className="text-[5px] font-mono text-white/30">{(w * 100).toFixed(0)}</div>
+        </div>
+      ))}
+    </div>
   )
 }
 
@@ -301,6 +545,7 @@ export default function Dashboard3D({ onSelectOption, isLoading }: Dashboard3DPr
   const pendingOption = useRef<'search' | 'browse' | 'disparity' | null>(null)
   const [systemTime, setSystemTime] = useState('')
   const [scanlinePos, setScanlinePos] = useState(0)
+  const [frameCount, setFrameCount] = useState(0)
 
   useEffect(() => {
     if (!isLoading) {
@@ -315,6 +560,7 @@ export default function Dashboard3D({ onSelectOption, isLoading }: Dashboard3DPr
       setSystemTime(
         `${now.getHours().toString().padStart(2, '0')}:${now.getMinutes().toString().padStart(2, '0')}:${now.getSeconds().toString().padStart(2, '0')}`
       )
+      setFrameCount(c => c + 1)
     }, 1000)
     return () => clearInterval(interval)
   }, [])
@@ -340,13 +586,12 @@ export default function Dashboard3D({ onSelectOption, isLoading }: Dashboard3DPr
       setUiVisible(false)
 
       // Begin fade overlay
-      setTimeout(() => setFadeOpacity(1), 800)
+      setTimeout(() => setFadeOpacity(1), 1000)
     },
     [zooming]
   )
 
   const handleZoomComplete = useCallback(() => {
-    // After zoom animation + fade, fire the actual navigation
     setTimeout(() => {
       if (pendingOption.current) {
         onSelectOption(pendingOption.current)
@@ -356,10 +601,10 @@ export default function Dashboard3D({ onSelectOption, isLoading }: Dashboard3DPr
 
   return (
     <div className="fixed inset-0 z-50 bg-[#020408] overflow-hidden">
-      {/* 3D Canvas — square aspect enforcement via container */}
+      {/* 3D Canvas — reduced FOV for less perspective distortion */}
       <div className="absolute inset-0">
         <Canvas
-          camera={{ position: [0, 0, 6], fov: 50 }}
+          camera={{ position: [0, 0, 9], fov: 40 }}
           dpr={[1, 2]}
           gl={{ antialias: true, alpha: false }}
         >
@@ -368,7 +613,6 @@ export default function Dashboard3D({ onSelectOption, isLoading }: Dashboard3DPr
             zoomTarget={zoomTarget}
             zooming={zooming}
             onZoomComplete={handleZoomComplete}
-            fadeOpacity={fadeOpacity}
           />
         </Canvas>
       </div>
@@ -397,6 +641,91 @@ export default function Dashboard3D({ onSelectOption, isLoading }: Dashboard3DPr
         }}
       />
 
+      {/* ─── System UI Density: HUD elements ──────────────────── */}
+
+      {/* Top-left HUD cluster */}
+      <div className="absolute top-14 left-6 flex flex-col gap-3 pointer-events-none z-[8]">
+        <OscilloscopeTrace width={100} height={28} />
+        <div className="flex items-center gap-2">
+          <div className="w-1 h-1 rounded-full bg-blue-400/20 dashboard-pulse" />
+          <span className="text-[6px] font-mono text-white/[0.08] tracking-[0.2em]">WAVEFORM.A</span>
+        </div>
+        <MiniBarChart />
+        <DataTicker />
+      </div>
+
+      {/* Top-right HUD cluster */}
+      <div className="absolute top-14 right-6 flex flex-col items-end gap-3 pointer-events-none z-[8]">
+        <OscilloscopeTrace2 width={80} height={24} />
+        <div className="flex items-center gap-2">
+          <span className="text-[6px] font-mono text-white/[0.08] tracking-[0.2em]">SIGNAL.B</span>
+          <div className="w-1 h-1 rounded-full bg-teal-400/20 dashboard-pulse" />
+        </div>
+        <HorizontalScanBars />
+      </div>
+
+      {/* Left mid: Radial gauge */}
+      <div className="absolute left-5 top-1/2 -translate-y-1/2 flex flex-col items-center gap-2 pointer-events-none z-[8]">
+        <RadialGauge size={52} value={0.72} color="rgba(68,136,255,0.35)" />
+        <span className="text-[5px] font-mono text-white/[0.07] tracking-[0.25em]">SYS.LOAD</span>
+      </div>
+
+      {/* Right mid: Radial gauge */}
+      <div className="absolute right-5 top-1/2 -translate-y-1/2 flex flex-col items-center gap-2 pointer-events-none z-[8]">
+        <RadialGauge size={48} value={0.58} color="rgba(68,204,170,0.3)" />
+        <span className="text-[5px] font-mono text-white/[0.07] tracking-[0.25em]">NET.IO</span>
+      </div>
+
+      {/* Bottom-left data block */}
+      <div className="absolute bottom-14 left-6 flex flex-col gap-1 pointer-events-none z-[8] opacity-[0.08]">
+        <div className="text-[6px] font-mono text-white/60 tracking-[0.2em]">PROC 0x{(frameCount * 7 + 4096).toString(16).toUpperCase().slice(-4)}</div>
+        <div className="text-[6px] font-mono text-white/60 tracking-[0.2em]">MEM 48.2 / 64.0 GB</div>
+        <div className="text-[6px] font-mono text-white/60 tracking-[0.2em]">THR 12 / 16 ACTIVE</div>
+      </div>
+
+      {/* Bottom-right data block */}
+      <div className="absolute bottom-14 right-6 flex flex-col items-end gap-1 pointer-events-none z-[8] opacity-[0.08]">
+        <div className="text-[6px] font-mono text-white/60 tracking-[0.2em]">RENDER 16.7ms</div>
+        <div className="text-[6px] font-mono text-white/60 tracking-[0.2em]">DRAW CALLS 342</div>
+        <div className="text-[6px] font-mono text-white/60 tracking-[0.2em]">TRI 2.1M</div>
+      </div>
+
+      {/* Left edge: vertical micro-labels */}
+      <div className="absolute left-1 top-1/2 -translate-y-1/2 pointer-events-none z-[8]">
+        <div className="flex flex-col gap-8 items-center">
+          {['A', 'B', 'C', 'D', 'E'].map((label, i) => (
+            <span key={i} className="text-[5px] font-mono text-white/[0.06] tracking-[0.1em] -rotate-90">{label}{i + 1}</span>
+          ))}
+        </div>
+      </div>
+
+      {/* Right edge: vertical micro-labels */}
+      <div className="absolute right-1 top-1/2 -translate-y-1/2 pointer-events-none z-[8]">
+        <div className="flex flex-col gap-8 items-center">
+          {['F', 'G', 'H', 'I', 'J'].map((label, i) => (
+            <span key={i} className="text-[5px] font-mono text-white/[0.06] tracking-[0.1em] rotate-90">{label}{i + 6}</span>
+          ))}
+        </div>
+      </div>
+
+      {/* Horizontal grid lines (subtle) */}
+      <div className="absolute inset-0 pointer-events-none z-[5]" style={{ opacity: 0.03 }}>
+        {Array.from({ length: 8 }, (_, i) => (
+          <div
+            key={i}
+            className="absolute left-0 right-0 h-[1px] bg-white/20"
+            style={{ top: `${((i + 1) / 9) * 100}%` }}
+          />
+        ))}
+        {Array.from({ length: 12 }, (_, i) => (
+          <div
+            key={i}
+            className="absolute top-0 bottom-0 w-[1px] bg-white/20"
+            style={{ left: `${((i + 1) / 13) * 100}%` }}
+          />
+        ))}
+      </div>
+
       {/* Overlay UI */}
       <div
         className="relative z-10 flex flex-col h-full pointer-events-none transition-opacity duration-700"
@@ -410,10 +739,20 @@ export default function Dashboard3D({ onSelectOption, isLoading }: Dashboard3DPr
             <span className="text-[10px] font-mono text-white/20 tracking-[0.2em] uppercase">
               SYS.ONLINE
             </span>
+            <div className="w-px h-3 bg-white/[0.06] mx-1" />
+            <span className="text-[8px] font-mono text-white/[0.10] tracking-[0.15em]">
+              UPLINK STABLE
+            </span>
           </div>
 
           {/* Right: time + mode */}
           <div className="flex items-center gap-6">
+            <div className="flex items-center gap-2">
+              <div className="w-1 h-1 rounded-full bg-green-400/30 dashboard-pulse" />
+              <span className="text-[8px] font-mono text-white/[0.10] tracking-[0.15em]">
+                ALL SYSTEMS NOMINAL
+              </span>
+            </div>
             <span className="text-[10px] font-mono text-white/15 tracking-[0.15em]">
               MODE: SELECTION
             </span>
@@ -515,6 +854,10 @@ export default function Dashboard3D({ onSelectOption, isLoading }: Dashboard3DPr
             <span className="text-[8px] font-mono text-white/10 tracking-[0.1em]">
               HURRICARE.SIM
             </span>
+            <div className="w-px h-2 bg-white/[0.06] mx-1" />
+            <span className="text-[7px] font-mono text-white/[0.08] tracking-[0.1em]">
+              BUILD 2847
+            </span>
           </div>
 
           {/* Center prompt */}
@@ -528,6 +871,10 @@ export default function Dashboard3D({ onSelectOption, isLoading }: Dashboard3DPr
           <div className="flex items-center gap-4">
             <span className="text-[8px] font-mono text-white/10 tracking-[0.1em]">
               LAT 0.00 / LON 0.00
+            </span>
+            <div className="w-px h-2 bg-white/[0.06]" />
+            <span className="text-[8px] font-mono text-white/10 tracking-[0.1em]">
+              UTC+0
             </span>
             <span className="text-[8px] font-mono text-white/12 tracking-[0.15em]">
               FPS 60
@@ -570,6 +917,24 @@ export default function Dashboard3D({ onSelectOption, isLoading }: Dashboard3DPr
         borderRight: '1px solid rgba(255,255,255,0.06)',
         borderBottom: '1px solid rgba(255,255,255,0.06)',
       }} />
+
+      {/* Extended corner accents — outer corners with subtle tick marks */}
+      <div className="absolute top-4 left-4 pointer-events-none z-[8]">
+        <div className="absolute top-[14px] left-0 w-[6px] h-[1px] bg-white/[0.04]" />
+        <div className="absolute top-0 left-[14px] w-[1px] h-[6px] bg-white/[0.04]" />
+      </div>
+      <div className="absolute top-4 right-4 pointer-events-none z-[8]">
+        <div className="absolute top-[14px] right-0 w-[6px] h-[1px] bg-white/[0.04]" />
+        <div className="absolute top-0 right-[14px] w-[1px] h-[6px] bg-white/[0.04]" />
+      </div>
+      <div className="absolute bottom-4 left-4 pointer-events-none z-[8]">
+        <div className="absolute bottom-[14px] left-0 w-[6px] h-[1px] bg-white/[0.04]" />
+        <div className="absolute bottom-0 left-[14px] w-[1px] h-[6px] bg-white/[0.04]" />
+      </div>
+      <div className="absolute bottom-4 right-4 pointer-events-none z-[8]">
+        <div className="absolute bottom-[14px] right-0 w-[6px] h-[1px] bg-white/[0.04]" />
+        <div className="absolute bottom-0 right-[14px] w-[1px] h-[6px] bg-white/[0.04]" />
+      </div>
 
       {/* Vignette — stronger for depth */}
       <div
