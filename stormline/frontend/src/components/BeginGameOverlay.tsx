@@ -7,12 +7,16 @@
 
 import { useState } from 'react'
 import { useStore } from '../state/useStore'
+import TypewriterText from './TypewriterText'
+import { playButtonPress, playHover, playLockIn } from '../audio/SoundEngine'
 
 export default function BeginGameOverlay() {
   const { setGamePhase, setGameFlowStep } = useStore()
   const [pressed, setPressed] = useState(false)
 
   const handleBeginGame = () => {
+    playButtonPress()
+    setTimeout(() => playLockIn(), 200)
     setPressed(true)
     // Small delay for the press animation before transitioning
     setTimeout(() => {
@@ -25,6 +29,7 @@ export default function BeginGameOverlay() {
     <div className="fixed inset-0 z-40 flex items-end justify-center pb-16 pointer-events-none">
       <button
         onClick={handleBeginGame}
+        onMouseEnter={() => playHover()}
         className={`
           pointer-events-auto
           begin-game-btn
@@ -38,7 +43,7 @@ export default function BeginGameOverlay() {
           ${pressed ? 'begin-game-btn-pressed scale-95 opacity-0' : ''}
         `}
       >
-        Begin Game
+        <TypewriterText text="Begin Game" emphasis="headline" delayMs={800} charIntervalMs={60} />
       </button>
     </div>
   )

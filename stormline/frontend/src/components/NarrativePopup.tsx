@@ -1,4 +1,6 @@
 import { useEffect, useState } from 'react'
+import TypewriterText from './TypewriterText'
+import { playPanelSlide, playPanelSettle } from '../audio/SoundEngine'
 
 interface NarrativePopupProps {
   title: string
@@ -18,8 +20,12 @@ export default function NarrativePopup({
   const [isVisible, setIsVisible] = useState(false)
 
   useEffect(() => {
-    // Trigger fade-in animation
-    setTimeout(() => setIsVisible(true), 100)
+    // Trigger fade-in animation + sound
+    setTimeout(() => {
+      setIsVisible(true)
+      playPanelSlide()
+      setTimeout(() => playPanelSettle(), 300)
+    }, 100)
 
     // Auto-close if specified
     if (autoClose > 0) {
@@ -60,7 +66,7 @@ export default function NarrativePopup({
       >
         <div className="flex justify-between items-start mb-4">
           <h3 className="text-2xl font-bold font-orbitron text-glow-cyan">
-            {title}
+            <TypewriterText text={title} emphasis="headline" delayMs={200} charIntervalMs={40} />
           </h3>
           <button
             onClick={onClose}
@@ -70,7 +76,7 @@ export default function NarrativePopup({
           </button>
         </div>
         <p className="text-lg font-exo leading-relaxed whitespace-pre-line">
-          {message}
+          <TypewriterText text={message} emphasis="normal" delayMs={600} charIntervalMs={12} />
         </p>
         {autoClose > 0 && (
           <div className="mt-4 flex justify-end">

@@ -12,6 +12,7 @@
 import { useMemo, useRef, useEffect, useCallback, useState } from 'react'
 import axios from 'axios'
 import { useStore } from '../../state/useStore'
+import TypewriterText from '../TypewriterText'
 
 const API_BASE = 'http://localhost:8000'
 
@@ -561,11 +562,9 @@ export default function Step2Allocation() {
     <div className="space-y-5">
       {/* Title */}
       <div className="text-center space-y-1">
-        <div className="text-white/50 font-rajdhani text-[11px] tracking-[0.3em] uppercase">
-          Resource Allocation
-        </div>
+        <TypewriterText text="Resource Allocation" emphasis="soft" delayMs={100} className="text-white/50 font-rajdhani text-[11px] tracking-[0.3em] uppercase" as="div" />
         <h2 className="text-white font-rajdhani font-bold text-2xl tracking-wider">
-          Distribute Your Budget
+          <TypewriterText text="Distribute Your Budget" emphasis="headline" delayMs={300} charIntervalMs={35} />
         </h2>
         <p className="text-white/30 font-mono text-[10px]">
           {regions.length} regions &times; 6 categories = {regions.length * 6} allocation points

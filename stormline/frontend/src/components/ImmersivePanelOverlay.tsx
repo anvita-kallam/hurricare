@@ -18,6 +18,7 @@ import Step2Allocation from './immersive/Step2Allocation'
 import Step3Confirm from './immersive/Step3Confirm'
 import Step4Results from './immersive/Step4Results'
 import Step5Summary from './immersive/Step5Summary'
+import { playStepTransition, playPanelSlide, playPanelSettle, playMagneticTick, playButtonPress, playHover } from '../audio/SoundEngine'
 
 export default function ImmersivePanelOverlay() {
   const {
@@ -49,13 +50,21 @@ export default function ImmersivePanelOverlay() {
     if (next === gameFlowStep || isTransitioning || isRunningPipeline) return
     if (next < 1 || next > 5) return
 
-    setTransitionDir(next > gameFlowStep ? 'forward' : 'backward')
+    const dir = next > gameFlowStep ? 'forward' : 'backward'
+    setTransitionDir(dir)
     setIsTransitioning(true)
     setPanelRevealed(false)
+
+    // Sound: step transition
+    playStepTransition(dir)
 
     setTimeout(() => {
       setGameFlowStep(next)
       setIsTransitioning(false)
+      // Sound: panel slides in + settles
+      playPanelSlide()
+      setTimeout(() => playPanelSettle(), 300)
+      setTimeout(() => playMagneticTick(), 450)
     }, 350)
   }, [gameFlowStep, isTransitioning, isRunningPipeline, setGameFlowStep])
 
@@ -166,6 +175,7 @@ export default function ImmersivePanelOverlay() {
       <div className="absolute bottom-0 left-0 right-0 h-14 flex items-center justify-between px-8">
         <button
           onClick={handlePrev}
+          onMouseEnter={() => playHover()}
           disabled={gameFlowStep === 1 || isRunningPipeline}
           className="flex items-center gap-2 px-4 py-2 text-[11px] font-rajdhani tracking-wider uppercase transition-all text-white/30 hover:text-white/60 disabled:opacity-10 disabled:cursor-not-allowed"
         >
@@ -190,6 +200,7 @@ export default function ImmersivePanelOverlay() {
           ) : (
             <button
               onClick={handleNext}
+              onMouseEnter={() => playHover()}
               disabled={isRunningPipeline}
               className="flex items-center gap-2 px-4 py-2 text-[11px] font-rajdhani tracking-wider uppercase transition-all text-white/30 hover:text-white/60 disabled:opacity-10 disabled:cursor-not-allowed"
             >
@@ -198,7 +209,8 @@ export default function ImmersivePanelOverlay() {
           )
         ) : (
           <button
-            onClick={handleExit}
+            onClick={() => { playButtonPress(); handleExit() }}
+            onMouseEnter={() => playHover()}
             className="flex items-center gap-2 px-4 py-2 text-[11px] font-rajdhani tracking-wider uppercase transition-all text-white/40 hover:text-white/70 border border-white/[0.08] hover:border-white/[0.15]"
           >
             Complete
