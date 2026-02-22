@@ -3,14 +3,14 @@ import { useStore } from '../state/useStore'
 import * as THREE from 'three'
 import { Html } from '@react-three/drei'
 
-// Saffir-Simpson category colors (muted for dark background)
+// Saffir-Simpson category colors — vivid and bright
 const categoryColors: Record<number, string> = {
-  0: '#6BAED6',  // Tropical depression / storm — muted blue
-  1: '#FFE066',  // Cat 1 — warm yellow
-  2: '#FFAB40',  // Cat 2 — amber
-  3: '#FF6D00',  // Cat 3 — deep orange
-  4: '#FF3D00',  // Cat 4 — red-orange
-  5: '#D50000',  // Cat 5 — dark red
+  0: '#00BFFF',  // Tropical depression / storm — bright cyan-blue
+  1: '#FFFF00',  // Cat 1 — bright yellow
+  2: '#FFA500',  // Cat 2 — bright orange
+  3: '#FF4500',  // Cat 3 — orange-red
+  4: '#FF0000',  // Cat 4 — pure red
+  5: '#CC0000',  // Cat 5 — deep red
 }
 
 function getCategoryColor(category: number): string {
