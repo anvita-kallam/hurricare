@@ -55,21 +55,57 @@ const BORDER_TUBE_R = 1.039    // Selected border tube above line borders
 
 const buildCountryGeometry = (points: [number, number][], _radius: number, countryName: string) => {
   const R = COUNTRY_SURFACE_R
-  const shape2D = points.map(([lon, lat]) => new THREE.Vector2(lon, lat))
-  const tris = THREE.ShapeUtils.triangulateShape(shape2D, [])
-  const verts = points.map(([lon, lat]) => latLonToVec3(lat, lon, R))
 
-  const positions: number[] = []
-  const indices: number[] = []
-  const subdivisionDepth = countryName === 'Russia' ? 4 : 1
-  for (const [a, b, c] of tris)
-    sphereSubdivide(verts[a], verts[b], verts[c], R, subdivisionDepth, positions, indices)
+  // Ensure we have valid points
+  if (!points || points.length < 3) {
+    // Return a fallback minimal geometry for malformed countries
+    const geo = new THREE.BufferGeometry()
+    geo.setAttribute('position', new THREE.Float32BufferAttribute(
+      [1, 0, 0, 0, 1, 0, 0, 0, 1], 3
+    ))
+    geo.setIndex([0, 1, 2])
+    return geo
+  }
 
-  const geo = new THREE.BufferGeometry()
-  geo.setAttribute('position', new THREE.Float32BufferAttribute(positions, 3))
-  geo.setIndex(indices)
-  geo.computeVertexNormals()
-  return geo
+  try {
+    const shape2D = points.map(([lon, lat]) => new THREE.Vector2(lon, lat))
+    const tris = THREE.ShapeUtils.triangulateShape(shape2D, [])
+
+    // Handle empty triangulation
+    if (!tris || tris.length === 0) {
+      const geo = new THREE.BufferGeometry()
+      geo.setAttribute('position', new THREE.Float32BufferAttribute(
+        points.flatMap(([lon, lat]) => {
+          const v = latLonToVec3(lat, lon, R)
+          return [v.x, v.y, v.z]
+        }), 3
+      ))
+      return geo
+    }
+
+    const verts = points.map(([lon, lat]) => latLonToVec3(lat, lon, R))
+
+    const positions: number[] = []
+    const indices: number[] = []
+    const subdivisionDepth = countryName === 'Russia' ? 4 : 1
+    for (const [a, b, c] of tris)
+      sphereSubdivide(verts[a], verts[b], verts[c], R, subdivisionDepth, positions, indices)
+
+    const geo = new THREE.BufferGeometry()
+    geo.setAttribute('position', new THREE.Float32BufferAttribute(positions, 3))
+    geo.setIndex(indices)
+    geo.computeVertexNormals()
+    return geo
+  } catch (error) {
+    console.error(`Error building geometry for ${countryName}:`, error)
+    // Return fallback geometry
+    const geo = new THREE.BufferGeometry()
+    geo.setAttribute('position', new THREE.Float32BufferAttribute(
+      [1, 0, 0, 0, 1, 0, 0, 0, 1], 3
+    ))
+    geo.setIndex([0, 1, 2])
+    return geo
+  }
 }
 
 const buildBorderTube = (points: [number, number][]) => {
@@ -91,9 +127,17 @@ export default function CountryMesh({ country, radius, selected, globalSelected,
   )
 
   const borderGeoThin = useMemo(() => {
-    const pts = country.points.map(([lon, lat]) => latLonToVec3(lat, lon, BORDER_LINE_R))
-    return new THREE.BufferGeometry().setFromPoints(pts)
-  }, [country.points])
+    try {
+      if (!country.points || country.points.length < 2) {
+        return new THREE.BufferGeometry()
+      }
+      const pts = country.points.map(([lon, lat]) => latLonToVec3(lat, lon, BORDER_LINE_R))
+      return new THREE.BufferGeometry().setFromPoints(pts)
+    } catch (error) {
+      console.error(`Error building border geometry for ${country.name}:`, error)
+      return new THREE.BufferGeometry()
+    }
+  }, [country.points, country.name])
 
   const borderTube = useMemo(
     () => selected ? buildBorderTube(country.points) : null,

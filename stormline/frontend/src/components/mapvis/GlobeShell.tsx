@@ -13,15 +13,40 @@ const LAYERS = [
 export default function GlobeShell() {
   return (
     <>
-      {/* Base globe sphere — renderOrder 1 */}
+      {/* Base globe sphere with ocean color — renderOrder 1 */}
       <mesh renderOrder={1}>
         <sphereGeometry args={[1, 128, 128]} />
-        <meshBasicMaterial color="#000000" />
+        <meshBasicMaterial color="#0a2a42" />
       </mesh>
 
-      {/* Atmosphere halo layers — renderOrder 2-8, static opacity (no pulsing) */}
+      {/* Water/Ocean borders with subtle outline — renderOrder 2 */}
+      <mesh renderOrder={2}>
+        <sphereGeometry args={[1.033, 64, 64]} />
+        <meshBasicMaterial
+          color="#1a4a6a"
+          transparent
+          opacity={0.4}
+          depthWrite={false}
+          blending={THREE.NormalBlending}
+        />
+      </mesh>
+
+      {/* Subtle wireframe sphere for sphere definition — renderOrder 3 */}
+      <mesh renderOrder={3}>
+        <sphereGeometry args={[1.035, 32, 32]} />
+        <meshBasicMaterial
+          color="#2a6a9a"
+          transparent
+          opacity={0.15}
+          wireframe={false}
+          depthWrite={false}
+          blending={THREE.AdditiveBlending}
+        />
+      </mesh>
+
+      {/* Atmosphere halo layers — renderOrder 4-10, static opacity (no pulsing) */}
       {LAYERS.map(({ r, color, opacity }, i) => (
-        <mesh key={r} renderOrder={i + 2}>
+        <mesh key={r} renderOrder={i + 4}>
           <sphereGeometry args={[r, 48, 48]} />
           <meshBasicMaterial
             color={color}
