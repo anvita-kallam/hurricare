@@ -22,6 +22,7 @@ import {
 } from '../mapvis/charts/ChartPrimitives'
 import AffectedAreaHeightMap from '../shared/AffectedAreaHeightMap'
 import InteractiveChartWrapper from '../shared/InteractiveChartWrapper'
+import ScrollRevealSection, { ScrollDivider } from '../shared/ScrollRevealSection'
 
 function formatBudget(n: number): string {
   if (n >= 1e9) return `$${(n / 1e9).toFixed(1)}B`
@@ -118,24 +119,33 @@ export default function Step5Summary() {
   return (
     <div className="space-y-6">
       {/* Title */}
-      <div className="text-center space-y-1">
-        <TypewriterText text="Delta Insights" emphasis="soft" delayMs={100} className="text-white/60 font-rajdhani text-sm tracking-[0.3em] uppercase" as="div" />
-        <h2 className="text-white/95 font-rajdhani font-bold text-2xl tracking-wider">
-          <TypewriterText text="What Could Have Changed" emphasis="headline" delayMs={300} charIntervalMs={35} />
-        </h2>
-      </div>
+      <ScrollRevealSection animation="blur-resolve" staggerDelay={0}>
+        <div className="text-center space-y-1">
+          <TypewriterText text="Delta Insights" emphasis="soft" delayMs={100} className="text-white/60 font-rajdhani text-sm tracking-[0.3em] uppercase" as="div" />
+          <h2 className="text-white/95 font-rajdhani font-bold text-2xl tracking-wider">
+            <TypewriterText text="What Could Have Changed" emphasis="headline" delayMs={300} charIntervalMs={35} />
+          </h2>
+        </div>
+      </ScrollRevealSection>
+
+      <ScrollDivider delay={50} />
 
       {/* Key delta insight — one line */}
-      <div className="text-center">
-        <div className="text-white/70 font-mono text-sm leading-relaxed">
-          {coverageDelta > 0
-            ? `${coverageDelta.toLocaleString()} additional people reachable with ideal allocation`
-            : `Historical response covered ${Math.abs(coverageDelta).toLocaleString()} more than ML ideal`
-          }
+      <ScrollRevealSection animation="fade-up" staggerDelay={100}>
+        <div className="text-center">
+          <div className="text-white/70 font-mono text-sm leading-relaxed">
+            {coverageDelta > 0
+              ? `${coverageDelta.toLocaleString()} additional people reachable with ideal allocation`
+              : `Historical response covered ${Math.abs(coverageDelta).toLocaleString()} more than ML ideal`
+            }
+          </div>
         </div>
-      </div>
+      </ScrollRevealSection>
+
+      <ScrollDivider delay={175} />
 
       {/* FDP-style two-panel layout */}
+      <ScrollRevealSection animation="scale-in" staggerDelay={250} sound="slide">
       <div className="flex gap-4">
         {/* Left Panel — Budget Delta Intelligence */}
         <div className="flex-1 flex flex-col gap-0" style={{
@@ -329,9 +339,13 @@ export default function Step5Summary() {
           )}
         </div>
       </div>
+      </ScrollRevealSection>
+
+      <ScrollDivider delay={350} />
 
       {/* 2.5D Delta Gap Terrain */}
       {deltaData.length > 0 && (
+      <ScrollRevealSection animation="depth-emerge" staggerDelay={450} sound="settle">
         <div style={{
           background: 'linear-gradient(180deg, rgba(0,0,2,0.85) 0%, rgba(0,0,4,0.9) 50%, rgba(0,0,3,0.85) 100%)',
           border: '1px solid rgba(255,255,255,0.04)',
@@ -364,10 +378,14 @@ export default function Step5Summary() {
             />
           </InteractiveChartWrapper>
         </div>
+      </ScrollRevealSection>
       )}
 
+      <ScrollDivider delay={525} />
+
       {/* Concise insights */}
-      <div className="space-y-3 pt-2 border-t border-white/[0.06]">
+      <ScrollRevealSection animation="fade-up" staggerDelay={600}>
+      <div className="space-y-3 pt-2">
         {mostUnderfunded && (
           <div className="flex items-start gap-3">
             <div className="w-1.5 h-1.5 rounded-full bg-[#cc5566] mt-1.5 shrink-0" />
@@ -395,6 +413,7 @@ export default function Step5Summary() {
           </div>
         </div>
       </div>
+      </ScrollRevealSection>
     </div>
   )
 }

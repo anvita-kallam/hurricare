@@ -22,6 +22,7 @@ import {
 } from '../mapvis/charts/ChartPrimitives'
 import AffectedAreaHeightMap from '../shared/AffectedAreaHeightMap'
 import InteractiveChartWrapper from '../shared/InteractiveChartWrapper'
+import ScrollRevealSection, { ScrollDivider } from '../shared/ScrollRevealSection'
 
 function formatBudget(n: number): string {
   if (n >= 1e9) return `$${(n / 1e9).toFixed(1)}B`
@@ -114,16 +115,19 @@ export default function Step4Results() {
   return (
     <div className="space-y-6">
       {/* Title */}
+      <ScrollRevealSection animation="blur-resolve" staggerDelay={0}>
       <div className="text-center space-y-1">
         <TypewriterText text="Response Outcome" emphasis="soft" delayMs={100} className="text-white/60 font-rajdhani text-sm tracking-[0.3em] uppercase" as="div" />
         <h2 className="text-white/95 font-rajdhani font-bold text-2xl tracking-wider">
           <TypewriterText text="Coverage Results" emphasis="headline" delayMs={300} charIntervalMs={40} />
         </h2>
       </div>
+      </ScrollRevealSection>
 
       {/* FDP-style two-panel layout */}
       <div className="flex gap-4">
         {/* Left Panel — Coverage Intelligence */}
+        <ScrollRevealSection animation="slide-left" staggerDelay={150} sound="slide">
         <div className="flex-1 flex flex-col gap-0" style={{
           background: 'linear-gradient(180deg, rgba(0,0,2,0.85) 0%, rgba(0,0,4,0.9) 50%, rgba(0,0,3,0.85) 100%)',
           border: '1px solid rgba(255,255,255,0.04)',
@@ -234,8 +238,10 @@ export default function Step4Results() {
           </div>
           </InteractiveChartWrapper>
         </div>
+        </ScrollRevealSection>
 
         {/* Right Panel — Gap Analysis */}
+        <ScrollRevealSection animation="slide-right" staggerDelay={300} sound="slide">
         <div className="flex-1 flex flex-col gap-0" style={{
           background: 'linear-gradient(180deg, rgba(0,0,2,0.85) 0%, rgba(0,0,4,0.9) 50%, rgba(0,0,3,0.85) 100%)',
           border: '1px solid rgba(255,255,255,0.04)',
@@ -330,10 +336,14 @@ export default function Step4Results() {
           </div>
           </InteractiveChartWrapper>
         </div>
+        </ScrollRevealSection>
       </div>
+
+      <ScrollDivider delay={400} />
 
       {/* 2.5D Coverage Comparison Terrain */}
       {regionData.length > 0 && (
+        <ScrollRevealSection animation="depth-emerge" staggerDelay={500} sound="settle">
         <div style={{
           background: 'linear-gradient(180deg, rgba(0,0,2,0.85) 0%, rgba(0,0,4,0.9) 50%, rgba(0,0,3,0.85) 100%)',
           border: '1px solid rgba(255,255,255,0.04)',
@@ -371,9 +381,11 @@ export default function Step4Results() {
           />
           </InteractiveChartWrapper>
         </div>
+        </ScrollRevealSection>
       )}
 
       {/* Anchored insight */}
+      <ScrollRevealSection animation="fade-up" staggerDelay={600}>
       <div className="text-center border-t border-white/[0.06] pt-4">
         <div className="text-white/70 font-mono text-sm leading-relaxed max-w-md mx-auto">
           {totalMlCovered > totalRealCovered
@@ -382,6 +394,7 @@ export default function Step4Results() {
           }
         </div>
       </div>
+      </ScrollRevealSection>
     </div>
   )
 }

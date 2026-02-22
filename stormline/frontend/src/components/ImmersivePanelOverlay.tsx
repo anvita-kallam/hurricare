@@ -7,7 +7,7 @@
  *         (auto-runs pipeline; for Sandy, uses hardcoded data)
  */
 
-import { useState, useCallback, useEffect } from 'react'
+import { useState, useCallback, useEffect, useRef } from 'react'
 import { useStore } from '../state/useStore'
 import Step1Situation from './immersive/Step1Situation'
 import Step2Allocation from './immersive/Step2Allocation'
@@ -15,7 +15,7 @@ import Step3Confirm from './immersive/Step3Confirm'
 import Step4Results from './immersive/Step4Results'
 import Step5Summary from './immersive/Step5Summary'
 import ImmersiveGameFlow3D from './ImmersiveGameFlow3D'
-import { playButtonPress, playHover } from '../audio/SoundEngine'
+import { playButtonPress, playHover, playScrollTick } from '../audio/SoundEngine'
 import '../styles/mapvis.css'
 
 export default function ImmersivePanelOverlay() {
@@ -37,6 +37,12 @@ export default function ImmersivePanelOverlay() {
   const [transitionDir, setTransitionDir] = useState<'forward' | 'backward'>('forward')
   const [isTransitioning, setIsTransitioning] = useState(false)
   const [panelRevealed, setPanelRevealed] = useState(false)
+  const [scrollProgress, setScrollProgress] = useState(0)
+  const [motionBlur, setMotionBlur] = useState(0)
+  const scrollRef = useRef<HTMLDivElement>(null)
+  const lastScrollTop = useRef(0)
+  const lastScrollTime = useRef(performance.now())
+  const blurDecayRaf = useRef<number>()
 
   // Reveal panel content after mount / step change
   useEffect(() => {
@@ -44,6 +50,55 @@ export default function ImmersivePanelOverlay() {
     const t = setTimeout(() => setPanelRevealed(true), 150)
     return () => clearTimeout(t)
   }, [gameFlowStep])
+
+  // Scroll-driven effects: sounds, motion blur, progress bar, parallax
+  const handleScroll = useCallback(() => {
+    const el = scrollRef.current
+    if (!el) return
+
+    const now = performance.now()
+    const dt = now - lastScrollTime.current
+    if (dt < 1) return
+
+    const scrollTop = el.scrollTop
+    const scrollHeight = el.scrollHeight - el.clientHeight
+    const delta = scrollTop - lastScrollTop.current
+    const velocity = Math.abs(delta / dt) * 16 // px per frame at 60fps
+
+    lastScrollTop.current = scrollTop
+    lastScrollTime.current = now
+
+    // Progress bar (0-1)
+    setScrollProgress(scrollHeight > 0 ? scrollTop / scrollHeight : 0)
+
+    // Scroll tick sound (velocity-based)
+    if (velocity > 1) {
+      playScrollTick(velocity)
+    }
+
+    // Motion blur (velocity-based, decays quickly)
+    const blur = Math.min(velocity * 0.15, 3) // max 3px blur
+    setMotionBlur(blur)
+
+    // CSS custom property for parallax
+    el.style.setProperty('--scroll-y', `${scrollTop}`)
+
+    // Decay motion blur
+    if (blurDecayRaf.current) cancelAnimationFrame(blurDecayRaf.current)
+    blurDecayRaf.current = requestAnimationFrame(() => {
+      setTimeout(() => setMotionBlur(0), 80)
+    })
+  }, [])
+
+  useEffect(() => {
+    const el = scrollRef.current
+    if (!el) return
+    el.addEventListener('scroll', handleScroll, { passive: true })
+    return () => {
+      el.removeEventListener('scroll', handleScroll)
+      if (blurDecayRaf.current) cancelAnimationFrame(blurDecayRaf.current)
+    }
+  }, [handleScroll])
 
   const goToStep = useCallback((next: number) => {
     if (next === gameFlowStep || isTransitioning || isRunningPipeline) return
@@ -148,28 +203,44 @@ export default function ImmersivePanelOverlay() {
           </button>
         </div>
 
+        {/* Scroll progress bar — only on step 3 */}
+        {gameFlowStep === 3 && scrollProgress > 0.01 && (
+          <div
+            className="scroll-progress-bar"
+            style={{ transform: `scaleX(${scrollProgress})` }}
+          />
+        )}
+
         {/* Main content area — centered with comfortable max width + frosted glass backdrop */}
-        <div className={`flex-1 overflow-y-auto px-8 py-6 ${contentClass}`}>
+        <div
+          ref={scrollRef}
+          className={`flex-1 overflow-y-auto px-8 py-6 scroll-motion-blur ${gameFlowStep === 3 ? 'scroll-snap-container' : ''} ${contentClass}`}
+          style={{
+            filter: motionBlur > 0.3 ? `blur(${motionBlur}px)` : undefined,
+          }}
+        >
           <div className="max-w-5xl mx-auto relative">
             {/* Frosted glass backdrop for readability over grid */}
-            <div className="absolute inset-0 -mx-6 -my-4 bg-black/50 backdrop-blur-xl rounded-2xl border border-white/[0.03]" style={{ boxShadow: '0 0 80px rgba(0,0,0,0.6)' }} />
+            <div className="absolute inset-0 -mx-6 -my-4 bg-black/50 backdrop-blur-xl rounded-2xl border border-white/[0.03] parallax-slow" style={{ boxShadow: '0 0 80px rgba(0,0,0,0.6)' }} />
             <div className="relative z-10">
               {gameFlowStep === 1 && <Step1Situation />}
               {gameFlowStep === 2 && <Step2Allocation />}
               {gameFlowStep === 3 && (
                 <>
-                  {/* Step 3: Scrollable Analysis Dashboard — all panels visible */}
-                  <Step3Confirm onPipelineComplete={handlePipelineComplete} />
-
-                  {/* Divider */}
-                  <div className="my-8 border-t border-white/[0.08]" />
+                  {/* Step 3: Scrollable Analysis Dashboard — kinetic scroll storytelling */}
+                  <div className="scroll-snap-section">
+                    <Step3Confirm onPipelineComplete={handlePipelineComplete} />
+                  </div>
 
                   {/* Results section — shows when data is available */}
                   {comparisonData ? (
                     <>
-                      <Step4Results />
-                      <div className="my-8 border-t border-white/[0.08]" />
-                      <Step5Summary />
+                      <div className="scroll-snap-section">
+                        <Step4Results />
+                      </div>
+                      <div className="scroll-snap-section">
+                        <Step5Summary />
+                      </div>
                     </>
                   ) : (
                     <div className="py-12 text-center space-y-4">
