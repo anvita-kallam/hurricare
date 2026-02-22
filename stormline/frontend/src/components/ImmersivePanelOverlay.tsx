@@ -4,10 +4,10 @@
  * Renders a blurred/dimmed background with ONE centered panel at a time.
  * Steps progress sequentially. Each step renders exactly one immersive panel.
  *
- * Step 1: Situation / System Framing
- * Step 2: Budget Allocation (user already did this, now we show the reactive visualization)
- * Step 3: Confirm & Run (processing transition)
- * Step 4: Results Play Out (animated over map)
+ * Step 1: Situation / System Framing (uses hurricane + coverage data only)
+ * Step 2: Budget Allocation (interactive — user allocates budget)
+ * Step 3: Confirm & Run (runs pipeline, cinematic processing)
+ * Step 4: Results Play Out (uses comparisonData from pipeline)
  * Step 5: Summary Insight
  */
 
@@ -26,7 +26,11 @@ export default function ImmersivePanelOverlay() {
     setGamePhase,
     setSelectedHurricane,
     setShowComparisonPage,
-    comparisonData,
+    setPostSimulationMapMode,
+    setGameAllocations,
+    setComparisonData,
+    setCinematicCompleted,
+    isRunningPipeline,
   } = useStore()
 
   const [transitionDir, setTransitionDir] = useState<'forward' | 'backward'>('forward')
@@ -41,7 +45,7 @@ export default function ImmersivePanelOverlay() {
   }, [gameFlowStep])
 
   const goToStep = useCallback((next: number) => {
-    if (next === gameFlowStep || isTransitioning) return
+    if (next === gameFlowStep || isTransitioning || isRunningPipeline) return
     if (next < 1 || next > 5) return
 
     setTransitionDir(next > gameFlowStep ? 'forward' : 'backward')
@@ -52,7 +56,7 @@ export default function ImmersivePanelOverlay() {
       setGameFlowStep(next)
       setIsTransitioning(false)
     }, 350)
-  }, [gameFlowStep, isTransitioning, setGameFlowStep])
+  }, [gameFlowStep, isTransitioning, isRunningPipeline, setGameFlowStep])
 
   const handleNext = useCallback(() => {
     if (gameFlowStep < 5) {
@@ -69,14 +73,20 @@ export default function ImmersivePanelOverlay() {
   const handleExit = useCallback(() => {
     setShowComparisonPage(false)
     setSelectedHurricane(null)
+    setPostSimulationMapMode(false)
+    setCinematicCompleted(false)
     setGamePhase('pre-sim')
     setGameFlowStep(1)
-  }, [setShowComparisonPage, setSelectedHurricane, setGamePhase, setGameFlowStep])
+    setGameAllocations({})
+    setComparisonData(null)
+  }, [setShowComparisonPage, setSelectedHurricane, setPostSimulationMapMode, setCinematicCompleted, setGamePhase, setGameFlowStep, setGameAllocations, setComparisonData])
 
-  // Guard: if no comparison data, show nothing
-  if (!comparisonData?.userPlan || !comparisonData?.mlPlan || !comparisonData?.realPlan) {
-    return null
-  }
+  // Auto-advance from Step 3 to Step 4 when pipeline completes
+  const handlePipelineComplete = useCallback(() => {
+    setTimeout(() => {
+      goToStep(4)
+    }, 600)
+  }, [goToStep])
 
   const contentClass = isTransitioning
     ? `immersive-exit-${transitionDir}`
@@ -86,10 +96,10 @@ export default function ImmersivePanelOverlay() {
 
   const stepLabels = [
     'Situation Frame',
-    'Allocation Dynamics',
+    'Allocation',
     'Confirm & Run',
     'Results',
-    'Summary Insight',
+    'Summary',
   ]
 
   return (
@@ -102,10 +112,12 @@ export default function ImmersivePanelOverlay() {
         {[1, 2, 3, 4, 5].map(step => (
           <button
             key={step}
-            onClick={() => goToStep(step)}
+            onClick={() => {
+              if (step <= gameFlowStep && !isRunningPipeline) goToStep(step)
+            }}
             className={`
               flex items-center gap-1.5 transition-all duration-300
-              ${gameFlowStep === step ? 'opacity-100' : 'opacity-30 hover:opacity-60'}
+              ${gameFlowStep === step ? 'opacity-100' : step < gameFlowStep ? 'opacity-40 hover:opacity-60 cursor-pointer' : 'opacity-15 cursor-default'}
             `}
           >
             <div className={`
@@ -129,7 +141,8 @@ export default function ImmersivePanelOverlay() {
       {/* Exit button — top right corner */}
       <button
         onClick={handleExit}
-        className="absolute top-5 right-6 z-10 text-white/20 hover:text-white/50 font-rajdhani text-xs tracking-wider uppercase px-3 py-1.5 border border-white/[0.06] hover:border-white/15 transition-colors"
+        disabled={isRunningPipeline}
+        className="absolute top-5 right-6 z-10 text-white/20 hover:text-white/50 font-rajdhani text-xs tracking-wider uppercase px-3 py-1.5 border border-white/[0.06] hover:border-white/15 transition-colors disabled:opacity-10 disabled:cursor-not-allowed"
       >
         Exit
       </button>
@@ -140,7 +153,7 @@ export default function ImmersivePanelOverlay() {
           <div className="immersive-panel bg-black/80 backdrop-blur-xl border border-white/[0.08] rounded p-6">
             {gameFlowStep === 1 && <Step1Situation />}
             {gameFlowStep === 2 && <Step2Allocation />}
-            {gameFlowStep === 3 && <Step3Confirm />}
+            {gameFlowStep === 3 && <Step3Confirm onPipelineComplete={handlePipelineComplete} />}
             {gameFlowStep === 4 && <Step4Results />}
             {gameFlowStep === 5 && <Step5Summary />}
           </div>
@@ -151,7 +164,7 @@ export default function ImmersivePanelOverlay() {
       <div className="absolute bottom-0 left-0 right-0 h-14 flex items-center justify-between px-8">
         <button
           onClick={handlePrev}
-          disabled={gameFlowStep === 1}
+          disabled={gameFlowStep === 1 || isRunningPipeline}
           className="flex items-center gap-2 px-4 py-2 text-[11px] font-rajdhani tracking-wider uppercase transition-all text-white/30 hover:text-white/60 disabled:opacity-10 disabled:cursor-not-allowed"
         >
           <span className="text-[10px]">&#9666;</span> Previous
@@ -169,12 +182,18 @@ export default function ImmersivePanelOverlay() {
         </div>
 
         {gameFlowStep < 5 ? (
-          <button
-            onClick={handleNext}
-            className="flex items-center gap-2 px-4 py-2 text-[11px] font-rajdhani tracking-wider uppercase transition-all text-white/30 hover:text-white/60"
-          >
-            Next <span className="text-[10px]">&#9656;</span>
-          </button>
+          gameFlowStep === 3 ? (
+            /* Step 3 handles its own advancement via pipeline completion */
+            <div className="w-20" />
+          ) : (
+            <button
+              onClick={handleNext}
+              disabled={isRunningPipeline}
+              className="flex items-center gap-2 px-4 py-2 text-[11px] font-rajdhani tracking-wider uppercase transition-all text-white/30 hover:text-white/60 disabled:opacity-10 disabled:cursor-not-allowed"
+            >
+              Next <span className="text-[10px]">&#9656;</span>
+            </button>
+          )
         ) : (
           <button
             onClick={handleExit}
