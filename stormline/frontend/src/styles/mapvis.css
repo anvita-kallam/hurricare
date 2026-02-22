@@ -121,6 +121,7 @@ canvas {
 
 /* ═══════════════════════════════════════════════════════════════════════════
    Funding Disparity Intelligence Panels
+   Signal-density upgrade: telemetry > analytics, complexity > clarity
    ═══════════════════════════════════════════════════════════════════════════ */
 
 /* Container — anchors left and right panels beside the globe */
@@ -138,31 +139,33 @@ canvas {
 .fdp-panel {
   pointer-events: auto;
   width: 320px;
-  background: linear-gradient(
-    135deg,
-    rgba(0, 0, 3, 0.92) 0%,
-    rgba(0, 0, 5, 0.95) 100%
-  );
-  border: 1px solid rgba(255, 255, 255, 0.06);
+  background:
+    linear-gradient(
+      180deg,
+      rgba(0, 0, 2, 0.94) 0%,
+      rgba(0, 0, 4, 0.96) 50%,
+      rgba(0, 0, 3, 0.93) 100%
+    );
+  border: 1px solid rgba(255, 255, 255, 0.04);
   overflow-y: auto;
   overflow-x: hidden;
-  padding: 20px 20px 24px;
+  padding: 14px 16px 18px;
   display: flex;
   flex-direction: column;
   gap: 0;
 
-  /* Faint dotted background grid */
+  /* Faint dotted background grid — tighter */
   background-image:
-    radial-gradient(circle, rgba(255, 255, 255, 0.03) 1px, transparent 1px);
-  background-size: 16px 16px;
+    radial-gradient(circle, rgba(255, 255, 255, 0.02) 0.5px, transparent 0.5px);
+  background-size: 12px 12px;
 
   /* Subtle scrollbar */
   scrollbar-width: thin;
-  scrollbar-color: rgba(255, 255, 255, 0.08) transparent;
+  scrollbar-color: rgba(255, 255, 255, 0.06) transparent;
 }
 
 .fdp-panel::-webkit-scrollbar {
-  width: 3px;
+  width: 2px;
 }
 
 .fdp-panel::-webkit-scrollbar-track {
@@ -170,27 +173,27 @@ canvas {
 }
 
 .fdp-panel::-webkit-scrollbar-thumb {
-  background: rgba(255, 255, 255, 0.1);
-  border-radius: 2px;
+  background: rgba(255, 255, 255, 0.08);
+  border-radius: 1px;
 }
 
 /* Left panel — slides in from left */
 .fdp-panel-left {
-  border-right: 1px solid rgba(255, 255, 255, 0.06);
+  border-right: 1px solid rgba(255, 255, 255, 0.04);
   border-left: none;
-  animation: fdpSlideInLeft 0.4s cubic-bezier(0.22, 1, 0.36, 1);
+  animation: fdpSlideInLeft 0.35s cubic-bezier(0.22, 1, 0.36, 1);
 }
 
 /* Right panel — slides in from right */
 .fdp-panel-right {
-  border-left: 1px solid rgba(255, 255, 255, 0.06);
+  border-left: 1px solid rgba(255, 255, 255, 0.04);
   border-right: none;
-  animation: fdpSlideInRight 0.4s cubic-bezier(0.22, 1, 0.36, 1);
+  animation: fdpSlideInRight 0.35s cubic-bezier(0.22, 1, 0.36, 1);
 }
 
 @keyframes fdpSlideInLeft {
   from {
-    transform: translateX(-24px);
+    transform: translateX(-16px);
     opacity: 0;
   }
   to {
@@ -201,7 +204,7 @@ canvas {
 
 @keyframes fdpSlideInRight {
   from {
-    transform: translateX(24px);
+    transform: translateX(16px);
     opacity: 0;
   }
   to {
@@ -210,74 +213,75 @@ canvas {
   }
 }
 
-/* Panel header */
+/* Panel header — compact */
 .fdp-panel-header {
-  margin-bottom: 4px;
+  margin-bottom: 2px;
 }
 
 .fdp-country-name {
   font-family: 'Rajdhani', sans-serif;
   font-weight: 700;
-  font-size: 1.15rem;
-  color: rgba(255, 255, 255, 0.9);
-  letter-spacing: 0.06em;
-  line-height: 1.2;
+  font-size: 1rem;
+  color: rgba(255, 255, 255, 0.85);
+  letter-spacing: 0.08em;
+  line-height: 1.1;
   margin: 0;
 }
 
 .fdp-disparity-badge {
   font-family: 'DM Mono', monospace;
-  font-size: 0.6rem;
-  letter-spacing: 0.14em;
-  margin-top: 4px;
+  font-size: 0.5rem;
+  letter-spacing: 0.16em;
+  margin-top: 2px;
+  opacity: 0.8;
 }
 
-/* Section divider */
+/* Section divider — ultra-thin */
 .fdp-divider {
   height: 1px;
-  background: rgba(255, 255, 255, 0.06);
-  margin: 10px 0;
+  background: rgba(255, 255, 255, 0.04);
+  margin: 6px 0;
   flex-shrink: 0;
 }
 
-/* Section label */
+/* Section label — reduced */
 .fdp-section-label {
   font-family: 'Rajdhani', sans-serif;
-  font-size: 0.58rem;
+  font-size: 0.5rem;
   font-weight: 600;
-  color: rgba(255, 255, 255, 0.3);
-  letter-spacing: 0.16em;
+  color: rgba(255, 255, 255, 0.2);
+  letter-spacing: 0.18em;
   text-transform: uppercase;
-  margin-bottom: 8px;
+  margin-bottom: 4px;
   display: flex;
   align-items: center;
-  gap: 8px;
+  gap: 6px;
 }
 
-/* Stat grid */
+/* Stat grid — tighter */
 .fdp-stat-grid {
   display: grid;
   grid-template-columns: 1fr 1fr;
-  gap: 8px 12px;
-  margin-bottom: 4px;
+  gap: 4px 8px;
+  margin-bottom: 2px;
 }
 
 .fdp-stat-grid-2 {
   grid-template-columns: 1fr 1fr;
 }
 
-/* Individual stat */
+/* Individual stat — compressed */
 .fdp-stat {
   display: flex;
   flex-direction: column;
-  gap: 2px;
+  gap: 1px;
 }
 
 .fdp-stat-label {
   font-family: 'Rajdhani', sans-serif;
-  font-size: 0.52rem;
+  font-size: 0.45rem;
   font-weight: 600;
-  color: rgba(255, 255, 255, 0.25);
+  color: rgba(255, 255, 255, 0.18);
   letter-spacing: 0.14em;
   text-transform: uppercase;
 }
@@ -285,78 +289,56 @@ canvas {
 .fdp-stat-row {
   display: flex;
   align-items: center;
-  gap: 8px;
+  gap: 6px;
 }
 
 .fdp-stat-value {
   font-family: 'DM Mono', monospace;
-  font-size: 0.95rem;
+  font-size: 0.85rem;
   font-weight: 500;
-  color: rgba(255, 255, 255, 0.85);
+  color: rgba(255, 255, 255, 0.75);
   line-height: 1;
 }
 
 .fdp-stat-unit {
-  font-size: 0.65rem;
-  color: rgba(255, 255, 255, 0.35);
+  font-size: 0.55rem;
+  color: rgba(255, 255, 255, 0.25);
   margin-left: 1px;
 }
 
-/* Chart container */
+/* Chart container — tight */
 .fdp-chart-container {
-  margin-bottom: 4px;
+  margin-bottom: 2px;
 }
 
-/* Chart legend */
-.fdp-chart-legend {
-  display: flex;
-  gap: 12px;
-  margin-top: 4px;
-}
-
-.fdp-legend-item {
-  font-family: 'DM Mono', monospace;
-  font-size: 0.5rem;
-  color: rgba(255, 255, 255, 0.3);
-  display: flex;
-  align-items: center;
-  gap: 4px;
-}
-
-.fdp-legend-line {
-  display: inline-block;
-  width: 12px;
-  height: 1px;
-}
-
-/* Trend indicator */
+/* Trend indicator — subtle */
 .fdp-trend {
   font-family: 'DM Mono', monospace;
-  font-size: 0.5rem;
-  letter-spacing: 0.05em;
+  font-size: 0.45rem;
+  letter-spacing: 0.04em;
 }
 
 /* Deselect button */
 .fdp-deselect-btn {
   position: absolute;
-  top: 20px;
+  top: 16px;
   left: 50%;
   transform: translateX(-50%);
   z-index: 20;
-  background: rgba(0, 0, 0, 0.6);
-  border: 1px solid rgba(255, 255, 255, 0.1);
-  color: rgba(255, 255, 255, 0.5);
-  padding: 6px 18px;
+  background: rgba(0, 0, 0, 0.5);
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  color: rgba(255, 255, 255, 0.35);
+  padding: 4px 14px;
   font-family: 'Rajdhani', sans-serif;
-  font-size: 0.7rem;
+  font-size: 0.6rem;
   font-weight: 600;
-  letter-spacing: 0.14em;
+  letter-spacing: 0.16em;
   cursor: pointer;
   transition: all 0.2s;
 }
 
 .fdp-deselect-btn:hover {
-  background: rgba(255, 255, 255, 0.08);
-  color: rgba(255, 255, 255, 0.8);
-  border-color: rgba(255, 255, 255, 0.2);
+  background: rgba(255, 255, 255, 0.06);
+  color: rgba(255, 255, 255, 0.6);
+  border-color: rgba(255, 255, 255, 0.12);
 }
