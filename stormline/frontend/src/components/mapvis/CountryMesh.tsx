@@ -48,7 +48,7 @@ const sphereSubdivide = (v0: THREE.Vector3, v1: THREE.Vector3, v2: THREE.Vector3
 }
 
 const buildCountryGeometry = (points: [number, number][], radius: number, countryName: string) => {
-  const R = radius + 0.028
+  const R = radius + 0.032
   const shape2D = points.map(([lon, lat]) => new THREE.Vector2(lon, lat))
   const tris = THREE.ShapeUtils.triangulateShape(shape2D, [])
   const verts = points.map(([lon, lat]) => latLonToVec3(lat, lon, R))
@@ -131,7 +131,7 @@ export default function CountryMesh({ country, radius, selected, globalSelected,
     <>
       <mesh ref={meshRef} geometry={geometry}
         onClick={(e) => { e.stopPropagation(); onSelect(country.name) }}
-        renderOrder={2}
+        renderOrder={10}
       >
         <meshBasicMaterial
           color={selected ? '#0e2f7a' : '#0d2060'}
@@ -148,7 +148,7 @@ export default function CountryMesh({ country, radius, selected, globalSelected,
       </mesh>
 
       {selected && borderTube ? (
-        <mesh ref={tubeRef} geometry={borderTube} renderOrder={3}>
+        <mesh ref={tubeRef} geometry={borderTube} renderOrder={11}>
           <meshBasicMaterial
             color="#ffffff"
             transparent opacity={0.95}
@@ -157,7 +157,7 @@ export default function CountryMesh({ country, radius, selected, globalSelected,
           />
         </mesh>
       ) : (
-        <lineLoop ref={borderRef} geometry={borderGeoThin} renderOrder={3}>
+        <lineLoop ref={borderRef} geometry={borderGeoThin} renderOrder={11}>
           <lineBasicMaterial
             color="#ffffff"
             transparent opacity={0.55}
