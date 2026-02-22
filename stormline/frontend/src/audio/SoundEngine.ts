@@ -611,3 +611,49 @@ export function playStepTransition(direction: 'forward' | 'backward'): void {
   gain.connect(master)
   noise.start(now)
 }
+
+// ─── Slider Interaction Sounds ─────────────────────────────────────────────
+
+/** Gentle rubber band stretch sound — subtle and ASMR-like for slider movement */
+export function playSliderStretch(): void {
+  const c = getCtx()
+  const master = getMaster()
+  const now = c.currentTime
+
+  // Soft sine tone with slight pitch variation (rubber band tension effect)
+  const osc = c.createOscillator()
+  osc.type = 'sine'
+  // Start slightly lower, rise slightly for "stretch" effect
+  osc.frequency.setValueAtTime(280 + Math.random() * 20, now)
+  osc.frequency.linearRampToValueAtTime(320 + Math.random() * 30, now + 0.08)
+  osc.frequency.exponentialRampToValueAtTime(270, now + 0.15)
+
+  // Subtle harmonic for warmth (like the string resonance)
+  const harmonic = c.createOscillator()
+  harmonic.type = 'sine'
+  harmonic.frequency.setValueAtTime(560, now) // Octave above
+  harmonic.frequency.linearRampToValueAtTime(640, now + 0.08)
+  harmonic.frequency.exponentialRampToValueAtTime(540, now + 0.15)
+
+  // Main envelope: soft attack, smooth decay
+  const mainGain = c.createGain()
+  mainGain.gain.setValueAtTime(0, now)
+  mainGain.gain.linearRampToValueAtTime(0.016, now + 0.02) // Soft attack
+  mainGain.gain.exponentialRampToValueAtTime(0.0008, now + 0.15) // Smooth decay
+
+  // Harmonic is quieter
+  const harmonicGain = c.createGain()
+  harmonicGain.gain.setValueAtTime(0, now)
+  harmonicGain.gain.linearRampToValueAtTime(0.006, now + 0.025)
+  harmonicGain.gain.exponentialRampToValueAtTime(0.0003, now + 0.15)
+
+  osc.connect(mainGain)
+  mainGain.connect(master)
+  harmonic.connect(harmonicGain)
+  harmonicGain.connect(master)
+
+  osc.start(now)
+  osc.stop(now + 0.2)
+  harmonic.start(now)
+  harmonic.stop(now + 0.2)
+}
