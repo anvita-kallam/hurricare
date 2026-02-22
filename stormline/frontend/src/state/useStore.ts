@@ -92,9 +92,16 @@ interface Store {
   } | null
   postSimulationMapMode: boolean
 
-  // New game-phase state
+  // Game-phase state
   gamePhase: GamePhase
   gameFlowStep: number // 1-5 for immersive panels
+
+  // Game flow allocation state (used by immersive Step 2 & 3)
+  gameAllocations: Record<string, number> // region → budget amount
+  gameTotalBudget: number
+  gameResponseWindow: number
+  isRunningPipeline: boolean
+  pipelineError: string | null
 
   setHurricanes: (hurricanes: Hurricane[]) => void
   setSelectedHurricane: (hurricane: Hurricane | null) => void
@@ -114,6 +121,12 @@ interface Store {
   setPostSimulationMapMode: (mode: boolean) => void
   setGamePhase: (phase: GamePhase) => void
   setGameFlowStep: (step: number) => void
+  setGameAllocations: (allocations: Record<string, number>) => void
+  updateGameAllocation: (region: string, amount: number) => void
+  setGameTotalBudget: (budget: number) => void
+  setGameResponseWindow: (hours: number) => void
+  setIsRunningPipeline: (running: boolean) => void
+  setPipelineError: (error: string | null) => void
 }
 
 export const useStore = create<Store>((set) => ({
@@ -135,6 +148,11 @@ export const useStore = create<Store>((set) => ({
   postSimulationMapMode: false,
   gamePhase: 'pre-sim' as GamePhase,
   gameFlowStep: 1,
+  gameAllocations: {},
+  gameTotalBudget: 50000000,
+  gameResponseWindow: 72,
+  isRunningPipeline: false,
+  pipelineError: null,
 
   setHurricanes: (hurricanes) => set({ hurricanes }),
   setSelectedHurricane: (hurricane) => set({ selectedHurricane: hurricane }),
@@ -154,4 +172,12 @@ export const useStore = create<Store>((set) => ({
   setPostSimulationMapMode: (postSimulationMapMode) => set({ postSimulationMapMode }),
   setGamePhase: (gamePhase) => set({ gamePhase }),
   setGameFlowStep: (gameFlowStep) => set({ gameFlowStep }),
+  setGameAllocations: (gameAllocations) => set({ gameAllocations }),
+  updateGameAllocation: (region, amount) => set((state) => ({
+    gameAllocations: { ...state.gameAllocations, [region]: amount }
+  })),
+  setGameTotalBudget: (gameTotalBudget) => set({ gameTotalBudget }),
+  setGameResponseWindow: (gameResponseWindow) => set({ gameResponseWindow }),
+  setIsRunningPipeline: (isRunningPipeline) => set({ isRunningPipeline }),
+  setPipelineError: (pipelineError) => set({ pipelineError }),
 }))

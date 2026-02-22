@@ -22,6 +22,7 @@ function App() {
     hurricanes,
     setHurricanes,
     setCoverage,
+    coverage,
     selectedHurricane,
     setSelectedHurricane,
     showSeverityOverlay,
@@ -46,6 +47,9 @@ function App() {
     gamePhase,
     setGamePhase,
     setGameFlowStep,
+    setGameTotalBudget,
+    setGameAllocations,
+    setComparisonData,
   } = useStore()
 
   const [loading, setLoading] = useState(true)
@@ -174,6 +178,24 @@ function App() {
     }
   }
 
+  // Load total budget when hurricane is selected (for game flow Step 2)
+  useEffect(() => {
+    if (selectedHurricane) {
+      const loadBudget = async () => {
+        try {
+          const budgetRes = await axios.get(`${API_BASE}/simulation/total-budget/${selectedHurricane.id}`)
+          setGameTotalBudget(budgetRes.data.total_budget || 50000000)
+        } catch {
+          const total = coverage
+            .filter(c => c.hurricane_id === selectedHurricane.id)
+            .reduce((sum, c) => sum + c.pooled_fund_budget, 0)
+          setGameTotalBudget(total || 50000000)
+        }
+      }
+      loadBudget()
+    }
+  }, [selectedHurricane, coverage, setGameTotalBudget])
+
   const handleCinematicComplete = useCallback(() => {
     setCinematicPlaying(false)
     setCinematicCompleted(true)
@@ -182,17 +204,14 @@ function App() {
       const hurricane = hurricanes.find(h => h.id === pendingHurricane)
       setSelectedHurricane(hurricane || null)
       setPendingHurricane(null)
-      if (hurricane) {
-        setTimeout(() => {
-          setNarrativePopup({
-            title: `Hurricane ${hurricane.name} - ${hurricane.year}`,
-            message: `You are now the humanitarian response coordinator for ${hurricane.name}, a Category ${hurricane.max_category} storm that affected ${hurricane.affected_countries.join(', ')}. ${hurricane.estimated_population_affected.toLocaleString()} people were impacted. Your mission: allocate limited resources to save lives and reduce suffering. You have a fixed budget based on actual historical funding. Make every dollar count.`,
-            type: 'story'
-          })
-        }, 500)
-      }
+      // Go directly to sim-complete (map + Begin Game) — no sidebar, no narrative popup
+      setPostSimulationMapMode(true)
+      setGamePhase('sim-complete')
+      // Reset allocations and comparison data for fresh game flow
+      setGameAllocations({})
+      setComparisonData(null)
     }
-  }, [pendingHurricane, hurricanes, setNarrativePopup])
+  }, [pendingHurricane, hurricanes, setPostSimulationMapMode, setGamePhase, setGameAllocations, setComparisonData])
 
   const handleClearSelection = () => {
     setSelectedHurricane(null)
@@ -201,6 +220,8 @@ function App() {
     setCinematicCompleted(false)
     setGamePhase('pre-sim')
     setGameFlowStep(1)
+    setGameAllocations({})
+    setComparisonData(null)
   }
 
   const handleDashboardOption = (option: 'search' | 'browse' | 'disparity') => {

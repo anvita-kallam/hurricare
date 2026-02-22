@@ -3,6 +3,8 @@
  *
  * Minimal text. One primary 3D/depth-based visualization.
  * Purpose: establish spatial severity & context.
+ *
+ * Uses ONLY hurricane + coverage data — no comparisonData required.
  */
 
 import { useMemo, useRef, useEffect } from 'react'
@@ -33,15 +35,14 @@ function SeveritySurface({ regionData }: { regionData: Array<{ region: string; s
 
     const cols = regionData.length
     const cellW = w / cols
-    const perspective = 0.6 // Fake 3D perspective factor
+    const perspective = 0.6
     const maxBarH = h * 0.65
     const baseY = h * 0.85
     const depthOffset = 20
 
-    // Sort by severity for depth layering (lower severity in back)
     const sorted = [...regionData].sort((a, b) => a.severity - b.severity)
 
-    sorted.forEach((region, i) => {
+    sorted.forEach((region) => {
       const x = (regionData.indexOf(region) * cellW) + cellW * 0.15
       const barW = cellW * 0.7
       const barH = Math.max(4, region.severity * maxBarH)
@@ -142,23 +143,34 @@ function severityToColor(severity: number, alpha: number): string {
 }
 
 export default function Step1Situation() {
-  const { selectedHurricane, comparisonData, coverage } = useStore()
+  const { selectedHurricane, coverage, gameTotalBudget } = useStore()
 
+  // Build region data from coverage — no comparisonData needed
   const regionData = useMemo(() => {
-    if (!comparisonData?.realPlan) return []
-    return comparisonData.realPlan.allocations.map((ra: any) => {
-      const covData = coverage.find(
-        (c) => c.hurricane_id === selectedHurricane?.id && c.admin1 === ra.region
-      )
-      return {
-        region: ra.region,
-        severity: covData?.severity_index ? Math.min(covData.severity_index / 10, 1) : 0.5,
-        peopleInNeed: covData?.people_in_need || 0,
-      }
-    })
-  }, [comparisonData, coverage, selectedHurricane])
+    if (!selectedHurricane) return []
 
-  if (!selectedHurricane || !comparisonData) return null
+    // Get regions from coverage data
+    const fromCoverage = coverage
+      .filter(c => c.hurricane_id === selectedHurricane.id)
+      .map(c => ({
+        region: c.admin1,
+        severity: Math.min(c.severity_index / 10, 1),
+        peopleInNeed: c.people_in_need,
+      }))
+
+    if (fromCoverage.length > 0) return fromCoverage
+
+    // Fallback: use affected_countries with default severity
+    return (selectedHurricane.affected_countries || []).map(country => ({
+      region: country,
+      severity: 0.5,
+      peopleInNeed: Math.round(selectedHurricane.estimated_population_affected / (selectedHurricane.affected_countries.length || 1)),
+    }))
+  }, [selectedHurricane, coverage])
+
+  if (!selectedHurricane) return null
+
+  const totalPeopleInNeed = regionData.reduce((s, r) => s + r.peopleInNeed, 0)
 
   return (
     <div className="space-y-6">
@@ -188,7 +200,7 @@ export default function Step1Situation() {
         </div>
         <div className="text-center">
           <div className="text-white/60 font-mono text-sm">
-            {formatBudget(comparisonData.userPlan.total_budget)}
+            {formatBudget(gameTotalBudget)}
           </div>
           <div className="text-white/20 font-rajdhani text-[9px] tracking-widest uppercase">
             Budget
@@ -196,10 +208,10 @@ export default function Step1Situation() {
         </div>
         <div className="text-center">
           <div className="text-white/60 font-mono text-sm">
-            {comparisonData.userPlan.response_window_hours || 72}h
+            {totalPeopleInNeed.toLocaleString()}
           </div>
           <div className="text-white/20 font-rajdhani text-[9px] tracking-widest uppercase">
-            Window
+            People in Need
           </div>
         </div>
       </div>
