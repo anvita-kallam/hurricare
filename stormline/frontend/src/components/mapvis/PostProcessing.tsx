@@ -9,8 +9,8 @@ export default function PostProcessing({ selected }: PostProcessingProps) {
   return (
     <EffectComposer>
       <Bloom
-        intensity={selected ? 0.9 : 0.5}
-        luminanceThreshold={0.4}
+        intensity={selected ? 0.4 : 0.3}
+        luminanceThreshold={0.5}
         luminanceSmoothing={0.9}
         mipmapBlur
       />
