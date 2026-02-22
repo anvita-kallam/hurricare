@@ -1,14 +1,15 @@
 import { useState, useEffect, useMemo, useRef } from 'react'
 import axios from 'axios'
 import { useStore } from '../state/useStore'
-import { 
-  FundingVsNeedHeatmap, 
-  CoverageGapChart, 
-  RegionalHeatmap, 
+import {
+  FundingVsNeedHeatmap,
+  CoverageGapChart,
+  RegionalHeatmap,
   OutcomeRadarChart,
-  SeverityVsFundingScatter 
+  SeverityVsFundingScatter
 } from './DataVisualizations'
 import NarrativePopup from './NarrativePopup'
+import LocalizedAffectedMap from './LocalizedAffectedMap'
 
 const API_BASE = 'http://localhost:8000'
 
@@ -75,6 +76,7 @@ export default function SimulationEngine({ onStartSimulation }: SimulationEngine
   const [validation, setValidation] = useState<{valid: boolean, errors: string[], warnings: string[]} | null>(null)
   const [simulationResult, setSimulationResult] = useState<any>(null)
   const [narrativePopup, setNarrativePopup] = useState<{title: string, message: string, type?: 'info' | 'warning' | 'success' | 'story'} | null>(null)
+  const [showAffectedMap, setShowAffectedMap] = useState(false)
 
   // Get regions from coverage data (like AllocationPanel)
   const regions = useMemo(() => {
@@ -365,11 +367,49 @@ export default function SimulationEngine({ onStartSimulation }: SimulationEngine
     }
   }
 
+  // Compute affected regions and impact intensity
+  const affectedRegionsData = useMemo(() => {
+    if (!selectedHurricane) return { regions: [], intensity: {} }
+
+    const regions = selectedHurricane.affected_countries || []
+    const intensity: Record<string, number> = {}
+
+    // Calculate intensity based on coverage and severity
+    regions.forEach(region => {
+      const regionCoverage = coverage.find(
+        c => c.hurricane_id === selectedHurricane.id && c.admin1 === region
+      )
+      if (regionCoverage) {
+        // Intensity = combination of severity and coverage gap
+        const severityWeight = Math.min((regionCoverage.severity_index || 0.5) / 10, 1)
+        const coverageGap = 1 - (regionCoverage.coverage_ratio || 0) // Unmet = 1 - coverage
+        const unmetWeight = coverageGap * 0.5
+        intensity[region] = Math.min(severityWeight + unmetWeight, 1)
+      } else {
+        intensity[region] = Math.random() * 0.8 // Default intensity if no coverage data
+      }
+    })
+
+    return { regions, intensity }
+  }, [selectedHurricane, coverage])
+
   if (!selectedHurricane) {
     return (
       <div className="bg-black/40 backdrop-blur-sm rounded-lg border border-cyan-500/30 p-4 glow-cyan">
         <p className="text-cyan-300/80 font-exo">Please select a hurricane to begin simulation</p>
       </div>
+    )
+  }
+
+  // Show affected map if requested
+  if (showAffectedMap) {
+    return (
+      <LocalizedAffectedMap
+        affectedRegions={affectedRegionsData.regions}
+        impactIntensity={affectedRegionsData.intensity}
+        title={`${selectedHurricane.name} (${selectedHurricane.year}) - Impact Analysis`}
+        onClose={() => setShowAffectedMap(false)}
+      />
     )
   }
   
@@ -883,23 +923,31 @@ export default function SimulationEngine({ onStartSimulation }: SimulationEngine
                 </div>
               )}
 
-              <button
-                onClick={() => {
-                  if (userPlan && mlPlan && realPlan) {
-                    setComparisonData({
-                      userPlan,
-                      mlPlan,
-                      realPlan,
-                      mismatchAnalysis
-                    })
-                    setShowComparisonPage(true)
-                  }
-                }}
-                disabled={!mismatchAnalysis}
-                className="w-full mt-4 bg-gradient-to-r from-purple-600 to-pink-600 text-white py-3 px-4 rounded hover:from-purple-700 hover:to-pink-700 disabled:bg-gray-600 disabled:text-gray-400 glow-purple transition-all font-semibold font-orbitron text-lg"
-              >
-                {mismatchAnalysis ? 'View Full Comparison Dashboard' : 'Generating Analysis...'}
-              </button>
+              <div className="flex gap-4">
+                <button
+                  onClick={() => setShowAffectedMap(true)}
+                  className="flex-1 mt-4 bg-gradient-to-r from-orange-600 to-red-600 text-white py-3 px-4 rounded hover:from-orange-700 hover:to-red-700 glow-orange transition-all font-semibold font-orbitron text-lg"
+                >
+                  View Impact Map
+                </button>
+                <button
+                  onClick={() => {
+                    if (userPlan && mlPlan && realPlan) {
+                      setComparisonData({
+                        userPlan,
+                        mlPlan,
+                        realPlan,
+                        mismatchAnalysis
+                      })
+                      setShowComparisonPage(true)
+                    }
+                  }}
+                  disabled={!mismatchAnalysis}
+                  className="flex-1 mt-4 bg-gradient-to-r from-purple-600 to-pink-600 text-white py-3 px-4 rounded hover:from-purple-700 hover:to-pink-700 disabled:bg-gray-600 disabled:text-gray-400 glow-purple transition-all font-semibold font-orbitron text-lg"
+                >
+                  {mismatchAnalysis ? 'View Full Comparison Dashboard' : 'Generating Analysis...'}
+                </button>
+              </div>
             </div>
           </div>
         </div>
