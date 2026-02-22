@@ -5,7 +5,7 @@
  * Designed for Igloo Inc / museum-grade multisensory UI.
  *
  * Sound categories:
- *  - Typing: Cherry MX Brown–style mechanical key clicks
+ *  - Typing: Futuristic digital blips (sine + triangle sweeps)
  *  - Ambient: Ultra-low continuous drone (felt more than heard)
  *  - UI: Panel slides, magnetic ticks, confirmation clicks
  *  - Scroll: Fabric/friction micro-sounds tied to scroll velocity
@@ -115,7 +115,7 @@ export function stopAmbient(): void {
   }, 2000)
 }
 
-// ─── Typing Sounds (Cherry MX Brown) ───────────────────────────────────────
+// ─── Typing Sounds (Futuristic Digital Blips) ──────────────────────────────
 
 export function playTypeClick(emphasis: 'normal' | 'headline' | 'metric' | 'soft' = 'normal'): void {
   const c = getCtx()
@@ -125,51 +125,39 @@ export function playTypeClick(emphasis: 'normal' | 'headline' | 'metric' | 'soft
   const volumeMap = { headline: 0.18, metric: 0.15, normal: 0.09, soft: 0.04 }
   const vol = volumeMap[emphasis]
 
-  // Randomized pitch for natural feel
-  const basePitch = 3200 + (Math.random() - 0.5) * 1200
-  const timingJitter = Math.random() * 0.003
+  // Randomized pitch for variety — higher range for sci-fi feel
+  const basePitch = 1200 + (Math.random() - 0.5) * 400
+  const timingJitter = Math.random() * 0.002
 
-  // Click body — short noise burst shaped like a mechanical switch
-  const bufferLen = Math.floor(c.sampleRate * 0.018)
-  const buffer = c.createBuffer(1, bufferLen, c.sampleRate)
-  const data = buffer.getChannelData(0)
+  // Primary blip — short sine tone with quick upward sweep
+  const osc = c.createOscillator()
+  osc.type = 'sine'
+  osc.frequency.setValueAtTime(basePitch, now + timingJitter)
+  osc.frequency.exponentialRampToValueAtTime(basePitch * 1.3, now + timingJitter + 0.025)
 
-  for (let i = 0; i < bufferLen; i++) {
-    const t = i / bufferLen
-    // Sharp attack, fast decay envelope
-    const env = t < 0.1 ? t / 0.1 : Math.exp(-(t - 0.1) * 25)
-    data[i] = (Math.random() * 2 - 1) * env
-  }
+  const blipGain = c.createGain()
+  blipGain.gain.setValueAtTime(vol, now + timingJitter)
+  blipGain.gain.exponentialRampToValueAtTime(0.001, now + timingJitter + 0.05)
 
-  const noise = c.createBufferSource()
-  noise.buffer = buffer
+  osc.connect(blipGain)
+  blipGain.connect(master)
+  osc.start(now + timingJitter)
+  osc.stop(now + timingJitter + 0.06)
 
-  // Bandpass filter to shape the "click" character
-  const filter = c.createBiquadFilter()
-  filter.type = 'bandpass'
-  filter.frequency.value = basePitch
-  filter.Q.value = 1.8
+  // Secondary harmonic — adds digital character
+  const harmonic = c.createOscillator()
+  harmonic.type = 'triangle'
+  harmonic.frequency.setValueAtTime(basePitch * 2, now + timingJitter)
+  harmonic.frequency.exponentialRampToValueAtTime(basePitch * 2.5, now + timingJitter + 0.02)
 
-  const clickGain = c.createGain()
-  clickGain.gain.value = vol
+  const harmonicGain = c.createGain()
+  harmonicGain.gain.setValueAtTime(vol * 0.2, now + timingJitter)
+  harmonicGain.gain.exponentialRampToValueAtTime(0.001, now + timingJitter + 0.03)
 
-  noise.connect(filter)
-  filter.connect(clickGain)
-  clickGain.connect(master)
-
-  noise.start(now + timingJitter)
-
-  // Secondary "bottom-out" thud for mechanical feel
-  const thud = c.createOscillator()
-  thud.type = 'sine'
-  thud.frequency.value = 200 + Math.random() * 100
-  const thudGain = c.createGain()
-  thudGain.gain.value = vol * 0.4
-  thudGain.gain.setTargetAtTime(0, now + 0.01, 0.008)
-  thud.connect(thudGain)
-  thudGain.connect(master)
-  thud.start(now + timingJitter + 0.002)
-  thud.stop(now + 0.04)
+  harmonic.connect(harmonicGain)
+  harmonicGain.connect(master)
+  harmonic.start(now + timingJitter)
+  harmonic.stop(now + timingJitter + 0.04)
 }
 
 // ─── UI Micro-Sounds ───────────────────────────────────────────────────────
