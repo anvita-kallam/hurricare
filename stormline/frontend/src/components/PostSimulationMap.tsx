@@ -4,6 +4,7 @@ import { OrbitControls, Html } from '@react-three/drei'
 import * as THREE from 'three'
 import { useStore, Coverage } from '../state/useStore'
 import { COUNTRY_POLYGONS } from '../data/countries'
+import { resolveRegion } from '../utils/regionRegistry'
 
 // ─── Coordinate Transform ─────────────────────────────────────────────────────
 
@@ -11,7 +12,8 @@ function useRegionTransform(affectedRegions: string[]) {
   return useMemo(() => {
     const allPoints: [number, number][] = []
     for (const name of affectedRegions) {
-      const polys = COUNTRY_POLYGONS.filter(c => c.name === name)
+      const resolved = resolveRegion(name)
+      const polys = COUNTRY_POLYGONS.filter(c => c.name === resolved || c.name === name)
       for (const p of polys) {
         for (const pt of p.points) allPoints.push(pt)
       }
@@ -61,7 +63,8 @@ function useRegionTransform(affectedRegions: string[]) {
 // ─── Region Centroid ───────────────────────────────────────────────────────────
 
 function getRegionCentroid(countryName: string, transform: (lon: number, lat: number) => [number, number]): [number, number] | null {
-  const polys = COUNTRY_POLYGONS.filter(c => c.name === countryName)
+  const resolved = resolveRegion(countryName)
+  const polys = COUNTRY_POLYGONS.filter(c => c.name === resolved || c.name === countryName)
   if (polys.length === 0) return null
 
   // Use the largest polygon
@@ -91,10 +94,10 @@ function AffectedRegionMesh({
 }) {
   const meshRef = useRef<THREE.Group>(null)
 
-  const polygons = useMemo(
-    () => COUNTRY_POLYGONS.filter(c => c.name === countryName),
-    [countryName],
-  )
+  const polygons = useMemo(() => {
+    const resolved = resolveRegion(countryName)
+    return COUNTRY_POLYGONS.filter(c => c.name === resolved || c.name === countryName)
+  }, [countryName])
 
   const geometries = useMemo(() => {
     const results: { geo: THREE.BufferGeometry; borderPts: THREE.Vector3[] }[] = []
@@ -210,10 +213,10 @@ function SupportRegionMesh({
 }) {
   const meshRef = useRef<THREE.Group>(null)
 
-  const polygons = useMemo(
-    () => COUNTRY_POLYGONS.filter(c => c.name === countryName),
-    [countryName],
-  )
+  const polygons = useMemo(() => {
+    const resolved = resolveRegion(countryName)
+    return COUNTRY_POLYGONS.filter(c => c.name === resolved || c.name === countryName)
+  }, [countryName])
 
   const geometries = useMemo(() => {
     const results: { geo: THREE.BufferGeometry; borderPts: THREE.Vector3[] }[] = []
@@ -678,10 +681,10 @@ export default function PostSimulationMap({ transitionPhase }: PostSimulationMap
     }
   }, [transitionPhase])
 
-  // Get affected regions from hurricane data
+  // Get affected regions from hurricane data, resolved through registry
   const affectedRegions = useMemo(() => {
     if (!selectedHurricane) return []
-    return selectedHurricane.affected_countries || []
+    return (selectedHurricane.affected_countries || []).map(r => resolveRegion(r))
   }, [selectedHurricane])
 
   // Build coverage lookup
