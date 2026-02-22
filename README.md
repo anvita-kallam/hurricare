@@ -1,7 +1,8 @@
 # HurriCare
 
-HurriCare is an interactive decision-support platform for humanitarian hurricane response.  
-The system combines geospatial visualization, machine learning, and large-scale data engineering to analyze historical disasters, identify funding disparities, and simulate resource allocation strategies.
+HurriCare is an interactive decision-support platform designed for **United Nations–style humanitarian hurricane response**.
+
+The system combines **geospatial modeling**, **machine learning**, and **large-scale analytics** to analyze historical disasters, quantify funding disparities, and simulate evidence-based resource allocation strategies.
 
 ---
 
@@ -12,135 +13,60 @@ HurriCare enables data-driven exploration of:
 - Historical hurricane events  
 - Humanitarian need vs funding coverage  
 - Sector-level allocation strategies  
-- Current location-based funding and resource disparity mapping  
+- Structural vulnerability & preparedness gaps  
+- Real vs ideal response comparisons  
 
 The platform is designed as both:
 
 - **An analytical intelligence tool** for disaster response evaluation  
-- **An interactive simulation environment** for resource and allocation planning  
+- **An interactive simulation environment** for humanitarian planning  
 
 ---
 
 ## Core Features
 
 - **3D Interactive Globe**  
-  Visual exploration of hurricane tracks, impacted regions, and disparities in resources and funding.
+  Visual exploration of hurricane tracks, impacted regions, and funding disparities.
 
 - **Funding Disparity Map**  
   Geospatial visualization of mismatches between humanitarian need and resource allocation.
 
 - **Hurricane Response Plans**  
-  ML-driven ideal response plans tailored to hurricane characteristics.
+  ML-driven ideal response plans aligned with UN humanitarian sector priorities.
 
 - **Data Visualization Analytics (SphynxAI)**  
-  Dynamic visualizations of impacted regions, funding disparities, and humanitarian need, accompanied by natural-language explanations.
+  Dynamic visualizations of impacted regions, severity patterns, and funding gaps, paired with AI-generated analytical explanations.
 
 - **Voice-Based Narrative Agents (ElevenLabs)**  
-  AI voice agents provide immersive, human-centered context by narrating personal accounts from affected individuals with each hurricane scenario.
+  Cinematic voice agents narrate survivor accounts, providing human-centered context for quantitative disaster data.
 
 - **Simulation & Comparison Framework**  
-  Compare user-designed, ML-generated, and historical allocation strategies.
+  Compare historical, ML-generated, and user-designed allocation strategies under budget constraints.
 
 ---
 
-## Tech Stack
+## APIs & Integrations
 
-### Frontend
+HurriCare integrates AI and analytics services commonly used in modern decision-support systems:
 
-- React 18 + TypeScript  
-- Vite  
-- Three.js / react-three-fiber  
-- Tailwind CSS  
-- Zustand (state management)  
-- Axios (API communication)  
-
----
-
-### Backend
-
-- Python  
-- FastAPI  
-- DuckDB  
-- NumPy / Pandas  
-- PyTorch  
-
----
-
-### Data & Infrastructure
-
-- Databricks  
-- DuckDB (low-latency analytics)  
-- External Humanitarian & Disaster APIs  
-
----
-
-### Sector Prioritization and Ideal Response Plan Creation Model
-
-A **multi-layer feedforward neural network (MLP)** predicts sector priorities based on disaster context.
-
-**Model Inputs**
-
-- Storm intensity & metadata  
-- Population impact estimates  
-- Regional severity indicators  
-- Historical allocation signals  
-- Vulnerability proxies  
-
-**Model Outputs**
-
-- Sector priority scores and probabilities used to generate response plans (WASH, Health, Shelter, etc.)
-
----
-
-## Databricks Usage
-
-Databricks functions as the **data engineering and retrieval backbone** of HurriCare.
-
----
-
-### Unified Data Lakehouse
-
-Databricks supports:
-
-- Multi-source dataset ingestion  
-- Schema normalization  
-- Large-scale joins & aggregations  
-
-This enables consistent cross-dataset analytics.
-
----
-
-### Vector Search (RAG Layer)
-
-Databricks Vector Search enables:
-
-- Semantic retrieval of historical hurricanes  
-- Similarity search across disaster events  
-- Contextual grounding for simulations  
-
-This allows HurriCare to:
-
-- Identify comparable past disasters  
-- Surface relevant allocation patterns  
-
----
-
-### Hybrid Architecture
-
-- **Databricks → large-scale processing & retrieval**  
-- **DuckDB → low-latency analytical queries**
-
-This architecture balances scalability and responsiveness.
+| API / Service | Used Where | What It Does |
+|--------------|-------------|--------------|
+| **Databricks SQL API** | Backend | Retrieve hurricanes, funding flows, severity indicators, historical responses |
+| **Databricks Vector Search** | Backend | Semantic similarity search across hurricane events (RAG layer) |
+| **Google Gemini Pro** | Backend + Frontend | Generate comparative insights & structured survivor narratives |
+| **ElevenLabs TTS (`eleven_multilingual_v2`)** | Frontend | Voice-based narrative agents for immersive storytelling |
+| **FastAPI** | Backend | Orchestrates simulation & ML inference pipeline |
+| **React Three Fiber / Three.js** | Frontend | Real-time 3D globe & simulations |
 
 ---
 
 ## Data Sources
 
-HurriCare is built entirely on real humanitarian and disaster datasets.
+HurriCare is built entirely on real humanitarian and disaster datasets:
 
 - Humanitarian API (HAPI)  
-- United Nations OCHA API  
-- International Federation of the Red Cross (IFRC Go API)  
+- United Nations OCHA / Relief datasets  
+- IFRC GO Disaster API  
 - HDX – Humanitarian Data Exchange  
 - OpenFEMA Public Datasets  
 - NOAA NHC HURDAT2  
@@ -148,88 +74,195 @@ HurriCare is built entirely on real humanitarian and disaster datasets.
 
 These datasets provide:
 
-- Storm tracks & intensity  
-- Hazard & damage records  
-- Population impact estimates  
-- Funding & project data  
+- Storm tracks & meteorological intensity  
+- Hazard & damage indicators  
+- Population impact & displacement estimates  
+- Funding & humanitarian project data  
 
 ---
 
-## System Architecture
+## 3D / Spatial & Polygon Data
 
-HurriCare follows a modular decision-support architecture integrating:
+HurriCare uses high-resolution geopolitical boundary datasets to enable **geographically accurate humanitarian visualization**.
 
-- Large-scale data engineering  
-- Machine learning inference  
-- Low-latency analytics  
-- Interactive geospatial visualization  
-- Voice-based AI agents  
-- AI-generated visual analytics  
+| Metric | Value |
+|--------|--------|
+| Coordinate pairs | **145,285** |
+| Country polygons | **211** |
+| Countries / territories rendered | **201** |
+| Polygon dataset size | **~9.8 MB** |
+| Projection | Longitude/Latitude → Sphere |
+| Triangulation | `THREE.ShapeUtils.triangulateShape()` |
+| Surface Conformation | Custom curvature-conforming subdivision |
+
+### Polygon Modeling Pipeline
+
+Country boundaries are processed through a multi-stage spatial pipeline:
+
+1. **Raw Polygon Ingestion**  
+   High-resolution longitude/latitude coordinate datasets.
+
+2. **Spherical Projection**  
+   Conversion from planar geographic coordinates → 3D sphere mapping.
+
+3. **Polygon Triangulation**  
+   `THREE.ShapeUtils.triangulateShape()` used to convert complex polygons into renderable meshes.
+
+4. **Curvature-Conforming Subdivision**  
+   Custom subdivision algorithm prevents visual distortion across spherical surfaces.
+
+### Why Polygon Accuracy Matters for Humanitarian Analysis
+
+Accurate polygon geometry is critical because HurriCare overlays:
+
+- Hurricane impact regions  
+- Severity distributions  
+- Funding coverage ratios  
+- Vulnerability indices  
+
+This ensures:
+
+- No artificial distortion of impacted regions  
+- Correct regional severity attribution  
+- Reliable spatial funding comparisons  
+
+Flat map projections often introduce bias in visual interpretation; spherical polygon modeling eliminates these distortions.
+
+---
+
+## Core Calculations (Exact Formulas)
+
+HurriCare implements explicit quantitative metrics rather than heuristic scoring.
+
+---
+
+### Coverage Ratio
+
+Measures how well humanitarian funding met estimated need:
+
+```text
+coverage_ratio =
+    pooled_fund_budget /
+    (severity_index × people_in_need × 500)
+```
+
+**500 USD** → Approximate UN cost-per-person humanitarian assistance baseline.
+
+**Interpretation**
+
+- 0.0 → Severe underfunding  
+- 1.0 → Fully funded response  
+
+---
+
+### Severity Index (0–1)
+
+HurriCare models **humanitarian severity**, not just storm intensity.
+
+Severity is derived from normalized multi-source indicators:
+
+| Component | Example Sources |
+|-----------|----------------|
+| Infrastructure damage | Storm Events / FEMA proxies |
+| Population displaced | OCHA / FEMA |
+| Emergency declaration level | FEMA / CERF |
+| Health system stress | WHO / PAHO proxies |
+
+Each indicator is:
+
+1. Normalized  
+2. Weighted  
+3. Aggregated into a composite severity score  
+
+This produces a **continuous severity scale** reflecting real humanitarian conditions.
+
+---
+
+### Impact Score (Simulation Engine)
+
+Evaluates allocation strategies under realistic constraints:
+
+```text
+impact_score =
+    (1.0 × lives_covered)
+  + (0.5 × vulnerability_reduction)
+  − (0.3 × unmet_need)
+```
+
+**Penalties**
+
+- −5% logistics penalty  
+- −3% access / security penalty  
+
+This models real humanitarian trade-offs between coverage, efficiency, and feasibility.
+
+---
+
+## Machine Learning: Ideal Response Model
+
+HurriCare uses an **Explainable Multi-Layer Perceptron (MLP)** for sector prioritization.
+
+| Aspect | Detail |
+|--------|--------|
+| Model | **ExplainableMLP (PyTorch)** |
+| Inputs | **27 engineered features** |
+| Hidden Layers | **128 → 64 → 32** |
+| Output | Priority distribution over UN-style humanitarian sectors |
+| Sectors | WASH, Health, Shelter, Food Security, Protection, Livelihoods, Education, Energy |
+| Loss | Soft-label cross-entropy |
+| Optimizer | AdamW |
+| Explainability | Gradient × Input feature attribution |
+
+### What the Model Learns
+
+The MLP captures nonlinear interactions between:
+
+- Storm characteristics  
+- Regional vulnerability  
+- Severity indicators  
+- Historical allocation signals  
+
+Rather than rule-based prioritization, the model learns **context-dependent humanitarian strategies**.
 
 ---
 
 ## Relevance to UN Priorities
 
-HurriCare is directly aligned with core UN humanitarian objectives.
-
----
+HurriCare directly supports core humanitarian objectives:
 
 ### Evidence-Based Resource Allocation
 
-The platform enables systematic analysis of:
+Quantifies:
 
-- Funding disparities  
 - Coverage gaps  
+- Funding disparities  
 - Sector prioritization trade-offs  
-
-This supports more rational, data-driven decision-making.
 
 ---
 
 ### Transparency & Accountability
 
-Project-level analytics and anomaly detection help identify:
-
-- Allocation inefficiencies  
-- Unusual funding patterns  
-- Coverage imbalances  
-
-This enhances interpretability of funding outcomes.
+- Explicit formulas  
+- Explainable ML outputs  
+- Interpretable severity scoring  
 
 ---
 
 ### Risk Reduction & Preparedness
 
-Hurricane Readiness Scoring provides:
+Structural vulnerability modeling helps identify:
 
-- Early vulnerability signals  
-- Comparative regional risk assessment  
-- Decision support for mitigation strategies  
-
----
-
-### Strategic Planning Support
-
-Simulation capabilities allow UN officials to:
-
-- Evaluate alternative allocation strategies  
-- Compare predicted vs historical responses  
-- Analyze consequences of budget constraints  
+- Underprepared regions  
+- Systemic funding inequities  
+- Anticipatory intervention opportunities  
 
 ---
 
-## Practical Utility for UN Officials
+## Practical Utility for Humanitarian Decision-Makers
 
-HurriCare functions as a decision-support and analytical intelligence tool.
-
-- Identify underfunded high-need regions  
-- Evaluate sector prioritization strategies  
-- Explore historical disaster precedents  
-- Integrate quantitative analytics with narrative context  
-
-Rather than replacing human judgment, HurriCare augments it with:
+HurriCare augments (not replaces) human judgment by providing:
 
 - Data-driven insights  
-- Interpretable ML outputs  
-- Interactive exploration tools  
-- Voice-based situational awareness  
+- Explainable ML prioritization  
+- Interactive spatial reasoning  
+- Human-centered narrative context  
