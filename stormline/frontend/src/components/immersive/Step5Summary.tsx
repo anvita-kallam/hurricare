@@ -60,15 +60,14 @@ function DeltaSurface({ data }: {
       const x = 20 + i * cellW + cellW * 0.15
       const barW = cellW * 0.7
       const barH = (d.delta / maxDelta) * maxBarH
-      const isPositive = d.delta >= 0 // Positive = underfunded (need more)
+      const isPositive = d.delta >= 0
       const depth = 6
 
       const colorBase = isPositive
-        ? `rgba(200, 80, 80,`  // Red = underfunded
-        : `rgba(80, 170, 110,` // Green = overfunded (had enough)
+        ? `rgba(200, 80, 80,`
+        : `rgba(80, 170, 110,`
 
       if (isPositive) {
-        // Bar goes UP from center (underfunded)
         // Front face
         ctx.fillStyle = `${colorBase} 0.6)`
         ctx.fillRect(x, centerY - barH, barW, barH)
@@ -93,12 +92,10 @@ function DeltaSurface({ data }: {
         ctx.closePath()
         ctx.fill()
       } else {
-        // Bar goes DOWN from center (overfunded)
         const absH = Math.abs(barH)
         ctx.fillStyle = `${colorBase} 0.6)`
         ctx.fillRect(x, centerY, barW, absH)
 
-        // Bottom face (shadow)
         ctx.fillStyle = `${colorBase} 0.2)`
         ctx.beginPath()
         ctx.moveTo(x, centerY + absH)
@@ -108,7 +105,6 @@ function DeltaSurface({ data }: {
         ctx.closePath()
         ctx.fill()
 
-        // Right face
         ctx.fillStyle = `${colorBase} 0.15)`
         ctx.beginPath()
         ctx.moveTo(x + barW, centerY)
@@ -188,10 +184,23 @@ export default function Step5Summary() {
   const coverageDelta = totalMlCovered - totalRealCovered
   const userVsMl = totalUserCovered - totalMlCovered
 
-  // Find most underfunded region
   const mostUnderfunded = [...deltaData].sort((a, b) => b.delta - a.delta)[0]
 
-  if (!comparisonData) return null
+  // Loading state if data isn't ready
+  if (!comparisonData) {
+    return (
+      <div className="space-y-6 py-8">
+        <div className="text-center">
+          <div className="text-white/20 font-rajdhani text-[9px] tracking-[0.3em] uppercase">
+            Loading Summary
+          </div>
+          <div className="text-white/15 font-mono text-[10px] mt-2">
+            Waiting for analysis data...
+          </div>
+        </div>
+      </div>
+    )
+  }
 
   return (
     <div className="space-y-6">

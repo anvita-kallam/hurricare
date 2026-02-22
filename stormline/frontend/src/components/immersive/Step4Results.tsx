@@ -132,7 +132,7 @@ function drawExtrudedBar(
 }
 
 export default function Step4Results() {
-  const { comparisonData, coverage, selectedHurricane } = useStore()
+  const { comparisonData } = useStore()
 
   const regionData = useMemo(() => {
     if (!comparisonData?.realPlan) return []
@@ -165,7 +165,30 @@ export default function Step4Results() {
   const avgRealCoverage = regionData.length > 0
     ? regionData.reduce((s: number, r: any) => s + r.realCoverage, 0) / regionData.length : 0
 
-  if (!comparisonData) return null
+  // Loading state if data isn't ready yet
+  if (!comparisonData) {
+    return (
+      <div className="space-y-6 py-8">
+        <div className="text-center">
+          <div className="text-white/20 font-rajdhani text-[9px] tracking-[0.3em] uppercase">
+            Loading Results
+          </div>
+          <div className="text-white/15 font-mono text-[10px] mt-2">
+            Waiting for analysis data...
+          </div>
+        </div>
+        <div className="flex items-center justify-center gap-2">
+          {[0, 1, 2].map(i => (
+            <div
+              key={i}
+              className="w-1.5 h-1.5 rounded-full bg-white/20 confirm-dot"
+              style={{ animationDelay: `${i * 200}ms` }}
+            />
+          ))}
+        </div>
+      </div>
+    )
+  }
 
   return (
     <div className="space-y-6">

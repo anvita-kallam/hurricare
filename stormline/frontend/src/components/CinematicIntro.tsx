@@ -8,7 +8,7 @@ import { useCinematicController, ImpactEvent } from '../hooks/useCinematicContro
 import HurricaneSpiral from './HurricaneSpiral'
 import ImpactCallout from './ImpactCallout'
 import CinematicGlobe from './CinematicGlobe'
-import { Hurricane } from '../state/useStore'
+import { Hurricane, useStore } from '../state/useStore'
 
 function latLonToVector3(lat: number, lon: number, radius: number = 1): THREE.Vector3 {
   const phi = (90 - lat) * (Math.PI / 180)
@@ -25,6 +25,207 @@ function formatLatLon(coord: number, isLat: boolean = true) {
   const min = Math.floor((abs - deg) * 60)
   const dir = coord >= 0 ? (isLat ? 'N' : 'E') : (isLat ? 'S' : 'W')
   return `${deg}°${min}'${dir}`
+}
+
+function formatBudget(n: number): string {
+  if (n >= 1e9) return `$${(n / 1e9).toFixed(1)}B`
+  if (n >= 1e6) return `$${(n / 1e6).toFixed(1)}M`
+  if (n >= 1e3) return `$${(n / 1e3).toFixed(0)}K`
+  return `$${n.toLocaleString()}`
+}
+
+/** Mini wind speed chart drawn on canvas */
+function WindSpeedChart({ track, progress }: {
+  track: Array<{ lat: number; lon: number; wind: number }>
+  progress: number
+}) {
+  const canvasRef = useRef<HTMLCanvasElement>(null)
+
+  useEffect(() => {
+    const canvas = canvasRef.current
+    if (!canvas) return
+    const ctx = canvas.getContext('2d')
+    if (!ctx) return
+
+    const w = canvas.width
+    const h = canvas.height
+    ctx.clearRect(0, 0, w, h)
+
+    if (track.length === 0) return
+
+    const maxWind = Math.max(...track.map(p => p.wind), 1)
+    const currentIdx = Math.min(Math.floor(progress * track.length), track.length - 1)
+
+    // Background grid
+    ctx.strokeStyle = 'rgba(255,255,255,0.05)'
+    ctx.lineWidth = 0.5
+    for (let i = 1; i < 4; i++) {
+      const y = (h - 15) * (i / 4) + 15
+      ctx.beginPath()
+      ctx.moveTo(0, y)
+      ctx.lineTo(w, y)
+      ctx.stroke()
+    }
+
+    // Category thresholds
+    const categories = [
+      { wind: 74, label: 'Cat 1', color: 'rgba(255,200,50,0.3)' },
+      { wind: 111, label: 'Cat 3', color: 'rgba(255,120,50,0.3)' },
+      { wind: 157, label: 'Cat 5', color: 'rgba(255,50,50,0.3)' },
+    ]
+    categories.forEach(cat => {
+      if (cat.wind <= maxWind) {
+        const y = h - (cat.wind / maxWind) * (h - 20) - 5
+        ctx.strokeStyle = cat.color
+        ctx.setLineDash([3, 3])
+        ctx.beginPath()
+        ctx.moveTo(0, y)
+        ctx.lineTo(w, y)
+        ctx.stroke()
+        ctx.setLineDash([])
+        ctx.fillStyle = cat.color.replace('0.3', '0.5')
+        ctx.font = '7px DM Mono'
+        ctx.textAlign = 'right'
+        ctx.fillText(cat.label, w - 2, y - 2)
+      }
+    })
+
+    // Full track path (dim)
+    ctx.beginPath()
+    ctx.strokeStyle = 'rgba(255, 100, 100, 0.15)'
+    ctx.lineWidth = 1
+    track.forEach((p, i) => {
+      const x = (i / track.length) * w
+      const y = h - (p.wind / maxWind) * (h - 20) - 5
+      if (i === 0) ctx.moveTo(x, y)
+      else ctx.lineTo(x, y)
+    })
+    ctx.stroke()
+
+    // Progress path (bright)
+    ctx.beginPath()
+    ctx.strokeStyle = 'rgba(255, 100, 100, 0.8)'
+    ctx.lineWidth = 2
+    for (let i = 0; i <= currentIdx; i++) {
+      const x = (i / track.length) * w
+      const y = h - (track[i].wind / maxWind) * (h - 20) - 5
+      if (i === 0) ctx.moveTo(x, y)
+      else ctx.lineTo(x, y)
+    }
+    ctx.stroke()
+
+    // Current point glow
+    if (currentIdx > 0 && currentIdx < track.length) {
+      const cx = (currentIdx / track.length) * w
+      const cy = h - (track[currentIdx].wind / maxWind) * (h - 20) - 5
+      const grad = ctx.createRadialGradient(cx, cy, 0, cx, cy, 8)
+      grad.addColorStop(0, 'rgba(255, 100, 100, 0.8)')
+      grad.addColorStop(1, 'rgba(255, 100, 100, 0)')
+      ctx.fillStyle = grad
+      ctx.fillRect(cx - 8, cy - 8, 16, 16)
+      ctx.beginPath()
+      ctx.arc(cx, cy, 3, 0, Math.PI * 2)
+      ctx.fillStyle = '#ff6b6b'
+      ctx.fill()
+    }
+
+    // Label
+    ctx.fillStyle = 'rgba(255,255,255,0.5)'
+    ctx.font = '9px Rajdhani'
+    ctx.textAlign = 'left'
+    ctx.fillText('WIND SPEED', 4, 10)
+    ctx.textAlign = 'right'
+    ctx.fillStyle = 'rgba(255,255,255,0.8)'
+    ctx.font = '10px DM Mono'
+    ctx.fillText(`${Math.round(track[currentIdx].wind)} mph`, w - 4, 10)
+  }, [track, progress])
+
+  return (
+    <canvas
+      ref={canvasRef}
+      width={220}
+      height={70}
+      style={{ imageRendering: 'auto' }}
+    />
+  )
+}
+
+/** Mini severity bar chart for regions */
+function SeverityMiniChart({ data }: {
+  data: Array<{ region: string; severity: number; peopleInNeed: number }>
+}) {
+  const canvasRef = useRef<HTMLCanvasElement>(null)
+
+  useEffect(() => {
+    const canvas = canvasRef.current
+    if (!canvas) return
+    const ctx = canvas.getContext('2d')
+    if (!ctx) return
+
+    const w = canvas.width
+    const h = canvas.height
+    ctx.clearRect(0, 0, w, h)
+
+    if (data.length === 0) return
+
+    const barH = Math.max(8, (h - 10) / data.length - 4)
+    const maxNeed = Math.max(...data.map(d => d.peopleInNeed), 1)
+
+    data.forEach((d, i) => {
+      const y = 2 + i * (barH + 3)
+      const barW = Math.max(4, (d.peopleInNeed / maxNeed) * (w - 60))
+
+      // Severity color
+      const color = d.severity > 0.7
+        ? 'rgba(200, 60, 60,'
+        : d.severity > 0.4
+          ? 'rgba(200, 160, 60,'
+          : 'rgba(60, 160, 100,'
+
+      // Bar with 3D extrusion
+      const depth = 3
+      // Right face
+      ctx.fillStyle = `${color} 0.2)`
+      ctx.beginPath()
+      ctx.moveTo(50 + barW, y + barH)
+      ctx.lineTo(50 + barW + depth, y + barH - depth)
+      ctx.lineTo(50 + barW + depth, y - depth)
+      ctx.lineTo(50 + barW, y)
+      ctx.closePath()
+      ctx.fill()
+      // Top face
+      ctx.fillStyle = `${color} 0.4)`
+      ctx.beginPath()
+      ctx.moveTo(50, y)
+      ctx.lineTo(50 + depth, y - depth)
+      ctx.lineTo(50 + barW + depth, y - depth)
+      ctx.lineTo(50 + barW, y)
+      ctx.closePath()
+      ctx.fill()
+      // Front face
+      ctx.fillStyle = `${color} 0.7)`
+      ctx.fillRect(50, y, barW, barH)
+
+      // Region label
+      ctx.fillStyle = 'rgba(255,255,255,0.5)'
+      ctx.font = '8px Rajdhani'
+      ctx.textAlign = 'right'
+      ctx.textBaseline = 'middle'
+      ctx.fillText(
+        d.region.length > 8 ? d.region.slice(0, 8) + '..' : d.region,
+        46, y + barH / 2
+      )
+    })
+  }, [data])
+
+  return (
+    <canvas
+      ref={canvasRef}
+      width={180}
+      height={Math.min(data.length * 14 + 10, 100)}
+      style={{ imageRendering: 'auto' }}
+    />
+  )
 }
 
 function CinematicCamera({
@@ -149,12 +350,38 @@ export default function CinematicIntro({
   impactEvents,
   onComplete
 }: CinematicIntroProps) {
+  const { coverage } = useStore()
   const durationHours = useMemo(() => hurricane.track.length * 6, [hurricane.track])
 
   const { state, start, stop } = useCinematicController(durationHours, 10)
   const hasStartedRef = useRef(false)
   const voicePlayedRef = useRef(false)
   const completedRef = useRef(false)
+
+  // Build region severity data for floating panels
+  const regionSeverityData = useMemo(() => {
+    if (!hurricane) return []
+    return coverage
+      .filter(c => c.hurricane_id === hurricane.id)
+      .slice(0, 6)
+      .map(c => ({
+        region: c.admin1,
+        severity: Math.min(c.severity_index / 10, 1),
+        peopleInNeed: c.people_in_need,
+      }))
+  }, [hurricane, coverage])
+
+  const totalPeopleInNeed = useMemo(() =>
+    regionSeverityData.reduce((s, r) => s + r.peopleInNeed, 0),
+    [regionSeverityData]
+  )
+
+  const totalBudget = useMemo(() =>
+    coverage
+      .filter(c => c.hurricane_id === hurricane.id)
+      .reduce((s, c) => s + c.pooled_fund_budget, 0),
+    [hurricane, coverage]
+  )
 
   // Safe onComplete wrapper — ensures it fires exactly once
   const safeComplete = useCallback(() => {
@@ -171,8 +398,19 @@ export default function CinematicIntro({
     }
   }, [start])
 
+  // Safety timeout — auto-complete after 16 seconds if animation gets stuck
+  useEffect(() => {
+    const timeout = setTimeout(() => {
+      if (!completedRef.current) {
+        console.warn('[CinematicIntro] Safety timeout reached, forcing completion')
+        stop()
+        safeComplete()
+      }
+    }, 16000)
+    return () => clearTimeout(timeout)
+  }, [stop, safeComplete])
+
   // Play personal account voiceover when animation is playing.
-  // Audio keeps playing even after cinematic ends (no cleanup needed).
   useEffect(() => {
     if (state.phase !== 'playing' || !state.isPlaying || voicePlayedRef.current) return
     voicePlayedRef.current = true
@@ -201,7 +439,8 @@ export default function CinematicIntro({
 
   const handleExitAnimation = () => {
     stop()
-    // safeComplete will be triggered by the useEffect above when phase becomes 'complete'
+    // Call safeComplete directly for reliability
+    safeComplete()
   }
 
   const currentStormPosition = useMemo(() => {
@@ -249,9 +488,7 @@ export default function CinematicIntro({
     return 1
   }, [state.phase, state.progress])
 
-  // Keep rendering black backdrop when complete — prevents black screen flash.
-  // Parent unmounts this component when isCinematicPlaying becomes false,
-  // which happens in the same render as the main layout becoming visible.
+  // Keep rendering black backdrop when complete
   if (!state.isPlaying && state.phase === 'complete') {
     return <div className="fixed inset-0 z-50 bg-black" />
   }
@@ -264,13 +501,10 @@ export default function CinematicIntro({
     }}>
       <Canvas camera={{ position: [0, 0, 4], fov: 50 }}>
         <Suspense fallback={null}>
-          {/* Static lighting */}
           <ambientLight intensity={0.05} />
           <pointLight position={[0, 0, 4]} intensity={0.2} color="#2244ff" distance={10} />
           <pointLight position={[-3, 1, 2]} intensity={0.12} color="#9900ff" distance={12} />
 
-
-          {/* MapVis globe (GlobeShell + CountryMesh) — NOT satellite/NASA texture */}
           <CinematicGlobe />
 
           {(state.phase === 'playing' || state.phase === 'fadeIn') && state.isPlaying && (
@@ -322,7 +556,7 @@ export default function CinematicIntro({
           onClick={handleExitAnimation}
           className="absolute top-8 right-8 px-6 py-3 rounded-lg bg-white/10 hover:bg-white/20 text-white font-bold font-rajdhani text-lg transition border border-white/10 z-50"
         >
-          Exit Animation
+          Skip
         </button>
       )}
 
@@ -347,9 +581,98 @@ export default function CinematicIntro({
         </div>
       )}
 
-      {/* Track point info */}
+      {/* ═══ Floating Data Panels (3D graphs around the animation) ═══ */}
+
+      {/* Left panel: Regional Severity 3D mini-chart */}
+      {state.phase === 'playing' && state.isPlaying && regionSeverityData.length > 0 && (
+        <div
+          className="absolute left-8 bg-black/70 backdrop-blur-sm border border-white/10 rounded-lg p-3 space-y-2"
+          style={{
+            zIndex: 150,
+            top: '45%',
+            animation: 'cinematic-panel-in 0.6s ease-out forwards',
+          }}
+        >
+          <div className="text-white/50 font-rajdhani text-[9px] tracking-widest uppercase">
+            Regional Severity
+          </div>
+          <SeverityMiniChart data={regionSeverityData} />
+        </div>
+      )}
+
+      {/* Bottom left: Population & Budget stats */}
+      {state.phase === 'playing' && state.isPlaying && (
+        <div
+          className="absolute left-8 bottom-8 bg-black/70 backdrop-blur-sm border border-white/10 rounded-lg p-3 space-y-2"
+          style={{
+            zIndex: 150,
+            animation: 'cinematic-panel-in 0.6s ease-out 0.2s forwards',
+            opacity: 0,
+          }}
+        >
+          <div className="text-white/50 font-rajdhani text-[9px] tracking-widest uppercase">
+            Impact Overview
+          </div>
+          <div className="grid grid-cols-2 gap-x-4 gap-y-1">
+            <div>
+              <div className="text-white/80 font-mono text-sm">
+                {hurricane.estimated_population_affected.toLocaleString()}
+              </div>
+              <div className="text-white/30 font-rajdhani text-[8px] tracking-wider uppercase">
+                People Affected
+              </div>
+            </div>
+            <div>
+              <div className="text-white/80 font-mono text-sm">
+                {totalPeopleInNeed.toLocaleString()}
+              </div>
+              <div className="text-white/30 font-rajdhani text-[8px] tracking-wider uppercase">
+                People in Need
+              </div>
+            </div>
+            <div>
+              <div className="text-white/80 font-mono text-sm">
+                {hurricane.affected_countries.length}
+              </div>
+              <div className="text-white/30 font-rajdhani text-[8px] tracking-wider uppercase">
+                Countries
+              </div>
+            </div>
+            <div>
+              <div className="text-white/80 font-mono text-sm">
+                {totalBudget > 0 ? formatBudget(totalBudget) : 'N/A'}
+              </div>
+              <div className="text-white/30 font-rajdhani text-[8px] tracking-wider uppercase">
+                Relief Budget
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Bottom center: Wind speed chart */}
+      {state.phase === 'playing' && state.isPlaying && hurricane.track.length > 1 && (
+        <div
+          className="absolute bottom-8 left-1/2 -translate-x-1/2 bg-black/70 backdrop-blur-sm border border-white/10 rounded-lg p-3"
+          style={{
+            zIndex: 150,
+            animation: 'cinematic-panel-in 0.6s ease-out 0.4s forwards',
+            opacity: 0,
+          }}
+        >
+          <WindSpeedChart track={hurricane.track} progress={state.progress} />
+        </div>
+      )}
+
+      {/* Right panel: Track point info */}
       {state.phase === 'playing' && state.isPlaying && currentTrackPoint && (
-        <div className="absolute bottom-8 right-8 bg-black/90 border border-white/10 rounded-lg p-4 min-w-[220px] max-w-[280px]" style={{ zIndex: 200 }}>
+        <div
+          className="absolute bottom-8 right-8 bg-black/70 backdrop-blur-sm border border-white/10 rounded-lg p-4 min-w-[220px] max-w-[280px]"
+          style={{ zIndex: 200 }}
+        >
+          <div className="text-white/50 font-rajdhani text-[9px] tracking-widest uppercase mb-2">
+            Current Position
+          </div>
           <div className="space-y-2">
             <div className="flex items-center justify-between">
               <span className="text-sm text-white/50 font-rajdhani">Wind Speed</span>
@@ -361,6 +684,16 @@ export default function CinematicIntro({
                 <span className="text-lg font-bold text-red-400 font-mono">Cat {currentTrackPoint.category}</span>
               </div>
             )}
+            {/* Mini intensity bar */}
+            <div className="w-full h-1.5 bg-white/[0.06] rounded-full overflow-hidden">
+              <div
+                className="h-full rounded-full transition-all duration-300"
+                style={{
+                  width: `${stormIntensity * 100}%`,
+                  backgroundColor: stormIntensity > 0.8 ? '#ff4444' : stormIntensity > 0.5 ? '#ffaa44' : '#44cc77',
+                }}
+              />
+            </div>
             <div className="flex items-center justify-between text-xs text-white/40 font-mono pt-2 border-t border-white/10">
               <span>{formatLatLon(currentTrackPoint.lat)}</span>
               <span>{formatLatLon(currentTrackPoint.lon, false)}</span>
