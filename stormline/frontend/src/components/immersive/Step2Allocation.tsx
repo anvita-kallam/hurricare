@@ -617,10 +617,10 @@ export default function Step2Allocation() {
         />
       </div>
 
-      {/* Two-column layout: Donut + Terrain */}
-      <div className="flex gap-4 items-start">
+      {/* Charts row: Donut + Terrain stacked or side by side */}
+      <div className="flex gap-3 items-start">
         {/* Left: 3D Donut */}
-        <div className="flex-shrink-0">
+        <div className="shrink-0 w-[280px]">
           <div className="text-white/25 font-rajdhani text-[9px] tracking-widest uppercase mb-1 text-center">
             Budget by Category
           </div>
@@ -629,7 +629,6 @@ export default function Step2Allocation() {
             totalBudget={gameTotalBudget}
             totalAllocated={totalAllocated}
           />
-          {/* Cluster legend */}
           <div className="grid grid-cols-2 gap-x-2 gap-y-0.5 mt-1 px-2">
             {CLUSTERS.map(c => (
               <div key={c} className="flex items-center gap-1.5">
@@ -640,8 +639,8 @@ export default function Step2Allocation() {
           </div>
         </div>
 
-        {/* Right: Terrain chart */}
-        <div className="flex-1 min-w-0">
+        {/* Right: Terrain chart — fills remaining space */}
+        <div className="flex-1 min-w-0 overflow-hidden">
           <div className="text-white/25 font-rajdhani text-[9px] tracking-widest uppercase mb-1 text-center">
             Severity Terrain vs Your Allocation
           </div>
@@ -652,13 +651,15 @@ export default function Step2Allocation() {
       {/* Region-by-region cluster allocation — ALL visible */}
       <div className="space-y-2 max-h-[380px] overflow-y-auto pr-1">
         <div className="text-white/25 font-rajdhani text-[9px] tracking-widest uppercase text-center pb-1">
-          Per-Region Category Allocation ({regions.length * 6} sliders)
+          Per-Region Category Allocation
         </div>
         {regions.map(region => {
           const cov = coverageLookup[region]
           const regionTotal = gameAllocations[region] || 0
           const isActive = activeRegion === region
           const historicalClusters = historicalClusterBudgets[region] || {}
+          // Max per slider = region fair share (so slider range is visually useful)
+          const sliderMax = Math.max(Math.ceil(gameTotalBudget / Math.max(regions.length, 1)), 1)
 
           return (
             <div
@@ -669,7 +670,7 @@ export default function Step2Allocation() {
                   : 'bg-white/[0.015] border-white/[0.05] hover:border-white/[0.08]'
               }`}
             >
-              {/* Region header — always visible, click to highlight */}
+              {/* Region header */}
               <button
                 onClick={() => setActiveRegion(isActive ? null : region)}
                 className="w-full text-left px-3 py-2 flex items-center justify-between"
@@ -690,44 +691,40 @@ export default function Step2Allocation() {
                     </span>
                   )}
                 </div>
-                <div className="flex items-center gap-2">
-                  <span className="text-white/50 font-mono text-[10px] font-medium">{formatBudget(regionTotal)}</span>
-                </div>
+                <span className="text-white/50 font-mono text-[10px] font-medium">{formatBudget(regionTotal)}</span>
               </button>
 
-              {/* Cluster sliders — ALWAYS visible */}
-              <div className="px-3 pb-3 grid grid-cols-2 gap-x-4 gap-y-1.5">
+              {/* 6 cluster sliders — always visible, single column */}
+              <div className="px-3 pb-3 space-y-2">
                 {CLUSTERS.map(cluster => {
                   const value = gameClusterAllocations[region]?.[cluster] || 0
-                  const fillPct = gameTotalBudget > 0 ? (value / (gameTotalBudget * 0.25)) * 100 : 0
+                  const fillPct = sliderMax > 0 ? (value / sliderMax) * 100 : 0
                   const historicalVal = historicalClusters[cluster] || 0
                   const color = CLUSTER_COLORS[cluster]
 
                   return (
-                    <div key={cluster} className="space-y-0.5">
-                      <div className="flex justify-between items-center">
-                        <div className="flex items-center gap-1.5">
-                          <div className="w-2 h-2 rounded-sm" style={{ backgroundColor: color }} />
-                          <span className="text-white/55 font-rajdhani text-[10px] tracking-wide font-medium">
-                            {CLUSTER_SHORT[cluster]}
-                          </span>
-                        </div>
-                        <span className="text-white/60 font-mono text-[9px] font-medium">{formatBudget(value)}</span>
+                    <div key={cluster}>
+                      <div className="flex items-center gap-2">
+                        <div className="w-2 h-2 rounded-sm shrink-0" style={{ backgroundColor: color }} />
+                        <span className="text-white/55 font-rajdhani text-[10px] tracking-wide font-medium w-16 shrink-0">
+                          {CLUSTER_SHORT[cluster]}
+                        </span>
+                        <input
+                          type="range"
+                          min={0}
+                          max={sliderMax}
+                          step={Math.max(1000, Math.floor(sliderMax / 100))}
+                          value={value}
+                          onChange={(e) => handleClusterChange(region, cluster, Number(e.target.value))}
+                          className="flex-1 h-[6px] appearance-none rounded-full cursor-pointer"
+                          style={{
+                            background: `linear-gradient(to right, ${color} 0%, ${color} ${Math.min(fillPct, 100)}%, rgba(255,255,255,0.08) ${Math.min(fillPct, 100)}%, rgba(255,255,255,0.08) 100%)`,
+                          }}
+                        />
+                        <span className="text-white/60 font-mono text-[9px] w-12 text-right shrink-0">{formatBudget(value)}</span>
                       </div>
-                      <input
-                        type="range"
-                        min={0}
-                        max={gameTotalBudget}
-                        step={Math.max(1000, Math.floor(gameTotalBudget / 200))}
-                        value={value}
-                        onChange={(e) => handleClusterChange(region, cluster, Number(e.target.value))}
-                        className="w-full h-[6px] appearance-none rounded-full cursor-pointer"
-                        style={{
-                          background: `linear-gradient(to right, ${color} 0%, ${color} ${Math.min(fillPct, 100)}%, rgba(255,255,255,0.08) ${Math.min(fillPct, 100)}%, rgba(255,255,255,0.08) 100%)`,
-                        }}
-                      />
                       {historicalVal > 0 && (
-                        <div className="text-white/20 font-mono text-[8px]">
+                        <div className="text-white/20 font-mono text-[8px] ml-[88px]">
                           hist: {formatBudget(historicalVal)}
                         </div>
                       )}
