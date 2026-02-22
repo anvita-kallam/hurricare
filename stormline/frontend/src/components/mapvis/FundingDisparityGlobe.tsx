@@ -35,6 +35,15 @@ export default function FundingDisparityGlobe({ onClose }: FundingDisparityGlobe
 
       <div className="zoom-vignette" />
 
+      {/* Title label */}
+      {!selectedCountry && (
+        <div className="absolute top-20 left-1/2 -translate-x-1/2 z-40 text-center pointer-events-none">
+          <h1 className="text-[2rem] font-bold tracking-wide text-white/80 font-rajdhani leading-none">
+            Relief Funding vs. Estimated Need
+          </h1>
+        </div>
+      )}
+
       {/* Intelligence panels — appear left/right on country selection */}
       <FundingDisparityPanels selectedCountry={selectedCountry} />
 
