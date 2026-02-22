@@ -194,8 +194,14 @@ function AnimatedPoint({ position, color, visible }: { position: [number, number
 
 function HtmlTooltip({ hurricane, position }: { hurricane: any; position: THREE.Vector3 }) {
   return (
-    <Html position={position} center distanceFactor={1}>
-      <div className="bg-black bg-opacity-80 text-white p-2 rounded text-xs whitespace-nowrap pointer-events-none font-exo">
+    <Html
+      position={position}
+      center
+      distanceFactor={1}
+      style={{ pointerEvents: 'none' }}
+      occlude="blending"
+    >
+      <div className="bg-black bg-opacity-80 text-white p-2 rounded text-xs whitespace-nowrap pointer-events-none font-exo" style={{ userSelect: 'none' }}>
         <div className="font-bold font-orbitron">{hurricane.name}</div>
         <div>Year: {hurricane.year}</div>
         <div>Category: {hurricane.max_category}</div>
