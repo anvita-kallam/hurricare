@@ -220,8 +220,8 @@ export default function ImmersivePanelOverlay() {
           }}
         >
           <div className="max-w-5xl mx-auto relative">
-            {/* Frosted glass backdrop for readability over grid */}
-            <div className="absolute inset-0 -mx-6 -my-4 bg-black/50 backdrop-blur-xl rounded-2xl border border-white/[0.03] parallax-slow" style={{ boxShadow: '0 0 80px rgba(0,0,0,0.6)' }} />
+            {/* Frosted glass backdrop for readability over grid — compositing-safe */}
+            <div className="absolute inset-0 -mx-6 -my-4 bg-black/60 rounded-2xl border border-white/[0.03]" style={{ boxShadow: '0 0 80px rgba(0,0,0,0.6)', backfaceVisibility: 'hidden', transform: 'translateZ(0)' }} />
             <div className="relative z-10">
               {gameFlowStep === 1 && <Step1Situation />}
               {gameFlowStep === 2 && <Step2Allocation />}
