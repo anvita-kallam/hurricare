@@ -71,25 +71,26 @@ function getStormColor(hurricaneId: string): string {
 
 function HurricanePath({ hurricane, isSelected }: { hurricane: any; isSelected: boolean }) {
   const [hovered, setHovered] = useState(false)
-  
+  const ELEVATION = 1.055 // Paths sit above countries at r=1.028
+
   const curve = useMemo(() => {
     const points = hurricane.track.map((point: any) => {
       const phi = (90 - point.lat) * (Math.PI / 180)
       const theta = (point.lon + 180) * (Math.PI / 180)
-      
-      const x = -Math.sin(phi) * Math.cos(theta)
-      const y = Math.cos(phi)
-      const z = Math.sin(phi) * Math.sin(theta)
-      
+
+      const x = -Math.sin(phi) * Math.cos(theta) * ELEVATION
+      const y = Math.cos(phi) * ELEVATION
+      const z = Math.sin(phi) * Math.sin(theta) * ELEVATION
+
       return new THREE.Vector3(x, y, z)
     })
-    
+
     return new THREE.CatmullRomCurve3(points, false, 'centripetal')
   }, [hurricane.track])
-  
+
   const geometry = useMemo(() => {
     // Thinner lines for unselected, slightly thicker for selected
-    const radius = isSelected ? 0.01 : 0.005
+    const radius = isSelected ? 0.008 : 0.004
     const tubeGeometry = new THREE.TubeGeometry(curve, 64, radius, 8, false)
     return tubeGeometry
   }, [curve, isSelected])
@@ -113,27 +114,44 @@ function HurricanePath({ hurricane, isSelected }: { hurricane: any; isSelected: 
   
   return (
     <group>
+      {/* White outer tube for selected hurricanes */}
+      {isSelected && (
+        <mesh geometry={geometry} renderOrder={4}>
+          <meshBasicMaterial
+            color="#ffffff"
+            transparent
+            opacity={0.4}
+            depthTest={true}
+            depthWrite={false}
+          />
+        </mesh>
+      )}
+
+      {/* Colored main path */}
       <mesh
         geometry={geometry}
         onPointerOver={() => setHovered(true)}
         onPointerOut={() => setHovered(false)}
+        renderOrder={5}
       >
         <meshBasicMaterial
           color={hovered ? '#FFFFFF' : color}
           transparent
           opacity={hovered || isSelected ? 1 : 0.6}
+          depthTest={true}
+          depthWrite={false}
         />
       </mesh>
-      
+
       {/* Animated points along the path */}
       {hurricane.track.map((point: any, index: number) => {
         const phi = (90 - point.lat) * (Math.PI / 180)
         const theta = (point.lon + 180) * (Math.PI / 180)
-        
-        const x = -Math.sin(phi) * Math.cos(theta)
-        const y = Math.cos(phi)
-        const z = Math.sin(phi) * Math.sin(theta)
-        
+
+        const x = -Math.sin(phi) * Math.cos(theta) * ELEVATION
+        const y = Math.cos(phi) * ELEVATION
+        const z = Math.sin(phi) * Math.sin(theta) * ELEVATION
+
         return (
           <AnimatedPoint
             key={index}
@@ -176,17 +194,21 @@ function AnimatedPoint({ position, color, visible }: { position: [number, number
 
 function HtmlTooltip({ hurricane, position }: { hurricane: any; position: THREE.Vector3 }) {
   return (
-    <mesh position={position}>
-      <Html center>
-        <div className="bg-black bg-opacity-80 text-white p-2 rounded text-xs whitespace-nowrap pointer-events-none font-exo">
-          <div className="font-bold font-orbitron">{hurricane.name}</div>
-          <div>Year: {hurricane.year}</div>
-          <div>Category: {hurricane.max_category}</div>
-          <div>Affected: {hurricane.estimated_population_affected.toLocaleString()}</div>
-          <div>{hurricane.affected_countries.join(', ')}</div>
-        </div>
-      </Html>
-    </mesh>
+    <Html
+      position={position}
+      center
+      distanceFactor={1}
+      style={{ pointerEvents: 'none' }}
+      occlude="blending"
+    >
+      <div className="bg-black bg-opacity-80 text-white p-2 rounded text-xs whitespace-nowrap pointer-events-none font-exo" style={{ userSelect: 'none' }}>
+        <div className="font-bold font-orbitron">{hurricane.name}</div>
+        <div>Year: {hurricane.year}</div>
+        <div>Category: {hurricane.max_category}</div>
+        <div>Affected: {hurricane.estimated_population_affected.toLocaleString()}</div>
+        <div>{hurricane.affected_countries.join(', ')}</div>
+      </div>
+    </Html>
   )
 }
 
