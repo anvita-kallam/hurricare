@@ -1,5 +1,5 @@
 import { useEffect, useState, useCallback } from 'react'
-import Globe from './components/Globe'
+import MapVisGlobe from './components/MapVisGlobe'
 import CoverageChoropleth from './components/CoverageChoropleth'
 import SimulationEngine from './components/SimulationEngine'
 import ComparisonPage from './components/ComparisonPage'
@@ -343,7 +343,11 @@ function App() {
         
         {/* Center - Globe */}
         <div className="flex-1 relative">
-          <Globe />
+          <MapVisGlobe
+            selectedHurricane={selectedHurricane}
+            autoSpin={autoSpin}
+            onCountrySelect={(country) => console.log('Selected country:', country)}
+          />
           <CoverageChoropleth />
         </div>
         
