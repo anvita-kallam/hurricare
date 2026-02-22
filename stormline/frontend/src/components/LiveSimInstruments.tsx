@@ -49,10 +49,10 @@ export default function LiveSimInstruments({ pipelineStage, pipelineProgress }: 
               style={{
                 height: `${12 + r.severity * 24}px`,
                 backgroundColor: r.severity > 0.7
-                  ? `rgba(200, 60, 60, ${0.3 + r.severity * 0.5})`
+                  ? `rgba(230, 30, 30, ${0.5 + r.severity * 0.5})`
                   : r.severity > 0.4
-                    ? `rgba(200, 160, 60, ${0.3 + r.severity * 0.4})`
-                    : `rgba(60, 160, 100, ${0.2 + r.severity * 0.3})`,
+                    ? `rgba(240, 200, 0, ${0.5 + r.severity * 0.4})`
+                    : `rgba(30, 200, 30, ${0.4 + r.severity * 0.3})`,
                 transitionDelay: `${i * 80}ms`,
               }}
             />

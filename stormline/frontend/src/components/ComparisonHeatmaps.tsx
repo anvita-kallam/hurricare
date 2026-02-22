@@ -13,32 +13,32 @@ interface ComparisonHeatmapsProps {
   selectedHurricane: any
 }
 
-// Generate color based on value — muted heatmap colors
+// Generate color based on value — bright heatmap colors
 function getColor(value: number, max: number, type: 'crisis' | 'funding') {
   const t = max > 0 ? Math.min(value / max, 1) : 0
   if (type === 'crisis') {
-    // Low severity = muted green, mid = muted amber, high = muted red
+    // Low = bright green, mid = bright yellow, high = bright red
     if (t < 0.33) {
       const s = t / 0.33
-      return `rgb(${Math.floor(40 + s * 40)}, ${Math.floor(80 + s * 40)}, ${Math.floor(40 + s * 10)})`
+      return `rgb(${Math.floor(30 + s * 200)}, ${Math.floor(200 - s * 10)}, ${Math.floor(30)})`
     } else if (t < 0.66) {
       const s = (t - 0.33) / 0.33
-      return `rgb(${Math.floor(80 + s * 80)}, ${Math.floor(120 - s * 40)}, ${Math.floor(50 - s * 20)})`
+      return `rgb(${Math.floor(230 + s * 25)}, ${Math.floor(190 - s * 140)}, ${Math.floor(30)})`
     } else {
       const s = (t - 0.66) / 0.34
-      return `rgb(${Math.floor(160 + s * 40)}, ${Math.floor(80 - s * 40)}, ${Math.floor(30 + s * 10)})`
+      return `rgb(${Math.floor(255 - s * 35)}, ${Math.floor(50 - s * 30)}, ${Math.floor(30)})`
     }
   } else {
-    // Funding: low = dark muted, mid = muted amber, high = muted teal
+    // Funding: low = dark, mid = bright yellow, high = bright green
     if (t < 0.33) {
       const s = t / 0.33
-      return `rgb(${Math.floor(30 + s * 30)}, ${Math.floor(30 + s * 40)}, ${Math.floor(30 + s * 30)})`
+      return `rgb(${Math.floor(40 + s * 180)}, ${Math.floor(40 + s * 140)}, ${Math.floor(30)})`
     } else if (t < 0.66) {
       const s = (t - 0.33) / 0.33
-      return `rgb(${Math.floor(60 + s * 60)}, ${Math.floor(70 + s * 40)}, ${Math.floor(60 - s * 20)})`
+      return `rgb(${Math.floor(220 - s * 140)}, ${Math.floor(180 + s * 30)}, ${Math.floor(30 + s * 20)})`
     } else {
       const s = (t - 0.66) / 0.34
-      return `rgb(${Math.floor(120 - s * 40)}, ${Math.floor(110 + s * 40)}, ${Math.floor(40 + s * 80)})`
+      return `rgb(${Math.floor(80 - s * 40)}, ${Math.floor(210 - s * 20)}, ${Math.floor(50 + s * 30)})`
     }
   }
 }

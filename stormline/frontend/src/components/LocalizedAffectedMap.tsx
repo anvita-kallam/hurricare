@@ -381,19 +381,19 @@ export default function LocalizedAffectedMap({
           <div className="text-white/70 font-rajdhani font-semibold mb-3">Impact Severity</div>
           <div className="space-y-2 text-xs">
             <div className="flex items-center gap-2">
-              <div className="w-6 h-3 rounded" style={{ backgroundColor: 'rgba(160, 60, 60, 0.8)' }} />
+              <div className="w-6 h-3 rounded" style={{ backgroundColor: 'rgba(230, 30, 30, 0.9)' }} />
               <span className="text-white/60 font-rajdhani">Critical (0.8-1.0)</span>
             </div>
             <div className="flex items-center gap-2">
-              <div className="w-6 h-3 rounded" style={{ backgroundColor: 'rgba(180, 120, 40, 0.8)' }} />
+              <div className="w-6 h-3 rounded" style={{ backgroundColor: 'rgba(255, 160, 0, 0.9)' }} />
               <span className="text-white/60 font-rajdhani">Severe (0.6-0.8)</span>
             </div>
             <div className="flex items-center gap-2">
-              <div className="w-6 h-3 rounded" style={{ backgroundColor: 'rgba(160, 150, 50, 0.8)' }} />
+              <div className="w-6 h-3 rounded" style={{ backgroundColor: 'rgba(240, 220, 0, 0.9)' }} />
               <span className="text-white/60 font-rajdhani">Moderate (0.4-0.6)</span>
             </div>
             <div className="flex items-center gap-2">
-              <div className="w-6 h-3 rounded" style={{ backgroundColor: 'rgba(60, 120, 60, 0.8)' }} />
+              <div className="w-6 h-3 rounded" style={{ backgroundColor: 'rgba(30, 200, 30, 0.9)' }} />
               <span className="text-white/60 font-rajdhani">Low (0.2-0.4)</span>
             </div>
           </div>

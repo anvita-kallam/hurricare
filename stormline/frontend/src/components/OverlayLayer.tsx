@@ -119,23 +119,23 @@ export default function OverlayLayer() {
           lon: trackPoint.lon + severityLonOffset
         }
         
-        // Muted severity colors: low=green, mid=amber, high=red
+        // Bright severity colors: low=green, mid=yellow, high=red
         let sevR: number, sevG: number, sevB: number
         if (severity < 0.33) {
           const s = severity / 0.33
-          sevR = Math.floor(40 + s * 40)
-          sevG = Math.floor(80 + s * 40)
-          sevB = Math.floor(40 + s * 10)
+          sevR = Math.floor(30 + s * 200)
+          sevG = Math.floor(200 - s * 10)
+          sevB = Math.floor(30)
         } else if (severity < 0.66) {
           const s = (severity - 0.33) / 0.33
-          sevR = Math.floor(80 + s * 80)
-          sevG = Math.floor(120 - s * 40)
-          sevB = Math.floor(50 - s * 20)
+          sevR = Math.floor(230 + s * 25)
+          sevG = Math.floor(190 - s * 140)
+          sevB = Math.floor(30)
         } else {
           const s = (severity - 0.66) / 0.34
-          sevR = Math.floor(160 + s * 40)
-          sevG = Math.floor(80 - s * 40)
-          sevB = Math.floor(30 + s * 10)
+          sevR = Math.floor(255 - s * 35)
+          sevG = Math.floor(50 - s * 30)
+          sevB = Math.floor(30)
         }
         overlays.push({
           ...severityCoords,
@@ -159,23 +159,23 @@ export default function OverlayLayer() {
           lon: trackPoint.lon + coverageLonOffset
         }
         
-        // Muted coverage colors: low=red (bad), mid=amber, high=green (good)
+        // Bright coverage colors: low=red (bad), mid=yellow, high=green (good)
         let covR: number, covG: number, covB: number
         if (coverageRatio < 0.33) {
           const s = coverageRatio / 0.33
-          covR = Math.floor(160 - s * 80)
-          covG = Math.floor(40 + s * 40)
-          covB = Math.floor(40 - s * 10)
+          covR = Math.floor(220 - s * 10)
+          covG = Math.floor(30 + s * 160)
+          covB = Math.floor(30)
         } else if (coverageRatio < 0.66) {
           const s = (coverageRatio - 0.33) / 0.33
-          covR = Math.floor(80 + s * 80)
-          covG = Math.floor(80 + s * 40)
-          covB = Math.floor(30 + s * 20)
+          covR = Math.floor(210 - s * 170)
+          covG = Math.floor(190 + s * 10)
+          covB = Math.floor(30)
         } else {
           const s = (coverageRatio - 0.66) / 0.34
-          covR = Math.floor(160 - s * 100)
-          covG = Math.floor(120 + s * 20)
-          covB = Math.floor(50 + s * 10)
+          covR = Math.floor(40 - s * 10)
+          covG = Math.floor(200 - s * 10)
+          covB = Math.floor(30 + s * 40)
         }
         overlays.push({
           ...coverageCoords,
