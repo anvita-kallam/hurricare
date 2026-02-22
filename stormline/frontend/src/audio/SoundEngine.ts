@@ -504,19 +504,19 @@ export function playHover(): void {
   osc.stop(now + 0.1)
 }
 
-/** Button press — satisfying click */
+/** Button press — gentle click (soft and subtle) */
 export function playButtonPress(): void {
   const c = getCtx()
   const master = getMaster()
   const now = c.currentTime
 
-  // Sharp attack click
-  const bufferLen = Math.floor(c.sampleRate * 0.015)
+  // Soft click noise
+  const bufferLen = Math.floor(c.sampleRate * 0.012)
   const buffer = c.createBuffer(1, bufferLen, c.sampleRate)
   const data = buffer.getChannelData(0)
   for (let i = 0; i < bufferLen; i++) {
     const t = i / bufferLen
-    data[i] = (Math.random() * 2 - 1) * Math.exp(-t * 20)
+    data[i] = (Math.random() * 2 - 1) * Math.exp(-t * 25)
   }
 
   const noise = c.createBufferSource()
@@ -524,31 +524,31 @@ export function playButtonPress(): void {
 
   const filter = c.createBiquadFilter()
   filter.type = 'bandpass'
-  filter.frequency.value = 3000
-  filter.Q.value = 2
+  filter.frequency.value = 2700
+  filter.Q.value = 1.6
 
   const clickGain = c.createGain()
-  clickGain.gain.value = 0.08
+  clickGain.gain.value = 0.032 // Much gentler
 
   noise.connect(filter)
   filter.connect(clickGain)
   clickGain.connect(master)
   noise.start(now)
 
-  // Tonal component for "satisfaction"
+  // Gentle tonal component
   const osc = c.createOscillator()
   osc.type = 'sine'
-  osc.frequency.setValueAtTime(700, now)
-  osc.frequency.exponentialRampToValueAtTime(500, now + 0.08)
+  osc.frequency.setValueAtTime(630, now)
+  osc.frequency.exponentialRampToValueAtTime(460, now + 0.07)
 
   const toneGain = c.createGain()
-  toneGain.gain.setValueAtTime(0.05, now)
-  toneGain.gain.exponentialRampToValueAtTime(0.001, now + 0.1)
+  toneGain.gain.setValueAtTime(0.018, now) // Much quieter
+  toneGain.gain.exponentialRampToValueAtTime(0.0003, now + 0.08)
 
   osc.connect(toneGain)
   toneGain.connect(master)
   osc.start(now)
-  osc.stop(now + 0.12)
+  osc.stop(now + 0.1)
 }
 
 /** Muted tonal resolve — for panel settling into place */
