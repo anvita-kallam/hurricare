@@ -128,22 +128,20 @@ export default function CountryMesh({ country, radius, selected, globalSelected,
 
   return (
     <>
-      {country.name !== 'Russia' && (
-        <mesh ref={meshRef} geometry={geometry}
-          onClick={(e) => { e.stopPropagation(); onSelect(country.name) }}
-          renderOrder={2}
-        >
-          <meshBasicMaterial
-            color={selected ? '#0e2f7a' : '#0d2060'}
-            transparent
-            opacity={selected ? 0.92 : 0.88}
-            side={THREE.DoubleSide}
-            depthWrite={true}
-            depthTest={true}
-            toneMapped={false}
-          />
-        </mesh>
-      )}
+      <mesh ref={meshRef} geometry={geometry}
+        onClick={(e) => { e.stopPropagation(); onSelect(country.name) }}
+        renderOrder={2}
+      >
+        <meshBasicMaterial
+          color={selected ? '#0e2f7a' : '#0d2060'}
+          transparent
+          opacity={selected ? 0.92 : 0.88}
+          side={THREE.DoubleSide}
+          depthWrite={true}
+          depthTest={true}
+          toneMapped={false}
+        />
+      </mesh>
 
       {selected && borderTube ? (
         <mesh ref={tubeRef} geometry={borderTube} renderOrder={3}>

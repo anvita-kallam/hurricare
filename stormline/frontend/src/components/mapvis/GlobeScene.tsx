@@ -170,9 +170,9 @@ export default function GlobeScene({ selected, onSelect }: GlobeSceneProps) {
     <Canvas camera={{ position: [0, 0, 2.9], fov: 50 }} dpr={[1, 2]}>
       <color attach="background" args={['#000000']} />
       <ambientLight intensity={0.05} />
-      <pointLight position={[0, 0, 4]} intensity={0.5} color="#2244ff" distance={10} />
-      <pointLight position={[-3, 1, 2]} intensity={0.35} color="#9900ff" distance={12} />
-      <pointLight position={[3, -1, 2]} intensity={0.25} color="#0055ff" distance={12} />
+      <pointLight position={[0, 0, 4]} intensity={0.25} color="#2244ff" distance={10} />
+      <pointLight position={[-3, 1, 2]} intensity={0.15} color="#9900ff" distance={12} />
+      <pointLight position={[3, -1, 2]} intensity={0.1} color="#0055ff" distance={12} />
       <GlobeGroup selected={selected} onSelect={onSelect} groupRef={groupRef} mouseLocal={mouseLocal} />
       <MouseTracker groupRef={groupRef} mouseLocal={mouseLocal} />
       <Starfield />
