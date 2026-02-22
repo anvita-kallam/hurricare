@@ -36,7 +36,8 @@ export function useCinematicController(
 ) {
   const FADE_IN_MS = 500
   const PLAY_MS = fixedDurationSeconds * 1000
-  const FADE_OUT_MS = 1000
+  // 2500ms allows end-screen TypewriterText (41 chars × ~42ms max + 100ms delay ≈ 1822ms) to fully complete
+  const FADE_OUT_MS = 2500
   const TOTAL_MS = FADE_IN_MS + PLAY_MS + FADE_OUT_MS
 
   const [state, setState] = useState<CinematicState>({

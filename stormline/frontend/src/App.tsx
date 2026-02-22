@@ -58,6 +58,7 @@ function App() {
   } = useStore()
 
   const [loading, setLoading] = useState(true)
+  const [dashboardInitializing, setDashboardInitializing] = useState(false)
   const [gameStarted, setGameStarted] = useState(false)
   const [showWelcomePopup, setShowWelcomePopup] = useState(false)
   const [pendingHurricane, setPendingHurricane] = useState<string | null>(null)
@@ -247,16 +248,14 @@ function App() {
     }
   }
 
-  const handleMatcherMatch = (hurricaneId: string) => {
+  const handleMatcherMatch = (_hurricaneId: string) => {
     setShowMatcher(false)
     setGameStarted(true)
-    setShowWelcomePopup(true)
   }
 
   const handleMatcherSkip = () => {
     setShowMatcher(false)
     setGameStarted(true)
-    setShowWelcomePopup(true)
   }
 
   const handleCloseFundingDisparity = () => {
@@ -286,10 +285,14 @@ function App() {
     setMapPhase('globe')
     setShowMatcher(false)
     setShowFundingDisparity(false)
-    // Return to dashboard - use minimal delay to ensure clean unmount/remount
+    // Return to dashboard — show Initializing state for 1.5s then reveal UI
+    setDashboardInitializing(true)
     setTimeout(() => {
       setGameStarted(false)
     }, 50)
+    setTimeout(() => {
+      setDashboardInitializing(false)
+    }, 1500)
   }
 
   // Dashboard entry screen — always ensure visible and responsive
@@ -300,7 +303,7 @@ function App() {
         <Dashboard3D
           onSelectOption={handleDashboardOption}
           onEnter={() => {}}
-          isLoading={loading || hurricanes.length === 0}
+          isLoading={loading || hurricanes.length === 0 || dashboardInitializing}
         />
       </>
     )

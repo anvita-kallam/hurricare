@@ -703,7 +703,21 @@ export default function PostSimulationMap({ transitionPhase }: PostSimulationMap
 
   const camDist = Math.max(extent * 0.85, 6)
 
-  if (!selectedHurricane || affectedRegions.length === 0) return null
+  if (!selectedHurricane || affectedRegions.length === 0) {
+    return (
+      <div className="w-full h-full flex items-center justify-center bg-[#020810]">
+        <div className="flex flex-col items-center gap-3">
+          <div className="flex items-center gap-2">
+            <div className="w-1.5 h-1.5 rounded-full bg-white/30" style={{ animation: 'pulse 1.5s ease-in-out infinite' }} />
+            <span className="text-sm font-mono text-white/30 tracking-[0.3em] uppercase">Initializing Map</span>
+          </div>
+          <div className="w-32 h-[1px] bg-white/[0.06] relative overflow-hidden">
+            <div className="absolute inset-y-0 left-0 w-1/3 bg-white/20" style={{ animation: 'shimmer 1.5s ease-in-out infinite' }} />
+          </div>
+        </div>
+      </div>
+    )
+  }
 
   return (
     <div

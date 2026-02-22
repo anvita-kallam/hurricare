@@ -4,7 +4,6 @@ import { useStore } from '../state/useStore'
 import NarrativePopup from './NarrativePopup'
 import LocalizedAffectedMap from './LocalizedAffectedMap'
 import { resolveRegion } from '../utils/regionRegistry'
-import { playSliderStretch } from '../audio/SoundEngine'
 
 const API_BASE = 'http://localhost:8000'
 
@@ -631,7 +630,6 @@ export default function SimulationEngine({ onStartSimulation }: SimulationEngine
                               value={currentAlloc}
                               onChange={(e) => {
                                 handleClusterAllocationChange(region, cluster, Number(e.target.value))
-                                playSliderStretch()
                               }}
                               className="w-full h-1 appearance-none bg-white/[0.04] rounded-full cursor-pointer"
                               style={{

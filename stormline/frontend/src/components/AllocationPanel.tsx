@@ -1,7 +1,6 @@
 import { useState, useEffect, useMemo } from 'react'
 import { useStore } from '../state/useStore'
 import axios from 'axios'
-import { playSliderStretch } from '../audio/SoundEngine'
 
 const API_BASE = 'http://localhost:8000'
 
@@ -113,7 +112,6 @@ export default function AllocationPanel() {
                 value={currentBudget}
                 onChange={(e) => {
                   handleAllocationChange(region, parseFloat(e.target.value))
-                  playSliderStretch()
                 }}
                 className="w-full accent-cyan-500"
               />

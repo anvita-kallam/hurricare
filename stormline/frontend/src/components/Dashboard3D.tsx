@@ -805,13 +805,25 @@ export default function Dashboard3D({ onSelectOption, isLoading }: Dashboard3DPr
         {/* Spacer for globes */}
         <div className="flex-1" />
 
-        {/* ─── Globe labels + HUD accents ────────────────────── */}
+        {/* ─── Globe labels — absolutely positioned to align with 3D globe positions ── */}
+        {/* Globes at x=±1.2, camera z=9, fov=40: projects to 31.7% and 68.3% from left  */}
+        {/* Globe bottom (y=-0.8) projects to ~72% from top; labels sit just below that   */}
         {showUI && !isLoading && (
-          <div className="px-12 mb-6">
-            {/* Globe option labels */}
-            <div className="flex justify-around">
-              {options.map((option, i) => (
-                <div key={option.id} className="text-center w-56 dashboard-option-fade" style={{ animationDelay: `${i * 0.12}s` }}>
+          <div className="absolute inset-0 pointer-events-none" style={{ zIndex: 9 }}>
+            {options.map((option, i) => {
+              const leftPercent = i === 0 ? 31.7 : 68.3
+              return (
+                <div
+                  key={option.id}
+                  className="absolute text-center dashboard-option-fade"
+                  style={{
+                    left: `${leftPercent}%`,
+                    top: '72%',
+                    transform: 'translateX(-50%)',
+                    width: '200px',
+                    animationDelay: `${i * 0.12}s`,
+                  }}
+                >
                   {/* Tag label */}
                   <div className="flex items-center justify-center gap-2 mb-1">
                     <div className="w-4 h-[1px]" style={{ background: option.color, opacity: 0.3 }} />
@@ -842,8 +854,8 @@ export default function Dashboard3D({ onSelectOption, isLoading }: Dashboard3DPr
                     </span>
                   </div>
                 </div>
-              ))}
-            </div>
+              )
+            })}
           </div>
         )}
 
