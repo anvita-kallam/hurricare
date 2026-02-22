@@ -27,22 +27,22 @@ const gridFragmentShader = /* glsl */ `
   void main() {
     vec2 uv = vUv;
 
-    // Major grid
-    float g1 = grid(uv, 0.05, 0.001) * 0.04;
-    // Minor grid
-    float g2 = grid(uv, 0.2, 0.001) * 0.08;
+    // Major grid — bright
+    float g1 = grid(uv, 0.05, 0.0012) * 0.12;
+    // Minor grid — bright
+    float g2 = grid(uv, 0.2, 0.0012) * 0.22;
 
     // Horizontal scan line
     float scanY = fract(uTime * 0.03);
     float scanDist = abs(uv.y - scanY);
-    float scan = exp(-scanDist * 80.0) * 0.06;
+    float scan = exp(-scanDist * 80.0) * 0.15;
 
     // Edge fade
-    float edgeFade = smoothstep(0.0, 0.3, uv.x) * smoothstep(1.0, 0.7, uv.x) *
-                     smoothstep(0.0, 0.2, uv.y) * smoothstep(1.0, 0.8, uv.y);
+    float edgeFade = smoothstep(0.0, 0.2, uv.x) * smoothstep(1.0, 0.8, uv.x) *
+                     smoothstep(0.0, 0.15, uv.y) * smoothstep(1.0, 0.85, uv.y);
 
     float alpha = (g1 + g2 + scan) * edgeFade;
-    gl_FragColor = vec4(0.2, 0.4, 0.8, alpha);
+    gl_FragColor = vec4(0.3, 0.5, 0.9, alpha);
   }
 `
 
@@ -108,18 +108,19 @@ export default function ImmersiveGameFlow3D({ children }: ImmersiveGameFlow3DPro
   }, [])
 
   return (
-    <div className="fixed inset-0 z-0 bg-[#020408] overflow-hidden">
-      {/* 3D Canvas backdrop */}
-      <div className="absolute inset-0">
-        <Canvas camera={{ position: [0, 0, 9], fov: 40 }} dpr={[1, 2]}>
+    <div className="fixed inset-0 bg-[#020408] overflow-hidden" style={{ isolation: 'isolate' }}>
+      {/* 3D Canvas backdrop — pinned behind everything */}
+      <div className="absolute inset-0" style={{ zIndex: 0, willChange: 'auto' }}>
+        <Canvas camera={{ position: [0, 0, 9], fov: 40 }} dpr={[1, 1.5]} style={{ pointerEvents: 'none' }}>
           <ThreeScene />
         </Canvas>
       </div>
 
       {/* Scanline overlay */}
       <div
-        className="absolute inset-0 pointer-events-none z-[2]"
+        className="absolute inset-0 pointer-events-none"
         style={{
+          zIndex: 1,
           background: `repeating-linear-gradient(
             0deg,
             transparent,
@@ -132,8 +133,9 @@ export default function ImmersiveGameFlow3D({ children }: ImmersiveGameFlow3DPro
 
       {/* Moving scan line */}
       <div
-        className="absolute left-0 right-0 h-[1px] pointer-events-none z-[3]"
+        className="absolute left-0 right-0 h-[1px] pointer-events-none"
         style={{
+          zIndex: 2,
           top: `${scanlinePos}%`,
           background: 'linear-gradient(90deg, transparent 0%, rgba(100,150,255,0.06) 30%, rgba(100,150,255,0.1) 50%, rgba(100,150,255,0.06) 70%, transparent 100%)',
           boxShadow: '0 0 20px rgba(100,150,255,0.03)',
@@ -141,25 +143,29 @@ export default function ImmersiveGameFlow3D({ children }: ImmersiveGameFlow3DPro
       />
 
       {/* Corner brackets */}
-      <div className="absolute top-4 left-4 w-4 h-4 pointer-events-none z-[4]" style={{
+      <div className="absolute top-4 left-4 w-4 h-4 pointer-events-none" style={{
+        zIndex: 3,
         borderLeft: '1px solid rgba(255,255,255,0.06)',
         borderTop: '1px solid rgba(255,255,255,0.06)',
       }} />
-      <div className="absolute top-4 right-4 w-4 h-4 pointer-events-none z-[4]" style={{
+      <div className="absolute top-4 right-4 w-4 h-4 pointer-events-none" style={{
+        zIndex: 3,
         borderRight: '1px solid rgba(255,255,255,0.06)',
         borderTop: '1px solid rgba(255,255,255,0.06)',
       }} />
-      <div className="absolute bottom-4 left-4 w-4 h-4 pointer-events-none z-[4]" style={{
+      <div className="absolute bottom-4 left-4 w-4 h-4 pointer-events-none" style={{
+        zIndex: 3,
         borderLeft: '1px solid rgba(255,255,255,0.06)',
         borderBottom: '1px solid rgba(255,255,255,0.06)',
       }} />
-      <div className="absolute bottom-4 right-4 w-4 h-4 pointer-events-none z-[4]" style={{
+      <div className="absolute bottom-4 right-4 w-4 h-4 pointer-events-none" style={{
+        zIndex: 3,
         borderRight: '1px solid rgba(255,255,255,0.06)',
         borderBottom: '1px solid rgba(255,255,255,0.06)',
       }} />
 
-      {/* Content layer — children rendered on top with proper pointer events */}
-      <div className="relative z-10 w-full h-full">
+      {/* Content layer — children rendered on top, own compositing layer */}
+      <div className="absolute inset-0 w-full h-full" style={{ zIndex: 10, willChange: 'transform', transform: 'translateZ(0)' }}>
         {children}
       </div>
     </div>

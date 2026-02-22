@@ -400,8 +400,8 @@ export default function SimulationEngine({ onStartSimulation }: SimulationEngine
     return (
       <div className="h-full flex items-center justify-center">
         <div className="text-center space-y-2">
-          <div className="text-white/30 font-rajdhani text-sm tracking-widest uppercase">Select a Hurricane</div>
-          <div className="text-white/15 font-mono text-xs">to begin simulation</div>
+          <div className="text-white/70 font-rajdhani text-lg tracking-widest uppercase">Select a Hurricane</div>
+          <div className="text-white/50 font-mono text-sm">to begin simulation</div>
         </div>
       </div>
     )
@@ -425,16 +425,16 @@ export default function SimulationEngine({ onStartSimulation }: SimulationEngine
       <div className="h-full flex items-center justify-center">
         <div className="text-center space-y-4 p-6">
           <div className="space-y-1">
-            <h2 className="text-xl font-bold text-white/80 font-rajdhani tracking-wider">
+            <h2 className="text-2xl font-bold text-white font-rajdhani tracking-wider">
               {selectedHurricane.name}
             </h2>
-            <div className="text-white/30 font-mono text-xs">
+            <div className="text-white/70 font-mono text-base">
               {selectedHurricane.year} — Category {selectedHurricane.max_category}
             </div>
-            <div className="text-white/20 font-mono text-xs">
+            <div className="text-white/60 font-mono text-sm">
               {selectedHurricane.affected_countries.join(', ')}
             </div>
-            <div className="text-white/15 font-mono text-[10px] mt-1">
+            <div className="text-white/50 font-mono text-sm mt-1">
               {selectedHurricane.estimated_population_affected.toLocaleString()} affected
             </div>
           </div>
@@ -444,11 +444,11 @@ export default function SimulationEngine({ onStartSimulation }: SimulationEngine
                 onStartSimulation()
               }
             }}
-            className="px-6 py-3 bg-white/[0.06] hover:bg-white/[0.1] text-white/70 hover:text-white/90 font-rajdhani font-semibold text-sm tracking-wider uppercase transition-all border border-white/[0.08] hover:border-white/[0.15]"
+            className="px-8 py-4 bg-white/[0.08] hover:bg-white/[0.12] text-white/90 hover:text-white font-rajdhani font-semibold text-base tracking-wider uppercase transition-all border border-white/[0.12] hover:border-white/[0.2]"
           >
             Initialize Simulation
           </button>
-          <div className="text-white/15 font-mono text-[9px]">
+          <div className="text-white/50 font-mono text-sm">
             cinematic briefing will play
           </div>
         </div>
@@ -470,7 +470,7 @@ export default function SimulationEngine({ onStartSimulation }: SimulationEngine
     return (
       <div className="h-full flex items-center justify-center">
         <div className="w-full max-w-xs space-y-4 px-4">
-          <div className="text-white/40 font-rajdhani text-[10px] tracking-widest uppercase text-center">
+          <div className="text-white/70 font-rajdhani text-sm tracking-widest uppercase text-center">
             Processing Simulation
           </div>
 
@@ -483,7 +483,7 @@ export default function SimulationEngine({ onStartSimulation }: SimulationEngine
           </div>
 
           {/* Stage label */}
-          <div className="text-white/25 font-mono text-[10px] text-center">
+          <div className="text-white/60 font-mono text-sm text-center">
             {stageLabels[pipelineStage]}
           </div>
 
@@ -526,14 +526,14 @@ export default function SimulationEngine({ onStartSimulation }: SimulationEngine
         <div className="mb-4 pb-3 border-b border-white/[0.06]">
           <div className="flex items-center justify-between">
             <div>
-              <div className="text-white/60 font-rajdhani font-semibold text-sm tracking-wider">Response Plan</div>
-              <div className="text-white/20 font-mono text-[10px] mt-0.5">
+              <div className="text-white/90 font-rajdhani font-semibold text-base tracking-wider">Response Plan</div>
+              <div className="text-white/60 font-mono text-sm mt-0.5">
                 {selectedHurricane.name} — {regions.length} regions
               </div>
             </div>
             <div className="text-right">
-              <div className="text-white/50 font-mono text-xs">${getTotalAllocated().toLocaleString()}</div>
-              <div className={`font-mono text-[10px] ${getRemainingBudget() < 0 ? 'text-[#cc5566]' : 'text-white/25'}`}>
+              <div className="text-white/80 font-mono text-sm">${getTotalAllocated().toLocaleString()}</div>
+              <div className={`font-mono text-sm ${getRemainingBudget() < 0 ? 'text-[#cc5566]' : 'text-white/60'}`}>
                 {getRemainingBudget() >= 0 ? `$${getRemainingBudget().toLocaleString()} remaining` : 'Over budget'}
               </div>
             </div>
@@ -553,21 +553,21 @@ export default function SimulationEngine({ onStartSimulation }: SimulationEngine
 
         {/* Response Window */}
         <div className="mb-3 flex items-center gap-2">
-          <span className="text-white/25 font-rajdhani text-[10px] tracking-wider uppercase">Window</span>
+          <span className="text-white/60 font-rajdhani text-sm tracking-wider uppercase">Window</span>
           <input
             type="number"
             value={responseWindow}
             onChange={(e) => setResponseWindow(Number(e.target.value))}
             className="w-16 border border-white/[0.06] rounded px-2 py-1 bg-black/40 text-white/60 text-xs font-mono focus:border-white/15 focus:outline-none"
           />
-          <span className="text-white/15 font-mono text-[9px]">hrs</span>
+          <span className="text-white/50 font-mono text-sm">hrs</span>
         </div>
 
         {/* Cluster Allocation Per Region */}
         <div className="flex-1 overflow-y-auto space-y-1.5 min-h-0">
           {regions.length === 0 ? (
             <div className="text-center py-8">
-              <div className="text-white/20 font-mono text-xs">No regions found</div>
+              <div className="text-white/60 font-mono text-sm">No regions found</div>
             </div>
           ) : (
             regions.map(region => {
@@ -594,18 +594,18 @@ export default function SimulationEngine({ onStartSimulation }: SimulationEngine
                             : 'rgba(255,255,255,0.15)',
                         }}
                       />
-                      <span className="text-white/60 font-rajdhani text-xs font-semibold tracking-wide">{region}</span>
+                      <span className="text-white/90 font-rajdhani text-sm font-semibold tracking-wide">{region}</span>
                     </div>
                     <div className="flex items-center gap-2">
-                      <span className="text-white/30 font-mono text-[10px]">${regionClusterTotal.toLocaleString()}</span>
-                      <span className="text-white/15 text-[10px]">{isExpanded ? '▾' : '▸'}</span>
+                      <span className="text-white/65 font-mono text-sm">${regionClusterTotal.toLocaleString()}</span>
+                      <span className="text-white/50 text-sm">{isExpanded ? '▾' : '▸'}</span>
                     </div>
                   </button>
 
                   {isExpanded && (
                     <div className="px-2.5 pb-2.5 space-y-2 cc-region-detail">
                       {cov && (
-                        <div className="text-white/15 font-mono text-[9px] flex gap-3">
+                        <div className="text-white/50 font-mono text-sm flex gap-3">
                           <span>Sev: {cov.severity_index.toFixed(1)}</span>
                           <span>Need: {cov.people_in_need.toLocaleString()}</span>
                         </div>
@@ -620,8 +620,8 @@ export default function SimulationEngine({ onStartSimulation }: SimulationEngine
                         return (
                           <div key={cluster} className="space-y-1">
                             <div className="flex justify-between items-center">
-                              <span className="text-white/35 font-rajdhani text-[10px] tracking-wide">{cluster}</span>
-                              <span className="text-white/40 font-mono text-[9px]">${currentAlloc.toLocaleString()}</span>
+                              <span className="text-white/70 font-rajdhani text-sm tracking-wide">{cluster}</span>
+                              <span className="text-white/70 font-mono text-sm">${currentAlloc.toLocaleString()}</span>
                             </div>
                             <input
                               type="range"
@@ -631,7 +631,6 @@ export default function SimulationEngine({ onStartSimulation }: SimulationEngine
                               value={currentAlloc}
                               onChange={(e) => {
                                 handleClusterAllocationChange(region, cluster, Number(e.target.value))
-                                playSliderStretch()
                               }}
                               className="w-full h-1 appearance-none bg-white/[0.04] rounded-full cursor-pointer"
                               style={{
@@ -639,7 +638,7 @@ export default function SimulationEngine({ onStartSimulation }: SimulationEngine
                               }}
                             />
                             {currentBudget > 0 && (
-                              <div className="text-white/10 font-mono text-[8px]">historical: ${currentBudget.toLocaleString()}</div>
+                              <div className="text-white/40 font-mono text-xs">historical: ${currentBudget.toLocaleString()}</div>
                             )}
                           </div>
                         )
@@ -672,7 +671,7 @@ export default function SimulationEngine({ onStartSimulation }: SimulationEngine
         <button
           onClick={runFullPipeline}
           disabled={loading}
-          className="w-full mt-3 py-2.5 text-white/60 hover:text-white/90 font-rajdhani font-semibold text-xs tracking-widest uppercase transition-all border border-white/[0.08] hover:border-white/[0.15] bg-white/[0.03] hover:bg-white/[0.06] disabled:opacity-30 disabled:cursor-not-allowed"
+          className="w-full mt-3 py-3 text-white/80 hover:text-white font-rajdhani font-semibold text-base tracking-widest uppercase transition-all border border-white/[0.12] hover:border-white/[0.2] bg-white/[0.05] hover:bg-white/[0.08] disabled:opacity-30 disabled:cursor-not-allowed"
         >
           {loading ? 'Processing...' : 'Run Analysis'}
         </button>
@@ -680,7 +679,7 @@ export default function SimulationEngine({ onStartSimulation }: SimulationEngine
         {/* View impact map */}
         <button
           onClick={() => setShowAffectedMap(true)}
-          className="w-full mt-1.5 py-1.5 text-white/25 hover:text-white/40 font-rajdhani text-[10px] tracking-wider uppercase transition-colors"
+          className="w-full mt-2 py-2 text-white/50 hover:text-white/70 font-rajdhani text-sm tracking-wider uppercase transition-colors"
         >
           View Impact Map
         </button>

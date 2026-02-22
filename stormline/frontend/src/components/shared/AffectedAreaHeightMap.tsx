@@ -91,13 +91,13 @@ export default function AffectedAreaHeightMap({
 
     // Ground shadow
     const groundGrad = ctx.createLinearGradient(startX, baseY, startX, baseY + 10)
-    groundGrad.addColorStop(0, 'rgba(255,255,255,0.02)')
+    groundGrad.addColorStop(0, 'rgba(255,255,255,0.06)')
     groundGrad.addColorStop(1, 'rgba(0,0,0,0)')
     ctx.fillStyle = groundGrad
     ctx.fillRect(startX - 10, baseY, cols * tileW + 20, 10)
 
     // Draw ground grid lines
-    ctx.strokeStyle = 'rgba(255,255,255,0.03)'
+    ctx.strokeStyle = 'rgba(255,255,255,0.1)'
     ctx.lineWidth = 0.5
     for (let i = 0; i <= cols; i++) {
       const gx = startX + i * tileW
@@ -149,7 +149,7 @@ export default function AffectedAreaHeightMap({
       if (isActive) {
         const glowGrad = ctx.createLinearGradient(tileLeft, baseY - sevHeight, tileRight, baseY - sevHeight)
         glowGrad.addColorStop(0, 'rgba(255,255,255,0)')
-        glowGrad.addColorStop(0.5, 'rgba(255,255,255,0.06)')
+        glowGrad.addColorStop(0.5, 'rgba(255,255,255,0.15)')
         glowGrad.addColorStop(1, 'rgba(255,255,255,0)')
         ctx.fillStyle = glowGrad
         ctx.fillRect(tileLeft, baseY - sevHeight, tileRight - tileLeft, sevHeight)
@@ -166,7 +166,7 @@ export default function AffectedAreaHeightMap({
       ctx.fill()
 
       // Contour lines on front
-      ctx.strokeStyle = `rgba(255,255,255,${isActive ? 0.1 : 0.04})`
+      ctx.strokeStyle = `rgba(255,255,255,${isActive ? 0.2 : 0.1})`
       ctx.lineWidth = 0.5
       const contours = Math.floor(sevHeight / 18)
       for (let c = 1; c <= contours; c++) {
@@ -222,7 +222,7 @@ export default function AffectedAreaHeightMap({
       }
 
       // Region label below — smart truncation
-      ctx.fillStyle = isActive ? 'rgba(255,255,255,0.9)' : 'rgba(255,255,255,0.5)'
+      ctx.fillStyle = isActive ? 'rgba(255,255,255,0.95)' : 'rgba(255,255,255,0.75)'
       ctx.font = `${isActive ? 'bold ' : ''}9px Rajdhani`
       ctx.textAlign = 'center'
       ctx.textBaseline = 'top'
@@ -240,7 +240,7 @@ export default function AffectedAreaHeightMap({
       ctx.fillText(label, tileMid, baseY + 6)
 
       // Severity value on top
-      ctx.fillStyle = isActive ? 'rgba(255,255,255,0.85)' : 'rgba(255,255,255,0.45)'
+      ctx.fillStyle = isActive ? 'rgba(255,255,255,0.95)' : 'rgba(255,255,255,0.7)'
       ctx.font = 'bold 9px DM Mono, monospace'
       ctx.textAlign = 'center'
       ctx.textBaseline = 'bottom'
@@ -252,7 +252,7 @@ export default function AffectedAreaHeightMap({
 
       // Value label (budget, coverage, etc.)
       if (d.valueLabel) {
-        ctx.fillStyle = isActive ? 'rgba(100,190,230,0.9)' : 'rgba(100,190,230,0.55)'
+        ctx.fillStyle = isActive ? 'rgba(100,190,230,0.95)' : 'rgba(100,190,230,0.8)'
         ctx.font = '8px DM Mono, monospace'
         ctx.textAlign = 'center'
         ctx.textBaseline = 'top'
@@ -261,21 +261,21 @@ export default function AffectedAreaHeightMap({
     })
 
     // Legend
-    ctx.fillStyle = 'rgba(255,255,255,0.35)'
-    ctx.font = '8px Rajdhani'
+    ctx.fillStyle = 'rgba(255,255,255,0.65)'
+    ctx.font = '9px Rajdhani'
     ctx.textAlign = 'left'
     ctx.textBaseline = 'top'
     // Severity block
     const [lr, lg, lb] = colors.high
-    ctx.fillStyle = `rgba(${lr},${lg},${lb},0.6)`
+    ctx.fillStyle = `rgba(${lr},${lg},${lb},0.8)`
     ctx.fillRect(6, 6, 10, 7)
-    ctx.fillStyle = 'rgba(255,255,255,0.4)'
+    ctx.fillStyle = 'rgba(255,255,255,0.7)'
     ctx.fillText('Severity (height)', 20, 6)
     // Accent block
     const [ar, ag, ab] = colors.accent
-    ctx.fillStyle = `rgba(${ar},${ag},${ab},0.6)`
+    ctx.fillStyle = `rgba(${ar},${ag},${ab},0.8)`
     ctx.fillRect(6, 18, 10, 7)
-    ctx.fillStyle = 'rgba(255,255,255,0.4)'
+    ctx.fillStyle = 'rgba(255,255,255,0.7)'
     ctx.fillText(theme === 'coverage' ? 'Coverage' : theme === 'delta' ? 'Gap' : 'Allocation', 20, 18)
   }, [data, activeIndex, width, height, theme, animated])
 
