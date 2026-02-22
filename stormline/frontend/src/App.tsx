@@ -49,6 +49,7 @@ function App() {
     setGameFlowStep,
     setGameTotalBudget,
     setGameAllocations,
+    setGameClusterAllocations,
     setComparisonData,
   } = useStore()
 
@@ -209,6 +210,7 @@ function App() {
       setGamePhase('sim-complete')
       // Reset allocations and comparison data for fresh game flow
       setGameAllocations({})
+      setGameClusterAllocations({})
       setComparisonData(null)
     }
   }, [pendingHurricane, hurricanes, setPostSimulationMapMode, setGamePhase, setGameAllocations, setComparisonData])

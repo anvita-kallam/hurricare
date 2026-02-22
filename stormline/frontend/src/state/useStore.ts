@@ -97,7 +97,8 @@ interface Store {
   gameFlowStep: number // 1-5 for immersive panels
 
   // Game flow allocation state (used by immersive Step 2 & 3)
-  gameAllocations: Record<string, number> // region → budget amount
+  gameAllocations: Record<string, number> // region → budget total (derived from cluster allocations)
+  gameClusterAllocations: Record<string, Record<string, number>> // region → cluster → amount
   gameTotalBudget: number
   gameResponseWindow: number
   isRunningPipeline: boolean
@@ -123,6 +124,8 @@ interface Store {
   setGameFlowStep: (step: number) => void
   setGameAllocations: (allocations: Record<string, number>) => void
   updateGameAllocation: (region: string, amount: number) => void
+  setGameClusterAllocations: (allocations: Record<string, Record<string, number>>) => void
+  updateGameClusterAllocation: (region: string, cluster: string, amount: number) => void
   setGameTotalBudget: (budget: number) => void
   setGameResponseWindow: (hours: number) => void
   setIsRunningPipeline: (running: boolean) => void
@@ -149,6 +152,7 @@ export const useStore = create<Store>((set) => ({
   gamePhase: 'pre-sim' as GamePhase,
   gameFlowStep: 1,
   gameAllocations: {},
+  gameClusterAllocations: {},
   gameTotalBudget: 50000000,
   gameResponseWindow: 72,
   isRunningPipeline: false,
@@ -176,6 +180,26 @@ export const useStore = create<Store>((set) => ({
   updateGameAllocation: (region, amount) => set((state) => ({
     gameAllocations: { ...state.gameAllocations, [region]: amount }
   })),
+  setGameClusterAllocations: (gameClusterAllocations) => set((state) => {
+    // Derive region totals from cluster allocations
+    const gameAllocations: Record<string, number> = {}
+    Object.entries(gameClusterAllocations).forEach(([region, clusters]) => {
+      gameAllocations[region] = Object.values(clusters).reduce((s, v) => s + (v || 0), 0)
+    })
+    return { gameClusterAllocations, gameAllocations }
+  }),
+  updateGameClusterAllocation: (region, cluster, amount) => set((state) => {
+    const newCluster = {
+      ...state.gameClusterAllocations,
+      [region]: { ...state.gameClusterAllocations[region], [cluster]: amount }
+    }
+    // Derive region totals
+    const gameAllocations: Record<string, number> = {}
+    Object.entries(newCluster).forEach(([r, clusters]) => {
+      gameAllocations[r] = Object.values(clusters).reduce((s, v) => s + (v || 0), 0)
+    })
+    return { gameClusterAllocations: newCluster, gameAllocations }
+  }),
   setGameTotalBudget: (gameTotalBudget) => set({ gameTotalBudget }),
   setGameResponseWindow: (gameResponseWindow) => set({ gameResponseWindow }),
   setIsRunningPipeline: (isRunningPipeline) => set({ isRunningPipeline }),

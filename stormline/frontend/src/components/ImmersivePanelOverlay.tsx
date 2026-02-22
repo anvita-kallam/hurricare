@@ -28,6 +28,7 @@ export default function ImmersivePanelOverlay() {
     setShowComparisonPage,
     setPostSimulationMapMode,
     setGameAllocations,
+    setGameClusterAllocations,
     setComparisonData,
     setCinematicCompleted,
     isRunningPipeline,
@@ -78,6 +79,7 @@ export default function ImmersivePanelOverlay() {
     setGamePhase('pre-sim')
     setGameFlowStep(1)
     setGameAllocations({})
+    setGameClusterAllocations({})
     setComparisonData(null)
   }, [setShowComparisonPage, setSelectedHurricane, setPostSimulationMapMode, setCinematicCompleted, setGamePhase, setGameFlowStep, setGameAllocations, setComparisonData])
 
@@ -104,8 +106,8 @@ export default function ImmersivePanelOverlay() {
 
   return (
     <div className="fixed inset-0 z-50">
-      {/* Blurred + dimmed background overlay */}
-      <div className="absolute inset-0 bg-black/60 backdrop-blur-md immersive-backdrop" />
+      {/* Dimmed background overlay — NO blur to keep panel content crisp */}
+      <div className="absolute inset-0 bg-black/70 immersive-backdrop" />
 
       {/* Step progress dots — minimal, top center */}
       <div className="absolute top-6 left-1/2 -translate-x-1/2 z-10 flex items-center gap-3">
@@ -149,8 +151,8 @@ export default function ImmersivePanelOverlay() {
 
       {/* Centered panel container */}
       <div className="absolute inset-0 top-14 bottom-16 flex items-center justify-center p-8">
-        <div className={`relative w-full max-w-2xl max-h-full overflow-y-auto ${contentClass}`}>
-          <div className="immersive-panel bg-black/80 backdrop-blur-xl border border-white/[0.08] rounded p-6">
+        <div className={`relative w-full max-w-3xl max-h-full overflow-y-auto ${contentClass}`}>
+          <div className="immersive-panel bg-[#0a0a0f] border border-white/[0.08] rounded p-6">
             {gameFlowStep === 1 && <Step1Situation />}
             {gameFlowStep === 2 && <Step2Allocation />}
             {gameFlowStep === 3 && <Step3Confirm onPipelineComplete={handlePipelineComplete} />}

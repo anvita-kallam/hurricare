@@ -73,42 +73,60 @@ export default function Step3Confirm({ onPipelineComplete }: Step3ConfirmProps) 
       setStage('validating')
       setProgress(10)
 
-      // Build known regions from coverage data
-      const knownRegions = new Set(
-        coverage
-          .filter(c => c.hurricane_id === selectedHurricane.id)
-          .map(c => c.admin1)
-      )
+      // Fetch valid regions directly from backend (source of truth)
+      let validRegionNames: Set<string>
+      try {
+        const regionsRes = await axios.get(`${API_BASE}/simulation/regions/${selectedHurricane.id}`)
+        validRegionNames = new Set(
+          (regionsRes.data?.regions || []).map((r: { admin1: string }) => r.admin1)
+        )
+      } catch {
+        // Fallback: use coverage data admin1 values
+        validRegionNames = new Set(
+          coverage
+            .filter(c => c.hurricane_id === selectedHurricane.id)
+            .map(c => c.admin1)
+        )
+      }
 
-      // Map allocations to known region names
+      // Build allocations using ONLY valid backend region names
       const completeAllocations: Record<string, number> = {}
-      if (Object.keys(gameAllocations).length === 0 && knownRegions.size > 0) {
-        // No allocations set — distribute evenly across known regions
-        const perRegion = Math.floor(gameTotalBudget / knownRegions.size)
-        knownRegions.forEach(region => {
+      if (Object.keys(gameAllocations).length === 0 && validRegionNames.size > 0) {
+        // No allocations set — distribute evenly across valid regions
+        const perRegion = Math.floor(gameTotalBudget / validRegionNames.size)
+        validRegionNames.forEach(region => {
           completeAllocations[region] = perRegion
         })
       } else {
         Object.entries(gameAllocations).forEach(([region, amount]) => {
-          if (knownRegions.size > 0 && !knownRegions.has(region)) {
-            // Try resolved name
-            const resolved = resolveRegion(region)
-            if (knownRegions.has(resolved)) {
-              completeAllocations[resolved] = (completeAllocations[resolved] || 0) + (amount || 0)
+          if (validRegionNames.has(region)) {
+            // Exact match — use as-is
+            completeAllocations[region] = (completeAllocations[region] || 0) + (amount || 0)
+          } else {
+            // Try case-insensitive match
+            const match = [...validRegionNames].find(
+              k => k.toLowerCase() === region.toLowerCase()
+            )
+            if (match) {
+              completeAllocations[match] = (completeAllocations[match] || 0) + (amount || 0)
             } else {
-              // Try case-insensitive match against known regions
-              const match = [...knownRegions].find(
-                k => k.toLowerCase() === region.toLowerCase()
-              )
-              if (match) {
-                completeAllocations[match] = (completeAllocations[match] || 0) + (amount || 0)
+              // Try resolveRegion utility
+              const resolved = resolveRegion(region)
+              if (validRegionNames.has(resolved)) {
+                completeAllocations[resolved] = (completeAllocations[resolved] || 0) + (amount || 0)
               } else {
-                console.warn(`[Step3] Skipping unmappable region: ${region}`)
+                console.warn(`[Step3] Skipping region not in backend: ${region}`)
               }
             }
-          } else {
-            completeAllocations[region] = amount || 0
           }
+        })
+      }
+
+      // If no valid allocations after filtering, distribute evenly
+      if (Object.keys(completeAllocations).length === 0 && validRegionNames.size > 0) {
+        const perRegion = Math.floor(gameTotalBudget / validRegionNames.size)
+        validRegionNames.forEach(region => {
+          completeAllocations[region] = perRegion
         })
       }
 

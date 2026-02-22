@@ -306,8 +306,8 @@ input[type="range"]::-moz-range-thumb {
 }
 
 @keyframes immersive-fade-in {
-  from { opacity: 0; backdrop-filter: blur(0px); }
-  to   { opacity: 1; backdrop-filter: blur(12px); }
+  from { opacity: 0; }
+  to   { opacity: 1; }
 }
 
 .immersive-panel {
