@@ -419,9 +419,72 @@ export default function ComparisonPage() {
             </button>
           </div>
           
-          {!apiKey.trim() && (
+          {/* API Key Input Section - Prominent */}
+          {showApiKeyInput && (
+            <div className="mb-6 p-4 bg-purple-500/20 border border-purple-500/50 rounded-lg">
+              <div className="text-purple-200 font-semibold mb-3 font-orbitron">Enter Your Gemini API Key</div>
+              <div className="flex items-center gap-3 mb-3">
+                <input
+                  type="password"
+                  value={apiKey}
+                  onChange={(e) => setApiKey(e.target.value)}
+                  placeholder="Paste your Gemini API key here"
+                  className="flex-1 px-4 py-3 bg-black/60 border border-purple-500/50 rounded-lg text-cyan-100 font-exo focus:outline-none focus:border-purple-400 focus:glow-cyan"
+                  onKeyPress={(e) => e.key === 'Enter' && handleSaveApiKey()}
+                />
+                <button
+                  onClick={handleSaveApiKey}
+                  className="px-6 py-3 bg-purple-600 hover:bg-purple-500 text-white rounded-lg font-semibold font-orbitron transition-all"
+                >
+                  Save Key
+                </button>
+              </div>
+              <div className="text-xs text-purple-300/80 font-exo">
+                Get your API key from{' '}
+                <a 
+                  href="https://makersuite.google.com/app/apikey" 
+                  target="_blank" 
+                  rel="noopener noreferrer"
+                  className="text-purple-200 hover:text-purple-100 underline"
+                >
+                  Google AI Studio
+                </a>
+                . Your key is stored locally in your browser and only used to generate insights.
+              </div>
+            </div>
+          )}
+          
+          {!showApiKeyInput && apiKey && (
+            <div className="mb-4 text-xs text-purple-300/70 font-exo">
+              API key saved. Click{' '}
+              <button
+                onClick={() => setShowApiKeyInput(true)}
+                className="text-purple-200 hover:text-purple-100 underline"
+              >
+                here
+              </button>
+              {' '}to change it.
+            </div>
+          )}
+          
+          {!apiKey.trim() && !showApiKeyInput && (
             <div className="text-yellow-300 text-sm font-exo mb-4 p-3 bg-yellow-500/10 border border-yellow-500/30 rounded">
-              Please enter your Gemini API key in the header to generate AI-powered insights.
+              <button
+                onClick={() => setShowApiKeyInput(true)}
+                className="text-yellow-200 hover:text-yellow-100 underline font-semibold"
+              >
+                Click here to enter your Gemini API key
+              </button>
+              {' '}to generate AI-powered insights. Get your key from{' '}
+              <a 
+                href="https://makersuite.google.com/app/apikey" 
+                target="_blank" 
+                rel="noopener noreferrer"
+                className="text-yellow-200 hover:text-yellow-100 underline"
+              >
+                Google AI Studio
+              </a>
+              .
             </div>
           )}
           
