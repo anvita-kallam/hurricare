@@ -1,23 +1,39 @@
 /**
- * FundingDisparityPanels — Partial telemetry readout system.
+ * FundingDisparityPanels — Intelligence-style data panels.
  *
- * These panels expose fragments of a complex monitoring system.
- * Every visualization is a particle field, density plot, or dispersion view.
- * No charts. No line graphs. No analytics dashboards.
+ * Each visualization slot uses a unique archetype (no repeats):
  *
- * "This system knows more than it is showing."
+ * LEFT PANEL:
+ *  - LargePercentReadout (7) → preparedness score
+ *  - RidgeChart (2) → preparedness / funding / risk ridges
+ *  - ConcentricRadar (4) → multi-metric radar
+ *  - ThinVerticalBars (5) → funding distribution bins
+ *  - PerspectiveGrid (6) → funding time series depth
+ *  - SegmentedHorizontalBars (8) → infrastructure metrics
+ *
+ * RIGHT PANEL:
+ *  - CircularGauge (9) → aid gap percentage
+ *  - TriangularAreaFill (1) → aid vs modeled need
+ *  - FanBurst (3) → gap dispersion rays
+ *  - MountainSilhouette (10) → risk distribution
+ *  - DotBarStrip (11) → major disaster events
  */
 
 import { useMemo } from 'react'
 import { getCountryFundingDetail, type CountryFundingDetail } from '../../data/fundingDisparityDetails'
 import {
-  DensityField,
-  DispersionField,
-  EventScatter,
-  DensityDistribution,
-  SignalDust,
-  StratifiedField,
-  StatWithField,
+  LargePercentReadout,
+  RidgeChart,
+  ConcentricRadar,
+  ThinVerticalBars,
+  PerspectiveGrid,
+  SegmentedHorizontalBars,
+  CircularGauge,
+  TriangularAreaFill,
+  FanBurst,
+  MountainSilhouette,
+  DotBarStrip,
+  StatReadout,
   TrendIndicator,
 } from './charts/ChartPrimitives'
 
@@ -32,13 +48,12 @@ function LeftPanel({ data }: { data: CountryFundingDetail }) {
     return Math.abs(h)
   }, [data.name])
 
-  const fundingNorm = data.fundingTimeSeries.map(v => v / (data.fundingPerCapita || 1) * 50 + 30)
-  const resilienceSignal = data.preparednessTimeSeries.map((v, i) =>
-    v * 0.6 + fundingNorm[i] * 0.4
-  )
+  const trendDir = data.fundingTrend === 'improving' ? 'up' as const :
+    data.fundingTrend === 'declining' ? 'down' as const : 'flat' as const
 
   return (
     <div className="fdp-panel fdp-panel-left">
+      {/* Header */}
       <div className="fdp-panel-header">
         <div className="fdp-country-name">{data.name}</div>
         <div className="fdp-disparity-badge" style={{
@@ -53,103 +68,111 @@ function LeftPanel({ data }: { data: CountryFundingDetail }) {
 
       <div className="fdp-divider" />
 
-      <div className="fdp-section-label">FUNDING OVERVIEW</div>
-      <div className="fdp-stat-grid">
-        <StatWithField label="PREP" value={`${data.preparednessScore}`} unit="%"
-          fieldData={data.preparednessTimeSeries} seed={seed + 1} />
-        <StatWithField label="RESIL" value={data.resilienceIndex.toFixed(2)}
-          fieldData={resilienceSignal} seed={seed + 2} />
-        <StatWithField label="$/CAP" value={`${data.fundingPerCapita}`}
-          fieldData={data.fundingTimeSeries} seed={seed + 3} />
-        <StatWithField label="GDP" value={`${data.gdpBillions}B`} seed={seed + 4} />
-      </div>
-
-      <div className="fdp-divider" />
-
-      {/* PREPAREDNESS / FUNDING — overlapping density field */}
+      {/* ARCHETYPE 7: Large Percent Readout — preparedness */}
       <div className="fdp-section-label">
-        PREPAREDNESS / FUNDING
+        PREPAREDNESS INDEX
         <TrendIndicator trend={data.fundingTrend} />
       </div>
-      <div className="fdp-chart-container">
-        <DensityField
-          signals={[data.preparednessTimeSeries, fundingNorm, resilienceSignal]}
-          width={W} height={88}
-          colors={['rgba(255,255,255,0.45)', 'rgba(255,180,60,0.35)', 'rgba(255,255,255,0.18)']}
-          seed={seed + 10}
-          particlesPerSignal={220}
-          dispersion={0.14}
-          showGuide
-        />
+      <LargePercentReadout
+        value={data.preparednessScore}
+        label="READINESS"
+        subValue={`$${data.fundingPerCapita}/cap`}
+        trend={trendDir}
+        alert={data.preparednessScore < 40}
+      />
+
+      <div className="fdp-divider" />
+
+      {/* Overview stats */}
+      <div className="fdp-stat-grid">
+        <StatReadout label="RESIL" value={data.resilienceIndex.toFixed(2)} />
+        <StatReadout label="$/CAP" value={`${data.fundingPerCapita}`} />
+        <StatReadout label="GDP" value={`${data.gdpBillions}B`} />
+        <StatReadout label="POP" value={`${data.populationMillions}M`} />
       </div>
 
       <div className="fdp-divider" />
 
-      {/* RISK EXPOSURE — dispersion field */}
+      {/* ARCHETYPE 2: Ridge Chart — preparedness / funding / risk */}
       <div className="fdp-section-label">
-        RISK EXPOSURE
+        PREPAREDNESS / FUNDING / RISK
         <TrendIndicator trend={data.riskTrend} />
       </div>
       <div className="fdp-chart-container">
-        <DispersionField
-          data={data.riskTimeSeries}
-          width={W} height={72}
-          seed={seed + 20}
-          color={data.riskExposure > 0.6 ? 'rgba(255,160,60,0.45)' : 'rgba(255,255,255,0.35)'}
-          count={300}
-          layers={4}
-          secondaryData={data.preparednessTimeSeries.map(v => v * 0.8)}
+        <RidgeChart
+          series={[
+            data.preparednessTimeSeries,
+            data.fundingTimeSeries,
+            data.riskTimeSeries,
+          ]}
+          width={W}
+          height={90}
+          seed={seed + 10}
+          colors={[
+            'rgba(255,255,255,0.12)',
+            'rgba(255,180,60,0.09)',
+            'rgba(255,255,255,0.06)',
+          ]}
         />
-      </div>
-      <div className="fdp-stat-grid fdp-stat-grid-2">
-        <StatWithField label="EXPOSURE" value={data.riskExposure.toFixed(2)}
-          fieldData={data.riskTimeSeries} alert={data.riskExposure > 0.6} seed={seed + 21} />
-        <StatWithField label="POP" value={`${data.populationMillions}M`} seed={seed + 22} />
       </div>
 
       <div className="fdp-divider" />
 
-      {/* FUNDING DISTRIBUTION — density distribution */}
+      {/* ARCHETYPE 4: Concentric Radar — multi-metric */}
+      <div className="fdp-section-label">RISK EXPOSURE</div>
+      <div className="fdp-chart-container" style={{ display: 'flex', justifyContent: 'center' }}>
+        <ConcentricRadar
+          values={[
+            { label: 'RISK', value: data.riskExposure * 100, max: 100 },
+            { label: 'RESIL', value: data.resilienceIndex * 100, max: 100 },
+            { label: 'PREP', value: data.preparednessScore, max: 100 },
+            { label: 'WARN', value: data.earlyWarningCoverage, max: 100 },
+          ]}
+          size={100}
+          seed={seed + 20}
+        />
+      </div>
+
+      <div className="fdp-divider" />
+
+      {/* ARCHETYPE 5: Thin Vertical Bars — funding distribution */}
       <div className="fdp-section-label">ALLOCATION DENSITY</div>
       <div className="fdp-chart-container">
-        <DensityDistribution
+        <ThinVerticalBars
           data={data.fundingDistribution}
-          width={W} height={52}
-          color="rgba(255,255,255,0.35)"
+          width={W}
+          height={48}
           seed={seed + 30}
-          secondaryData={data.riskDistribution}
-          count={240}
         />
       </div>
 
       <div className="fdp-divider" />
 
-      {/* PREPAREDNESS SIGNAL DUST */}
-      <div className="fdp-section-label">READINESS SIGNAL</div>
-      <div className="fdp-chart-container">
-        <SignalDust
-          data={data.preparednessTimeSeries}
-          width={W} height={24}
-          color="rgba(255,255,255,0.25)"
-          seed={seed + 40}
-          count={120}
-        />
-      </div>
-
-      <div className="fdp-divider" />
-
-      {/* HISTORICAL FUNDING — stratified field */}
+      {/* ARCHETYPE 6: Perspective Grid — funding timeline depth */}
       <div className="fdp-section-label">FUNDING STRATA</div>
       <div className="fdp-chart-container">
-        <StratifiedField
-          bands={[
-            { data: data.fundingTimeSeries, color: 'rgba(255,255,255,0.35)', yOffset: 0.3 },
-            { data: data.riskTimeSeries, color: 'rgba(255,160,60,0.3)', yOffset: 0.6 },
-            { data: resilienceSignal, color: 'rgba(255,255,255,0.2)', yOffset: 0.8 },
+        <PerspectiveGrid
+          data={data.fundingTimeSeries}
+          width={W}
+          height={60}
+          seed={seed + 40}
+          rows={5}
+        />
+      </div>
+
+      <div className="fdp-divider" />
+
+      {/* ARCHETYPE 8: Segmented Horizontal Bars — infrastructure metrics */}
+      <div className="fdp-section-label">INFRASTRUCTURE</div>
+      <div className="fdp-chart-container">
+        <SegmentedHorizontalBars
+          bars={[
+            { label: 'INFRA', value: data.infrastructureIndex, max: 100 },
+            { label: 'HEALTH', value: data.healthcareCapacity, max: 100 },
+            { label: 'WARN', value: data.earlyWarningCoverage, max: 100 },
           ]}
-          width={W} height={56}
-          seed={seed + 50}
-          countPerBand={90}
+          width={W}
+          height={42}
         />
       </div>
 
@@ -157,10 +180,8 @@ function LeftPanel({ data }: { data: CountryFundingDetail }) {
         <>
           <div className="fdp-divider" />
           <div className="fdp-stat-grid fdp-stat-grid-2">
-            <StatWithField label="CUM. GAP" value={`$${data.cumulativeUnderfunding}B`}
-              alert seed={seed + 55} />
-            <StatWithField label="YRS" value={`${data.yearsUnderfunded}`}
-              alert seed={seed + 56} />
+            <StatReadout label="CUM. GAP" value={`$${data.cumulativeUnderfunding}B`} alert />
+            <StatReadout label="YRS" value={`${data.yearsUnderfunded}`} alert />
           </div>
         </>
       )}
@@ -180,6 +201,7 @@ function RightPanel({ data }: { data: CountryFundingDetail }) {
   const modeledNeedSeries = data.aidReceivedTimeSeries.map((_, i) =>
     data.modeledNeedPerCapita * (0.85 + (i / 12) * 0.3)
   )
+
   const gapSignal = data.aidReceivedTimeSeries.map((v, i) => {
     const need = modeledNeedSeries[i]
     return Math.max(0, ((need - v) / (need || 1)) * 100)
@@ -187,105 +209,95 @@ function RightPanel({ data }: { data: CountryFundingDetail }) {
 
   return (
     <div className="fdp-panel fdp-panel-right">
-      <div className="fdp-section-label">AID ALLOCATION</div>
-      <div className="fdp-stat-grid">
-        <StatWithField label="AID" value={`$${data.aidPerCapita}`}
-          fieldData={data.aidReceivedTimeSeries} alert={data.aidGapPercent > 50} seed={seed + 1} />
-        <StatWithField label="NEED" value={`$${data.modeledNeedPerCapita}`}
-          fieldData={modeledNeedSeries} seed={seed + 2} />
-        <StatWithField label="GAP" value={`${data.aidGapPercent}%`}
-          fieldData={gapSignal} alert={data.aidGapPercent > 40} seed={seed + 3} />
-        <StatWithField label="DELAY" value={`${data.responseDelayDays}d`}
-          alert={data.responseDelayDays > 7} seed={seed + 4} />
+      {/* ARCHETYPE 9: Circular Gauge — aid gap */}
+      <div className="fdp-section-label">AID GAP</div>
+      <div className="fdp-chart-container" style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+        <CircularGauge
+          value={data.aidGapPercent}
+          max={100}
+          label="GAP"
+          size={72}
+          alert={data.aidGapPercent > 50}
+        />
+        <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
+          <StatReadout label="AID/CAP" value={`$${data.aidPerCapita}`}
+            alert={data.aidGapPercent > 50} />
+          <StatReadout label="NEED/CAP" value={`$${data.modeledNeedPerCapita}`} />
+          <StatReadout label="DELAY" value={`${data.responseDelayDays}d`}
+            alert={data.responseDelayDays > 7} />
+        </div>
       </div>
 
       <div className="fdp-divider" />
 
-      {/* AID / NEED — overlapping density field */}
-      <div className="fdp-section-label">AID / NEED TELEMETRY</div>
+      {/* ARCHETYPE 1: Triangular Area Fill — aid received vs modeled need */}
+      <div className="fdp-section-label">AID / NEED DIVERGENCE</div>
       <div className="fdp-chart-container">
-        <DensityField
-          signals={[data.aidReceivedTimeSeries, modeledNeedSeries, gapSignal.map(v => v * 0.5)]}
-          width={W} height={85}
-          colors={['rgba(255,255,255,0.45)', 'rgba(255,100,80,0.35)', 'rgba(255,180,60,0.15)']}
+        <TriangularAreaFill
+          dataA={data.aidReceivedTimeSeries}
+          dataB={modeledNeedSeries}
+          width={W}
+          height={80}
           seed={seed + 10}
-          particlesPerSignal={200}
-          dispersion={0.16}
-          showGuide
+          accentColor={data.aidGapPercent > 50 ? 'rgba(255,160,60,0.6)' : 'rgba(255,180,60,0.4)'}
         />
       </div>
 
       <div className="fdp-divider" />
 
-      {/* GAP DISPERSION — pure particle dispersion */}
+      {/* ARCHETYPE 3: Fan Burst — gap dispersion */}
       <div className="fdp-section-label">GAP DISPERSION</div>
       <div className="fdp-chart-container">
-        <DispersionField
-          data={gapSignal}
-          width={W} height={68}
+        <FanBurst
+          values={gapSignal}
+          width={W}
+          height={64}
           seed={seed + 20}
-          color={data.aidGapPercent > 50 ? 'rgba(255,160,60,0.45)' : 'rgba(255,255,255,0.35)'}
-          count={320}
-          layers={4}
-          secondaryData={data.aidReceivedTimeSeries}
+          accentColor={data.aidGapPercent > 50 ? 'rgba(255,160,60,0.4)' : 'rgba(255,180,60,0.3)'}
         />
       </div>
 
       <div className="fdp-divider" />
 
-      {/* RESPONSE METRICS */}
+      {/* Response metrics */}
       <div className="fdp-section-label">RESPONSE</div>
-      <div className="fdp-stat-grid fdp-stat-grid-2">
-        <StatWithField label="TIME" value={`${data.avgResponseTimeHours}h`}
-          alert={data.avgResponseTimeHours > 72} seed={seed + 30} />
-        <StatWithField label="INFRA" value={`${data.infrastructureIndex}`}
-          seed={seed + 31} />
-      </div>
-      <div className="fdp-stat-grid fdp-stat-grid-2">
-        <StatWithField label="HEALTH" value={`${data.healthcareCapacity}`}
-          seed={seed + 32} />
-        <StatWithField label="WARN" value={`${data.earlyWarningCoverage}%`}
-          seed={seed + 33} />
+      <div className="fdp-stat-grid">
+        <StatReadout label="TIME" value={`${data.avgResponseTimeHours}h`}
+          alert={data.avgResponseTimeHours > 72} />
+        <StatReadout label="INFRA" value={`${data.infrastructureIndex}`} />
+        <StatReadout label="HEALTH" value={`${data.healthcareCapacity}`} />
+        <StatReadout label="WARN" value={`${data.earlyWarningCoverage}%`} />
       </div>
 
       <div className="fdp-divider" />
 
-      {/* RESPONSE SIGNAL DUST */}
-      <div className="fdp-section-label">RESPONSE DUST</div>
-      <div className="fdp-chart-container">
-        <SignalDust
-          data={data.aidReceivedTimeSeries}
-          width={W} height={22}
-          color={data.aidGapPercent > 50 ? 'rgba(255,160,60,0.25)' : 'rgba(255,255,255,0.2)'}
-          seed={seed + 35}
-          count={130}
-        />
-      </div>
-
-      <div className="fdp-divider" />
-
-      {/* EVENT SCATTER — events as density clusters */}
-      <div className="fdp-section-label">EVENT FIELD</div>
-      <div className="fdp-chart-container">
-        <EventScatter
-          events={data.majorEvents}
-          width={W} height={52}
-          seed={seed + 40}
-        />
-      </div>
-
-      <div className="fdp-divider" />
-
-      {/* RISK DENSITY DISTRIBUTION */}
+      {/* ARCHETYPE 10: Mountain Silhouette — risk distribution */}
       <div className="fdp-section-label">RISK DENSITY</div>
       <div className="fdp-chart-container">
-        <DensityDistribution
+        <MountainSilhouette
           data={data.riskDistribution}
-          width={W} height={48}
-          color={data.riskExposure > 0.6 ? 'rgba(255,160,60,0.4)' : 'rgba(255,255,255,0.3)'}
-          seed={seed + 50}
+          width={W}
+          height={48}
+          seed={seed + 30}
+          color={data.riskExposure > 0.6 ? 'rgba(255,160,60,0.12)' : 'rgba(255,255,255,0.1)'}
           secondaryData={data.fundingDistribution}
-          count={220}
+        />
+      </div>
+
+      <div className="fdp-divider" />
+
+      {/* ARCHETYPE 11: Dot-Bar Strip — major events */}
+      <div className="fdp-section-label">EVENT TIMELINE</div>
+      <div className="fdp-chart-container">
+        <DotBarStrip
+          events={data.majorEvents.map(ev => ({
+            position: ev.year - 2013,
+            magnitude: ev.severity,
+          }))}
+          width={W}
+          height={36}
+          seed={seed + 40}
+          span={11}
         />
       </div>
 
@@ -293,15 +305,9 @@ function RightPanel({ data }: { data: CountryFundingDetail }) {
         <>
           <div className="fdp-divider" />
           <div className="fdp-section-label">UNDERFUNDING</div>
-          <div className="fdp-chart-container">
-            <DispersionField
-              data={gapSignal}
-              width={W} height={40}
-              seed={seed + 60}
-              color="rgba(255,160,60,0.4)"
-              count={180}
-              layers={3}
-            />
+          <div className="fdp-stat-grid fdp-stat-grid-2">
+            <StatReadout label="CUM. GAP" value={`$${data.cumulativeUnderfunding}B`} alert />
+            <StatReadout label="YRS" value={`${data.yearsUnderfunded}`} alert />
           </div>
         </>
       )}

@@ -1,16 +1,18 @@
 /**
- * TELEMETRY FIELD RENDERERS
+ * VISUALIZATION ARCHETYPES
  *
- * These are NOT charts. There are no line charts, area charts, or histograms.
- * Every renderer produces a FIELD of particles where:
- * - Signal is implied through density, not lines
- * - Lines only exist as faint broken guides, never primary
- * - No visible axes, no visible start/end
- * - Data fades in/out via gradient masks
- * - Multiple overlapping signals with no legend
- * - Uncertainty = dispersion. Instability = spread.
- *
- * If a panel could be described as "a line graph," it is wrong.
+ * 11 distinct visualization styles — each used exactly once across panels.
+ * 1. TriangularAreaFill — area between two series, crosshair, scatter dots
+ * 2. RidgeChart — layered mountain/ridge area fills
+ * 3. FanBurst — lines radiating from a focal point
+ * 4. ConcentricRadar — concentric arcs with data markers
+ * 5. ThinVerticalBars — tightly packed thin vertical bars
+ * 6. PerspectiveGrid — 3D receding grid with height data
+ * 7. LargePercentReadout — big percentage number with indicator
+ * 8. SegmentedHorizontalBars — horizontal stacked bar strips
+ * 9. CircularGauge — donut arc gauge with ticks
+ * 10. MountainSilhouette — multi-peak filled silhouette
+ * 11. DotBarStrip — alternating dots and bars on a baseline
  */
 
 // ─── Deterministic noise ──────────────────────────────────────────────
@@ -32,10 +34,8 @@ function FadeMask({ id }: { id: string }) {
     <defs>
       <linearGradient id={`${id}-f`} x1="0" y1="0" x2="1" y2="0">
         <stop offset="0%" stopColor="white" stopOpacity="0" />
-        <stop offset="6%" stopColor="white" stopOpacity="0.6" />
-        <stop offset="14%" stopColor="white" stopOpacity="1" />
-        <stop offset="82%" stopColor="white" stopOpacity="1" />
-        <stop offset="92%" stopColor="white" stopOpacity="0.6" />
+        <stop offset="7%" stopColor="white" stopOpacity="1" />
+        <stop offset="90%" stopColor="white" stopOpacity="1" />
         <stop offset="100%" stopColor="white" stopOpacity="0" />
       </linearGradient>
       <mask id={`${id}-m`}>
@@ -46,572 +46,683 @@ function FadeMask({ id }: { id: string }) {
 }
 
 // ═══════════════════════════════════════════════════════════════════════
-// DENSITY FIELD
-// Primary telemetry renderer. Hundreds of particles forming implied curves.
-// The shape of data is communicated through particle concentration.
-// No explicit lines. Signal through clustering.
+// 1. TRIANGULAR AREA FILL — area between two series with crosshair
 // ═══════════════════════════════════════════════════════════════════════
 
-interface DensityFieldProps {
-  signals: number[][]       // multiple overlapping data series
+interface TriangularAreaFillProps {
+  dataA: number[]
+  dataB: number[]
+  width: number
+  height: number
+  seed?: number
+  accentColor?: string
+}
+
+export function TriangularAreaFill({
+  dataA, dataB, width, height, seed = 1,
+  accentColor = 'rgba(255,180,60,0.6)',
+}: TriangularAreaFillProps) {
+  const id = `taf-${seed}`
+  const all = [...dataA, ...dataB]
+  const min = Math.min(...all) * 0.85
+  const max = Math.max(...all) * 1.15
+  const range = max - min || 1
+  const pad = 4
+  const iw = width - pad * 2
+  const ih = height - pad * 2
+
+  const toX = (i: number, len: number) => pad + (i / (len - 1)) * iw
+  const toY = (v: number) => pad + ih - ((v - min) / range) * ih
+
+  const len = Math.min(dataA.length, dataB.length)
+
+  // Build area between two series
+  const topPts = Array.from({ length: len }, (_, i) =>
+    `${toX(i, len).toFixed(1)},${toY(dataA[i]).toFixed(1)}`
+  )
+  const botPts = Array.from({ length: len }, (_, i) =>
+    `${toX(len - 1 - i, len).toFixed(1)},${toY(dataB[len - 1 - i]).toFixed(1)}`
+  )
+  const areaPath = `M${topPts.join(' L')} L${botPts.join(' L')} Z`
+  const topLine = `M${topPts.join(' L')}`
+  const botLine = `M${Array.from({ length: len }, (_, i) =>
+    `${toX(i, len).toFixed(1)},${toY(dataB[i]).toFixed(1)}`
+  ).join(' L')}`
+
+  // Crosshair at max divergence
+  let maxDivIdx = 0
+  let maxDiv = 0
+  for (let i = 0; i < len; i++) {
+    const d = Math.abs(dataA[i] - dataB[i])
+    if (d > maxDiv) { maxDiv = d; maxDivIdx = i }
+  }
+  const cx = toX(maxDivIdx, len)
+  const cy = toY((dataA[maxDivIdx] + dataB[maxDivIdx]) / 2)
+
+  // Scatter dots in the area
+  const dots: { x: number; y: number; r: number; o: number }[] = []
+  for (let d = 0; d < 24; d++) {
+    const t = su(seed + d, d * 3) * (len - 1)
+    const fl = Math.floor(t)
+    const cl = Math.min(fl + 1, len - 1)
+    const fr = t - fl
+    const va = dataA[fl] * (1 - fr) + dataA[cl] * fr
+    const vb = dataB[fl] * (1 - fr) + dataB[cl] * fr
+    const lerp = su(seed + d * 7, d)
+    dots.push({
+      x: toX(t, len) + sn(seed + d * 5, d) * 3,
+      y: toY(va + (vb - va) * lerp) + sn(seed + d * 9, d) * 2,
+      r: 0.6 + su(seed + d, d) * 1.0,
+      o: 0.12 + su(seed + d * 2, d) * 0.25,
+    })
+  }
+
+  return (
+    <svg width={width} height={height} className="block">
+      <FadeMask id={id} />
+      <g mask={`url(#${id}-m)`}>
+        <path d={areaPath} fill="rgba(255,255,255,0.04)" />
+        <path d={topLine} fill="none" stroke="rgba(255,255,255,0.3)" strokeWidth="0.8" />
+        <path d={botLine} fill="none" stroke={accentColor} strokeWidth="0.6" strokeDasharray="2 3" />
+        <line x1={cx} y1={pad} x2={cx} y2={height - pad}
+          stroke="rgba(255,255,255,0.1)" strokeWidth="0.5" strokeDasharray="1 3" />
+        <line x1={pad} y1={cy} x2={width - pad} y2={cy}
+          stroke="rgba(255,255,255,0.08)" strokeWidth="0.5" strokeDasharray="1 3" />
+        <circle cx={cx} cy={cy} r="2.5" fill="none" stroke={accentColor} strokeWidth="0.6" />
+        <circle cx={cx} cy={cy} r="0.8" fill={accentColor} />
+        {dots.map((d, i) => (
+          <circle key={i} cx={d.x} cy={d.y} r={d.r} fill="rgba(255,255,255,0.5)" opacity={d.o} />
+        ))}
+      </g>
+    </svg>
+  )
+}
+
+// ═══════════════════════════════════════════════════════════════════════
+// 2. RIDGE CHART — Layered mountain/ridge area fills
+// ═══════════════════════════════════════════════════════════════════════
+
+interface RidgeChartProps {
+  series: number[][]
   width: number
   height: number
   seed?: number
   colors?: string[]
-  particlesPerSignal?: number
-  dispersion?: number       // 0-1, how scattered (uncertainty)
-  showGuide?: boolean       // faint broken guide trace
 }
 
-export function DensityField({
-  signals,
-  width,
-  height,
-  seed = 42,
-  colors = ['rgba(255,255,255,0.5)', 'rgba(255,180,60,0.4)', 'rgba(255,255,255,0.25)'],
-  particlesPerSignal = 200,
-  dispersion = 0.15,
-  showGuide = false,
-}: DensityFieldProps) {
-  const id = `df-${seed}`
-  const allVals = signals.flat()
-  const rawMin = Math.min(...allVals)
-  const rawMax = Math.max(...allVals)
-  const span = rawMax - rawMin || 1
-  const min = rawMin - span * 0.2
-  const max = rawMax + span * 0.2
-  const range = max - min
-
-  const toX = (t: number, len: number) => (t / (len - 1)) * width
-  const toY = (v: number) => height - ((v - min) / range) * height
-
-  const particles: { x: number; y: number; r: number; o: number; c: string }[] = []
-
-  signals.forEach((data, si) => {
-    const color = colors[si % colors.length]
-    const count = Math.round(particlesPerSignal * (si === 0 ? 1 : 0.6))
-    const sigDisp = dispersion * (1 + si * 0.3)
-
-    for (let p = 0; p < count; p++) {
-      const t = su(seed + si * 1000 + p, p * 7) * (data.length - 1 + 4) - 2
-      const clampT = Math.max(0, Math.min(data.length - 1, t))
-      const fl = Math.floor(clampT)
-      const cl = Math.min(fl + 1, data.length - 1)
-      const fr = clampT - fl
-      const baseVal = data[fl] * (1 - fr) + data[cl] * fr
-
-      const yDisp = sn(seed + si * 2000 + p * 3, p * 11) * range * sigDisp
-      const xJit = sn(seed + si * 3000 + p * 5, p) * width * 0.012
-
-      const distFromCenter = Math.abs(yDisp) / (range * sigDisp + 0.001)
-      const densityOp = Math.max(0.02, 0.22 - distFromCenter * 0.18)
-
-      particles.push({
-        x: toX(t, data.length) + xJit,
-        y: toY(baseVal + yDisp),
-        r: 0.3 + su(seed + p * 2, p) * 1.0,
-        o: densityOp * (si === 0 ? 1 : 0.7),
-        c: color,
-      })
-    }
-  })
-
-  // Faint broken guide fragments (not continuous)
-  const guideFragments: string[] = []
-  if (showGuide && signals[0]) {
-    const data = signals[0]
-    const fragLen = Math.floor(data.length / 3)
-    for (let f = 0; f < 2; f++) {
-      const start = Math.floor(su(seed + 900, f) * fragLen) + f * fragLen
-      const end = Math.min(start + fragLen - 1, data.length - 1)
-      let frag = ''
-      for (let i = start; i <= end; i++) {
-        frag += `${i === start ? 'M' : 'L'}${toX(i, data.length).toFixed(1)},${toY(data[i]).toFixed(1)} `
-      }
-      guideFragments.push(frag)
-    }
-  }
+export function RidgeChart({
+  series, width, height, seed = 2,
+  colors = ['rgba(255,255,255,0.12)', 'rgba(255,180,60,0.08)', 'rgba(255,255,255,0.06)'],
+}: RidgeChartProps) {
+  const id = `rc-${seed}`
+  const count = series.length
+  const bandH = height / (count + 0.5)
+  const all = series.flat()
+  const min = Math.min(...all) * 0.9
+  const max = Math.max(...all) * 1.1
+  const range = max - min || 1
 
   return (
-    <svg width={width} height={height} className="block" overflow="hidden">
+    <svg width={width} height={height} className="block">
       <FadeMask id={id} />
       <g mask={`url(#${id}-m)`}>
-        {guideFragments.map((frag, i) => (
-          <path key={`g${i}`} d={frag} fill="none" stroke="rgba(255,255,255,0.06)"
-            strokeWidth="0.5" strokeDasharray="2 6" />
-        ))}
-        {particles.map((p, i) => (
-          <circle key={i} cx={p.x} cy={p.y} r={p.r} fill={p.c} opacity={p.o} />
-        ))}
+        {series.map((data, si) => {
+          const baseY = (si + 1) * bandH
+          const ampH = bandH * 0.85
+          const pts = data.map((v, i) => {
+            const x = (i / (data.length - 1)) * width
+            const norm = (v - min) / range
+            const y = baseY - norm * ampH
+            return { x, y }
+          })
+          const linePath = pts.map((p, i) => `${i === 0 ? 'M' : 'L'}${p.x.toFixed(1)},${p.y.toFixed(1)}`).join(' ')
+          const areaPath = `${linePath} L${width},${baseY} L0,${baseY} Z`
+          const color = colors[si % colors.length]
+          const strokeColor = color.replace(/[\d.]+\)$/, '0.4)')
+          return (
+            <g key={si}>
+              <path d={areaPath} fill={color} />
+              <path d={linePath} fill="none" stroke={strokeColor} strokeWidth="0.7" />
+            </g>
+          )
+        })}
       </g>
     </svg>
   )
 }
 
 // ═══════════════════════════════════════════════════════════════════════
-// DISPERSION FIELD
-// Dense particle cloud with varying spread representing uncertainty.
-// Wider spread = more uncertainty. Tighter cluster = stable signal.
-// Uses multiple "layers" of particles at different spreads.
+// 3. FAN BURST — Lines radiating from a focal point
 // ═══════════════════════════════════════════════════════════════════════
 
-interface DispersionFieldProps {
+interface FanBurstProps {
+  values: number[]
+  width: number
+  height: number
+  seed?: number
+  accentColor?: string
+}
+
+export function FanBurst({
+  values, width, height, seed = 3,
+  accentColor = 'rgba(255,180,60,0.35)',
+}: FanBurstProps) {
+  const id = `fb-${seed}`
+  const ox = width * 0.06
+  const oy = height * 0.88
+  const maxR = Math.sqrt(width * width + height * height) * 0.85
+  const maxVal = Math.max(...values) || 1
+  const angleSpan = Math.PI * 0.42
+  const startAngle = -Math.PI * 0.88
+
+  return (
+    <svg width={width} height={height} className="block">
+      <FadeMask id={id} />
+      <g mask={`url(#${id}-m)`}>
+        {values.map((v, i) => {
+          const norm = v / maxVal
+          const angle = startAngle + (i / (values.length - 1)) * angleSpan
+          const len = norm * maxR * 0.8 + maxR * 0.12
+          const ex = ox + Math.cos(angle) * len
+          const ey = oy + Math.sin(angle) * len
+          const accent = norm > 0.65
+          return (
+            <line key={i}
+              x1={ox} y1={oy} x2={ex} y2={ey}
+              stroke={accent ? accentColor : 'rgba(255,255,255,0.1)'}
+              strokeWidth={accent ? 0.9 : 0.35}
+            />
+          )
+        })}
+        <circle cx={ox} cy={oy} r="1.5" fill="rgba(255,255,255,0.3)" />
+      </g>
+    </svg>
+  )
+}
+
+// ═══════════════════════════════════════════════════════════════════════
+// 4. CONCENTRIC RADAR — Concentric arcs with data markers
+// ═══════════════════════════════════════════════════════════════════════
+
+interface ConcentricRadarProps {
+  values: { label: string; value: number; max: number }[]
+  size: number
+  seed?: number
+}
+
+export function ConcentricRadar({
+  values, size, seed = 4,
+}: ConcentricRadarProps) {
+  const id = `cr-${seed}`
+  const cx = size / 2
+  const cy = size / 2
+  const maxR = size / 2 - 6
+  const n = values.length
+  const ringGap = maxR / (n + 1)
+
+  return (
+    <svg width={size} height={size} className="block">
+      {/* Background rings */}
+      {Array.from({ length: n + 1 }, (_, i) => (
+        <circle key={`bg${i}`} cx={cx} cy={cy} r={ringGap * (i + 1)}
+          fill="none" stroke="rgba(255,255,255,0.04)" strokeWidth="0.3" />
+      ))}
+      {/* Cross lines */}
+      <line x1={cx - maxR} y1={cy} x2={cx + maxR} y2={cy}
+        stroke="rgba(255,255,255,0.04)" strokeWidth="0.3" />
+      <line x1={cx} y1={cy - maxR} x2={cx} y2={cy + maxR}
+        stroke="rgba(255,255,255,0.04)" strokeWidth="0.3" />
+      {/* Data arcs */}
+      {values.map((v, i) => {
+        const r = ringGap * (i + 1.5)
+        const norm = Math.min(1, v.value / (v.max || 1))
+        const arcLen = norm * Math.PI * 1.5
+        const sa = -Math.PI / 2
+        const ea = sa + arcLen
+        const x1 = cx + Math.cos(sa) * r
+        const y1 = cy + Math.sin(sa) * r
+        const x2 = cx + Math.cos(ea) * r
+        const y2 = cy + Math.sin(ea) * r
+        const large = arcLen > Math.PI ? 1 : 0
+        const accent = norm > 0.55
+        const col = accent ? 'rgba(255,180,60,0.45)' : 'rgba(255,255,255,0.22)'
+        return (
+          <g key={i}>
+            <path d={`M ${x1} ${y1} A ${r} ${r} 0 ${large} 1 ${x2} ${y2}`}
+              fill="none" stroke={col} strokeWidth={1.2} />
+            <circle cx={x2} cy={y2} r="1.5"
+              fill={accent ? 'rgba(255,180,60,0.65)' : 'rgba(255,255,255,0.35)'} />
+          </g>
+        )
+      })}
+    </svg>
+  )
+}
+
+// ═══════════════════════════════════════════════════════════════════════
+// 5. THIN VERTICAL BARS
+// ═══════════════════════════════════════════════════════════════════════
+
+interface ThinVerticalBarsProps {
   data: number[]
   width: number
   height: number
   seed?: number
-  color?: string
-  count?: number
-  layers?: number
-  secondaryData?: number[]
+  accentThreshold?: number
 }
 
-export function DispersionField({
-  data,
-  width,
-  height,
-  seed = 77,
-  color = 'rgba(255,255,255,0.45)',
-  count = 280,
-  layers = 3,
-  secondaryData,
-}: DispersionFieldProps) {
-  const id = `dpf-${seed}`
-  const allVals = [...data, ...(secondaryData || [])]
-  const rawMin = Math.min(...allVals)
-  const rawMax = Math.max(...allVals)
-  const span = rawMax - rawMin || 1
-  const min = rawMin - span * 0.25
-  const max = rawMax + span * 0.25
-  const range = max - min
-
-  const toX = (t: number) => (t / (data.length - 1 + 3)) * width
-  const toY = (v: number) => height - ((v - min) / range) * height
-
-  const particles: { x: number; y: number; r: number; o: number }[] = []
-
-  for (let layer = 0; layer < layers; layer++) {
-    const layerSpread = 0.06 + layer * 0.08
-    const layerOp = 0.18 - layer * 0.04
-    const layerCount = Math.round(count / layers)
-
-    for (let p = 0; p < layerCount; p++) {
-      const t = su(seed + layer * 500 + p, p * 7) * (data.length + 2) - 1
-      const clampT = Math.max(0, Math.min(data.length - 1, t))
-      const fl = Math.floor(clampT)
-      const cl = Math.min(fl + 1, data.length - 1)
-      const fr = clampT - fl
-      const baseVal = data[fl] * (1 - fr) + data[cl] * fr
-
-      const yD = sn(seed + layer * 1000 + p * 3, p * 11) * range * layerSpread
-      const xJ = sn(seed + layer * 1500 + p * 5, p) * width * 0.01
-
-      particles.push({
-        x: toX(t) + xJ,
-        y: toY(baseVal + yD),
-        r: 0.3 + su(seed + layer * 2000 + p, p) * (0.6 + layer * 0.3),
-        o: Math.max(0.02, layerOp * (1 - Math.abs(yD) / (range * layerSpread + 0.01) * 0.5)),
-      })
-    }
-  }
-
-  // Secondary signal particles (different density band)
-  if (secondaryData) {
-    for (let p = 0; p < Math.round(count * 0.3); p++) {
-      const t = su(seed + 8000 + p, p * 7) * (secondaryData.length + 1) - 0.5
-      const clampT = Math.max(0, Math.min(secondaryData.length - 1, t))
-      const fl = Math.floor(clampT)
-      const cl = Math.min(fl + 1, secondaryData.length - 1)
-      const fr = clampT - fl
-      const baseVal = secondaryData[fl] * (1 - fr) + secondaryData[cl] * fr
-      const yD = sn(seed + 9000 + p * 3, p * 11) * range * 0.1
-
-      particles.push({
-        x: toX(t),
-        y: toY(baseVal + yD),
-        r: 0.2 + su(seed + 9500 + p, p) * 0.5,
-        o: 0.06 + su(seed + 9600 + p, p) * 0.06,
-      })
-    }
-  }
+export function ThinVerticalBars({
+  data, width, height, seed = 5,
+  accentThreshold = 0.65,
+}: ThinVerticalBarsProps) {
+  const id = `tvb-${seed}`
+  const maxVal = Math.max(...data) || 1
+  const gap = width / data.length
+  const barW = Math.max(1, gap * 0.5)
 
   return (
-    <svg width={width} height={height} className="block" overflow="hidden">
+    <svg width={width} height={height} className="block">
       <FadeMask id={id} />
       <g mask={`url(#${id}-m)`}>
-        {particles.map((p, i) => (
-          <circle key={i} cx={p.x} cy={p.y} r={p.r} fill={color} opacity={p.o} />
-        ))}
+        <line x1="0" y1={height - 1} x2={width} y2={height - 1}
+          stroke="rgba(255,255,255,0.04)" strokeWidth="0.3" />
+        {data.map((v, i) => {
+          const norm = v / maxVal
+          const h = norm * (height - 4)
+          const x = i * gap + gap / 2 - barW / 2
+          const accent = norm > accentThreshold
+          return (
+            <rect key={i} x={x} y={height - h - 1} width={barW} height={h}
+              fill={accent ? 'rgba(255,180,60,0.45)' : 'rgba(255,255,255,0.18)'} />
+          )
+        })}
       </g>
     </svg>
   )
 }
 
 // ═══════════════════════════════════════════════════════════════════════
-// EVENT SCATTER
-// Instead of dots on a timeline: an entire field of scattered evidence.
-// Events are areas of higher density. Background is ambient particle noise.
+// 6. PERSPECTIVE GRID — 3D receding grid with height data
 // ═══════════════════════════════════════════════════════════════════════
 
-interface EventScatterProps {
-  events: { year: number; severity: number }[]
-  width: number
-  height: number
-  seed?: number
-  yearRange?: [number, number]
-}
-
-export function EventScatter({
-  events,
-  width,
-  height,
-  seed = 55,
-  yearRange = [2011, 2026],
-}: EventScatterProps) {
-  const id = `es-${seed}`
-  const span = yearRange[1] - yearRange[0]
-  const toX = (year: number) => ((year - yearRange[0]) / span) * width
-
-  const particles: { x: number; y: number; r: number; o: number; c: string }[] = []
-
-  // Ambient background noise across entire field
-  for (let a = 0; a < 80; a++) {
-    particles.push({
-      x: su(seed + a, a * 3) * width,
-      y: su(seed + a * 2, a * 7) * height,
-      r: 0.2 + su(seed + a, a) * 0.3,
-      o: 0.02 + su(seed + a * 5, a) * 0.03,
-      c: 'rgba(255,255,255,0.4)',
-    })
-  }
-
-  // Event clusters: each event generates a burst of particles
-  events.forEach((ev, ei) => {
-    const cx = toX(ev.year)
-    const burstCount = 12 + Math.floor(ev.severity * 25)
-    const evColor = ev.severity > 0.7 ? 'rgba(255,160,50,0.6)' :
-                    ev.severity > 0.4 ? 'rgba(255,255,255,0.4)' :
-                    'rgba(255,255,255,0.25)'
-
-    for (let p = 0; p < burstCount; p++) {
-      const angle = su(seed + ei * 100 + p, p * 3) * Math.PI * 2
-      const dist = su(seed + ei * 200 + p, p * 7) * (12 + ev.severity * 18)
-      const falloff = 1 - (dist / (30 + ev.severity * 18))
-
-      particles.push({
-        x: cx + Math.cos(angle) * dist + sn(seed + ei * 300 + p, p) * 3,
-        y: height / 2 + Math.sin(angle) * dist * 0.6 + sn(seed + ei * 400 + p, p) * height * 0.15,
-        r: 0.3 + su(seed + ei * 500 + p, p) * (1.0 + ev.severity * 1.2),
-        o: Math.max(0.03, falloff * (0.15 + ev.severity * 0.2)),
-        c: evColor,
-      })
-    }
-  })
-
-  return (
-    <svg width={width} height={height} className="block" overflow="hidden">
-      <FadeMask id={id} />
-      <g mask={`url(#${id}-m)`}>
-        {particles.map((p, i) => (
-          <circle key={i} cx={p.x} cy={p.y} r={p.r} fill={p.c} opacity={p.o} />
-        ))}
-      </g>
-    </svg>
-  )
-}
-
-// ═══════════════════════════════════════════════════════════════════════
-// DENSITY DISTRIBUTION
-// Instead of a histogram curve: particle density that implies distribution shape.
-// More particles = higher value. Vertical stacking implies magnitude.
-// ═══════════════════════════════════════════════════════════════════════
-
-interface DensityDistributionProps {
+interface PerspectiveGridProps {
   data: number[]
   width: number
   height: number
-  color?: string
   seed?: number
-  secondaryData?: number[]
-  count?: number
+  rows?: number
 }
 
-export function DensityDistribution({
-  data,
-  width,
-  height,
-  color = 'rgba(255,255,255,0.4)',
-  seed = 33,
-  secondaryData,
-  count = 200,
-}: DensityDistributionProps) {
-  const id = `dd-${seed}`
-  const max = Math.max(...data, ...(secondaryData || [0]))
+export function PerspectiveGrid({
+  data, width, height, seed = 6, rows = 5,
+}: PerspectiveGridProps) {
+  const id = `pg-${seed}`
+  const maxVal = Math.max(...data) || 1
+  const vanishY = height * 0.12
+  const baseY = height * 0.92
+  const cols = data.length
 
-  const particles: { x: number; y: number; r: number; o: number; c: string }[] = []
-
-  // Primary distribution: particles stacked proportional to data values
-  for (let p = 0; p < count; p++) {
-    const bin = su(seed + p, p * 7) * (data.length + 2) - 1
-    const clampBin = Math.max(0, Math.min(data.length - 1, bin))
-    const fl = Math.floor(clampBin)
-    const cl = Math.min(fl + 1, data.length - 1)
-    const fr = clampBin - fl
-    const binVal = (data[fl] * (1 - fr) + data[cl] * fr) / (max || 1)
-
-    // Only place particle if random value is below binVal (acceptance sampling)
-    if (su(seed + p * 3, p) < binVal * 0.9 + 0.1) {
-      const x = (bin / (data.length + 1)) * width
-      const yBase = height - su(seed + p * 5, p) * height * binVal * 0.85
-      const xJ = sn(seed + p * 7, p) * 4
-      const yJ = sn(seed + p * 9, p) * 3
-
-      particles.push({
-        x: x + xJ,
-        y: yBase + yJ,
-        r: 0.3 + su(seed + p * 2, p) * 0.8,
-        o: 0.06 + binVal * 0.16,
-        c: color,
-      })
-    }
-  }
-
-  // Secondary distribution (shifted, lower opacity)
-  if (secondaryData) {
-    for (let p = 0; p < Math.round(count * 0.5); p++) {
-      const bin = su(seed + 5000 + p, p * 7) * (secondaryData.length + 1) - 0.5
-      const clampBin = Math.max(0, Math.min(secondaryData.length - 1, bin))
-      const fl = Math.floor(clampBin)
-      const cl = Math.min(fl + 1, secondaryData.length - 1)
-      const fr = clampBin - fl
-      const binVal = (secondaryData[fl] * (1 - fr) + secondaryData[cl] * fr) / (max || 1)
-
-      if (su(seed + 5000 + p * 3, p) < binVal * 0.8 + 0.1) {
-        particles.push({
-          x: (bin / (secondaryData.length + 1)) * width + sn(seed + 5000 + p * 7, p) * 4,
-          y: height - su(seed + 5000 + p * 5, p) * height * binVal * 0.75 + sn(seed + 5000 + p * 9, p) * 3,
-          r: 0.2 + su(seed + 5000 + p * 2, p) * 0.6,
-          o: 0.04 + binVal * 0.08,
-          c: color,
-        })
-      }
-    }
+  const rowLines: { y: number; scale: number; opacity: number }[] = []
+  for (let r = 0; r < rows; r++) {
+    const t = r / (rows - 1)
+    const y = baseY - (baseY - vanishY) * t * t
+    const scale = 1 - t * 0.65
+    rowLines.push({ y, scale, opacity: 0.06 + (1 - t) * 0.14 })
   }
 
   return (
-    <svg width={width} height={height} className="block" overflow="hidden">
+    <svg width={width} height={height} className="block">
       <FadeMask id={id} />
       <g mask={`url(#${id}-m)`}>
-        {particles.map((p, i) => (
-          <circle key={i} cx={p.x} cy={p.y} r={p.r} fill={p.c} opacity={p.o} />
-        ))}
+        {rowLines.map((row, ri) => {
+          const lx = width * (1 - row.scale) / 2
+          const rx = width - lx
+          return (
+            <g key={ri}>
+              <line x1={lx} y1={row.y} x2={rx} y2={row.y}
+                stroke={`rgba(255,255,255,${row.opacity.toFixed(2)})`} strokeWidth="0.3" />
+              {data.map((_, ci) => {
+                const x = lx + (ci / (cols - 1)) * (rx - lx)
+                return (
+                  <line key={ci} x1={x} y1={row.y - 1} x2={x} y2={row.y + 1}
+                    stroke={`rgba(255,255,255,${(row.opacity * 0.4).toFixed(2)})`} strokeWidth="0.3" />
+                )
+              })}
+            </g>
+          )
+        })}
+        {/* Data bars on front row */}
+        {data.map((v, i) => {
+          const norm = v / maxVal
+          const lx = width * (1 - rowLines[0].scale) / 2
+          const rx = width - lx
+          const x = lx + (i / (cols - 1)) * (rx - lx)
+          const barH = norm * (baseY - vanishY) * 0.32
+          const accent = norm > 0.55
+          return (
+            <rect key={`d${i}`} x={x - 1.5} y={rowLines[0].y - barH}
+              width={3} height={barH}
+              fill={accent ? 'rgba(255,180,60,0.3)' : 'rgba(255,255,255,0.13)'} />
+          )
+        })}
       </g>
     </svg>
   )
 }
 
 // ═══════════════════════════════════════════════════════════════════════
-// SIGNAL DUST
-// Ultra-fine particle texture. Background noise representing baseline signal.
-// Amplitude-modulated: particle vertical extent varies with data.
+// 7. LARGE PERCENT READOUT — big number with trend indicator
 // ═══════════════════════════════════════════════════════════════════════
 
-interface SignalDustProps {
-  data: number[]
-  width: number
-  height: number
-  color?: string
-  seed?: number
-  count?: number
-}
-
-export function SignalDust({
-  data,
-  width,
-  height,
-  color = 'rgba(255,255,255,0.3)',
-  seed = 22,
-  count = 150,
-}: SignalDustProps) {
-  const id = `sd-${seed}`
-  const max = Math.max(...data)
-  const mid = height / 2
-
-  const particles: { x: number; y: number; r: number; o: number }[] = []
-
-  for (let p = 0; p < count; p++) {
-    const t = su(seed + p, p * 3) * (data.length + 3) - 1.5
-    const clampT = Math.max(0, Math.min(data.length - 1, t))
-    const fl = Math.floor(clampT)
-    const cl = Math.min(fl + 1, data.length - 1)
-    const fr = clampT - fl
-    const val = (data[fl] * (1 - fr) + data[cl] * fr) / (max || 1)
-
-    const amplitude = val * height * 0.4
-    const yOff = sn(seed + p * 5, p) * amplitude
-
-    particles.push({
-      x: (t / (data.length + 2)) * width,
-      y: mid + yOff + sn(seed + p * 7, p) * 2,
-      r: 0.2 + su(seed + p * 2, p) * 0.5,
-      o: 0.05 + val * 0.15,
-    })
-  }
-
-  return (
-    <svg width={width} height={height} className="block" overflow="hidden">
-      <FadeMask id={id} />
-      <g mask={`url(#${id}-m)`}>
-        {particles.map((p, i) => (
-          <circle key={i} cx={p.x} cy={p.y} r={p.r} fill={color} opacity={p.o} />
-        ))}
-      </g>
-    </svg>
-  )
-}
-
-// ═══════════════════════════════════════════════════════════════════════
-// STRATIFIED FIELD
-// Multiple overlapping particle bands at different vertical positions.
-// Each band is a different metric. They overlap and interfere.
-// No axes. No labels. Just layered density.
-// ═══════════════════════════════════════════════════════════════════════
-
-interface StratifiedFieldProps {
-  bands: { data: number[]; color: string; yOffset: number }[]
-  width: number
-  height: number
-  seed?: number
-  countPerBand?: number
-}
-
-export function StratifiedField({
-  bands,
-  width,
-  height,
-  seed = 88,
-  countPerBand = 100,
-}: StratifiedFieldProps) {
-  const id = `sf-${seed}`
-  const particles: { x: number; y: number; r: number; o: number; c: string }[] = []
-
-  bands.forEach((band, bi) => {
-    const max = Math.max(...band.data)
-    for (let p = 0; p < countPerBand; p++) {
-      const t = su(seed + bi * 1000 + p, p * 7) * (band.data.length + 2) - 1
-      const clampT = Math.max(0, Math.min(band.data.length - 1, t))
-      const fl = Math.floor(clampT)
-      const cl = Math.min(fl + 1, band.data.length - 1)
-      const fr = clampT - fl
-      const val = (band.data[fl] * (1 - fr) + band.data[cl] * fr) / (max || 1)
-
-      const baseY = height * band.yOffset
-      const yDisp = sn(seed + bi * 2000 + p * 3, p * 11) * height * 0.08 * (1 + val * 0.5)
-
-      particles.push({
-        x: (t / (band.data.length + 1)) * width + sn(seed + bi * 3000 + p * 5, p) * 3,
-        y: baseY + yDisp,
-        r: 0.2 + su(seed + bi * 4000 + p, p) * 0.7,
-        o: 0.04 + val * 0.14,
-        c: band.color,
-      })
-    }
-  })
-
-  return (
-    <svg width={width} height={height} className="block" overflow="hidden">
-      <FadeMask id={id} />
-      <g mask={`url(#${id}-m)`}>
-        {particles.map((p, i) => (
-          <circle key={i} cx={p.x} cy={p.y} r={p.r} fill={p.c} opacity={p.o} />
-        ))}
-      </g>
-    </svg>
-  )
-}
-
-// ═══════════════════════════════════════════════════════════════════════
-// MICRO FIELD (for sparkline replacement)
-// Tiny particle cluster inline with stats. Not a line. A field.
-// ═══════════════════════════════════════════════════════════════════════
-
-interface MicroFieldProps {
-  data: number[]
-  width: number
-  height: number
-  color?: string
-  seed?: number
+interface LargePercentReadoutProps {
+  value: number
+  label: string
+  subValue?: string
+  trend?: 'up' | 'down' | 'flat'
   alert?: boolean
 }
 
-export function MicroField({
-  data,
-  width,
-  height,
-  color = 'rgba(255,255,255,0.3)',
-  seed = 11,
-  alert = false,
-}: MicroFieldProps) {
-  if (data.length < 2) return null
-
-  const min = Math.min(...data)
-  const max = Math.max(...data)
-  const range = max - min || 1
-  const effectiveColor = alert ? 'rgba(255,180,60,0.45)' : color
-
-  const particles: { x: number; y: number; r: number; o: number }[] = []
-  const count = 24
-
-  for (let p = 0; p < count; p++) {
-    const t = su(seed + p, p * 3) * (data.length - 1 + 2) - 1
-    const clampT = Math.max(0, Math.min(data.length - 1, t))
-    const fl = Math.floor(clampT)
-    const cl = Math.min(fl + 1, data.length - 1)
-    const fr = clampT - fl
-    const val = data[fl] * (1 - fr) + data[cl] * fr
-
-    const y = height * 0.15 + (height * 0.7) - ((val - min) / range) * (height * 0.7)
-    const yJ = sn(seed + p * 5, p) * height * 0.12
-
-    particles.push({
-      x: (t / (data.length + 1)) * width + sn(seed + p * 7, p) * 2,
-      y: y + yJ,
-      r: 0.3 + su(seed + p * 2, p) * 0.5,
-      o: 0.1 + su(seed + p * 4, p) * 0.2,
-    })
-  }
+export function LargePercentReadout({
+  value, label, subValue, trend, alert = false,
+}: LargePercentReadoutProps) {
+  const numColor = alert ? 'rgba(255,180,60,0.85)' : 'rgba(255,255,255,0.8)'
+  const trendChar = trend === 'up' ? '\u2191' : trend === 'down' ? '\u2193' : '\u2014'
+  const trendCol = trend === 'up' ? 'rgba(120,220,120,0.5)' :
+    trend === 'down' ? 'rgba(255,160,60,0.5)' : 'rgba(255,255,255,0.15)'
 
   return (
-    <svg width={width} height={height} className="block" overflow="hidden">
-      {particles.map((p, i) => (
-        <circle key={i} cx={p.x} cy={p.y} r={p.r}
-          fill={effectiveColor} opacity={p.o} />
-      ))}
+    <div style={{ display: 'flex', alignItems: 'baseline', gap: 8 }}>
+      <span style={{
+        fontFamily: "'DM Mono', monospace",
+        fontSize: '2rem',
+        fontWeight: 500,
+        color: numColor,
+        lineHeight: 1,
+        letterSpacing: '-0.02em',
+      }}>
+        {value}
+        <span style={{ fontSize: '0.8rem', color: 'rgba(255,255,255,0.25)', marginLeft: 1 }}>%</span>
+      </span>
+      <div style={{ display: 'flex', flexDirection: 'column', gap: 0 }}>
+        <span style={{
+          fontFamily: "'Rajdhani', sans-serif",
+          fontSize: '0.45rem',
+          fontWeight: 600,
+          color: 'rgba(255,255,255,0.2)',
+          letterSpacing: '0.14em',
+          textTransform: 'uppercase' as const,
+        }}>{label}</span>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
+          {subValue && (
+            <span style={{
+              fontFamily: "'DM Mono', monospace",
+              fontSize: '0.55rem',
+              color: 'rgba(255,255,255,0.35)',
+            }}>{subValue}</span>
+          )}
+          {trend && (
+            <span style={{
+              fontFamily: "'DM Mono', monospace",
+              fontSize: '0.5rem',
+              color: trendCol,
+            }}>{trendChar}</span>
+          )}
+        </div>
+      </div>
+    </div>
+  )
+}
+
+// ═══════════════════════════════════════════════════════════════════════
+// 8. SEGMENTED HORIZONTAL BARS — stacked bar strips
+// ═══════════════════════════════════════════════════════════════════════
+
+interface SegmentedHorizontalBarsProps {
+  bars: { label: string; value: number; max: number }[]
+  width: number
+  height: number
+}
+
+export function SegmentedHorizontalBars({
+  bars, width, height,
+}: SegmentedHorizontalBarsProps) {
+  const barH = Math.min(7, (height - 4) / bars.length - 4)
+  const labelW = 34
+  const valW = 22
+  const barAreaW = width - labelW - valW - 4
+
+  return (
+    <svg width={width} height={height} className="block">
+      {bars.map((bar, i) => {
+        const y = 3 + i * (barH + 5)
+        const norm = Math.min(1, bar.value / (bar.max || 1))
+        const filledW = norm * barAreaW
+        const high = norm > 0.7
+        return (
+          <g key={i}>
+            <text x={0} y={y + barH * 0.85}
+              fill="rgba(255,255,255,0.2)" fontSize="6"
+              fontFamily="'Rajdhani', sans-serif" fontWeight="600" letterSpacing="0.1em">
+              {bar.label}
+            </text>
+            <rect x={labelW} y={y} width={barAreaW} height={barH}
+              fill="rgba(255,255,255,0.03)" rx="0.5" />
+            <rect x={labelW} y={y} width={filledW} height={barH}
+              fill={high ? 'rgba(255,180,60,0.3)' : 'rgba(255,255,255,0.12)'} rx="0.5" />
+            {[0.25, 0.5, 0.75].map(t => (
+              <line key={t} x1={labelW + t * barAreaW} y1={y}
+                x2={labelW + t * barAreaW} y2={y + barH}
+                stroke="rgba(255,255,255,0.04)" strokeWidth="0.3" />
+            ))}
+            <text x={labelW + barAreaW + 3} y={y + barH * 0.85}
+              fill="rgba(255,255,255,0.3)" fontSize="6"
+              fontFamily="'DM Mono', monospace">
+              {bar.value}
+            </text>
+          </g>
+        )
+      })}
     </svg>
   )
 }
 
 // ═══════════════════════════════════════════════════════════════════════
-// STAT WITH MICRO FIELD
+// 9. CIRCULAR GAUGE — donut arc with ticks and value
 // ═══════════════════════════════════════════════════════════════════════
 
-interface StatWithFieldProps {
+interface CircularGaugeProps {
+  value: number
+  max: number
+  label: string
+  unit?: string
+  size: number
+  alert?: boolean
+}
+
+export function CircularGauge({
+  value, max, label, unit = '%', size, alert = false,
+}: CircularGaugeProps) {
+  const cx = size / 2
+  const cy = size / 2
+  const r = size / 2 - 8
+  const norm = Math.min(1, value / (max || 1))
+  const sa = Math.PI * 0.75
+  const totalArc = Math.PI * 1.5
+  const ea = sa + norm * totalArc
+
+  const arc = (s: number, e: number) => {
+    const x1 = cx + Math.cos(s) * r
+    const y1 = cy + Math.sin(s) * r
+    const x2 = cx + Math.cos(e) * r
+    const y2 = cy + Math.sin(e) * r
+    const large = (e - s) > Math.PI ? 1 : 0
+    return `M ${x1} ${y1} A ${r} ${r} 0 ${large} 1 ${x2} ${y2}`
+  }
+
+  const accentCol = alert ? 'rgba(255,180,60,0.6)' : 'rgba(255,255,255,0.35)'
+  const valCol = alert ? 'rgba(255,180,60,0.85)' : 'rgba(255,255,255,0.75)'
+
+  const ticks = Array.from({ length: 13 }, (_, i) => {
+    const a = sa + (i / 12) * totalArc
+    return {
+      x1: cx + Math.cos(a) * (r - 3),
+      y1: cy + Math.sin(a) * (r - 3),
+      x2: cx + Math.cos(a) * (r + 2),
+      y2: cy + Math.sin(a) * (r + 2),
+    }
+  })
+
+  return (
+    <div style={{ display: 'inline-flex', flexDirection: 'column', alignItems: 'center' }}>
+      <svg width={size} height={size} className="block">
+        <path d={arc(sa, sa + totalArc)} fill="none" stroke="rgba(255,255,255,0.06)"
+          strokeWidth="2.5" strokeLinecap="round" />
+        <path d={arc(sa, ea)} fill="none" stroke={accentCol}
+          strokeWidth="2.5" strokeLinecap="round" />
+        {ticks.map((t, i) => (
+          <line key={i} x1={t.x1} y1={t.y1} x2={t.x2} y2={t.y2}
+            stroke="rgba(255,255,255,0.08)" strokeWidth="0.4" />
+        ))}
+        <text x={cx} y={cy + 1} textAnchor="middle" dominantBaseline="middle"
+          fill={valCol} fontSize="11" fontFamily="'DM Mono', monospace" fontWeight="500">
+          {value}{unit}
+        </text>
+      </svg>
+      <span style={{
+        fontFamily: "'Rajdhani', sans-serif",
+        fontSize: '0.45rem',
+        fontWeight: 600,
+        color: 'rgba(255,255,255,0.2)',
+        letterSpacing: '0.14em',
+        textTransform: 'uppercase' as const,
+        marginTop: -2,
+      }}>{label}</span>
+    </div>
+  )
+}
+
+// ═══════════════════════════════════════════════════════════════════════
+// 10. MOUNTAIN SILHOUETTE — multi-peak filled area
+// ═══════════════════════════════════════════════════════════════════════
+
+interface MountainSilhouetteProps {
+  data: number[]
+  width: number
+  height: number
+  seed?: number
+  color?: string
+  secondaryData?: number[]
+}
+
+export function MountainSilhouette({
+  data, width, height, seed = 10,
+  color = 'rgba(255,255,255,0.1)',
+  secondaryData,
+}: MountainSilhouetteProps) {
+  const id = `ms-${seed}`
+  const all = [...data, ...(secondaryData || [])]
+  const maxVal = Math.max(...all) || 1
+
+  const buildPath = (d: number[]) => {
+    // Smooth by interpolating between points
+    const smooth: { x: number; y: number }[] = []
+    for (let i = 0; i < d.length - 1; i++) {
+      for (let t = 0; t < 4; t++) {
+        const frac = t / 4
+        const val = d[i] * (1 - frac) + d[i + 1] * frac
+        const x = ((i * 4 + t) / ((d.length - 1) * 4)) * width
+        const y = height - (val / maxVal) * (height - 4) - 2
+        smooth.push({ x, y })
+      }
+    }
+    smooth.push({ x: width, y: height - (d[d.length - 1] / maxVal) * (height - 4) - 2 })
+
+    const linePts = smooth.map((p, i) => `${i === 0 ? 'M' : 'L'}${p.x.toFixed(1)},${p.y.toFixed(1)}`).join(' ')
+    const areaPts = `${linePts} L${width},${height} L0,${height} Z`
+    return { linePts, areaPts }
+  }
+
+  const primary = buildPath(data)
+
+  return (
+    <svg width={width} height={height} className="block">
+      <FadeMask id={id} />
+      <g mask={`url(#${id}-m)`}>
+        {secondaryData && (() => {
+          const sec = buildPath(secondaryData)
+          return (
+            <>
+              <path d={sec.areaPts} fill={color.replace(/[\d.]+\)$/, '0.05)')} />
+              <path d={sec.linePts} fill="none" stroke={color.replace(/[\d.]+\)$/, '0.15)')} strokeWidth="0.4" />
+            </>
+          )
+        })()}
+        <path d={primary.areaPts} fill={color} />
+        <path d={primary.linePts} fill="none" stroke={color.replace(/[\d.]+\)$/, '0.35)')} strokeWidth="0.6" />
+      </g>
+    </svg>
+  )
+}
+
+// ═══════════════════════════════════════════════════════════════════════
+// 11. DOT-BAR STRIP — alternating dots and bars
+// ═══════════════════════════════════════════════════════════════════════
+
+interface DotBarStripProps {
+  events: { position: number; magnitude: number }[]
+  width: number
+  height: number
+  seed?: number
+  span: number
+}
+
+export function DotBarStrip({
+  events, width, height, seed = 11, span,
+}: DotBarStripProps) {
+  const id = `dbs-${seed}`
+  const midY = height / 2
+  const maxMag = Math.max(...events.map(e => e.magnitude), 0.01)
+
+  return (
+    <svg width={width} height={height} className="block">
+      <FadeMask id={id} />
+      <g mask={`url(#${id}-m)`}>
+        <line x1="0" y1={midY} x2={width} y2={midY}
+          stroke="rgba(255,255,255,0.04)" strokeWidth="0.3" />
+        {events.map((ev, i) => {
+          const x = (ev.position / (span || 1)) * width
+          const norm = ev.magnitude / maxMag
+          const barH = norm * (height * 0.38)
+          const high = norm > 0.6
+          const col = high ? 'rgba(255,180,60,0.5)' : 'rgba(255,255,255,0.25)'
+
+          if (i % 2 === 0) {
+            return (
+              <rect key={i} x={x - 1} y={midY - barH} width={2} height={barH} fill={col} />
+            )
+          }
+          return (
+            <circle key={i} cx={x} cy={midY - barH * 0.7}
+              r={0.8 + norm * 1.5} fill={col} opacity={0.3 + norm * 0.4} />
+          )
+        })}
+      </g>
+    </svg>
+  )
+}
+
+// ═══════════════════════════════════════════════════════════════════════
+// STAT READOUT — simple label + value
+// ═══════════════════════════════════════════════════════════════════════
+
+interface StatReadoutProps {
   label: string
   value: string
   unit?: string
-  fieldData?: number[]
   alert?: boolean
-  seed?: number
 }
 
-export function StatWithField({
-  label,
-  value,
-  unit,
-  fieldData,
-  alert = false,
-  seed = 0,
-}: StatWithFieldProps) {
+export function StatReadout({ label, value, unit, alert = false }: StatReadoutProps) {
   return (
     <div className="fdp-stat">
       <div className="fdp-stat-label">{label}</div>
@@ -621,17 +732,13 @@ export function StatWithField({
           {value}
           {unit && <span className="fdp-stat-unit">{unit}</span>}
         </span>
-        {fieldData && fieldData.length > 1 && (
-          <MicroField data={fieldData} width={52} height={18}
-            alert={alert} seed={seed} />
-        )}
       </div>
     </div>
   )
 }
 
 // ═══════════════════════════════════════════════════════════════════════
-// TREND (minimal)
+// TREND INDICATOR
 // ═══════════════════════════════════════════════════════════════════════
 
 export function TrendIndicator({ trend }: { trend: 'improving' | 'stable' | 'declining' | 'worsening' }) {
