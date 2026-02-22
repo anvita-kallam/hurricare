@@ -39,7 +39,7 @@ function subdivideAndProject(
 
 function MergedCountries({ variant, radius }: { variant: 'search' | 'browse' | 'heatmap'; radius: number }) {
   const geometry = useMemo(() => {
-    const R = radius * 1.002
+    const R = radius * 1.006
     const positions: number[] = []
     const colors: number[] = []
 
@@ -60,8 +60,8 @@ function MergedCountries({ variant, radius }: { variant: 'search' | 'browse' | '
       for (const [ai, bi, ci] of tris) {
         if (!verts[ai] || !verts[bi] || !verts[ci]) continue
 
-        // Subdivide to conform to sphere curvature — 2 levels for mini globes
-        const subTris = subdivideAndProject(verts[ai], verts[bi], verts[ci], R, 2)
+        // Subdivide to conform to sphere curvature — 3 levels for clean projection
+        const subTris = subdivideAndProject(verts[ai], verts[bi], verts[ci], R, 3)
 
         for (const [sv0, sv1, sv2] of subTris) {
           positions.push(sv0.x, sv0.y, sv0.z)
@@ -85,12 +85,13 @@ function MergedCountries({ variant, radius }: { variant: 'search' | 'browse' | '
         vertexColors
         transparent
         opacity={0.92}
-        side={THREE.DoubleSide}
+        side={THREE.FrontSide}
         depthWrite
+        depthTest
         toneMapped={false}
         polygonOffset
-        polygonOffsetFactor={2}
-        polygonOffsetUnits={2}
+        polygonOffsetFactor={3}
+        polygonOffsetUnits={3}
       />
     </mesh>
   )
@@ -100,7 +101,7 @@ function MergedCountries({ variant, radius }: { variant: 'search' | 'browse' | '
 
 function MergedBorders({ radius }: { radius: number }) {
   const geometry = useMemo(() => {
-    const R = radius * 1.004
+    const R = radius * 1.012
     const positions: number[] = []
 
     for (const country of COUNTRY_POLYGONS) {
@@ -119,7 +120,7 @@ function MergedBorders({ radius }: { radius: number }) {
 
   return (
     <lineSegments geometry={geometry} renderOrder={11}>
-      <lineBasicMaterial color="#ffffff" transparent opacity={0.15} depthWrite={false} toneMapped={false} />
+      <lineBasicMaterial color="#ffffff" transparent opacity={0.15} depthWrite={false} depthTest toneMapped={false} />
     </lineSegments>
   )
 }
@@ -128,7 +129,7 @@ function MergedBorders({ radius }: { radius: number }) {
 
 function GraticuleOverlay({ radius }: { radius: number }) {
   const geometry = useMemo(() => {
-    const R = radius * 1.001
+    const R = radius * 1.003
     const positions: number[] = []
     const segmentCount = 72
 
@@ -415,14 +416,16 @@ export default function MiniGlobePreview({ variant, position, isSelected, onClic
     const dy = pointer.y - ndc.y
     const dist = Math.sqrt(dx * dx + dy * dy)
 
-    // Quadratic proximity falloff — globe swells as cursor approaches
+    // Quadratic proximity falloff — subtle swell as cursor approaches
     const proximity = Math.max(0, 1 - dist / 1.2)
-    const proximityBoost = proximity * proximity * 0.2
-    const selectedBoost = isSelected ? 0.12 : 0
+    const proximityBoost = proximity * proximity * 0.12
+    const selectedBoost = isSelected ? 0.08 : 0
     const targetScale = 1 + proximityBoost + selectedBoost
 
+    // Enforce uniform scale — always use setScalar for perfect sphere
     const cur = outerRef.current.scale.x
-    outerRef.current.scale.setScalar(cur + (targetScale - cur) * 0.08)
+    const next = cur + (targetScale - cur) * 0.08
+    outerRef.current.scale.set(next, next, next)
 
     // Gentle floating bob
     outerRef.current.position.y =
