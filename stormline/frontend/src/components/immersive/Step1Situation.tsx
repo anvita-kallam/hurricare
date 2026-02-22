@@ -142,11 +142,9 @@ export default function Step1Situation() {
       <div className="flex gap-4">
         {/* Left Panel — Severity Intelligence */}
         <div className="flex-1 flex flex-col gap-0" style={{
-          background: 'linear-gradient(180deg, rgba(8,12,24,0.55) 0%, rgba(10,14,28,0.6) 50%, rgba(8,12,22,0.55) 100%)',
+          background: '#000',
           border: '1px solid rgba(255,255,255,0.12)',
           padding: '14px 16px 18px',
-          backgroundImage: 'radial-gradient(circle, rgba(255,255,255,0.04) 0.5px, transparent 0.5px)',
-          backgroundSize: '12px 12px',
         }}>
           {/* Header */}
           <div className="mb-1">
@@ -246,11 +244,9 @@ export default function Step1Situation() {
 
         {/* Right Panel — Impact Assessment */}
         <div className="flex-1 flex flex-col gap-0" style={{
-          background: 'linear-gradient(180deg, rgba(8,12,24,0.55) 0%, rgba(10,14,28,0.6) 50%, rgba(8,12,22,0.55) 100%)',
+          background: '#000',
           border: '1px solid rgba(255,255,255,0.12)',
           padding: '14px 16px 18px',
-          backgroundImage: 'radial-gradient(circle, rgba(255,255,255,0.04) 0.5px, transparent 0.5px)',
-          backgroundSize: '12px 12px',
         }}>
           {/* ConcentricRadar — multi-metric overview */}
           <div style={{ fontFamily: "'Rajdhani', sans-serif", fontSize: '0.8rem', fontWeight: 600, color: 'rgba(255,255,255,0.85)', letterSpacing: '0.18em', textTransform: 'uppercase' as const, marginBottom: 4 }}>
@@ -353,11 +349,9 @@ export default function Step1Situation() {
 
       {/* 2.5D Affected Area Height Map */}
       <div style={{
-        background: 'linear-gradient(180deg, rgba(8,12,24,0.55) 0%, rgba(10,14,28,0.6) 50%, rgba(8,12,22,0.55) 100%)',
+        background: '#000',
         border: '1px solid rgba(255,255,255,0.12)',
         padding: '14px 16px 10px',
-        backgroundImage: 'radial-gradient(circle, rgba(255,255,255,0.04) 0.5px, transparent 0.5px)',
-        backgroundSize: '12px 12px',
       }}>
         <div style={{ fontFamily: "'Rajdhani', sans-serif", fontSize: '0.8rem', fontWeight: 600, color: 'rgba(255,255,255,0.85)', letterSpacing: '0.18em', textTransform: 'uppercase' as const, marginBottom: 8 }}>
           AFFECTED REGIONS — SEVERITY TERRAIN

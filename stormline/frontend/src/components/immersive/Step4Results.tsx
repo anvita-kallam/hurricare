@@ -129,11 +129,9 @@ export default function Step4Results() {
         {/* Left Panel — Coverage Intelligence */}
         <ScrollRevealSection animation="slide-left" staggerDelay={150} sound="slide">
         <div className="flex-1 flex flex-col gap-0" style={{
-          background: 'linear-gradient(180deg, rgba(8,12,24,0.55) 0%, rgba(10,14,28,0.6) 50%, rgba(8,12,22,0.55) 100%)',
+          background: '#000',
           border: '1px solid rgba(255,255,255,0.12)',
           padding: '14px 16px 18px',
-          backgroundImage: 'radial-gradient(circle, rgba(255,255,255,0.04) 0.5px, transparent 0.5px)',
-          backgroundSize: '12px 12px',
         }}>
           {/* Coverage Gauges */}
           <div style={{ fontFamily: "'Rajdhani', sans-serif", fontSize: '0.8rem', fontWeight: 600, color: 'rgba(255,255,255,0.85)', letterSpacing: '0.18em', textTransform: 'uppercase' as const, marginBottom: 4 }}>
@@ -243,11 +241,9 @@ export default function Step4Results() {
         {/* Right Panel — Gap Analysis */}
         <ScrollRevealSection animation="slide-right" staggerDelay={300} sound="slide">
         <div className="flex-1 flex flex-col gap-0" style={{
-          background: 'linear-gradient(180deg, rgba(8,12,24,0.55) 0%, rgba(10,14,28,0.6) 50%, rgba(8,12,22,0.55) 100%)',
+          background: '#000',
           border: '1px solid rgba(255,255,255,0.12)',
           padding: '14px 16px 18px',
-          backgroundImage: 'radial-gradient(circle, rgba(255,255,255,0.04) 0.5px, transparent 0.5px)',
-          backgroundSize: '12px 12px',
         }}>
           {/* FanBurst — gap dispersion */}
           <div style={{ fontFamily: "'Rajdhani', sans-serif", fontSize: '0.8rem', fontWeight: 600, color: 'rgba(255,255,255,0.85)', letterSpacing: '0.18em', textTransform: 'uppercase' as const, marginBottom: 4 }}>
