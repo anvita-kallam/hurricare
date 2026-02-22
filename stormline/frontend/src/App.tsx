@@ -1,10 +1,11 @@
 import { useEffect, useState, useCallback } from 'react'
-import Globe from './components/Globe'
+import MapVisGlobe from './components/MapVisGlobe'
 import CoverageChoropleth from './components/CoverageChoropleth'
 import SimulationEngine from './components/SimulationEngine'
 import ComparisonPage from './components/ComparisonPage'
 import Leaderboard from './components/Leaderboard'
-import IntroScreen from './components/IntroScreen'
+import Dashboard3D from './components/Dashboard3D'
+import FundingDisparityGlobe from './components/mapvis/FundingDisparityGlobe'
 import NarrativePopup from './components/NarrativePopup'
 import CinematicIntro from './components/CinematicIntro'
 import HurricaneMatcher from './components/HurricaneMatcher'
@@ -45,6 +46,7 @@ function App() {
   const [showWelcomePopup, setShowWelcomePopup] = useState(false)
   const [pendingHurricane, setPendingHurricane] = useState<string | null>(null)
   const [showMatcher, setShowMatcher] = useState(false)
+  const [showFundingDisparity, setShowFundingDisparity] = useState(false)
   
   useEffect(() => {
     const fetchHurricanes = async () => {
@@ -155,8 +157,12 @@ function App() {
     setSelectedHurricane(null)
   }
 
-  const handleEnterGame = () => {
-    setShowMatcher(true)
+  const handleDashboardOption = (option: 'search' | 'browse' | 'disparity') => {
+    if (option === 'search' || option === 'browse') {
+      setShowMatcher(true)
+    } else if (option === 'disparity') {
+      setShowFundingDisparity(true)
+    }
   }
 
   const handleMatcherMatch = (hurricaneId: string) => {
@@ -170,19 +176,34 @@ function App() {
     setGameStarted(true)
     setShowWelcomePopup(true)
   }
+
+  const handleCloseFundingDisparity = () => {
+    setShowFundingDisparity(false)
+  }
   
-  // Show intro screen until game is started
-  if (!gameStarted) {
+  // Show dashboard until game is started or funding disparity mode is selected
+  if (!gameStarted && !showFundingDisparity) {
     return (
       <>
-        <IntroScreen onEnter={handleEnterGame} isLoading={loading} />
+        <Dashboard3D
+          onSelectOption={handleDashboardOption}
+          onEnter={() => {}}
+          isLoading={loading}
+        />
         {showMatcher && !loading && (
-          <HurricaneMatcher 
+          <HurricaneMatcher
             onMatchFound={handleMatcherMatch}
             onSkip={handleMatcherSkip}
           />
         )}
       </>
+    )
+  }
+
+  // Show funding disparity globe
+  if (showFundingDisparity) {
+    return (
+      <FundingDisparityGlobe onClose={handleCloseFundingDisparity} />
     )
   }
   
@@ -343,7 +364,11 @@ function App() {
         
         {/* Center - Globe */}
         <div className="flex-1 relative">
-          <Globe />
+          <MapVisGlobe
+            selectedHurricane={selectedHurricane}
+            autoSpin={autoSpin}
+            onCountrySelect={(country) => console.log('Selected country:', country)}
+          />
           <CoverageChoropleth />
         </div>
         
