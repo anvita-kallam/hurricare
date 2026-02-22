@@ -6,8 +6,6 @@ import GlobeShell from './GlobeShell'
 import CountryMesh from './CountryMesh'
 import PostProcessing from './PostProcessing'
 import Starfield from './Starfield'
-import ParticlesField from './ParticlesField'
-import ParticleField from './ParticleField'
 import { COUNTRY_POLYGONS } from '../../data/countries'
 
 const latLonToVec3 = (lat: number, lon: number, r: number) => {
@@ -176,8 +174,6 @@ export default function GlobeScene({ selected, onSelect }: GlobeSceneProps) {
       <GlobeGroup selected={selected} onSelect={onSelect} groupRef={groupRef} mouseLocal={mouseLocal} />
       <MouseTracker groupRef={groupRef} mouseLocal={mouseLocal} />
       <Starfield />
-      <ParticlesField />
-      <ParticleField />
       <PostProcessing selected={!!selected} />
       <CameraRig selected={selected} />
     </Canvas>
