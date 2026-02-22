@@ -1,7 +1,6 @@
 import { useState, useRef, useEffect } from 'react'
 import { Canvas, useFrame } from '@react-three/fiber'
 import * as THREE from 'three'
-import Starfield from './mapvis/Starfield'
 import GlobeShell from './mapvis/GlobeShell'
 
 interface DashboardOption {
@@ -118,8 +117,6 @@ function ThreeScene({ onSelect }: { onSelect: (id: 'search' | 'browse' | 'dispar
       <pointLight position={[0, 0, 4]} intensity={0.15} color="#2244ff" distance={10} />
       <pointLight position={[-3, 1, 2]} intensity={0.1} color="#9900ff" distance={12} />
 
-      {/* MapVis Starfield — consistent with globe scene */}
-      <Starfield />
 
       {/* Small background globe for visual consistency */}
       <group position={[0, 0, -4]} scale={[0.8, 0.8, 0.8]}>

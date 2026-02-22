@@ -5,7 +5,6 @@ import { useCinematicController, ImpactEvent } from '../hooks/useCinematicContro
 import HurricaneSpiral from './HurricaneSpiral'
 import ImpactCallout from './ImpactCallout'
 import CinematicGlobe from './CinematicGlobe'
-import Starfield from './mapvis/Starfield'
 import { Hurricane } from '../state/useStore'
 
 function latLonToVector3(lat: number, lon: number, radius: number = 1): THREE.Vector3 {
@@ -241,8 +240,6 @@ export default function CinematicIntro({
           <pointLight position={[0, 0, 4]} intensity={0.2} color="#2244ff" distance={10} />
           <pointLight position={[-3, 1, 2]} intensity={0.12} color="#9900ff" distance={12} />
 
-          {/* MapVis Starfield — NOT drei Stars */}
-          <Starfield />
 
           {/* MapVis globe (GlobeShell + CountryMesh) — NOT satellite/NASA texture */}
           <CinematicGlobe />

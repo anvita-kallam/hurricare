@@ -17,9 +17,9 @@ export default function CinematicGlobe() {
   return (
     <group>
       <GlobeShell />
-      {COUNTRY_POLYGONS.map((country) => (
+      {COUNTRY_POLYGONS.map((country, idx) => (
         <CountryMesh
-          key={country.name}
+          key={`${country.name}-${idx}`}
           country={country}
           radius={1}
           selected={false}
