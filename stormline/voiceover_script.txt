@@ -1,0 +1,19 @@
+Every year, disasters displace millions of people. And in the hours after a crisis begins, a small number of coordinators sit in rooms making decisions that will shape outcomes for entire regions.
+
+They work with incomplete data, fragmented reports, and institutional memory that lives in the heads of people who may not be in the room. The stakes are enormous. The margin for error is almost nonexistent. And yet, there is no shared environment where these decisions can be practiced before they have to be made for real.
+
+This is the gap HurriCare was built to address.
+
+Not as a forecasting tool. Not as an automation layer. But as decision infrastructure — a place where the people responsible for crisis response can rehearse the hardest choices they will ever face, using the full weight of historical data.
+
+Every past disaster carries lessons. But those lessons are buried — scattered across after-action reports, funding records, severity assessments, and the personal experience of coordinators who have since moved on. HurriCare brings that history into a single analytical backbone, transforming decades of crisis data into something that can be studied, explored, and learned from — without anyone being in harm's way.
+
+The result is a kind of institutional memory that does not depend on any one person. New coordinators can develop judgment that previously took years of field experience. Seasoned teams can pressure-test their assumptions against patterns they may have never noticed. And funding gaps — the kind that quietly determine who receives aid and who does not — become impossible to overlook.
+
+At every step, the system is designed to support human judgment, not replace it. The people in the room remain the decision-makers. What changes is what they can see, what they have practiced, and how prepared they are when the call comes.
+
+This matters beyond any single disaster. The same infrastructure that helps a team prepare for a hurricane can support cross-agency coordination, anticipatory planning, and long-term resilience strategies for institutions whose mandate is global stability.
+
+Because the real cost of crisis response is not measured in systems or data. It is measured in the decisions that were never rehearsed — and the outcomes that did not have to happen.
+
+HurriCare exists so that the next time a crisis demands impossible choices, the people making them have already practiced.
