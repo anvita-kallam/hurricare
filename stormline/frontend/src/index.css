@@ -648,3 +648,174 @@ input[type="range"]::-moz-range-thumb {
     transform: scale(0.95);
   }
 }
+
+/* ─── Kinetic Scroll-Driven Storytelling ────────────────────────────────── */
+
+/* Scroll snap container */
+.scroll-snap-container {
+  scroll-snap-type: y proximity;
+  scroll-behavior: smooth;
+}
+
+.scroll-snap-section {
+  scroll-snap-align: start;
+  scroll-snap-stop: normal;
+}
+
+/* Motion blur during fast scroll (applied via JS) */
+.scroll-motion-blur {
+  transition: filter 0.15s ease-out;
+}
+
+/* ─── Scroll Reveal Animations ──────────────────────────────────────────── */
+
+.scroll-reveal-section {
+  will-change: transform, opacity;
+}
+
+/* Hidden initial states */
+.scroll-reveal-hidden {
+  will-change: transform, opacity, filter;
+}
+
+.scroll-reveal-fade-up-initial {
+  opacity: 0;
+  transform: translateY(40px);
+  filter: blur(3px);
+}
+
+.scroll-reveal-scale-in-initial {
+  opacity: 0;
+  transform: scale(0.88);
+  filter: blur(4px);
+}
+
+.scroll-reveal-slide-left-initial {
+  opacity: 0;
+  transform: translateX(-50px);
+  filter: blur(2px);
+}
+
+.scroll-reveal-slide-right-initial {
+  opacity: 0;
+  transform: translateX(50px);
+  filter: blur(2px);
+}
+
+.scroll-reveal-blur-resolve-initial {
+  opacity: 0;
+  filter: blur(12px);
+  transform: scale(1.03);
+}
+
+.scroll-reveal-depth-emerge-initial {
+  opacity: 0;
+  transform: translateY(30px) scale(0.92) perspective(600px) rotateX(4deg);
+  filter: blur(6px);
+}
+
+/* Visible (revealed) states */
+.scroll-reveal-visible {
+  opacity: 1;
+  transform: none;
+  filter: blur(0);
+  transition:
+    opacity 0.7s cubic-bezier(0.16, 1, 0.3, 1),
+    transform 0.7s cubic-bezier(0.16, 1, 0.3, 1),
+    filter 0.7s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+/* Per-animation-type visible overrides for easing */
+.scroll-reveal-visible.scroll-reveal-fade-up {
+  transition-duration: 0.7s;
+}
+
+.scroll-reveal-visible.scroll-reveal-scale-in {
+  transition-duration: 0.6s;
+  transition-timing-function: cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+.scroll-reveal-visible.scroll-reveal-slide-left,
+.scroll-reveal-visible.scroll-reveal-slide-right {
+  transition-duration: 0.65s;
+}
+
+.scroll-reveal-visible.scroll-reveal-blur-resolve {
+  transition-duration: 0.9s;
+}
+
+.scroll-reveal-visible.scroll-reveal-depth-emerge {
+  transition-duration: 0.8s;
+  transition-timing-function: cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+/* ─── Scroll Divider (line draw animation) ──────────────────────────────── */
+
+.scroll-divider-wrapper {
+  padding: 12px 0;
+  overflow: hidden;
+}
+
+.scroll-divider {
+  height: 1px;
+  background: linear-gradient(90deg, transparent, rgba(255,255,255,0.08), transparent);
+  transform: scaleX(0);
+  transform-origin: left center;
+  transition: transform 0.8s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.scroll-divider-visible {
+  transform: scaleX(1);
+}
+
+/* ─── Parallax depth layers ─────────────────────────────────────────────── */
+
+.parallax-slow {
+  transform: translateY(calc(var(--scroll-y, 0) * -0.05px));
+  transition: transform 0.1s linear;
+}
+
+.parallax-medium {
+  transform: translateY(calc(var(--scroll-y, 0) * -0.12px));
+  transition: transform 0.1s linear;
+}
+
+.parallax-fast {
+  transform: translateY(calc(var(--scroll-y, 0) * -0.2px));
+  transition: transform 0.1s linear;
+}
+
+/* ─── Scroll Progress Indicator ─────────────────────────────────────────── */
+
+.scroll-progress-bar {
+  position: fixed;
+  top: 0;
+  left: 0;
+  height: 2px;
+  background: linear-gradient(90deg, rgba(100,180,230,0.3), rgba(100,180,230,0.6));
+  transform-origin: left;
+  z-index: 200;
+  pointer-events: none;
+  transition: transform 0.1s ease-out;
+}
+
+/* ─── Section entrance orchestration ────────────────────────────────────── */
+
+/* Stagger children within a revealed section */
+.scroll-reveal-visible .stagger-child {
+  opacity: 1;
+  transform: translateY(0);
+  filter: blur(0);
+  transition:
+    opacity 0.5s cubic-bezier(0.16, 1, 0.3, 1),
+    transform 0.5s cubic-bezier(0.16, 1, 0.3, 1),
+    filter 0.5s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.scroll-reveal-hidden .stagger-child,
+.scroll-reveal-fade-up-initial .stagger-child,
+.scroll-reveal-scale-in-initial .stagger-child {
+  opacity: 0;
+  transform: translateY(16px);
+  filter: blur(2px);
+}
