@@ -21,6 +21,7 @@ import {
   StatReadout,
 } from '../mapvis/charts/ChartPrimitives'
 import AffectedAreaHeightMap from '../shared/AffectedAreaHeightMap'
+import InteractiveChartWrapper from '../shared/InteractiveChartWrapper'
 
 function formatBudget(n: number): string {
   if (n >= 1e9) return `$${(n / 1e9).toFixed(1)}B`
@@ -120,13 +121,13 @@ export default function Step1Situation() {
           text="Situation Assessment"
           emphasis="soft"
           delayMs={100}
-          className="text-white/20 font-rajdhani text-[9px] tracking-[0.3em] uppercase"
+          className="text-white/60 font-rajdhani text-sm tracking-[0.3em] uppercase"
           as="div"
         />
-        <h2 className="text-white/90 font-rajdhani font-bold text-2xl tracking-wider">
+        <h2 className="text-white font-rajdhani font-bold text-2xl tracking-wider">
           <TypewriterText text={selectedHurricane.name} emphasis="headline" delayMs={400} charIntervalMs={55} />
         </h2>
-        <div className="text-white/30 font-mono text-xs">
+        <div className="text-white/65 font-mono text-sm">
           <TypewriterText
             text={`${selectedHurricane.year} \u2014 Category ${selectedHurricane.max_category} \u2014 ${selectedHurricane.estimated_population_affected.toLocaleString()} affected`}
             emphasis="normal"
@@ -149,10 +150,10 @@ export default function Step1Situation() {
         }}>
           {/* Header */}
           <div className="mb-1">
-            <div style={{ fontFamily: "'Rajdhani', sans-serif", fontWeight: 700, fontSize: '1rem', color: 'rgba(255,255,255,0.85)', letterSpacing: '0.08em', lineHeight: 1.1 }}>
+            <div style={{ fontFamily: "'Rajdhani', sans-serif", fontWeight: 700, fontSize: '1rem', color: 'rgba(255,255,255,1)', letterSpacing: '0.08em', lineHeight: 1.1 }}>
               {selectedHurricane.name}
             </div>
-            <div style={{ fontFamily: "'DM Mono', monospace", fontSize: '0.5rem', letterSpacing: '0.16em', marginTop: 2, color: maxSeverity > 0.7 ? 'rgba(255,100,80,0.6)' : maxSeverity > 0.4 ? 'rgba(255,220,100,0.6)' : 'rgba(120,220,120,0.6)' }}>
+            <div style={{ fontFamily: "'DM Mono', monospace", fontSize: '0.8rem', letterSpacing: '0.16em', marginTop: 2, color: maxSeverity > 0.7 ? 'rgba(255,100,80,0.9)' : maxSeverity > 0.4 ? 'rgba(255,220,100,0.9)' : 'rgba(120,220,120,0.9)' }}>
               CATEGORY {selectedHurricane.max_category} — {selectedHurricane.year}
             </div>
           </div>
@@ -160,16 +161,18 @@ export default function Step1Situation() {
           <div className="fdp-divider" style={{ height: 1, background: 'rgba(255,255,255,0.04)', margin: '6px 0', flexShrink: 0 }} />
 
           {/* LargePercentReadout — overall severity score */}
-          <div style={{ fontFamily: "'Rajdhani', sans-serif", fontSize: '0.5rem', fontWeight: 600, color: 'rgba(255,255,255,0.2)', letterSpacing: '0.18em', textTransform: 'uppercase' as const, marginBottom: 4, display: 'flex', alignItems: 'center', gap: 6 }}>
+          <div style={{ fontFamily: "'Rajdhani', sans-serif", fontSize: '0.8rem', fontWeight: 600, color: 'rgba(255,255,255,0.5)', letterSpacing: '0.18em', textTransform: 'uppercase' as const, marginBottom: 4, display: 'flex', alignItems: 'center', gap: 6 }}>
             SEVERITY INDEX
           </div>
-          <LargePercentReadout
-            value={Math.round(avgSeverity * 100)}
-            label="AVG SEVERITY"
-            subValue={`peak ${(maxSeverity * 10).toFixed(1)}`}
-            trend={maxSeverity > 0.7 ? 'up' : maxSeverity > 0.4 ? 'flat' : 'down'}
-            alert={avgSeverity > 0.5}
-          />
+          <InteractiveChartWrapper label="Severity Index" explanation="The average severity across all affected regions, measured on a 0-10 scale. Higher values indicate more intense humanitarian impact including infrastructure damage, population displacement, and resource scarcity.">
+            <LargePercentReadout
+              value={Math.round(avgSeverity * 100)}
+              label="AVG SEVERITY"
+              subValue={`peak ${(maxSeverity * 10).toFixed(1)}`}
+              trend={maxSeverity > 0.7 ? 'up' : maxSeverity > 0.4 ? 'flat' : 'down'}
+              alert={avgSeverity > 0.5}
+            />
+          </InteractiveChartWrapper>
 
           <div style={{ height: 1, background: 'rgba(255,255,255,0.04)', margin: '6px 0', flexShrink: 0 }} />
 
@@ -184,55 +187,61 @@ export default function Step1Situation() {
           <div style={{ height: 1, background: 'rgba(255,255,255,0.04)', margin: '6px 0', flexShrink: 0 }} />
 
           {/* RidgeChart — severity / population / coverage profiles */}
-          <div style={{ fontFamily: "'Rajdhani', sans-serif", fontSize: '0.5rem', fontWeight: 600, color: 'rgba(255,255,255,0.2)', letterSpacing: '0.18em', textTransform: 'uppercase' as const, marginBottom: 4 }}>
+          <div style={{ fontFamily: "'Rajdhani', sans-serif", fontSize: '0.8rem', fontWeight: 600, color: 'rgba(255,255,255,0.5)', letterSpacing: '0.18em', textTransform: 'uppercase' as const, marginBottom: 4 }}>
             SEVERITY / NEED / COVERAGE
           </div>
-          <div style={{ marginBottom: 2 }}>
-            <RidgeChart
-              series={severityTimeSeries}
-              width={W}
-              height={90}
-              seed={seed + 10}
-              colors={[
-                'rgba(255,100,80,0.12)',
-                'rgba(255,180,60,0.09)',
-                'rgba(100,180,220,0.08)',
-              ]}
-            />
-          </div>
+          <InteractiveChartWrapper label="Severity / Need / Coverage" explanation="Three overlapping profiles showing severity intensity, population need, and existing coverage ratio across affected regions. Where the severity profile towers over coverage, those regions face the largest humanitarian gaps.">
+            <div style={{ marginBottom: 2 }}>
+              <RidgeChart
+                series={severityTimeSeries}
+                width={W}
+                height={90}
+                seed={seed + 10}
+                colors={[
+                  'rgba(255,100,80,0.12)',
+                  'rgba(255,180,60,0.09)',
+                  'rgba(100,180,220,0.08)',
+                ]}
+              />
+            </div>
+          </InteractiveChartWrapper>
 
           <div style={{ height: 1, background: 'rgba(255,255,255,0.04)', margin: '6px 0', flexShrink: 0 }} />
 
           {/* ThinVerticalBars — population by region */}
-          <div style={{ fontFamily: "'Rajdhani', sans-serif", fontSize: '0.5rem', fontWeight: 600, color: 'rgba(255,255,255,0.2)', letterSpacing: '0.18em', textTransform: 'uppercase' as const, marginBottom: 4 }}>
+          <div style={{ fontFamily: "'Rajdhani', sans-serif", fontSize: '0.8rem', fontWeight: 600, color: 'rgba(255,255,255,0.5)', letterSpacing: '0.18em', textTransform: 'uppercase' as const, marginBottom: 4 }}>
             POPULATION DENSITY
           </div>
-          <div style={{ marginBottom: 2 }}>
-            <ThinVerticalBars
-              data={populationDistribution}
-              width={W}
-              height={60}
-              seed={seed + 30}
-              labels={regionData.map(r => r.region)}
-              unit="Population"
-            />
-          </div>
+          <InteractiveChartWrapper label="Population Density" explanation="Population in need across each affected region. Taller bars highlight regions where the most people require humanitarian assistance. This distribution guides how resources should be prioritized.">
+            <div style={{ marginBottom: 2 }}>
+              <ThinVerticalBars
+                data={populationDistribution}
+                width={W}
+                height={60}
+                seed={seed + 30}
+                labels={regionData.map(r => r.region)}
+                unit="Population"
+              />
+            </div>
+          </InteractiveChartWrapper>
 
           <div style={{ height: 1, background: 'rgba(255,255,255,0.04)', margin: '6px 0', flexShrink: 0 }} />
 
           {/* PerspectiveGrid — severity strata */}
-          <div style={{ fontFamily: "'Rajdhani', sans-serif", fontSize: '0.5rem', fontWeight: 600, color: 'rgba(255,255,255,0.2)', letterSpacing: '0.18em', textTransform: 'uppercase' as const, marginBottom: 4 }}>
+          <div style={{ fontFamily: "'Rajdhani', sans-serif", fontSize: '0.8rem', fontWeight: 600, color: 'rgba(255,255,255,0.5)', letterSpacing: '0.18em', textTransform: 'uppercase' as const, marginBottom: 4 }}>
             SEVERITY STRATA
           </div>
-          <div style={{ marginBottom: 2 }}>
-            <PerspectiveGrid
-              data={severityDistribution}
-              width={W}
-              height={60}
-              seed={seed + 40}
-              rows={5}
-            />
-          </div>
+          <InteractiveChartWrapper label="Severity Strata" explanation="A 3D perspective view of severity levels across regions. The receding grid shows depth stratification — front bars represent current severity while deeper layers show projected escalation patterns.">
+            <div style={{ marginBottom: 2 }}>
+              <PerspectiveGrid
+                data={severityDistribution}
+                width={W}
+                height={60}
+                seed={seed + 40}
+                rows={5}
+              />
+            </div>
+          </InteractiveChartWrapper>
         </div>
 
         {/* Right Panel — Impact Assessment */}
@@ -244,64 +253,70 @@ export default function Step1Situation() {
           backgroundSize: '12px 12px',
         }}>
           {/* ConcentricRadar — multi-metric overview */}
-          <div style={{ fontFamily: "'Rajdhani', sans-serif", fontSize: '0.5rem', fontWeight: 600, color: 'rgba(255,255,255,0.2)', letterSpacing: '0.18em', textTransform: 'uppercase' as const, marginBottom: 4 }}>
+          <div style={{ fontFamily: "'Rajdhani', sans-serif", fontSize: '0.8rem', fontWeight: 600, color: 'rgba(255,255,255,0.5)', letterSpacing: '0.18em', textTransform: 'uppercase' as const, marginBottom: 4 }}>
             RISK EXPOSURE
           </div>
-          <div style={{ display: 'flex', justifyContent: 'center', marginBottom: 2 }}>
-            <ConcentricRadar
-              values={[
-                { label: 'SEV', value: avgSeverity * 100, max: 100 },
-                { label: 'POP', value: Math.min((totalPeopleInNeed / 5e6) * 100, 100), max: 100 },
-                { label: 'CAT', value: (selectedHurricane.max_category / 5) * 100, max: 100 },
-                { label: 'COV', value: avgCoverage * 100, max: 100 },
-              ]}
-              size={120}
-              seed={seed + 20}
-            />
-          </div>
+          <InteractiveChartWrapper label="Risk Exposure" explanation="Multi-dimensional risk assessment showing severity, population impact, hurricane category, and current coverage. Longer arcs indicate higher exposure in that dimension. When multiple arcs extend far, the overall risk profile is critical.">
+            <div style={{ display: 'flex', justifyContent: 'center', marginBottom: 2 }}>
+              <ConcentricRadar
+                values={[
+                  { label: 'SEV', value: avgSeverity * 100, max: 100 },
+                  { label: 'POP', value: Math.min((totalPeopleInNeed / 5e6) * 100, 100), max: 100 },
+                  { label: 'CAT', value: (selectedHurricane.max_category / 5) * 100, max: 100 },
+                  { label: 'COV', value: avgCoverage * 100, max: 100 },
+                ]}
+                size={120}
+                seed={seed + 20}
+              />
+            </div>
+          </InteractiveChartWrapper>
 
           <div style={{ height: 1, background: 'rgba(255,255,255,0.04)', margin: '6px 0', flexShrink: 0 }} />
 
           {/* SegmentedHorizontalBars — per-region severity */}
-          <div style={{ fontFamily: "'Rajdhani', sans-serif", fontSize: '0.5rem', fontWeight: 600, color: 'rgba(255,255,255,0.2)', letterSpacing: '0.18em', textTransform: 'uppercase' as const, marginBottom: 4 }}>
+          <div style={{ fontFamily: "'Rajdhani', sans-serif", fontSize: '0.8rem', fontWeight: 600, color: 'rgba(255,255,255,0.5)', letterSpacing: '0.18em', textTransform: 'uppercase' as const, marginBottom: 4 }}>
             REGIONAL SEVERITY
           </div>
-          <div style={{ marginBottom: 2 }}>
-            <SegmentedHorizontalBars
-              bars={regionData.slice(0, 6).map(r => ({
-                label: r.region.toUpperCase(),
-                value: Math.round(r.severity * 100),
-                max: 100,
-              }))}
-              width={W}
-              height={Math.min(regionData.length, 6) * 16 + 8}
-            />
-          </div>
+          <InteractiveChartWrapper label="Regional Severity" explanation="Per-region severity breakdown showing which areas are most affected. Amber-highlighted bars exceed the critical threshold and require priority resource allocation.">
+            <div style={{ marginBottom: 2 }}>
+              <SegmentedHorizontalBars
+                bars={regionData.slice(0, 6).map(r => ({
+                  label: r.region.toUpperCase(),
+                  value: Math.round(r.severity * 100),
+                  max: 100,
+                }))}
+                width={W}
+                height={Math.min(regionData.length, 6) * 16 + 8}
+              />
+            </div>
+          </InteractiveChartWrapper>
 
           <div style={{ height: 1, background: 'rgba(255,255,255,0.04)', margin: '6px 0', flexShrink: 0 }} />
 
           {/* MountainSilhouette — severity/population distribution */}
-          <div style={{ fontFamily: "'Rajdhani', sans-serif", fontSize: '0.5rem', fontWeight: 600, color: 'rgba(255,255,255,0.2)', letterSpacing: '0.18em', textTransform: 'uppercase' as const, marginBottom: 4 }}>
+          <div style={{ fontFamily: "'Rajdhani', sans-serif", fontSize: '0.8rem', fontWeight: 600, color: 'rgba(255,255,255,0.5)', letterSpacing: '0.18em', textTransform: 'uppercase' as const, marginBottom: 4 }}>
             SEVERITY DENSITY
           </div>
-          <div style={{ marginBottom: 2 }}>
-            <MountainSilhouette
-              data={severityDistribution}
-              width={W}
-              height={48}
-              seed={seed + 50}
-              color={avgSeverity > 0.5 ? 'rgba(255,100,80,0.12)' : 'rgba(255,255,255,0.1)'}
-              secondaryData={populationDistribution.map(p => {
-                const maxP = Math.max(...populationDistribution, 1)
-                return (p / maxP) * Math.max(...severityDistribution, 1)
-              })}
-            />
-          </div>
+          <InteractiveChartWrapper label="Severity Density" explanation="Overlapping terrain profiles showing severity distribution (primary) and population density (secondary). Peaks where both profiles align indicate the most critical humanitarian zones.">
+            <div style={{ marginBottom: 2 }}>
+              <MountainSilhouette
+                data={severityDistribution}
+                width={W}
+                height={48}
+                seed={seed + 50}
+                color={avgSeverity > 0.5 ? 'rgba(255,100,80,0.12)' : 'rgba(255,255,255,0.1)'}
+                secondaryData={populationDistribution.map(p => {
+                  const maxP = Math.max(...populationDistribution, 1)
+                  return (p / maxP) * Math.max(...severityDistribution, 1)
+                })}
+              />
+            </div>
+          </InteractiveChartWrapper>
 
           <div style={{ height: 1, background: 'rgba(255,255,255,0.04)', margin: '6px 0', flexShrink: 0 }} />
 
           {/* Response metrics */}
-          <div style={{ fontFamily: "'Rajdhani', sans-serif", fontSize: '0.5rem', fontWeight: 600, color: 'rgba(255,255,255,0.2)', letterSpacing: '0.18em', textTransform: 'uppercase' as const, marginBottom: 4 }}>
+          <div style={{ fontFamily: "'Rajdhani', sans-serif", fontSize: '0.8rem', fontWeight: 600, color: 'rgba(255,255,255,0.5)', letterSpacing: '0.18em', textTransform: 'uppercase' as const, marginBottom: 4 }}>
             RESPONSE METRICS
           </div>
           <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '4px 8px', marginBottom: 2 }}>
@@ -316,19 +331,21 @@ export default function Step1Situation() {
               <div style={{ height: 1, background: 'rgba(255,255,255,0.04)', margin: '6px 0', flexShrink: 0 }} />
 
               {/* Funding distribution */}
-              <div style={{ fontFamily: "'Rajdhani', sans-serif", fontSize: '0.5rem', fontWeight: 600, color: 'rgba(255,255,255,0.2)', letterSpacing: '0.18em', textTransform: 'uppercase' as const, marginBottom: 4 }}>
+              <div style={{ fontFamily: "'Rajdhani', sans-serif", fontSize: '0.8rem', fontWeight: 600, color: 'rgba(255,255,255,0.5)', letterSpacing: '0.18em', textTransform: 'uppercase' as const, marginBottom: 4 }}>
                 FUNDING ALLOCATION
               </div>
-              <div style={{ marginBottom: 2 }}>
-                <ThinVerticalBars
-                  data={fundingDistribution}
-                  width={W}
-                  height={60}
-                  seed={seed + 60}
-                  labels={regionData.map(r => r.region)}
-                  unit="Budget ($)"
-                />
-              </div>
+              <InteractiveChartWrapper label="Funding Allocation" explanation="Historical pooled fund budget distribution across regions. Compare these allocations against the severity and population data above to identify potential funding mismatches.">
+                <div style={{ marginBottom: 2 }}>
+                  <ThinVerticalBars
+                    data={fundingDistribution}
+                    width={W}
+                    height={60}
+                    seed={seed + 60}
+                    labels={regionData.map(r => r.region)}
+                    unit="Budget ($)"
+                  />
+                </div>
+              </InteractiveChartWrapper>
             </>
           )}
         </div>
@@ -342,25 +359,27 @@ export default function Step1Situation() {
         backgroundImage: 'radial-gradient(circle, rgba(255,255,255,0.02) 0.5px, transparent 0.5px)',
         backgroundSize: '12px 12px',
       }}>
-        <div style={{ fontFamily: "'Rajdhani', sans-serif", fontSize: '0.5rem', fontWeight: 600, color: 'rgba(255,255,255,0.2)', letterSpacing: '0.18em', textTransform: 'uppercase' as const, marginBottom: 8 }}>
+        <div style={{ fontFamily: "'Rajdhani', sans-serif", fontSize: '0.8rem', fontWeight: 600, color: 'rgba(255,255,255,0.5)', letterSpacing: '0.18em', textTransform: 'uppercase' as const, marginBottom: 8 }}>
           AFFECTED REGIONS — SEVERITY TERRAIN
         </div>
-        <AffectedAreaHeightMap
-          data={regionData.map(r => ({
-            region: r.region,
-            severity: r.severity,
-            metric: r.coverageRatio,
-            valueLabel: r.peopleInNeed >= 1e6 ? `${(r.peopleInNeed / 1e6).toFixed(1)}M` : r.peopleInNeed >= 1e3 ? `${(r.peopleInNeed / 1e3).toFixed(0)}K` : `${r.peopleInNeed}`,
-          }))}
-          width={600}
-          height={200}
-          theme="severity"
-        />
+        <InteractiveChartWrapper label="Affected Regions Terrain" explanation="A 2.5D isometric terrain visualization where height represents severity and color intensity shows coverage ratio. Taller, darker columns indicate severely affected regions with low existing coverage.">
+          <AffectedAreaHeightMap
+            data={regionData.map(r => ({
+              region: r.region,
+              severity: r.severity,
+              metric: r.coverageRatio,
+              valueLabel: r.peopleInNeed >= 1e6 ? `${(r.peopleInNeed / 1e6).toFixed(1)}M` : r.peopleInNeed >= 1e3 ? `${(r.peopleInNeed / 1e3).toFixed(0)}K` : `${r.peopleInNeed}`,
+            }))}
+            width={600}
+            height={200}
+            theme="severity"
+          />
+        </InteractiveChartWrapper>
       </div>
 
       {/* Affected countries */}
       <div className="text-center">
-        <div className="text-white/20 font-mono text-[10px]">
+        <div className="text-white/60 font-mono text-sm">
           {selectedHurricane.affected_countries.join(' / ')}
         </div>
       </div>

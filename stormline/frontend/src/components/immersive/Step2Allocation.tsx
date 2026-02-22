@@ -116,7 +116,7 @@ function ClusterDonut3D({ clusterTotals, totalBudget, totalAllocated }: {
           const r = parseInt(e.color.slice(1, 3), 16)
           const g = parseInt(e.color.slice(3, 5), 16)
           const b = parseInt(e.color.slice(5, 7), 16)
-          ctx.fillStyle = `rgba(${Math.floor(r * 0.5)},${Math.floor(g * 0.5)},${Math.floor(b * 0.5)},0.8)`
+          ctx.fillStyle = `rgba(${Math.floor(r * 0.5)},${Math.floor(g * 0.5)},${Math.floor(b * 0.5)},1)`
           ctx.fill()
         }
       }
@@ -140,12 +140,12 @@ function ClusterDonut3D({ clusterTotals, totalBudget, totalAllocated }: {
       const b = parseInt(e.color.slice(5, 7), 16)
 
       const grad = ctx.createRadialGradient(cx, cy, innerR, cx, cy, outerR)
-      grad.addColorStop(0, `rgba(${r},${g},${b},0.9)`)
-      grad.addColorStop(1, `rgba(${Math.floor(r * 0.7)},${Math.floor(g * 0.7)},${Math.floor(b * 0.7)},0.85)`)
+      grad.addColorStop(0, `rgba(${r},${g},${b},1)`)
+      grad.addColorStop(1, `rgba(${Math.floor(r * 0.7)},${Math.floor(g * 0.7)},${Math.floor(b * 0.7)},1)`)
       ctx.fillStyle = grad
       ctx.fill()
 
-      ctx.strokeStyle = 'rgba(0,0,0,0.5)'
+      ctx.strokeStyle = 'rgba(0,0,0,0.8)'
       ctx.lineWidth = 1
       ctx.stroke()
 
@@ -155,13 +155,13 @@ function ClusterDonut3D({ clusterTotals, totalBudget, totalAllocated }: {
         const lx = cx + Math.cos(mid) * lr
         const ly = cy + Math.sin(mid) * lr
 
-        ctx.fillStyle = 'rgba(255,255,255,0.8)'
+        ctx.fillStyle = 'rgba(255,255,255,1)'
         ctx.font = 'bold 10px Rajdhani'
         ctx.textAlign = mid > Math.PI / 2 && mid < Math.PI * 1.5 ? 'right' : 'left'
         ctx.textBaseline = 'middle'
         ctx.fillText(e.short, lx, ly)
 
-        ctx.fillStyle = 'rgba(255,255,255,0.45)'
+        ctx.fillStyle = 'rgba(255,255,255,0.75)'
         ctx.font = '9px DM Mono, monospace'
         ctx.fillText(`${(pct * 100).toFixed(0)}%`, lx, ly + 12)
       }
@@ -178,9 +178,9 @@ function ClusterDonut3D({ clusterTotals, totalBudget, totalAllocated }: {
         ctx.arc(cx, cy, outerR, startAngle, startAngle + sweep)
         ctx.arc(cx, cy, innerR, startAngle + sweep, startAngle, true)
         ctx.closePath()
-        ctx.fillStyle = 'rgba(255,255,255,0.03)'
+        ctx.fillStyle = 'rgba(255,255,255,0.33)'
         ctx.fill()
-        ctx.strokeStyle = 'rgba(255,255,255,0.04)'
+        ctx.strokeStyle = 'rgba(255,255,255,0.34)'
         ctx.stroke()
       }
     }
@@ -188,7 +188,7 @@ function ClusterDonut3D({ clusterTotals, totalBudget, totalAllocated }: {
     // Inner shadow for depth
     const innerGrad = ctx.createRadialGradient(cx, cy, innerR - 3, cx, cy, innerR + 3)
     innerGrad.addColorStop(0, 'rgba(0,0,0,0)')
-    innerGrad.addColorStop(1, 'rgba(0,0,0,0.3)')
+    innerGrad.addColorStop(1, 'rgba(0,0,0,0.6)')
     ctx.beginPath()
     ctx.arc(cx, cy, innerR + 3, 0, Math.PI * 2)
     ctx.arc(cx, cy, innerR - 3, 0, Math.PI * 2, true)
@@ -198,12 +198,12 @@ function ClusterDonut3D({ clusterTotals, totalBudget, totalAllocated }: {
 
     // Center text
     const utilPct = totalBudget > 0 ? Math.round((totalAllocated / totalBudget) * 100) : 0
-    ctx.fillStyle = 'rgba(255,255,255,0.95)'
+    ctx.fillStyle = 'rgba(255,255,255,1)'
     ctx.font = 'bold 22px DM Mono, monospace'
     ctx.textAlign = 'center'
     ctx.textBaseline = 'middle'
     ctx.fillText(`${utilPct}%`, cx, cy - 6)
-    ctx.fillStyle = 'rgba(255,255,255,0.35)'
+    ctx.fillStyle = 'rgba(255,255,255,0.65)'
     ctx.font = '9px Rajdhani'
     ctx.fillText('ALLOCATED', cx, cy + 12)
   }, [clusterTotals, totalBudget, totalAllocated])
@@ -256,7 +256,7 @@ function SeverityHeightMap({ data, totalBudget, activeIndex }: {
     const sorted = data.map((d, i) => ({ ...d, origIdx: i }))
 
     // Draw ground grid
-    ctx.strokeStyle = 'rgba(255,255,255,0.04)'
+    ctx.strokeStyle = 'rgba(255,255,255,0.34)'
     ctx.lineWidth = 0.5
     for (let i = 0; i <= cols; i++) {
       const gx = startX + i * tileW
@@ -285,7 +285,7 @@ function SeverityHeightMap({ data, totalBudget, activeIndex }: {
       const sevG = d.severity > 0.7 ? 60 : d.severity > 0.4 ? 160 : 160
       const sevB = d.severity > 0.7 ? 60 : d.severity > 0.4 ? 60 : 100
       const activeBoost = isActive ? 1.3 : 1.0
-      const baseSevAlpha = isActive ? 0.85 : 0.55
+      const baseSevAlpha = isActive ? 1 : 0.85
 
       // --- Severity terrain tile (isometric) ---
       const tileLeft = x + 2
@@ -322,7 +322,7 @@ function SeverityHeightMap({ data, totalBudget, activeIndex }: {
       ctx.fill()
 
       // Contour lines on front face
-      ctx.strokeStyle = `rgba(255,255,255,${isActive ? 0.12 : 0.06})`
+      ctx.strokeStyle = `rgba(255,255,255,${isActive ? 0.42 : 0.36})`
       ctx.lineWidth = 0.5
       const contours = Math.floor(sevHeight / 16)
       for (let c = 1; c <= contours; c++) {
@@ -343,14 +343,14 @@ function SeverityHeightMap({ data, totalBudget, activeIndex }: {
 
         // Allocation bar (on the face)
         const aGrad = ctx.createLinearGradient(aBarX, baseY, aBarX, baseY - aBarH)
-        aGrad.addColorStop(0, `rgba(80,170,210,${intensity * 0.5})`)
+        aGrad.addColorStop(0, `rgba(80,170,210,${intensity * 0.8})`)
         aGrad.addColorStop(1, `rgba(100,190,230,${intensity})`)
         ctx.fillStyle = aGrad
         ctx.fillRect(aBarX, baseY - aBarH, aBarW, aBarH)
 
         // Allocation glow
         if (isActive) {
-          ctx.shadowColor = 'rgba(100,180,230,0.3)'
+          ctx.shadowColor = 'rgba(100,180,230,0.6)'
           ctx.shadowBlur = 8
           ctx.fillRect(aBarX, baseY - aBarH, aBarW, aBarH)
           ctx.shadowBlur = 0
@@ -359,13 +359,13 @@ function SeverityHeightMap({ data, totalBudget, activeIndex }: {
 
       // Active highlight border
       if (isActive) {
-        ctx.strokeStyle = 'rgba(255,255,255,0.35)'
+        ctx.strokeStyle = 'rgba(255,255,255,0.65)'
         ctx.lineWidth = 1.5
         ctx.strokeRect(tileLeft - 1, baseY - sevHeight - 1, tileRight - tileLeft + 2, sevHeight + 2)
       }
 
       // Region label below — smart truncation based on tile width
-      ctx.fillStyle = isActive ? 'rgba(255,255,255,0.9)' : 'rgba(255,255,255,0.5)'
+      ctx.fillStyle = isActive ? 'rgba(255,255,255,1)' : 'rgba(255,255,255,0.8)'
       ctx.font = `${isActive ? 'bold ' : ''}10px Rajdhani`
       ctx.textAlign = 'center'
       let label = d.region
@@ -379,7 +379,7 @@ function SeverityHeightMap({ data, totalBudget, activeIndex }: {
       ctx.fillText(label, tileMid, baseY + 14)
 
       // Severity value on top
-      ctx.fillStyle = isActive ? 'rgba(255,255,255,0.85)' : 'rgba(255,255,255,0.5)'
+      ctx.fillStyle = isActive ? 'rgba(255,255,255,1)' : 'rgba(255,255,255,0.8)'
       ctx.font = `bold 10px DM Mono, monospace`
       ctx.textAlign = 'center'
       ctx.fillText(
@@ -390,25 +390,25 @@ function SeverityHeightMap({ data, totalBudget, activeIndex }: {
 
       // Allocation amount
       if (d.total > 0) {
-        ctx.fillStyle = isActive ? 'rgba(100,190,230,0.9)' : 'rgba(100,190,230,0.6)'
+        ctx.fillStyle = isActive ? 'rgba(100,190,230,1)' : 'rgba(100,190,230,0.9)'
         ctx.font = '9px DM Mono, monospace'
         ctx.fillText(formatBudget(d.total), tileMid, baseY + 26)
       }
     })
 
     // Legend
-    ctx.fillStyle = 'rgba(255,255,255,0.4)'
+    ctx.fillStyle = 'rgba(255,255,255,0.7)'
     ctx.font = '9px Rajdhani'
     ctx.textAlign = 'left'
     // Severity
-    ctx.fillStyle = 'rgba(200,100,60,0.6)'
+    ctx.fillStyle = 'rgba(200,100,60,0.9)'
     ctx.fillRect(8, 8, 12, 8)
-    ctx.fillStyle = 'rgba(255,255,255,0.5)'
+    ctx.fillStyle = 'rgba(255,255,255,0.8)'
     ctx.fillText('Severity (height)', 24, 16)
     // Allocation
-    ctx.fillStyle = 'rgba(80,170,210,0.7)'
+    ctx.fillStyle = 'rgba(80,170,210,1)'
     ctx.fillRect(8, 22, 12, 8)
-    ctx.fillStyle = 'rgba(255,255,255,0.5)'
+    ctx.fillStyle = 'rgba(255,255,255,0.8)'
     ctx.fillText('Your Allocation', 24, 30)
   }, [data, totalBudget, activeIndex])
 
@@ -601,11 +601,11 @@ export default function Step2Allocation() {
     <div className="space-y-5">
       {/* Title */}
       <div className="text-center space-y-1">
-        <TypewriterText text="Resource Allocation" emphasis="soft" delayMs={100} className="text-white/50 font-rajdhani text-[11px] tracking-[0.3em] uppercase" as="div" />
+        <TypewriterText text="Resource Allocation" emphasis="soft" delayMs={100} className="text-white/75 font-rajdhani text-base tracking-[0.3em] uppercase" as="div" />
         <h2 className="text-white font-rajdhani font-bold text-2xl tracking-wider">
           <TypewriterText text="Distribute Your Budget" emphasis="headline" delayMs={300} charIntervalMs={35} />
         </h2>
-        <p className="text-white/30 font-mono text-[10px]">
+        <p className="text-white/65 font-mono text-sm">
           {regions.length} regions &times; 6 categories = {regions.length * 6} allocation points
         </p>
       </div>
@@ -613,18 +613,18 @@ export default function Step2Allocation() {
       {/* Budget summary bar */}
       <div className="flex justify-center gap-6 py-2">
         <div className="text-center">
-          <div className="text-white/90 font-mono text-sm font-bold">{formatBudget(gameTotalBudget)}</div>
-          <div className="text-white/40 font-rajdhani text-[10px] tracking-widest uppercase">Total</div>
+          <div className="text-white font-mono text-base font-bold">{formatBudget(gameTotalBudget)}</div>
+          <div className="text-white/70 font-rajdhani text-sm tracking-widest uppercase">Total</div>
         </div>
         <div className="text-center">
-          <div className="text-[#64b4dc] font-mono text-sm font-bold">{formatBudget(totalAllocated)}</div>
-          <div className="text-white/40 font-rajdhani text-[10px] tracking-widest uppercase">Allocated</div>
+          <div className="text-[#64b4dc] font-mono text-base font-bold">{formatBudget(totalAllocated)}</div>
+          <div className="text-white/70 font-rajdhani text-sm tracking-widest uppercase">Allocated</div>
         </div>
         <div className="text-center">
-          <div className={`font-mono text-sm font-bold ${remaining < 0 ? 'text-[#cc5566]' : 'text-white/70'}`}>
+          <div className={`font-mono text-base font-bold ${remaining < 0 ? 'text-[#cc5566]' : 'text-white/90'}`}>
             {formatBudget(Math.abs(remaining))}
           </div>
-          <div className="text-white/40 font-rajdhani text-[10px] tracking-widest uppercase">
+          <div className="text-white/70 font-rajdhani text-sm tracking-widest uppercase">
             {remaining >= 0 ? 'Remaining' : 'Over'}
           </div>
         </div>
@@ -634,11 +634,11 @@ export default function Step2Allocation() {
               type="number"
               value={gameResponseWindow}
               onChange={(e) => setGameResponseWindow(Number(e.target.value) || 72)}
-              className="w-12 bg-white/[0.06] border border-white/[0.1] rounded px-1.5 py-0.5 text-white/80 font-mono text-sm text-center focus:border-white/25 focus:outline-none"
+              className="w-12 bg-white/[0.06] border border-white/[0.1] rounded px-1.5 py-0.5 text-white/95 font-mono text-base text-center focus:border-white/60 focus:outline-none"
             />
-            <span className="text-white/35 font-mono text-[9px]">hrs</span>
+            <span className="text-white/65 font-mono text-sm">hrs</span>
           </div>
-          <div className="text-white/40 font-rajdhani text-[10px] tracking-widest uppercase">Window</div>
+          <div className="text-white/70 font-rajdhani text-sm tracking-widest uppercase">Window</div>
         </div>
       </div>
 
@@ -650,7 +650,7 @@ export default function Step2Allocation() {
             width: `${Math.min(utilizationPct, 100)}%`,
             background: remaining < 0
               ? 'linear-gradient(90deg, #cc5566, #aa3344)'
-              : 'linear-gradient(90deg, rgba(80,160,210,0.6), rgba(100,180,220,0.8))',
+              : 'linear-gradient(90deg, rgba(80,160,210,0.9), rgba(100,180,220,1))',
           }}
         />
       </div>
@@ -659,7 +659,7 @@ export default function Step2Allocation() {
       <div className="flex gap-3 items-start">
         {/* Left: 3D Donut */}
         <div className="shrink-0 w-[280px]">
-          <div className="text-white/25 font-rajdhani text-[9px] tracking-widest uppercase mb-1 text-center">
+          <div className="text-white/60 font-rajdhani text-sm tracking-widest uppercase mb-1 text-center">
             Budget by Category
           </div>
           <ClusterDonut3D
@@ -671,7 +671,7 @@ export default function Step2Allocation() {
             {CLUSTERS.map(c => (
               <div key={c} className="flex items-center gap-1.5">
                 <div className="w-2.5 h-2.5 rounded-sm" style={{ backgroundColor: CLUSTER_COLORS[c] }} />
-                <span className="text-white/50 font-rajdhani text-[9px]">{CLUSTER_SHORT[c]}</span>
+                <span className="text-white/75 font-rajdhani text-sm">{CLUSTER_SHORT[c]}</span>
               </div>
             ))}
           </div>
@@ -679,7 +679,7 @@ export default function Step2Allocation() {
 
         {/* Right: 2.5D Severity Height Map */}
         <div className="flex-1 min-w-0 overflow-hidden">
-          <div className="text-white/25 font-rajdhani text-[9px] tracking-widest uppercase mb-1 text-center">
+          <div className="text-white/60 font-rajdhani text-sm tracking-widest uppercase mb-1 text-center">
             Severity Height Map
           </div>
           <SeverityHeightMap data={terrainData} totalBudget={gameTotalBudget} activeIndex={regionIndex} />
@@ -688,7 +688,7 @@ export default function Step2Allocation() {
 
       {/* Single-region slider with left/right navigation */}
       <div className="relative">
-        <div className="text-white/25 font-rajdhani text-[9px] tracking-widest uppercase text-center pb-2">
+        <div className="text-white/60 font-rajdhani text-sm tracking-widest uppercase text-center pb-2">
           Region {regionIndex + 1} of {regions.length}
         </div>
 
@@ -697,7 +697,7 @@ export default function Step2Allocation() {
           <button
             onClick={goPrev}
             disabled={regionIndex === 0}
-            className="shrink-0 w-9 h-9 flex items-center justify-center rounded border border-white/[0.08] hover:border-white/[0.2] text-white/40 hover:text-white/70 transition-all disabled:opacity-10 disabled:cursor-not-allowed"
+            className="shrink-0 w-9 h-9 flex items-center justify-center rounded border border-white/[0.08] hover:border-white/[0.2] text-white/70 hover:text-white/90 transition-all disabled:opacity-10 disabled:cursor-not-allowed"
           >
             <span className="text-lg">&#9666;</span>
           </button>
@@ -708,36 +708,36 @@ export default function Step2Allocation() {
             className={`flex-1 overflow-hidden ${slideClass}`}
             style={{
               animation: slideDir ? undefined : 'none',
-              background: 'linear-gradient(180deg, rgba(0,0,2,0.85) 0%, rgba(0,0,4,0.9) 50%, rgba(0,0,3,0.85) 100%)',
-              border: '1px solid rgba(255,255,255,0.06)',
-              backgroundImage: 'radial-gradient(circle, rgba(255,255,255,0.012) 0.5px, transparent 0.5px)',
+              background: 'linear-gradient(180deg, rgba(0,0,2,1) 0%, rgba(0,0,4,1) 50%, rgba(0,0,3,1) 100%)',
+              border: '1px solid rgba(255,255,255,0.36)',
+              backgroundImage: 'radial-gradient(circle, rgba(255,255,255,0.312) 0.5px, transparent 0.5px)',
               backgroundSize: '10px 10px',
-              boxShadow: '0 4px 30px rgba(0,0,0,0.5), inset 0 1px 0 rgba(255,255,255,0.04)',
+              boxShadow: '0 4px 30px rgba(0,0,0,0.8), inset 0 1px 0 rgba(255,255,255,0.34)',
             }}
           >
             {/* Region header */}
-            <div className="px-4 py-3 flex items-center justify-between" style={{ borderBottom: '1px solid rgba(255,255,255,0.04)', background: 'rgba(255,255,255,0.015)' }}>
+            <div className="px-4 py-3 flex items-center justify-between" style={{ borderBottom: '1px solid rgba(255,255,255,0.34)', background: 'rgba(255,255,255,0.315)' }}>
               <div className="flex items-center gap-3">
                 <div
                   className="w-3 h-3 rounded-full shrink-0"
                   style={{
                     backgroundColor: cov
                       ? cov.severity > 0.7 ? '#cc4444' : cov.severity > 0.4 ? '#ccaa44' : '#44aa77'
-                      : 'rgba(255,255,255,0.15)',
+                      : 'rgba(255,255,255,0.45)',
                   }}
                 />
                 <div>
-                  <span className="text-white/90 font-rajdhani text-base font-bold tracking-wide">{currentRegion}</span>
+                  <span className="text-white font-rajdhani text-base font-bold tracking-wide">{currentRegion}</span>
                   {cov && (
-                    <div className="text-white/30 font-mono text-[9px] mt-0.5">
+                    <div className="text-white/65 font-mono text-sm mt-0.5">
                       Severity {(cov.severity * 10).toFixed(1)} &bull; {cov.need.toLocaleString()} people in need
                     </div>
                   )}
                 </div>
               </div>
               <div className="text-right">
-                <div className="text-[#64b4dc] font-mono text-sm font-bold">{formatBudget(regionTotal)}</div>
-                <div className="text-white/30 font-rajdhani text-[8px] tracking-widest uppercase">allocated</div>
+                <div className="text-[#64b4dc] font-mono text-base font-bold">{formatBudget(regionTotal)}</div>
+                <div className="text-white/65 font-rajdhani text-xs tracking-widest uppercase">allocated</div>
               </div>
             </div>
 
@@ -753,7 +753,7 @@ export default function Step2Allocation() {
                   <div key={cluster}>
                     <div className="flex items-center gap-2">
                       <div className="w-2 h-2 rounded-sm shrink-0" style={{ backgroundColor: color }} />
-                      <span className="text-white/55 font-rajdhani text-[10px] tracking-wide font-medium w-16 shrink-0">
+                      <span className="text-white/80 font-rajdhani text-sm tracking-wide font-medium w-16 shrink-0">
                         {CLUSTER_SHORT[cluster]}
                       </span>
                       <input
@@ -765,13 +765,13 @@ export default function Step2Allocation() {
                         onChange={(e) => handleClusterChange(currentRegion, cluster, Number(e.target.value))}
                         className="flex-1 h-[6px] appearance-none rounded-full cursor-pointer"
                         style={{
-                          background: `linear-gradient(to right, ${color} 0%, ${color} ${Math.min(fillPct, 100)}%, rgba(255,255,255,0.08) ${Math.min(fillPct, 100)}%, rgba(255,255,255,0.08) 100%)`,
+                          background: `linear-gradient(to right, ${color} 0%, ${color} ${Math.min(fillPct, 100)}%, rgba(255,255,255,0.38) ${Math.min(fillPct, 100)}%, rgba(255,255,255,0.38) 100%)`,
                         }}
                       />
-                      <span className="text-white/60 font-mono text-[9px] w-12 text-right shrink-0">{formatBudget(value)}</span>
+                      <span className="text-white/85 font-mono text-sm w-12 text-right shrink-0">{formatBudget(value)}</span>
                     </div>
                     {historicalVal > 0 && (
-                      <div className="text-white/20 font-mono text-[8px] ml-[88px]">
+                      <div className="text-white/60 font-mono text-xs ml-[88px]">
                         hist: {formatBudget(historicalVal)}
                       </div>
                     )}
@@ -785,7 +785,7 @@ export default function Step2Allocation() {
           <button
             onClick={goNext}
             disabled={regionIndex >= regions.length - 1}
-            className="shrink-0 w-9 h-9 flex items-center justify-center rounded border border-white/[0.08] hover:border-white/[0.2] text-white/40 hover:text-white/70 transition-all disabled:opacity-10 disabled:cursor-not-allowed"
+            className="shrink-0 w-9 h-9 flex items-center justify-center rounded border border-white/[0.08] hover:border-white/[0.2] text-white/70 hover:text-white/90 transition-all disabled:opacity-10 disabled:cursor-not-allowed"
           >
             <span className="text-lg">&#9656;</span>
           </button>
@@ -828,23 +828,23 @@ export default function Step2Allocation() {
           width: 14px;
           height: 14px;
           border-radius: 50%;
-          background: radial-gradient(circle at 40% 35%, rgba(255,255,255,0.95), rgba(180,200,220,0.8));
-          box-shadow: 0 0 6px rgba(100,180,230,0.4), 0 1px 3px rgba(0,0,0,0.5);
+          background: radial-gradient(circle at 40% 35%, rgba(255,255,255,1), rgba(180,200,220,1));
+          box-shadow: 0 0 6px rgba(100,180,230,0.7), 0 1px 3px rgba(0,0,0,0.8);
           cursor: pointer;
-          border: 1px solid rgba(255,255,255,0.1);
+          border: 1px solid rgba(255,255,255,0.4);
           transition: box-shadow 0.15s;
         }
         input[type="range"]::-webkit-slider-thumb:hover {
-          box-shadow: 0 0 12px rgba(100,180,230,0.6), 0 2px 6px rgba(0,0,0,0.5);
+          box-shadow: 0 0 12px rgba(100,180,230,0.9), 0 2px 6px rgba(0,0,0,0.8);
         }
         input[type="range"]::-moz-range-thumb {
           width: 14px;
           height: 14px;
           border-radius: 50%;
-          background: radial-gradient(circle at 40% 35%, rgba(255,255,255,0.95), rgba(180,200,220,0.8));
-          box-shadow: 0 0 6px rgba(100,180,230,0.4), 0 1px 3px rgba(0,0,0,0.5);
+          background: radial-gradient(circle at 40% 35%, rgba(255,255,255,1), rgba(180,200,220,1));
+          box-shadow: 0 0 6px rgba(100,180,230,0.7), 0 1px 3px rgba(0,0,0,0.8);
           cursor: pointer;
-          border: 1px solid rgba(255,255,255,0.1);
+          border: 1px solid rgba(255,255,255,0.4);
         }
       `}</style>
     </div>

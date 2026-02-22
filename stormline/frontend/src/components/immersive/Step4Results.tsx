@@ -21,6 +21,7 @@ import {
   StatReadout,
 } from '../mapvis/charts/ChartPrimitives'
 import AffectedAreaHeightMap from '../shared/AffectedAreaHeightMap'
+import InteractiveChartWrapper from '../shared/InteractiveChartWrapper'
 
 function formatBudget(n: number): string {
   if (n >= 1e9) return `$${(n / 1e9).toFixed(1)}B`
@@ -90,10 +91,10 @@ export default function Step4Results() {
     return (
       <div className="space-y-6 py-8">
         <div className="text-center">
-          <div className="text-white/20 font-rajdhani text-[9px] tracking-[0.3em] uppercase">
+          <div className="text-white/60 font-rajdhani text-sm tracking-[0.3em] uppercase">
             Loading Results
           </div>
-          <div className="text-white/15 font-mono text-[10px] mt-2">
+          <div className="text-white/60 font-mono text-sm mt-2">
             Waiting for analysis data...
           </div>
         </div>
@@ -114,8 +115,8 @@ export default function Step4Results() {
     <div className="space-y-6">
       {/* Title */}
       <div className="text-center space-y-1">
-        <TypewriterText text="Response Outcome" emphasis="soft" delayMs={100} className="text-white/20 font-rajdhani text-[9px] tracking-[0.3em] uppercase" as="div" />
-        <h2 className="text-white/80 font-rajdhani font-bold text-xl tracking-wider">
+        <TypewriterText text="Response Outcome" emphasis="soft" delayMs={100} className="text-white/60 font-rajdhani text-sm tracking-[0.3em] uppercase" as="div" />
+        <h2 className="text-white/95 font-rajdhani font-bold text-2xl tracking-wider">
           <TypewriterText text="Coverage Results" emphasis="headline" delayMs={300} charIntervalMs={40} />
         </h2>
       </div>
@@ -131,9 +132,10 @@ export default function Step4Results() {
           backgroundSize: '12px 12px',
         }}>
           {/* Coverage Gauges */}
-          <div style={{ fontFamily: "'Rajdhani', sans-serif", fontSize: '0.5rem', fontWeight: 600, color: 'rgba(255,255,255,0.2)', letterSpacing: '0.18em', textTransform: 'uppercase' as const, marginBottom: 4 }}>
+          <div style={{ fontFamily: "'Rajdhani', sans-serif", fontSize: '0.8rem', fontWeight: 600, color: 'rgba(255,255,255,0.5)', letterSpacing: '0.18em', textTransform: 'uppercase' as const, marginBottom: 4 }}>
             PLAN COVERAGE
           </div>
+          <InteractiveChartWrapper label="Plan Coverage" explanation="Three coverage gauges comparing your allocation plan, the ML-optimized ideal, and the historical response. The gap between your plan and the ML ideal shows where your intuition diverged from data-driven optimization.">
           <div style={{ display: 'flex', justifyContent: 'space-around', marginBottom: 2 }}>
             <CircularGauge
               value={Math.round(avgUserCoverage * 100)}
@@ -156,6 +158,7 @@ export default function Step4Results() {
               alert={avgRealCoverage < 0.4}
             />
           </div>
+          </InteractiveChartWrapper>
 
           <div style={{ height: 1, background: 'rgba(255,255,255,0.04)', margin: '6px 0', flexShrink: 0 }} />
 
@@ -169,9 +172,10 @@ export default function Step4Results() {
           <div style={{ height: 1, background: 'rgba(255,255,255,0.04)', margin: '6px 0', flexShrink: 0 }} />
 
           {/* TriangularAreaFill — user coverage vs ML coverage */}
-          <div style={{ fontFamily: "'Rajdhani', sans-serif", fontSize: '0.5rem', fontWeight: 600, color: 'rgba(255,255,255,0.2)', letterSpacing: '0.18em', textTransform: 'uppercase' as const, marginBottom: 4 }}>
+          <div style={{ fontFamily: "'Rajdhani', sans-serif", fontSize: '0.8rem', fontWeight: 600, color: 'rgba(255,255,255,0.5)', letterSpacing: '0.18em', textTransform: 'uppercase' as const, marginBottom: 4 }}>
             YOUR PLAN / ML DIVERGENCE
           </div>
+          <InteractiveChartWrapper label="Your Plan / ML Divergence" explanation="The shaded area between your coverage curve and the ML ideal reveals divergence patterns. Wider gaps indicate regions where your allocation strategy differed most from the computed optimal distribution.">
           <div style={{ marginBottom: 2 }}>
             <TriangularAreaFill
               dataA={userCoverageSeries.length > 1 ? userCoverageSeries : [0, 50]}
@@ -182,13 +186,15 @@ export default function Step4Results() {
               accentColor={avgUserCoverage < avgMlCoverage ? 'rgba(255,160,60,0.6)' : 'rgba(100,180,220,0.5)'}
             />
           </div>
+          </InteractiveChartWrapper>
 
           <div style={{ height: 1, background: 'rgba(255,255,255,0.04)', margin: '6px 0', flexShrink: 0 }} />
 
           {/* RidgeChart — all three coverage profiles */}
-          <div style={{ fontFamily: "'Rajdhani', sans-serif", fontSize: '0.5rem', fontWeight: 600, color: 'rgba(255,255,255,0.2)', letterSpacing: '0.18em', textTransform: 'uppercase' as const, marginBottom: 4 }}>
+          <div style={{ fontFamily: "'Rajdhani', sans-serif", fontSize: '0.8rem', fontWeight: 600, color: 'rgba(255,255,255,0.5)', letterSpacing: '0.18em', textTransform: 'uppercase' as const, marginBottom: 4 }}>
             COVERAGE PROFILES
           </div>
+          <InteractiveChartWrapper label="Coverage Profiles" explanation="Three layered coverage profiles across all regions. The overlap pattern shows where all three approaches (yours, ML, historical) aligned. Separation between layers highlights strategic disagreements.">
           <div style={{ marginBottom: 2 }}>
             <RidgeChart
               series={[
@@ -206,13 +212,15 @@ export default function Step4Results() {
               ]}
             />
           </div>
+          </InteractiveChartWrapper>
 
           <div style={{ height: 1, background: 'rgba(255,255,255,0.04)', margin: '6px 0', flexShrink: 0 }} />
 
           {/* SegmentedHorizontalBars — per-region user coverage */}
-          <div style={{ fontFamily: "'Rajdhani', sans-serif", fontSize: '0.5rem', fontWeight: 600, color: 'rgba(255,255,255,0.2)', letterSpacing: '0.18em', textTransform: 'uppercase' as const, marginBottom: 4 }}>
+          <div style={{ fontFamily: "'Rajdhani', sans-serif", fontSize: '0.8rem', fontWeight: 600, color: 'rgba(255,255,255,0.5)', letterSpacing: '0.18em', textTransform: 'uppercase' as const, marginBottom: 4 }}>
             REGIONAL COVERAGE
           </div>
+          <InteractiveChartWrapper label="Regional Coverage" explanation="Per-region coverage achieved by your plan. Amber bars indicate regions exceeding 70% coverage. Shorter bars may need increased allocation to improve humanitarian outcomes.">
           <div style={{ marginBottom: 2 }}>
             <SegmentedHorizontalBars
               bars={regionData.slice(0, 6).map((r: any) => ({
@@ -224,6 +232,7 @@ export default function Step4Results() {
               height={Math.min(regionData.length, 6) * 16 + 8}
             />
           </div>
+          </InteractiveChartWrapper>
         </div>
 
         {/* Right Panel — Gap Analysis */}
@@ -235,9 +244,10 @@ export default function Step4Results() {
           backgroundSize: '12px 12px',
         }}>
           {/* FanBurst — gap dispersion */}
-          <div style={{ fontFamily: "'Rajdhani', sans-serif", fontSize: '0.5rem', fontWeight: 600, color: 'rgba(255,255,255,0.2)', letterSpacing: '0.18em', textTransform: 'uppercase' as const, marginBottom: 4 }}>
+          <div style={{ fontFamily: "'Rajdhani', sans-serif", fontSize: '0.8rem', fontWeight: 600, color: 'rgba(255,255,255,0.5)', letterSpacing: '0.18em', textTransform: 'uppercase' as const, marginBottom: 4 }}>
             COVERAGE GAP DISPERSION
           </div>
+          <InteractiveChartWrapper label="Coverage Gap Dispersion" explanation="Radiating lines show how coverage gaps are distributed across regions. Longer, brighter lines indicate larger gaps. A concentrated fan suggests the gap is localized; a wide fan indicates systemic under-coverage.">
           <div style={{ marginBottom: 2 }}>
             <FanBurst
               values={gapSeries.length > 1 ? gapSeries : [0, 50]}
@@ -247,11 +257,12 @@ export default function Step4Results() {
               accentColor={avgRealCoverage < avgMlCoverage ? 'rgba(255,160,60,0.4)' : 'rgba(100,220,120,0.3)'}
             />
           </div>
+          </InteractiveChartWrapper>
 
           <div style={{ height: 1, background: 'rgba(255,255,255,0.04)', margin: '6px 0', flexShrink: 0 }} />
 
           {/* Gap stats */}
-          <div style={{ fontFamily: "'Rajdhani', sans-serif", fontSize: '0.5rem', fontWeight: 600, color: 'rgba(255,255,255,0.2)', letterSpacing: '0.18em', textTransform: 'uppercase' as const, marginBottom: 4 }}>
+          <div style={{ fontFamily: "'Rajdhani', sans-serif", fontSize: '0.8rem', fontWeight: 600, color: 'rgba(255,255,255,0.5)', letterSpacing: '0.18em', textTransform: 'uppercase' as const, marginBottom: 4 }}>
             GAP METRICS
           </div>
           <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '4px 8px', marginBottom: 2 }}>
@@ -266,9 +277,10 @@ export default function Step4Results() {
           <div style={{ height: 1, background: 'rgba(255,255,255,0.04)', margin: '6px 0', flexShrink: 0 }} />
 
           {/* MountainSilhouette — unmet need distribution */}
-          <div style={{ fontFamily: "'Rajdhani', sans-serif", fontSize: '0.5rem', fontWeight: 600, color: 'rgba(255,255,255,0.2)', letterSpacing: '0.18em', textTransform: 'uppercase' as const, marginBottom: 4 }}>
+          <div style={{ fontFamily: "'Rajdhani', sans-serif", fontSize: '0.8rem', fontWeight: 600, color: 'rgba(255,255,255,0.5)', letterSpacing: '0.18em', textTransform: 'uppercase' as const, marginBottom: 4 }}>
             UNMET NEED DENSITY
           </div>
+          <InteractiveChartWrapper label="Unmet Need Density" explanation="Terrain profile of unmet humanitarian need across regions. Peaks represent areas where response fell short. The secondary profile shows historical coverage for comparison.">
           <div style={{ marginBottom: 2 }}>
             <MountainSilhouette
               data={unmetNeedSeries.length > 1 ? unmetNeedSeries : [0, 100]}
@@ -279,13 +291,15 @@ export default function Step4Results() {
               secondaryData={realCoverageSeries.length > 1 ? realCoverageSeries : [0, 50]}
             />
           </div>
+          </InteractiveChartWrapper>
 
           <div style={{ height: 1, background: 'rgba(255,255,255,0.04)', margin: '6px 0', flexShrink: 0 }} />
 
           {/* ThinVerticalBars — budget distribution */}
-          <div style={{ fontFamily: "'Rajdhani', sans-serif", fontSize: '0.5rem', fontWeight: 600, color: 'rgba(255,255,255,0.2)', letterSpacing: '0.18em', textTransform: 'uppercase' as const, marginBottom: 4 }}>
+          <div style={{ fontFamily: "'Rajdhani', sans-serif", fontSize: '0.8rem', fontWeight: 600, color: 'rgba(255,255,255,0.5)', letterSpacing: '0.18em', textTransform: 'uppercase' as const, marginBottom: 4 }}>
             BUDGET ALLOCATION
           </div>
+          <InteractiveChartWrapper label="Budget Allocation" explanation="Your budget distribution across regions. Compare bar heights against the coverage and gap data — some high-budget regions may show diminishing returns while low-budget regions might benefit more from additional funding.">
           <div style={{ marginBottom: 2 }}>
             <ThinVerticalBars
               data={budgetSeries.length > 1 ? budgetSeries : [0, 100]}
@@ -296,13 +310,15 @@ export default function Step4Results() {
               unit="Budget ($)"
             />
           </div>
+          </InteractiveChartWrapper>
 
           <div style={{ height: 1, background: 'rgba(255,255,255,0.04)', margin: '6px 0', flexShrink: 0 }} />
 
           {/* PerspectiveGrid — coverage depth */}
-          <div style={{ fontFamily: "'Rajdhani', sans-serif", fontSize: '0.5rem', fontWeight: 600, color: 'rgba(255,255,255,0.2)', letterSpacing: '0.18em', textTransform: 'uppercase' as const, marginBottom: 4 }}>
+          <div style={{ fontFamily: "'Rajdhani', sans-serif", fontSize: '0.8rem', fontWeight: 600, color: 'rgba(255,255,255,0.5)', letterSpacing: '0.18em', textTransform: 'uppercase' as const, marginBottom: 4 }}>
             COVERAGE STRATA
           </div>
+          <InteractiveChartWrapper label="Coverage Strata" explanation="A 3D depth view of your coverage performance across regions. Front bars show current achievement while receding layers suggest coverage stability over the response window.">
           <div style={{ marginBottom: 2 }}>
             <PerspectiveGrid
               data={userCoverageSeries.length > 1 ? userCoverageSeries : [0, 50]}
@@ -312,6 +328,7 @@ export default function Step4Results() {
               rows={5}
             />
           </div>
+          </InteractiveChartWrapper>
         </div>
       </div>
 
@@ -325,20 +342,21 @@ export default function Step4Results() {
           backgroundSize: '12px 12px',
         }}>
           <div className="flex items-center justify-between mb-2">
-            <div style={{ fontFamily: "'Rajdhani', sans-serif", fontSize: '0.5rem', fontWeight: 600, color: 'rgba(255,255,255,0.2)', letterSpacing: '0.18em', textTransform: 'uppercase' as const }}>
+            <div style={{ fontFamily: "'Rajdhani', sans-serif", fontSize: '0.8rem', fontWeight: 600, color: 'rgba(255,255,255,0.5)', letterSpacing: '0.18em', textTransform: 'uppercase' as const }}>
               YOUR PLAN vs ML IDEAL — COVERAGE TERRAIN
             </div>
             <div className="flex items-center gap-3">
               <div className="flex items-center gap-1">
                 <div className="w-2 h-2 rounded-sm" style={{ background: 'rgba(100,180,230,0.6)' }} />
-                <span className="text-white/30 font-mono text-[7px]">Your Plan</span>
+                <span className="text-white/65 font-mono text-xs">Your Plan</span>
               </div>
               <div className="flex items-center gap-1">
                 <div className="w-2 h-2 rounded-sm" style={{ background: 'rgba(136,85,170,0.6)' }} />
-                <span className="text-white/30 font-mono text-[7px]">ML Ideal</span>
+                <span className="text-white/65 font-mono text-xs">ML Ideal</span>
               </div>
             </div>
           </div>
+          <InteractiveChartWrapper label="Coverage Terrain Comparison" explanation="A 2.5D terrain comparing your plan (blue) against the ML ideal (purple). Height represents coverage intensity. Regions where the ML ideal towers over yours suggest opportunities for reallocation.">
           <AffectedAreaHeightMap
             data={regionData.map((r: any) => ({
               region: r.region,
@@ -351,12 +369,13 @@ export default function Step4Results() {
             height={200}
             theme="coverage"
           />
+          </InteractiveChartWrapper>
         </div>
       )}
 
       {/* Anchored insight */}
       <div className="text-center border-t border-white/[0.06] pt-4">
-        <div className="text-white/40 font-mono text-[10px] leading-relaxed max-w-md mx-auto">
+        <div className="text-white/70 font-mono text-sm leading-relaxed max-w-md mx-auto">
           {totalMlCovered > totalRealCovered
             ? `ML-optimal allocation could reach ${(totalMlCovered - totalRealCovered).toLocaleString()} more people than the historical response.`
             : `Historical response reached ${(totalRealCovered - totalMlCovered).toLocaleString()} more people than the ML model predicted as optimal.`

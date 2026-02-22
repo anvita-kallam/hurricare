@@ -113,7 +113,6 @@ export default function AllocationPanel() {
                 value={currentBudget}
                 onChange={(e) => {
                   handleAllocationChange(region, parseFloat(e.target.value))
-                  playSliderStretch()
                 }}
                 className="w-full accent-cyan-500"
               />
