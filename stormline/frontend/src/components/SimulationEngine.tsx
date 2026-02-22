@@ -1,13 +1,6 @@
 import { useState, useEffect, useMemo, useRef } from 'react'
 import axios from 'axios'
 import { useStore } from '../state/useStore'
-import {
-  FundingVsNeedHeatmap,
-  CoverageGapChart,
-  RegionalHeatmap,
-  OutcomeRadarChart,
-  SeverityVsFundingScatter
-} from './DataVisualizations'
 import NarrativePopup from './NarrativePopup'
 import LocalizedAffectedMap from './LocalizedAffectedMap'
 
@@ -57,14 +50,15 @@ const CLUSTERS = [
   'Early Recovery'
 ] as const
 
+// Processing pipeline stages
+type PipelineStage = 'idle' | 'validating' | 'ml_generating' | 'real_loading' | 'analyzing' | 'complete'
+
 interface SimulationEngineProps {
   onStartSimulation?: () => void
 }
 
 export default function SimulationEngine({ onStartSimulation }: SimulationEngineProps = {}) {
   const { selectedHurricane, coverage, projects, setLastSimulationScore, setLeaderboardOpen, cinematicCompleted, setCinematicCompleted, isCinematicPlaying, setCinematicPlaying, setSelectedHurricane, setShowComparisonPage, setComparisonData } = useStore()
-  const [stage, setStage] = useState<1 | 2 | 3 | 'comparison'>(1)
-  // Cluster-based allocations per region: { region: { cluster: budget } }
   const [clusterAllocations, setClusterAllocations] = useState<Record<string, Record<string, number>>>({})
   const [totalBudget, setTotalBudget] = useState(50000000)
   const [responseWindow, setResponseWindow] = useState(72)
@@ -78,13 +72,22 @@ export default function SimulationEngine({ onStartSimulation }: SimulationEngine
   const [narrativePopup, setNarrativePopup] = useState<{title: string, message: string, type?: 'info' | 'warning' | 'success' | 'story'} | null>(null)
   const [showAffectedMap, setShowAffectedMap] = useState(false)
 
-  // Get regions from coverage data (like AllocationPanel)
+  // Pipeline tracking
+  const [pipelineStage, setPipelineStage] = useState<PipelineStage>('idle')
+  const [pipelineProgress, setPipelineProgress] = useState(0)
+  const [expandedRegion, setExpandedRegion] = useState<string | null>(null)
+
+  // Get regions from coverage data, falling back to affected_countries
   const regions = useMemo(() => {
     if (!selectedHurricane) return []
-    return coverage
+    const fromCoverage = coverage
       .filter(c => c.hurricane_id === selectedHurricane.id)
       .map(c => c.admin1)
       .filter((v, i, a) => a.indexOf(v) === i)
+    if (fromCoverage.length > 0) return fromCoverage
+    // Fallback: use affected_countries as region names
+    return (selectedHurricane.affected_countries || [])
+      .filter((v: string, i: number, a: string[]) => a.indexOf(v) === i)
   }, [selectedHurricane, coverage])
 
   // Get current coverage data
@@ -99,7 +102,7 @@ export default function SimulationEngine({ onStartSimulation }: SimulationEngine
     return result
   }, [selectedHurricane, coverage])
 
-  // Get cluster budgets per region (current allocation per cluster per region)
+  // Get cluster budgets per region
   const clusterBudgetsByRegion = useMemo(() => {
     if (!selectedHurricane) return {}
     const result: Record<string, Record<string, number>> = {}
@@ -123,7 +126,6 @@ export default function SimulationEngine({ onStartSimulation }: SimulationEngine
           setTotalBudget(budgetRes.data.total_budget || 50000000)
         } catch (error) {
           console.error('Error loading budget:', error)
-          // Calculate from coverage if API fails
           const total = coverage
             .filter(c => c.hurricane_id === selectedHurricane.id)
             .reduce((sum, c) => sum + c.pooled_fund_budget, 0)
@@ -133,7 +135,7 @@ export default function SimulationEngine({ onStartSimulation }: SimulationEngine
       loadBudget()
     }
   }, [selectedHurricane, coverage])
-  
+
   // Show narrative pop-up AFTER cinematic completes (only once)
   const narrativeShownRef = useRef(false)
   useEffect(() => {
@@ -146,7 +148,7 @@ export default function SimulationEngine({ onStartSimulation }: SimulationEngine
       })
     }
   }, [selectedHurricane, cinematicCompleted, isCinematicPlaying])
-  
+
   // Reset narrative shown flag when hurricane changes
   useEffect(() => {
     narrativeShownRef.current = false
@@ -174,27 +176,25 @@ export default function SimulationEngine({ onStartSimulation }: SimulationEngine
       if (!newAllocations[region]) {
         newAllocations[region] = {}
       }
-      
-      // Calculate total allocated across all regions and clusters
+
       const currentTotal = Object.values(prev).reduce((sum, regionAllocs) => {
         return sum + Object.values(regionAllocs).reduce((s, v) => s + (v || 0), 0)
       }, 0)
-      
+
       const currentClusterValue = prev[region]?.[cluster] || 0
       const newTotal = currentTotal - currentClusterValue + value
-      
-      // Prevent exceeding total budget
+
       if (newTotal > totalBudget) {
         const remaining = totalBudget - (currentTotal - currentClusterValue)
         newAllocations[region][cluster] = Math.max(0, Math.min(value, remaining))
       } else {
         newAllocations[region][cluster] = Math.max(0, value)
       }
-      
+
       return newAllocations
     })
   }
-  
+
   const getRemainingBudget = () => {
     const allocated = Object.values(clusterAllocations).reduce((sum, regionAllocs) => {
       return sum + Object.values(regionAllocs).reduce((s, v) => s + (v || 0), 0)
@@ -222,31 +222,44 @@ export default function SimulationEngine({ onStartSimulation }: SimulationEngine
     return totalBudget - otherRegionsTotal - regionTotal
   }
 
-  const validateUserPlan = async () => {
+  // ─── Automated Pipeline: Submit → Generate ML → Load Real → Analyze → Open CommandCenter ───
+
+  const runFullPipeline = async () => {
     if (!selectedHurricane) return
-    
+
     setLoading(true)
-    setValidation(null) // Clear previous validation
-    
+    setValidation(null)
+
     try {
-      // Sum cluster allocations per region
+      // ─── Step 1: Validate user plan ───
+      setPipelineStage('validating')
+      setPipelineProgress(10)
+
+      // Only include regions the backend knows about (from coverage/severity data)
+      const knownRegions = new Set(
+        coverage
+          .filter(c => c.hurricane_id === selectedHurricane.id)
+          .map(c => c.admin1)
+      )
       const completeAllocations: Record<string, number> = {}
       regions.forEach(region => {
+        if (knownRegions.size > 0 && !knownRegions.has(region)) return
         const regionTotal = Object.values(clusterAllocations[region] || {}).reduce((sum, v) => sum + (v || 0), 0)
         completeAllocations[region] = regionTotal
       })
-      
-      const res = await axios.post(`${API_BASE}/simulation/stage1/user-plan`, {
+
+      const userRes = await axios.post(`${API_BASE}/simulation/stage1/user-plan`, {
         hurricane_id: selectedHurricane.id,
         allocations: completeAllocations,
         total_budget: totalBudget,
         response_window_hours: responseWindow
       })
-      
-      setUserPlan(res.data)
-      setValidation(null) // Clear validation on success
-      
-      // Run allocation simulation to show results
+
+      const newUserPlan = userRes.data
+      setUserPlan(newUserPlan)
+      setPipelineProgress(25)
+
+      // Run simulation for score
       try {
         const simRes = await axios.post(`${API_BASE}/simulate_allocation`, {
           hurricane_id: selectedHurricane.id,
@@ -260,21 +273,66 @@ export default function SimulationEngine({ onStartSimulation }: SimulationEngine
       } catch (error) {
         console.error('Error running simulation:', error)
       }
-      
-      // Show narrative pop-up about user plan completion
-      setNarrativePopup({
-        title: 'Your Response Plan Complete',
-        message: `You've allocated $${getTotalAllocated().toLocaleString()} across ${regions.length} affected regions. Your plan prioritizes specific humanitarian clusters in each region. Now let's see how an AI-optimized plan would allocate the same resources based on UN humanitarian principles.`,
-        type: 'success'
+
+      // ─── Step 2: Generate ML plan ───
+      setPipelineStage('ml_generating')
+      setPipelineProgress(40)
+
+      const mlRes = await axios.post(`${API_BASE}/simulation/stage2/ml-ideal-plan`, {
+        hurricane_id: selectedHurricane.id,
+        allocations: {},
+        total_budget: totalBudget,
+        response_window_hours: responseWindow
       })
-      
-      setStage(2)
-      // Auto-generate ML plan when moving to stage 2
+
+      const newMlPlan = mlRes.data
+      setMlPlan(newMlPlan)
+      setPipelineProgress(60)
+
+      // ─── Step 3: Load real-world data ───
+      setPipelineStage('real_loading')
+      setPipelineProgress(70)
+
+      const realRes = await axios.get(`${API_BASE}/simulation/stage3/real-world/${selectedHurricane.id}`)
+      const newRealPlan = realRes.data
+      setRealPlan(newRealPlan)
+      setPipelineProgress(80)
+
+      // ─── Step 4: Generate mismatch analysis ───
+      setPipelineStage('analyzing')
+      setPipelineProgress(90)
+
+      let newMismatchAnalysis = null
+      try {
+        const mismatchRes = await axios.post(`${API_BASE}/simulation/mismatch-analysis`, {
+          ideal_plan: newMlPlan,
+          real_plan: newRealPlan
+        })
+        newMismatchAnalysis = mismatchRes.data
+        setMismatchAnalysis(newMismatchAnalysis)
+      } catch (error) {
+        console.error('Error generating mismatch analysis:', error)
+      }
+
+      setPipelineStage('complete')
+      setPipelineProgress(100)
+
+      // ─── Step 5: Transition to CommandCenter ───
       setTimeout(() => {
-        generateMLPlan()
-      }, 500)
+        setComparisonData({
+          userPlan: newUserPlan,
+          mlPlan: newMlPlan,
+          realPlan: newRealPlan,
+          mismatchAnalysis: newMismatchAnalysis
+        })
+        setShowComparisonPage(true)
+      }, 800)
+
     } catch (error: any) {
-      console.error('Error creating user plan:', error)
+      console.error('Pipeline error:', error)
+      setPipelineStage('idle')
+      setPipelineProgress(0)
+
       if (error.response?.status === 400) {
         const detail = error.response.data.detail
         setValidation({
@@ -285,83 +343,10 @@ export default function SimulationEngine({ onStartSimulation }: SimulationEngine
       } else {
         setValidation({
           valid: false,
-          errors: ['Failed to create plan. Please try again.'],
+          errors: ['Failed to process plan. Please try again.'],
           warnings: []
         })
       }
-    } finally {
-      setLoading(false)
-    }
-  }
-
-  const generateMLPlan = async () => {
-    if (!selectedHurricane) return
-    
-    setLoading(true)
-    try {
-      const res = await axios.post(`${API_BASE}/simulation/stage2/ml-ideal-plan`, {
-        hurricane_id: selectedHurricane.id,
-        allocations: {}, // Empty - not used for ML plan
-        total_budget: totalBudget,
-        response_window_hours: responseWindow
-      })
-      
-      setMlPlan(res.data)
-      
-      // Show narrative pop-up about ML plan
-      setNarrativePopup({
-        title: 'AI-Optimized Response Plan Generated',
-        message: `The AI has analyzed the crisis using United Nations humanitarian principles: • Humanity: Prioritizing life-saving interventions • Neutrality: Allocating without bias • Impartiality: Based on need alone • Equity: Fair distribution across regions • Sustainability: Long-term recovery focus. Compare your plan with this optimized allocation.`,
-        type: 'info'
-      })
-      
-      // Stay on Stage 2 to show the ML plan
-    } catch (error: any) {
-      console.error('Error generating ML plan:', error)
-      if (error.response) {
-        console.error('Response data:', error.response.data)
-      }
-      setValidation({
-        valid: false,
-        errors: ['Failed to generate ML plan. Please try again.'],
-        warnings: []
-      })
-    } finally {
-      setLoading(false)
-    }
-  }
-
-  const proceedToRealWorld = async () => {
-    if (!selectedHurricane || !mlPlan) return
-    
-    setLoading(true)
-    try {
-      const res = await axios.get(`${API_BASE}/simulation/stage3/real-world/${selectedHurricane.id}`)
-      setRealPlan(res.data)
-      
-      // Generate mismatch analysis (compare ML ideal vs real-world)
-      if (mlPlan && res.data) {
-        try {
-          const mismatchRes = await axios.post(`${API_BASE}/simulation/mismatch-analysis`, {
-            ideal_plan: mlPlan,
-            real_plan: res.data
-          })
-          setMismatchAnalysis(mismatchRes.data)
-        } catch (error) {
-          console.error('Error generating mismatch analysis:', error)
-        }
-      }
-      
-      // Show narrative pop-up about real-world response
-      setNarrativePopup({
-        title: 'Historical Response Revealed',
-        message: `This is how ${selectedHurricane.name} was actually handled in ${selectedHurricane.year}. Real-world humanitarian response faces constraints you might not see: political pressures, logistics bottlenecks, security challenges, and competing priorities. Compare your plan, the AI's ideal plan, and what actually happened.`,
-        type: 'warning'
-      })
-      
-      setStage(3)
-    } catch (error) {
-      console.error('Error loading real-world plan:', error)
     } finally {
       setLoading(false)
     }
@@ -374,19 +359,17 @@ export default function SimulationEngine({ onStartSimulation }: SimulationEngine
     const regions = selectedHurricane.affected_countries || []
     const intensity: Record<string, number> = {}
 
-    // Calculate intensity based on coverage and severity
     regions.forEach(region => {
       const regionCoverage = coverage.find(
         c => c.hurricane_id === selectedHurricane.id && c.admin1 === region
       )
       if (regionCoverage) {
-        // Intensity = combination of severity and coverage gap
         const severityWeight = Math.min((regionCoverage.severity_index || 0.5) / 10, 1)
-        const coverageGap = 1 - (regionCoverage.coverage_ratio || 0) // Unmet = 1 - coverage
+        const coverageGap = 1 - (regionCoverage.coverage_ratio || 0)
         const unmetWeight = coverageGap * 0.5
         intensity[region] = Math.min(severityWeight + unmetWeight, 1)
       } else {
-        intensity[region] = Math.random() * 0.8 // Default intensity if no coverage data
+        intensity[region] = Math.random() * 0.8
       }
     })
 
@@ -395,8 +378,11 @@ export default function SimulationEngine({ onStartSimulation }: SimulationEngine
 
   if (!selectedHurricane) {
     return (
-      <div className="bg-black/40 backdrop-blur-sm rounded-lg border border-cyan-500/30 p-4 glow-cyan">
-        <p className="text-cyan-300/80 font-exo">Please select a hurricane to begin simulation</p>
+      <div className="h-full flex items-center justify-center">
+        <div className="text-center space-y-2">
+          <div className="text-white/30 font-rajdhani text-sm tracking-widest uppercase">Select a Hurricane</div>
+          <div className="text-white/15 font-mono text-xs">to begin simulation</div>
+        </div>
       </div>
     )
   }
@@ -412,22 +398,25 @@ export default function SimulationEngine({ onStartSimulation }: SimulationEngine
       />
     )
   }
-  
+
   // Show "Start Simulation" button if hurricane is selected but cinematic hasn't played
   if (selectedHurricane && !cinematicCompleted && !isCinematicPlaying) {
     return (
       <div className="h-full flex items-center justify-center">
-        <div className="bg-black/40 backdrop-blur-sm rounded-lg border border-cyan-500/30 p-8 glow-cyan text-center space-y-4">
-          <div>
-            <h2 className="text-2xl font-bold text-glow-cyan font-orbitron mb-2">
-              {selectedHurricane.name} ({selectedHurricane.year})
+        <div className="text-center space-y-4 p-6">
+          <div className="space-y-1">
+            <h2 className="text-xl font-bold text-white/80 font-rajdhani tracking-wider">
+              {selectedHurricane.name}
             </h2>
-            <p className="text-sm text-cyan-400/80 mb-1">
-              Category {selectedHurricane.max_category} • {selectedHurricane.affected_countries.join(', ')}
-            </p>
-            <p className="text-sm text-cyan-300/70">
-              {selectedHurricane.estimated_population_affected.toLocaleString()} people affected
-            </p>
+            <div className="text-white/30 font-mono text-xs">
+              {selectedHurricane.year} — Category {selectedHurricane.max_category}
+            </div>
+            <div className="text-white/20 font-mono text-xs">
+              {selectedHurricane.affected_countries.join(', ')}
+            </div>
+            <div className="text-white/15 font-mono text-[10px] mt-1">
+              {selectedHurricane.estimated_population_affected.toLocaleString()} affected
+            </div>
           </div>
           <button
             onClick={() => {
@@ -435,13 +424,64 @@ export default function SimulationEngine({ onStartSimulation }: SimulationEngine
                 onStartSimulation()
               }
             }}
-            className="px-8 py-4 rounded-lg bg-cyan-600 hover:bg-cyan-500 text-white font-bold font-orbitron text-lg transition glow-cyan"
+            className="px-6 py-3 bg-white/[0.06] hover:bg-white/[0.1] text-white/70 hover:text-white/90 font-rajdhani font-semibold text-sm tracking-wider uppercase transition-all border border-white/[0.08] hover:border-white/[0.15]"
           >
-            Start Simulation
+            Initialize Simulation
           </button>
-          <p className="text-xs text-cyan-400/60 mt-2">
-            A brief cinematic will play showing the hurricane's progression
-          </p>
+          <div className="text-white/15 font-mono text-[9px]">
+            cinematic briefing will play
+          </div>
+        </div>
+      </div>
+    )
+  }
+
+  // ─── Processing State (pipeline running) ───
+  if (pipelineStage !== 'idle' && loading) {
+    const stageLabels: Record<PipelineStage, string> = {
+      idle: '',
+      validating: 'Validating your response plan',
+      ml_generating: 'Generating ML-optimized allocation',
+      real_loading: 'Loading historical response data',
+      analyzing: 'Running mismatch analysis',
+      complete: 'Analysis complete — entering results',
+    }
+
+    return (
+      <div className="h-full flex items-center justify-center">
+        <div className="w-full max-w-xs space-y-4 px-4">
+          <div className="text-white/40 font-rajdhani text-[10px] tracking-widest uppercase text-center">
+            Processing Simulation
+          </div>
+
+          {/* Progress bar */}
+          <div className="w-full h-[2px] bg-white/[0.04] rounded-full overflow-hidden sim-progress-bar">
+            <div
+              className="h-full bg-white/30 rounded-full transition-all duration-500 ease-out"
+              style={{ width: `${pipelineProgress}%` }}
+            />
+          </div>
+
+          {/* Stage label */}
+          <div className="text-white/25 font-mono text-[10px] text-center">
+            {stageLabels[pipelineStage]}
+          </div>
+
+          {/* Pipeline steps visualization */}
+          <div className="flex items-center justify-center gap-1 mt-2">
+            {(['validating', 'ml_generating', 'real_loading', 'analyzing', 'complete'] as PipelineStage[]).map((stage, i) => {
+              const isActive = pipelineStage === stage
+              const isPast = pipelineProgress > (i + 1) * 20
+              return (
+                <div
+                  key={stage}
+                  className={`w-1.5 h-1.5 rounded-full transition-all duration-300 ${
+                    isActive ? 'bg-white/50 scale-125' : isPast ? 'bg-white/20' : 'bg-white/[0.06]'
+                  }`}
+                />
+              )
+            })}
+          </div>
         </div>
       </div>
     )
@@ -460,498 +500,167 @@ export default function SimulationEngine({ onStartSimulation }: SimulationEngine
           autoClose={0}
         />
       )}
-      
-      <div className="bg-black/40 backdrop-blur-sm rounded-lg border border-cyan-500/30 p-4 h-full flex flex-col glow-cyan overflow-auto">
-      {/* Stage Indicator */}
-      <div className="mb-6 flex items-center justify-between border-b border-cyan-500/30 pb-4">
-        <div>
-          <h2 className="text-xl font-bold text-glow-cyan font-orbitron mb-2">Simulation Engine</h2>
-          <div className="flex gap-2">
-            <div className={`px-3 py-1 rounded text-xs font-orbitron ${
-              (typeof stage === 'number' && stage >= 1) || stage === 'comparison' ? 'bg-cyan-500/30 text-cyan-300' : 'bg-gray-700 text-gray-400'
-            }`}>
-              Stage 1: User Plan
+
+      <div className="sim-panel rounded p-3 h-full flex flex-col overflow-auto">
+        {/* Header */}
+        <div className="mb-4 pb-3 border-b border-white/[0.06]">
+          <div className="flex items-center justify-between">
+            <div>
+              <div className="text-white/60 font-rajdhani font-semibold text-sm tracking-wider">Response Plan</div>
+              <div className="text-white/20 font-mono text-[10px] mt-0.5">
+                {selectedHurricane.name} — {regions.length} regions
+              </div>
             </div>
-            <div className={`px-3 py-1 rounded text-xs font-orbitron ${
-              (typeof stage === 'number' && stage >= 2) || stage === 'comparison' ? 'bg-cyan-500/30 text-cyan-300' : 'bg-gray-700 text-gray-400'
-            }`}>
-              Stage 2: ML Ideal
-            </div>
-            <div className={`px-3 py-1 rounded text-xs font-orbitron ${
-              (typeof stage === 'number' && stage >= 3) || stage === 'comparison' ? 'bg-cyan-500/30 text-cyan-300' : 'bg-gray-700 text-gray-400'
-            }`}>
-              Stage 3: Real-World
-            </div>
-            <div className={`px-3 py-1 rounded text-xs font-orbitron ${
-              stage === 'comparison' ? 'bg-cyan-500/30 text-cyan-300' : 'bg-gray-700 text-gray-400'
-            }`}>
-              Comparison
+            <div className="text-right">
+              <div className="text-white/50 font-mono text-xs">${getTotalAllocated().toLocaleString()}</div>
+              <div className={`font-mono text-[10px] ${getRemainingBudget() < 0 ? 'text-[#cc5566]' : 'text-white/25'}`}>
+                {getRemainingBudget() >= 0 ? `$${getRemainingBudget().toLocaleString()} remaining` : 'Over budget'}
+              </div>
             </div>
           </div>
+
+          {/* Budget utilization bar */}
+          <div className="mt-2 h-[3px] bg-white/[0.04] rounded-full overflow-hidden">
+            <div
+              className="h-full rounded-full transition-all duration-300"
+              style={{
+                width: `${Math.min((getTotalAllocated() / totalBudget) * 100, 100)}%`,
+                backgroundColor: getRemainingBudget() < 0 ? '#cc5566' : 'rgba(255,255,255,0.2)',
+              }}
+            />
+          </div>
         </div>
-      </div>
 
-      {/* Stage 1: User Plan */}
-      {stage === 1 && (
-        <div className="flex-1 space-y-4">
-          <div className="bg-black/60 p-4 rounded border border-cyan-500/20">
-            <h3 className="text-lg font-semibold mb-4 text-cyan-200 font-orbitron">Design Your Response Plan</h3>
-            
-            <div className="space-y-4 mb-4">
-              <div className="bg-cyan-500/10 border border-cyan-500/30 p-3 rounded">
-                <div className="flex justify-between items-center mb-2">
-                  <label className="text-sm font-medium text-cyan-200 font-exo">Total Budget (Actual Funding)</label>
-                  <span className="text-lg font-semibold text-cyan-300 font-orbitron">
-                    ${totalBudget.toLocaleString()}
-                  </span>
-                </div>
-                <div className="flex justify-between items-center text-xs">
-                  <span className="text-cyan-300/70 font-exo">Allocated:</span>
-                  <span className="text-cyan-300 font-orbitron">
-                    ${getTotalAllocated().toLocaleString()}
-                  </span>
-                </div>
-                <div className="flex justify-between items-center text-xs mt-1">
-                  <span className="text-cyan-300/70 font-exo">Remaining:</span>
-                  <span className={`font-orbitron ${getRemainingBudget() < 0 ? 'text-red-400' : 'text-cyan-300'}`}>
-                    ${getRemainingBudget().toLocaleString()}
-                  </span>
-                </div>
-              </div>
-              
-              <div>
-                <label className="block text-sm font-medium mb-2 text-cyan-200 font-exo">Response Window (hours)</label>
-                <input
-                  type="number"
-                  value={responseWindow}
-                  onChange={(e) => setResponseWindow(Number(e.target.value))}
-                  className="w-full border border-cyan-500/30 rounded px-3 py-2 bg-black/60 text-cyan-200 focus:border-cyan-400 focus:glow-cyan font-exo"
-                />
-              </div>
+        {/* Response Window */}
+        <div className="mb-3 flex items-center gap-2">
+          <span className="text-white/25 font-rajdhani text-[10px] tracking-wider uppercase">Window</span>
+          <input
+            type="number"
+            value={responseWindow}
+            onChange={(e) => setResponseWindow(Number(e.target.value))}
+            className="w-16 border border-white/[0.06] rounded px-2 py-1 bg-black/40 text-white/60 text-xs font-mono focus:border-white/15 focus:outline-none"
+          />
+          <span className="text-white/15 font-mono text-[9px]">hrs</span>
+        </div>
+
+        {/* Cluster Allocation Per Region */}
+        <div className="flex-1 overflow-y-auto space-y-1.5 min-h-0">
+          {regions.length === 0 ? (
+            <div className="text-center py-8">
+              <div className="text-white/20 font-mono text-xs">No regions found</div>
             </div>
+          ) : (
+            regions.map(region => {
+              const cov = currentCoverage[region]
+              const regionClusterTotal = getRegionClusterTotal(region)
+              const remainingForRegion = getRemainingForRegion(region)
+              const isExpanded = expandedRegion === region
 
-            {/* Cluster Allocation Per Region */}
-            {regions.length === 0 ? (
-              <div className="text-center py-8 text-cyan-300/70 font-exo">
-                <div>No regions found. Please select a hurricane.</div>
-              </div>
-            ) : (
-              <div className="space-y-4 max-h-96 overflow-y-auto">
-                {regions.map(region => {
-                  const cov = currentCoverage[region]
-                  const regionClusterTotal = getRegionClusterTotal(region)
-                  const remainingForRegion = getRemainingForRegion(region)
-                  
-                  return (
-                    <div key={region} className="bg-black/50 p-4 rounded border border-cyan-500/30">
-                      <div className="flex justify-between items-center mb-3 pb-2 border-b border-cyan-500/20">
-                        <div>
-                          <div className="font-semibold text-cyan-200 font-exo text-lg">{region}</div>
-                          {cov && (
-                            <div className="text-xs text-cyan-300/70 font-exo mt-1">
-                              Severity: {cov.severity_index.toFixed(2)} • 
-                              People in Need: {cov.people_in_need.toLocaleString()} • 
-                              Current Total: ${cov.pooled_fund_budget.toLocaleString()}
-                            </div>
-                          )}
-                        </div>
-                        <div className="text-sm font-semibold text-cyan-300 font-orbitron">
-                          Region Total: ${regionClusterTotal.toLocaleString()}
-                        </div>
-                      </div>
-                      
-                      <div className="space-y-3">
-                        {CLUSTERS.map(cluster => {
-                          const currentAlloc = clusterAllocations[region]?.[cluster] || 0
-                          const currentBudget = clusterBudgetsByRegion[region]?.[cluster] || 0
-                          const maxForCluster = Math.max(0, currentAlloc + remainingForRegion)
-                          
-                          return (
-                            <div key={cluster} className="bg-black/40 p-3 rounded border border-cyan-500/20">
-                              <div className="flex justify-between items-center mb-2">
-                                <div>
-                                  <div className="font-medium text-cyan-200 font-exo">{cluster}</div>
-                                  {currentBudget > 0 && (
-                                    <div className="text-xs text-cyan-300/70 font-exo">
-                                      Current: ${currentBudget.toLocaleString()}
-                                    </div>
-                                  )}
-                                </div>
-                                <div className="text-sm font-semibold text-cyan-300 font-orbitron">
-                                  ${currentAlloc.toLocaleString()}
-                                </div>
-                              </div>
-                              <input
-                                type="range"
-                                min="0"
-                                max={maxForCluster}
-                                step={Math.max(1000, Math.floor(maxForCluster / 100))}
-                                value={currentAlloc}
-                                onChange={(e) => handleClusterAllocationChange(region, cluster, Number(e.target.value))}
-                                className="w-full accent-cyan-500"
-                              />
-                              <div className="flex justify-between text-xs text-cyan-400/60 mt-1 font-exo">
-                                <span>$0</span>
-                                <span>${maxForCluster.toLocaleString()}</span>
-                              </div>
-                            </div>
-                          )
-                        })}
-                      </div>
-                    </div>
-                  )
-                })}
-              </div>
-            )}
-
-            {validation && (
-              <div className="mt-4 space-y-2">
-                {validation.errors.length > 0 && (
-                  <div className="bg-red-500/20 border border-red-500/50 p-3 rounded text-sm text-red-300 font-exo">
-                    <div className="font-semibold mb-1">Errors:</div>
-                    <ul className="list-disc list-inside">
-                      {validation.errors.map((e, i) => <li key={i}>{e}</li>)}
-                    </ul>
-                  </div>
-                )}
-                {validation.warnings.length > 0 && (
-                  <div className="bg-yellow-500/20 border border-yellow-500/50 p-3 rounded text-sm text-yellow-300 font-exo">
-                    <div className="font-semibold mb-1">Warnings:</div>
-                    <ul className="list-disc list-inside">
-                      {validation.warnings.map((w, i) => <li key={i}>{w}</li>)}
-                    </ul>
-                  </div>
-                )}
-              </div>
-            )}
-
-            <button
-              onClick={validateUserPlan}
-              disabled={loading}
-              className="w-full mt-4 bg-cyan-600 text-white py-2 px-4 rounded hover:bg-cyan-700 disabled:bg-gray-600 disabled:text-gray-400 glow-cyan transition-all font-semibold font-orbitron"
-            >
-              {loading ? 'Validating & Simulating...' : 'Validate Plan & Proceed to Stage 2'}
-            </button>
-
-            {simulationResult && (
-              <div className="mt-4 p-4 bg-cyan-500/10 border border-cyan-500/30 rounded space-y-3 glow-cyan backdrop-blur-sm">
-                <div className="flex justify-between items-center mb-2">
-                  <h3 className="font-semibold text-glow-cyan font-orbitron">Budget Simulation Results</h3>
+              return (
+                <div
+                  key={region}
+                  className="bg-white/[0.02] rounded border border-white/[0.04] transition-all duration-200 hover:border-white/[0.08]"
+                >
                   <button
-                    onClick={() => setLeaderboardOpen(true)}
-                    className="px-3 py-1.5 rounded bg-yellow-500/30 hover:bg-yellow-500/50 text-yellow-200 text-xs font-semibold font-orbitron border border-yellow-500/50"
+                    onClick={() => setExpandedRegion(isExpanded ? null : region)}
+                    className="w-full text-left p-2.5 flex items-center justify-between"
                   >
-                    Submit to Leaderboard
+                    <div className="flex items-center gap-2">
+                      <div
+                        className="w-1.5 h-1.5 rounded-full"
+                        style={{
+                          backgroundColor: cov?.severity_index
+                            ? cov.severity_index > 5 ? '#cc4444' : cov.severity_index > 3 ? '#ccaa44' : '#44aa77'
+                            : 'rgba(255,255,255,0.15)',
+                        }}
+                      />
+                      <span className="text-white/60 font-rajdhani text-xs font-semibold tracking-wide">{region}</span>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <span className="text-white/30 font-mono text-[10px]">${regionClusterTotal.toLocaleString()}</span>
+                      <span className="text-white/15 text-[10px]">{isExpanded ? '▾' : '▸'}</span>
+                    </div>
                   </button>
+
+                  {isExpanded && (
+                    <div className="px-2.5 pb-2.5 space-y-2 cc-region-detail">
+                      {cov && (
+                        <div className="text-white/15 font-mono text-[9px] flex gap-3">
+                          <span>Sev: {cov.severity_index.toFixed(1)}</span>
+                          <span>Need: {cov.people_in_need.toLocaleString()}</span>
+                        </div>
+                      )}
+
+                      {CLUSTERS.map(cluster => {
+                        const currentAlloc = clusterAllocations[region]?.[cluster] || 0
+                        const currentBudget = clusterBudgetsByRegion[region]?.[cluster] || 0
+                        const sliderMax = totalBudget
+                        const fillPct = sliderMax > 0 ? (currentAlloc / sliderMax) * 100 : 0
+
+                        return (
+                          <div key={cluster} className="space-y-1">
+                            <div className="flex justify-between items-center">
+                              <span className="text-white/35 font-rajdhani text-[10px] tracking-wide">{cluster}</span>
+                              <span className="text-white/40 font-mono text-[9px]">${currentAlloc.toLocaleString()}</span>
+                            </div>
+                            <input
+                              type="range"
+                              min="0"
+                              max={sliderMax}
+                              step={Math.max(1000, Math.floor(sliderMax / 200))}
+                              value={currentAlloc}
+                              onChange={(e) => handleClusterAllocationChange(region, cluster, Number(e.target.value))}
+                              className="w-full h-1 appearance-none bg-white/[0.04] rounded-full cursor-pointer"
+                              style={{
+                                background: `linear-gradient(to right, rgba(255,255,255,0.15) 0%, rgba(255,255,255,0.15) ${fillPct}%, rgba(255,255,255,0.04) ${fillPct}%, rgba(255,255,255,0.04) 100%)`,
+                              }}
+                            />
+                            {currentBudget > 0 && (
+                              <div className="text-white/10 font-mono text-[8px]">historical: ${currentBudget.toLocaleString()}</div>
+                            )}
+                          </div>
+                        )
+                      })}
+                    </div>
+                  )}
                 </div>
-                
-                {/* Overall Impact Score */}
-                <div className="pb-2 border-b border-cyan-500/30">
-                  <div className="text-lg font-bold text-glow-cyan font-orbitron">
-                    Impact Score: {simulationResult.impact_score?.toFixed(0) || 'N/A'}
-                  </div>
-                </div>
-                
-                {/* Hard Priorities (Non-negotiable) */}
-                {simulationResult.hard_priorities && (
-                  <div className="pb-2 border-b border-cyan-500/30">
-                    <div className="font-semibold text-red-400 mb-1 glow font-orbitron">Hard Priorities (Non-negotiable):</div>
-                    <div className="text-xs space-y-1 pl-2 text-cyan-200 font-exo">
-                      <div>
-                        <span className="font-medium text-cyan-300">Lives Saved:</span> {Math.round(simulationResult.hard_priorities.lives_saved || 0).toLocaleString()}
-                      </div>
-                      <div>
-                        <span className="font-medium text-cyan-300">Suffering Reduced:</span> {Math.round(simulationResult.hard_priorities.suffering_reduced || 0).toLocaleString()} people
-                      </div>
-                      <div>
-                        <span className="font-medium text-cyan-300">Vulnerable Protected:</span> {Math.round(simulationResult.hard_priorities.vulnerable_protected || 0).toLocaleString()} people
-                      </div>
-                    </div>
-                  </div>
-                )}
-                
-                {/* Soft Priorities (Trade-offs) */}
-                {simulationResult.soft_priorities && (
-                  <div className="pb-2 border-b border-cyan-500/30">
-                    <div className="font-semibold text-orange-400 mb-1 glow font-orbitron">Soft Priorities (Trade-offs):</div>
-                    <div className="text-xs space-y-1 pl-2 text-cyan-200 font-exo">
-                      <div>
-                        <span className="font-medium text-cyan-300">Economic Loss Reduction:</span> ${Math.round(simulationResult.soft_priorities.economic_loss_reduction || 0).toLocaleString()}
-                      </div>
-                      <div>
-                        <span className="font-medium text-cyan-300">Resource Efficiency:</span> {simulationResult.soft_priorities.resource_efficiency?.toFixed(2) || 0}
-                      </div>
-                    </div>
-                  </div>
-                )}
-                
-                {/* Constraints (Penalties) */}
-                {simulationResult.constraints && (
-                  <div className="pb-2 border-b border-cyan-500/30">
-                    <div className="font-semibold text-yellow-400 mb-1 glow font-orbitron">Constraints (Penalties):</div>
-                    <div className="text-xs space-y-1 pl-2 text-cyan-200 font-exo">
-                      <div>
-                        <span className="font-medium text-cyan-300">Logistics Penalty:</span> {(simulationResult.constraints.logistics_penalty * 100 || 0).toFixed(1)}%
-                      </div>
-                      <div>
-                        <span className="font-medium text-cyan-300">Access/Security Penalty:</span> {(simulationResult.constraints.access_penalty * 100 || 0).toFixed(1)}%
-                      </div>
-                      <div className="font-semibold text-cyan-200">
-                        <span className="font-medium">Total Constraint Impact:</span> {(simulationResult.constraints.total_penalty * 100 || 0).toFixed(1)}%
-                      </div>
-                    </div>
-                  </div>
-                )}
-                
-                {/* Critical Metrics */}
-                <div className="pb-2 border-b border-cyan-500/30">
-                  <div className="font-semibold text-cyan-300 mb-1 font-orbitron">Critical Metrics:</div>
-                  <div className="text-xs space-y-1 pl-2 text-cyan-200 font-exo">
-                    <div>
-                      <span className="font-medium text-cyan-300">Unmet Need:</span> {Math.round(simulationResult.unmet_need || 0).toLocaleString()} people
-                    </div>
-                  </div>
-                </div>
-                
-                {/* Comparison */}
-                {simulationResult.comparison && (
-                  <div>
-                    <div className="font-semibold mb-1 text-cyan-200 font-orbitron">Comparison to Current Allocation:</div>
-                    <div className="text-xs space-y-1 pl-2 text-cyan-200 font-exo">
-                      <div>
-                        Current: {Math.round(simulationResult.comparison.current_lives_covered || 0).toLocaleString()} lives saved
-                      </div>
-                      <div>
-                        Your Plan: {Math.round(simulationResult.comparison.simulated_lives_covered || 0).toLocaleString()} lives saved
-                      </div>
-                      <div className={`font-semibold ${
-                        simulationResult.comparison.improvement > 0 ? 'text-green-400 glow-green' : 'text-red-400 glow'
-                      }`}>
-                        Improvement: {Math.round(simulationResult.comparison.improvement || 0).toLocaleString()} lives
-                      </div>
-                    </div>
-                  </div>
-                )}
+              )
+            })
+          )}
+        </div>
+
+        {/* Validation errors */}
+        {validation && (
+          <div className="mt-3 space-y-1.5">
+            {validation.errors.length > 0 && (
+              <div className="bg-[#cc5566]/10 border border-[#cc5566]/20 p-2 rounded text-[10px] text-[#cc5566]/80 font-mono">
+                {validation.errors.map((e, i) => <div key={i}>{e}</div>)}
+              </div>
+            )}
+            {validation.warnings.length > 0 && (
+              <div className="bg-[#ccaa44]/10 border border-[#ccaa44]/20 p-2 rounded text-[10px] text-[#ccaa44]/80 font-mono">
+                {validation.warnings.map((w, i) => <div key={i}>{w}</div>)}
               </div>
             )}
           </div>
-        </div>
-      )}
+        )}
 
-      {/* Stage 2: ML Ideal Plan */}
-      {stage === 2 && (
-        <div className="flex-1 space-y-4">
-          <div className="bg-black/60 p-4 rounded border border-cyan-500/20">
-            <h3 className="text-lg font-semibold mb-4 text-cyan-200 font-orbitron">ML-Generated Ideal Plan</h3>
-            
-            {loading && !mlPlan ? (
-              <div className="text-center py-8">
-                <div className="inline-block animate-spin rounded-full h-12 w-12 border-b-2 border-cyan-400 mb-4"></div>
-                <div className="text-cyan-300 font-exo">Generating optimal allocation...</div>
-              </div>
-            ) : mlPlan ? (
-              <div className="space-y-4">
-                {mlPlan.objective_scores && (
-                  <div>
-                    <div className="text-sm font-semibold mb-3 text-cyan-200 font-orbitron">UN Values Performance</div>
-                    <div className="grid grid-cols-2 gap-3">
-                      {Object.entries(mlPlan.objective_scores).map(([key, value]) => {
-                        const score = (value as number) * 100
-                        const width = Math.min(100, score)
-                        return (
-                          <div key={key} className="bg-black/40 p-3 rounded border border-cyan-500/20">
-                            <div className="flex justify-between items-center mb-2">
-                              <div className="text-xs text-cyan-300/70 font-exo capitalize">{key.replace('_', ' ')}</div>
-                              <div className="text-lg font-semibold text-cyan-300 font-orbitron">{score.toFixed(1)}%</div>
-                            </div>
-                            <div className="w-full bg-gray-700 rounded-full h-2 overflow-hidden">
-                              <div 
-                                className="h-full bg-gradient-to-r from-cyan-400 to-blue-400 transition-all duration-500 glow-cyan"
-                                style={{ width: `${width}%` }}
-                              ></div>
-                            </div>
-                          </div>
-                        )
-                      })}
-                    </div>
-                  </div>
-                )}
+        {/* Submit Button — runs full pipeline */}
+        <button
+          onClick={runFullPipeline}
+          disabled={loading}
+          className="w-full mt-3 py-2.5 text-white/60 hover:text-white/90 font-rajdhani font-semibold text-xs tracking-widest uppercase transition-all border border-white/[0.08] hover:border-white/[0.15] bg-white/[0.03] hover:bg-white/[0.06] disabled:opacity-30 disabled:cursor-not-allowed"
+        >
+          {loading ? 'Processing...' : 'Run Analysis'}
+        </button>
 
-                <div>
-                  <div className="text-sm font-semibold mb-3 text-cyan-200 font-orbitron">Ideal Allocation by Region</div>
-                  <div className="space-y-3 max-h-80 overflow-y-auto">
-                    {mlPlan.allocations
-                      .sort((a, b) => b.budget - a.budget)
-                      .map(alloc => {
-                        const budgetPercent = (alloc.budget / mlPlan.total_budget) * 100
-                        const coveragePercent = alloc.coverage_estimate.coverage_ratio * 100
-                        const peopleCovered = alloc.coverage_estimate.people_covered || 0
-                        const unmetNeed = alloc.coverage_estimate.unmet_need || 0
-                        return (
-                          <div key={alloc.region} className="bg-black/40 p-3 rounded border border-cyan-500/20">
-                            <div className="flex justify-between items-center mb-2">
-                              <div>
-                                <span className="text-cyan-200 font-exo font-semibold">{alloc.region}</span>
-                                <div className="text-xs text-cyan-300/70 font-exo mt-1">
-                                  People Covered: {peopleCovered.toLocaleString()} • 
-                                  Unmet Need: {unmetNeed.toLocaleString()}
-                                </div>
-                              </div>
-                              <span className="text-cyan-300 font-orbitron">${alloc.budget.toLocaleString()}</span>
-                            </div>
-                            
-                            {/* Budget allocation bar */}
-                            <div className="mb-2">
-                              <div className="flex justify-between text-xs text-cyan-300/70 mb-1 font-exo">
-                                <span>Budget: {budgetPercent.toFixed(1)}%</span>
-                                <span>Coverage: {coveragePercent.toFixed(1)}%</span>
-                              </div>
-                              <div className="w-full bg-gray-700 rounded-full h-3 overflow-hidden">
-                                <div 
-                                  className="h-full bg-gradient-to-r from-cyan-500 to-blue-500 transition-all duration-500 glow-cyan"
-                                  style={{ width: `${budgetPercent}%` }}
-                                ></div>
-                              </div>
-                            </div>
-                            
-                            {/* Coverage visualization */}
-                            <div className="flex items-center gap-2 text-xs text-cyan-300/70 font-exo">
-                              <div className="flex-1">
-                                <span className="text-green-400">✓</span> {alloc.coverage_estimate.people_covered.toLocaleString()} people covered
-                              </div>
-                              <div className="flex-1">
-                                <span className="text-red-400">✗</span> {alloc.coverage_estimate.unmet_need.toLocaleString()} unmet need
-                              </div>
-                            </div>
-                          </div>
-                        )
-                      })}
-                  </div>
-                </div>
-
-                {/* Visual comparison with user plan */}
-                {userPlan && (
-                  <div className="mt-4 p-3 bg-purple-500/10 border border-purple-500/30 rounded">
-                    <div className="text-sm font-semibold mb-2 text-purple-300 font-orbitron">Your Plan vs Ideal</div>
-                    <div className="space-y-2 text-xs font-exo">
-                      {mlPlan.allocations.map(mlAlloc => {
-                        const userAlloc = userPlan.allocations.find(a => a.region === mlAlloc.region)
-                        const diff = mlAlloc.budget - (userAlloc?.budget || 0)
-                        const diffPercent = userAlloc ? ((diff / userAlloc.budget) * 100) : 100
-                        return (
-                          <div key={mlAlloc.region} className="flex items-center justify-between">
-                            <span className="text-cyan-200">{mlAlloc.region}:</span>
-                            <div className="flex items-center gap-2">
-                              <span className={diff > 0 ? 'text-green-400' : diff < 0 ? 'text-red-400' : 'text-cyan-300'}>
-                                {diff > 0 ? '↑' : diff < 0 ? '↓' : '='} {Math.abs(diffPercent).toFixed(0)}%
-                              </span>
-                            </div>
-                          </div>
-                        )
-                      })}
-                    </div>
-                  </div>
-                )}
-
-                <button
-                  onClick={proceedToRealWorld}
-                  disabled={loading}
-                  className="w-full mt-4 bg-gradient-to-r from-cyan-600 to-blue-600 text-white py-3 px-4 rounded hover:from-cyan-700 hover:to-blue-700 disabled:bg-gray-600 disabled:text-gray-400 glow-cyan transition-all font-semibold font-orbitron text-lg"
-                >
-                  {loading ? 'Loading Real-World Data...' : 'Proceed to Stage 3: Real-World Response'}
-                </button>
-              </div>
-            ) : (
-              <button
-                onClick={generateMLPlan}
-                disabled={loading}
-                className="w-full bg-cyan-600 text-white py-2 px-4 rounded hover:bg-cyan-700 disabled:bg-gray-600 disabled:text-gray-400 glow-cyan transition-all font-semibold font-orbitron"
-              >
-                {loading ? 'Generating...' : 'Generate ML-Optimized Ideal Plan'}
-              </button>
-            )}
-          </div>
-        </div>
-      )}
-
-      {/* Stage 3: Real-World Response */}
-      {stage === 3 && realPlan && (
-        <div className="flex-1 space-y-4 overflow-y-auto">
-          <div className="bg-black/60 p-4 rounded border border-cyan-500/20">
-            <h3 className="text-lg font-semibold mb-4 text-cyan-200 font-orbitron">Real-World Historical Response</h3>
-            
-            <div className="space-y-4">
-              <div className="text-sm text-cyan-300/80 font-exo">
-                Total Budget: ${realPlan.total_budget.toLocaleString()}
-              </div>
-
-              <div className="max-h-64 overflow-y-auto space-y-2">
-                {realPlan.allocations.map(alloc => (
-                  <div key={alloc.region} className="bg-black/40 p-2 rounded border border-cyan-500/20 text-sm">
-                    <div className="flex justify-between">
-                      <span className="text-cyan-200 font-exo">{alloc.region}</span>
-                      <span className="text-cyan-300 font-orbitron">${alloc.budget.toLocaleString()}</span>
-                    </div>
-                    <div className="text-xs text-cyan-300/70 font-exo">
-                      Coverage: {(alloc.coverage_estimate.coverage_ratio * 100).toFixed(1)}% • 
-                      Covered: {alloc.coverage_estimate.people_covered.toLocaleString()} people
-                    </div>
-                  </div>
-                ))}
-              </div>
-
-              {/* Data Visualizations for Real-World */}
-              {userPlan && mlPlan && (
-                <div className="space-y-4 mt-6">
-                  <FundingVsNeedHeatmap 
-                    userPlan={userPlan} 
-                    mlPlan={mlPlan} 
-                    realPlan={realPlan} 
-                  />
-                  
-                  <SeverityVsFundingScatter 
-                    userPlan={userPlan} 
-                    mlPlan={mlPlan} 
-                    realPlan={realPlan} 
-                  />
-                  
-                  <RegionalHeatmap 
-                    userPlan={userPlan} 
-                    mlPlan={mlPlan} 
-                    realPlan={realPlan} 
-                  />
-                </div>
-              )}
-
-              <div className="flex gap-4">
-                <button
-                  onClick={() => setShowAffectedMap(true)}
-                  className="flex-1 mt-4 bg-gradient-to-r from-orange-600 to-red-600 text-white py-3 px-4 rounded hover:from-orange-700 hover:to-red-700 glow-orange transition-all font-semibold font-orbitron text-lg"
-                >
-                  View Impact Map
-                </button>
-                <button
-                  onClick={() => {
-                    if (userPlan && mlPlan && realPlan) {
-                      setComparisonData({
-                        userPlan,
-                        mlPlan,
-                        realPlan,
-                        mismatchAnalysis
-                      })
-                      setShowComparisonPage(true)
-                    }
-                  }}
-                  disabled={!mismatchAnalysis}
-                  className="flex-1 mt-4 bg-gradient-to-r from-purple-600 to-pink-600 text-white py-3 px-4 rounded hover:from-purple-700 hover:to-pink-700 disabled:bg-gray-600 disabled:text-gray-400 glow-purple transition-all font-semibold font-orbitron text-lg"
-                >
-                  {mismatchAnalysis ? 'View Full Comparison Dashboard' : 'Generating Analysis...'}
-                </button>
-              </div>
-            </div>
-          </div>
-        </div>
-      )}
+        {/* View impact map */}
+        <button
+          onClick={() => setShowAffectedMap(true)}
+          className="w-full mt-1.5 py-1.5 text-white/25 hover:text-white/40 font-rajdhani text-[10px] tracking-wider uppercase transition-colors"
+        >
+          View Impact Map
+        </button>
       </div>
     </>
   )

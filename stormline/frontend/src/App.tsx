@@ -3,6 +3,7 @@ import MapVisGlobe from './components/MapVisGlobe'
 import CoverageChoropleth from './components/CoverageChoropleth'
 import SimulationEngine from './components/SimulationEngine'
 import ComparisonPage from './components/ComparisonPage'
+import PostSimulationSteps from './components/PostSimulationSteps'
 import Leaderboard from './components/Leaderboard'
 import Dashboard3D from './components/Dashboard3D'
 import FundingDisparityGlobe from './components/mapvis/FundingDisparityGlobe'
@@ -271,10 +272,17 @@ function App() {
         />
       )}
 
-      {/* Comparison Page */}
-      {showComparisonPage ? (
-        <ComparisonPage />
-      ) : (
+      {/* Immersive Results — Step-by-Step Analysis (overlay on top of map) */}
+      {showComparisonPage && (
+        <>
+          <div className="fixed inset-0 z-0 bg-black">
+            <PostSimulationMap transitionPhase="active" />
+          </div>
+          <PostSimulationSteps />
+        </>
+      )}
+
+      {!showComparisonPage && (
         <div
           className="w-screen h-screen flex flex-col bg-black relative"
           style={{

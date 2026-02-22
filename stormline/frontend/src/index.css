@@ -64,3 +64,233 @@ button, .font-button {
 .text-glow-cyan {
   text-shadow: none;
 }
+
+/* ─── Command Center ──────────────────────────────────────────────────────────── */
+
+.cc-root {
+  background: #020810;
+  position: relative;
+}
+
+.cc-header {
+  backdrop-filter: blur(8px);
+}
+
+.cc-grid {
+  background: repeating-linear-gradient(
+    0deg,
+    transparent,
+    transparent 49.9%,
+    rgba(255, 255, 255, 0.02) 50%,
+    rgba(255, 255, 255, 0.02) 50.1%,
+    transparent 50.2%
+  ),
+  repeating-linear-gradient(
+    90deg,
+    transparent,
+    transparent 49.9%,
+    rgba(255, 255, 255, 0.02) 50%,
+    rgba(255, 255, 255, 0.02) 50.1%,
+    transparent 50.2%
+  );
+  background-size: 60px 60px;
+}
+
+.cc-panel {
+  will-change: opacity, transform;
+}
+
+.cc-panel::-webkit-scrollbar {
+  width: 3px;
+}
+
+.cc-panel::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.cc-panel::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.06);
+  border-radius: 2px;
+}
+
+.cc-panel::-webkit-scrollbar-thumb:hover {
+  background: rgba(255, 255, 255, 0.12);
+}
+
+/* Subtle scan line animation */
+.cc-scanline {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 1px;
+  background: linear-gradient(90deg, transparent 0%, rgba(255, 255, 255, 0.03) 50%, transparent 100%);
+  animation: cc-scan 8s linear infinite;
+  pointer-events: none;
+  z-index: 50;
+}
+
+@keyframes cc-scan {
+  0% { top: 0; opacity: 0; }
+  5% { opacity: 1; }
+  95% { opacity: 1; }
+  100% { top: 100%; opacity: 0; }
+}
+
+/* Region detail expand animation */
+.cc-region-detail {
+  animation: cc-expand 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+@keyframes cc-expand {
+  from {
+    opacity: 0;
+    max-height: 0;
+    transform: translateY(-4px);
+  }
+  to {
+    opacity: 1;
+    max-height: 300px;
+    transform: translateY(0);
+  }
+}
+
+/* ─── Step Transition Animations ──────────────────────────────────────────────── */
+
+/* Forward step transitions (moving right/next) */
+.step-enter-forward {
+  opacity: 0;
+  transform: translateX(40px);
+}
+
+.step-enter-forward.step-enter-active {
+  opacity: 1;
+  transform: translateX(0);
+  transition: opacity 0.4s cubic-bezier(0.4, 0, 0.2, 1),
+              transform 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.step-exit-forward {
+  opacity: 0;
+  transform: translateX(-40px);
+  transition: opacity 0.25s cubic-bezier(0.4, 0, 0.2, 1),
+              transform 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* Backward step transitions (moving left/previous) */
+.step-enter-backward {
+  opacity: 0;
+  transform: translateX(-40px);
+}
+
+.step-enter-backward.step-enter-active {
+  opacity: 1;
+  transform: translateX(0);
+  transition: opacity 0.4s cubic-bezier(0.4, 0, 0.2, 1),
+              transform 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.step-exit-backward {
+  opacity: 0;
+  transform: translateX(40px);
+  transition: opacity 0.25s cubic-bezier(0.4, 0, 0.2, 1),
+              transform 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* ─── Simulation Engine Redesign ──────────────────────────────────────────────── */
+
+.sim-panel {
+  background: rgba(0, 0, 0, 0.4);
+  border: 1px solid rgba(255, 255, 255, 0.05);
+  backdrop-filter: blur(4px);
+}
+
+.sim-panel::-webkit-scrollbar {
+  width: 3px;
+}
+
+.sim-panel::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.sim-panel::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.06);
+  border-radius: 2px;
+}
+
+.sim-progress-bar {
+  position: relative;
+  overflow: hidden;
+}
+
+.sim-progress-bar::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.1), transparent);
+  animation: sim-shimmer 2s infinite;
+}
+
+@keyframes sim-shimmer {
+  0% { left: -100%; }
+  100% { left: 100%; }
+}
+
+/* Processing state animation */
+.sim-processing {
+  position: relative;
+}
+
+.sim-processing::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border: 1px solid transparent;
+  border-radius: inherit;
+  animation: sim-border-pulse 2s ease-in-out infinite;
+}
+
+@keyframes sim-border-pulse {
+  0%, 100% { border-color: rgba(255, 255, 255, 0.03); }
+  50% { border-color: rgba(255, 255, 255, 0.08); }
+}
+
+/* ─── Range Slider Styling ──────────────────────────────────────────────────── */
+
+input[type="range"] {
+  -webkit-appearance: none;
+  appearance: none;
+  height: 3px;
+  border-radius: 2px;
+  outline: none;
+  cursor: pointer;
+}
+
+input[type="range"]::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.4);
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+input[type="range"]::-webkit-slider-thumb:hover {
+  background: rgba(255, 255, 255, 0.6);
+  transform: scale(1.2);
+}
+
+input[type="range"]::-moz-range-thumb {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.4);
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  cursor: pointer;
+}
