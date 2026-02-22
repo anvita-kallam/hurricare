@@ -13,6 +13,7 @@ import { useMemo, useRef, useEffect, useCallback, useState } from 'react'
 import axios from 'axios'
 import { useStore } from '../../state/useStore'
 import TypewriterText from '../TypewriterText'
+import RegionAllocationViz from '../RegionAllocationViz'
 
 const API_BASE = 'http://localhost:8000'
 
@@ -558,6 +559,19 @@ export default function Step2Allocation() {
 
   const utilizationPct = gameTotalBudget > 0 ? (totalAllocated / gameTotalBudget) * 100 : 0
 
+  // Prepare region data for 2.5D visualization
+  const vizRegions = useMemo(() => {
+    return regions.map(region => ({
+      name: region,
+      lat: Math.random() * 30 - 15, // Rough positioning for 2.5D
+      lon: Math.random() * 60 - 30,
+      severity: coverageLookup[region]?.severity || 0.5,
+      allocation: Object.values(gameClusterAllocations[region] || {}).reduce((s, v) => s + v, 0),
+      need: coverageLookup[region]?.need || 100000,
+      population: coverageLookup[region]?.need || 100000,
+    }))
+  }, [regions, coverageLookup, gameClusterAllocations])
+
   return (
     <div className="space-y-5">
       {/* Title */}
@@ -614,6 +628,26 @@ export default function Step2Allocation() {
               : 'linear-gradient(90deg, rgba(80,160,210,0.6), rgba(100,180,220,0.8))',
           }}
         />
+      </div>
+
+      {/* 2.5D Region Impact Visualization */}
+      <div className="bg-[#0a0a0f] border border-white/[0.08] rounded overflow-hidden" style={{ height: '400px' }}>
+        <div className="p-3 border-b border-white/[0.06] bg-white/[0.02]">
+          <div className="text-white/50 font-rajdhani text-[10px] tracking-widest uppercase">2.5D Region Funding Status</div>
+          <div className="text-white/30 font-mono text-[9px] mt-1">Interactive visualization of allocation impact by region</div>
+        </div>
+        {vizRegions.length > 0 ? (
+          <RegionAllocationViz
+            regions={vizRegions}
+            maxAllocation={gameTotalBudget}
+            width={800}
+            height={360}
+          />
+        ) : (
+          <div className="w-full h-full flex items-center justify-center text-white/40">
+            Loading region data...
+          </div>
+        )}
       </div>
 
       {/* Charts row: Donut + Terrain stacked or side by side */}
