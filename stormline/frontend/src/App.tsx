@@ -334,8 +334,6 @@ function App() {
         style={{
           zIndex: 1,
           pointerEvents: isCinematicPlaying ? 'none' : 'auto',
-          opacity: isCinematicPlaying ? 0 : 1,
-          transition: 'opacity 0.5s ease-in-out',
           display: isCinematicPlaying ? 'none' : 'flex'
         }}
       >

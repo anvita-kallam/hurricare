@@ -1,4 +1,4 @@
-import { Suspense, useEffect, useRef, useMemo, useCallback } from 'react'
+import { Suspense, useEffect, useRef, useMemo, useCallback, createElement } from 'react'
 import axios from 'axios'
 
 const API_BASE = 'http://localhost:8000'
@@ -126,10 +126,10 @@ function HurricaneTrail({
 
   if (!trailGeometry) return null
 
-  return React.createElement(
+  return createElement(
     'line' as any,
     { geometry: trailGeometry },
-    React.createElement('lineBasicMaterial', {
+    createElement('lineBasicMaterial', {
       color: new THREE.Color(1.0, 0.8, 0.2),
       transparent: true,
       opacity: 0.7,
