@@ -117,7 +117,7 @@ export default function InteractiveChartWrapper({
       {/* Zoom modal overlay */}
       {zoomed && (
         <div
-          className={`fixed inset-0 z-[100] flex items-center justify-center ${closing ? 'chart-zoom-out' : 'chart-zoom-in'}`}
+          className={`fixed inset-0 z-[100] flex items-center justify-center p-8 ${closing ? 'chart-zoom-out' : 'chart-zoom-in'}`}
           onClick={handleClose}
           style={{
             background: 'rgba(0,0,2,0.92)',
@@ -125,30 +125,31 @@ export default function InteractiveChartWrapper({
           }}
         >
           <div
-            className="relative max-w-3xl w-full mx-8"
+            className="relative w-full max-h-[85vh] overflow-y-auto"
             onClick={(e) => e.stopPropagation()}
             style={{
-              transform: `scale(${modalScale})`,
-              transformOrigin: 'center center',
+              maxWidth: `${Math.min(modalScale * 480, 900)}px`,
             }}
           >
             {/* Close hint */}
-            <div className="absolute -top-8 right-0 text-white/40 font-mono text-xs">
-              ESC or click outside to close
+            <div className="sticky top-0 z-10 flex justify-end pb-2">
+              <span className="text-white/40 font-rajdhani text-xs tracking-wider bg-black/60 px-2 py-1 rounded">
+                ESC or click outside to close
+              </span>
             </div>
 
-            {/* Chart content scaled up */}
+            {/* Chart content */}
             <div
               className="rounded-lg overflow-hidden"
               style={{
                 background: 'linear-gradient(180deg, rgba(0,0,2,0.95) 0%, rgba(0,0,4,0.95) 100%)',
                 border: '1px solid rgba(100,180,230,0.15)',
-                padding: '20px',
+                padding: '24px',
                 boxShadow: '0 0 60px rgba(100,180,230,0.08), 0 0 120px rgba(0,0,0,0.5)',
               }}
             >
               {/* Label */}
-              <div className="text-white/60 font-rajdhani text-sm tracking-[0.2em] uppercase mb-3">
+              <div className="text-white/70 font-rajdhani text-sm tracking-[0.2em] uppercase mb-4">
                 {label}
               </div>
 
@@ -159,10 +160,10 @@ export default function InteractiveChartWrapper({
 
               {/* Natural language explanation */}
               <div
-                className="mt-4 pt-3"
-                style={{ borderTop: '1px solid rgba(255,255,255,0.06)' }}
+                className="mt-4 pt-4"
+                style={{ borderTop: '1px solid rgba(255,255,255,0.08)' }}
               >
-                <div className="text-white/80 font-mono text-sm leading-relaxed">
+                <div className="text-white/80 font-rajdhani text-base leading-relaxed tracking-wide">
                   <TypewriterText
                     text={explanation}
                     emphasis="normal"
