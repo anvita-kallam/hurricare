@@ -77,13 +77,17 @@ export default function SimulationEngine({ onStartSimulation }: SimulationEngine
   const [pipelineProgress, setPipelineProgress] = useState(0)
   const [expandedRegion, setExpandedRegion] = useState<string | null>(null)
 
-  // Get regions from coverage data
+  // Get regions from coverage data, falling back to affected_countries
   const regions = useMemo(() => {
     if (!selectedHurricane) return []
-    return coverage
+    const fromCoverage = coverage
       .filter(c => c.hurricane_id === selectedHurricane.id)
       .map(c => c.admin1)
       .filter((v, i, a) => a.indexOf(v) === i)
+    if (fromCoverage.length > 0) return fromCoverage
+    // Fallback: use affected_countries as region names
+    return (selectedHurricane.affected_countries || [])
+      .filter((v: string, i: number, a: string[]) => a.indexOf(v) === i)
   }, [selectedHurricane, coverage])
 
   // Get current coverage data
@@ -636,7 +640,7 @@ export default function SimulationEngine({ onStartSimulation }: SimulationEngine
         {/* Submit Button — runs full pipeline */}
         <button
           onClick={runFullPipeline}
-          disabled={loading || getTotalAllocated() === 0}
+          disabled={loading}
           className="w-full mt-3 py-2.5 text-white/60 hover:text-white/90 font-rajdhani font-semibold text-xs tracking-widest uppercase transition-all border border-white/[0.08] hover:border-white/[0.15] bg-white/[0.03] hover:bg-white/[0.06] disabled:opacity-30 disabled:cursor-not-allowed"
         >
           {loading ? 'Processing...' : 'Run Analysis'}
