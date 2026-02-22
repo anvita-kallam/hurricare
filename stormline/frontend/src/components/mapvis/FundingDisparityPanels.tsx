@@ -1,29 +1,27 @@
 /**
- * FundingDisparityPanels — Intelligence signal overlay for Funding Disparity mode.
+ * FundingDisparityPanels — Partial telemetry readout system.
  *
- * Architecture:
- *   Globe = visualization layer (untouched)
- *   Panels = intelligence signal layer (this file)
+ * These panels expose fragments of a complex monitoring system.
+ * Every visualization is a particle field, density plot, or dispersion view.
+ * No charts. No line graphs. No analytics dashboards.
  *
- * Every chart is a multi-layer signal visualization.
- * Density > readability. Shape > explanation.
- * Panels are windows into data — not the dataset.
+ * "This system knows more than it is showing."
  */
 
 import { useMemo } from 'react'
 import { getCountryFundingDetail, type CountryFundingDetail } from '../../data/fundingDisparityDetails'
 import {
-  SignalLineChart,
-  SignalAreaChart,
-  SignalHistogram,
-  SignalDotTimeline,
-  ParticleField,
-  NoiseBand,
-  StatWithSparkline,
+  DensityField,
+  DispersionField,
+  EventScatter,
+  DensityDistribution,
+  SignalDust,
+  StratifiedField,
+  StatWithField,
   TrendIndicator,
 } from './charts/ChartPrimitives'
 
-const CW = 280 // chart width
+const W = 288
 
 // ─── Left Panel ──────────────────────────────────────────────────────────
 
@@ -34,22 +32,20 @@ function LeftPanel({ data }: { data: CountryFundingDetail }) {
     return Math.abs(h)
   }, [data.name])
 
-  // Derived signals
   const fundingNorm = data.fundingTimeSeries.map(v => v / (data.fundingPerCapita || 1) * 50 + 30)
   const resilienceSignal = data.preparednessTimeSeries.map((v, i) =>
-    v * 0.6 + fundingNorm[i] * 0.4 + ((i % 3 === 0) ? -2 : 1.5)
+    v * 0.6 + fundingNorm[i] * 0.4
   )
 
   return (
     <div className="fdp-panel fdp-panel-left">
-      {/* Header */}
       <div className="fdp-panel-header">
         <div className="fdp-country-name">{data.name}</div>
         <div className="fdp-disparity-badge" style={{
-          color: data.disparityLevel === 'Well-Funded' ? 'rgba(120,220,120,0.7)' :
-                 data.disparityLevel === 'Moderate' ? 'rgba(255,220,100,0.7)' :
-                 data.disparityLevel === 'Under-Resourced' ? 'rgba(255,160,60,0.7)' :
-                 'rgba(255,100,80,0.7)',
+          color: data.disparityLevel === 'Well-Funded' ? 'rgba(120,220,120,0.6)' :
+                 data.disparityLevel === 'Moderate' ? 'rgba(255,220,100,0.6)' :
+                 data.disparityLevel === 'Under-Resourced' ? 'rgba(255,160,60,0.6)' :
+                 'rgba(255,100,80,0.6)',
         }}>
           {data.disparityLevel.toUpperCase()}
         </div>
@@ -57,105 +53,113 @@ function LeftPanel({ data }: { data: CountryFundingDetail }) {
 
       <div className="fdp-divider" />
 
-      {/* Funding Overview — stat grid */}
       <div className="fdp-section-label">FUNDING OVERVIEW</div>
       <div className="fdp-stat-grid">
-        <StatWithSparkline label="PREP. SCORE" value={`${data.preparednessScore}`} unit="%"
-          sparkData={data.preparednessTimeSeries} seed={seed + 1} />
-        <StatWithSparkline label="RESILIENCE" value={data.resilienceIndex.toFixed(2)}
-          sparkData={resilienceSignal} seed={seed + 2} />
-        <StatWithSparkline label="$/CAPITA" value={`${data.fundingPerCapita}`}
-          sparkData={data.fundingTimeSeries} seed={seed + 3} />
-        <StatWithSparkline label="GDP" value={`${data.gdpBillions}B`} seed={seed + 4} />
+        <StatWithField label="PREP" value={`${data.preparednessScore}`} unit="%"
+          fieldData={data.preparednessTimeSeries} seed={seed + 1} />
+        <StatWithField label="RESIL" value={data.resilienceIndex.toFixed(2)}
+          fieldData={resilienceSignal} seed={seed + 2} />
+        <StatWithField label="$/CAP" value={`${data.fundingPerCapita}`}
+          fieldData={data.fundingTimeSeries} seed={seed + 3} />
+        <StatWithField label="GDP" value={`${data.gdpBillions}B`} seed={seed + 4} />
       </div>
 
       <div className="fdp-divider" />
 
-      {/* Preparedness vs Funding — multi-signal line chart */}
+      {/* PREPAREDNESS / FUNDING — overlapping density field */}
       <div className="fdp-section-label">
-        PREPAREDNESS / FUNDING SIGNAL
+        PREPAREDNESS / FUNDING
         <TrendIndicator trend={data.fundingTrend} />
       </div>
       <div className="fdp-chart-container">
-        <SignalLineChart
-          series={[data.preparednessTimeSeries, fundingNorm, resilienceSignal]}
-          width={CW} height={90}
-          colors={['rgba(255,255,255,0.55)', 'rgba(255,180,60,0.4)', 'rgba(255,255,255,0.15)']}
+        <DensityField
+          signals={[data.preparednessTimeSeries, fundingNorm, resilienceSignal]}
+          width={W} height={88}
+          colors={['rgba(255,255,255,0.45)', 'rgba(255,180,60,0.35)', 'rgba(255,255,255,0.18)']}
           seed={seed + 10}
+          particlesPerSignal={220}
+          dispersion={0.14}
+          showGuide
         />
       </div>
 
       <div className="fdp-divider" />
 
-      {/* Risk Exposure — particle field */}
+      {/* RISK EXPOSURE — dispersion field */}
       <div className="fdp-section-label">
-        RISK EXPOSURE FIELD
+        RISK EXPOSURE
         <TrendIndicator trend={data.riskTrend} />
       </div>
       <div className="fdp-chart-container">
-        <ParticleField
+        <DispersionField
           data={data.riskTimeSeries}
-          width={CW} height={70}
+          width={W} height={72}
           seed={seed + 20}
-          color={data.riskExposure > 0.6 ? 'rgba(255,160,60,0.55)' : 'rgba(255,255,255,0.4)'}
-          particleCount={140}
-          showSecondary={data.preparednessTimeSeries.map(v => v * 0.8)}
+          color={data.riskExposure > 0.6 ? 'rgba(255,160,60,0.45)' : 'rgba(255,255,255,0.35)'}
+          count={300}
+          layers={4}
+          secondaryData={data.preparednessTimeSeries.map(v => v * 0.8)}
         />
       </div>
       <div className="fdp-stat-grid fdp-stat-grid-2">
-        <StatWithSparkline label="EXPOSURE" value={data.riskExposure.toFixed(2)}
-          sparkData={data.riskTimeSeries} alert={data.riskExposure > 0.6} seed={seed + 21} />
-        <StatWithSparkline label="POP." value={`${data.populationMillions}M`} seed={seed + 22} />
+        <StatWithField label="EXPOSURE" value={data.riskExposure.toFixed(2)}
+          fieldData={data.riskTimeSeries} alert={data.riskExposure > 0.6} seed={seed + 21} />
+        <StatWithField label="POP" value={`${data.populationMillions}M`} seed={seed + 22} />
       </div>
 
       <div className="fdp-divider" />
 
-      {/* Funding Distribution — signal histogram with secondary */}
-      <div className="fdp-section-label">FUNDING DISTRIBUTION</div>
+      {/* FUNDING DISTRIBUTION — density distribution */}
+      <div className="fdp-section-label">ALLOCATION DENSITY</div>
       <div className="fdp-chart-container">
-        <SignalHistogram
+        <DensityDistribution
           data={data.fundingDistribution}
-          width={CW} height={48}
-          color="rgba(255,255,255,0.4)"
+          width={W} height={52}
+          color="rgba(255,255,255,0.35)"
           seed={seed + 30}
           secondaryData={data.riskDistribution}
+          count={240}
         />
       </div>
 
       <div className="fdp-divider" />
 
-      {/* Noise band — preparedness signal density */}
-      <div className="fdp-section-label">PREPAREDNESS SIGNAL</div>
+      {/* PREPAREDNESS SIGNAL DUST */}
+      <div className="fdp-section-label">READINESS SIGNAL</div>
       <div className="fdp-chart-container">
-        <NoiseBand
+        <SignalDust
           data={data.preparednessTimeSeries}
-          width={CW} height={20}
-          color="rgba(255,255,255,0.3)"
+          width={W} height={24}
+          color="rgba(255,255,255,0.25)"
           seed={seed + 40}
+          count={120}
         />
       </div>
 
       <div className="fdp-divider" />
 
-      {/* Historical Area Chart — funding trend with noise */}
-      <div className="fdp-section-label">HISTORICAL FUNDING TREND</div>
+      {/* HISTORICAL FUNDING — stratified field */}
+      <div className="fdp-section-label">FUNDING STRATA</div>
       <div className="fdp-chart-container">
-        <SignalAreaChart
-          data={data.fundingTimeSeries}
-          width={CW} height={56}
-          color="rgba(255,255,255,0.4)"
+        <StratifiedField
+          bands={[
+            { data: data.fundingTimeSeries, color: 'rgba(255,255,255,0.35)', yOffset: 0.3 },
+            { data: data.riskTimeSeries, color: 'rgba(255,160,60,0.3)', yOffset: 0.6 },
+            { data: resilienceSignal, color: 'rgba(255,255,255,0.2)', yOffset: 0.8 },
+          ]}
+          width={W} height={56}
           seed={seed + 50}
+          countPerBand={90}
         />
       </div>
 
-      {/* Underfunding stats */}
       {data.yearsUnderfunded > 0 && (
         <>
           <div className="fdp-divider" />
           <div className="fdp-stat-grid fdp-stat-grid-2">
-            <StatWithSparkline label="CUMULATIVE GAP" value={`$${data.cumulativeUnderfunding}B`}
+            <StatWithField label="CUM. GAP" value={`$${data.cumulativeUnderfunding}B`}
               alert seed={seed + 55} />
-            <StatWithSparkline label="YRS UNDERFUNDED" value={`${data.yearsUnderfunded}`}
+            <StatWithField label="YRS" value={`${data.yearsUnderfunded}`}
               alert seed={seed + 56} />
           </div>
         </>
@@ -173,11 +177,9 @@ function RightPanel({ data }: { data: CountryFundingDetail }) {
     return Math.abs(h) + 5000
   }, [data.name])
 
-  // Derived: modeled need as time series
   const modeledNeedSeries = data.aidReceivedTimeSeries.map((_, i) =>
     data.modeledNeedPerCapita * (0.85 + (i / 12) * 0.3)
   )
-  // Gap signal
   const gapSignal = data.aidReceivedTimeSeries.map((v, i) => {
     const need = modeledNeedSeries[i]
     return Math.max(0, ((need - v) / (need || 1)) * 100)
@@ -185,115 +187,120 @@ function RightPanel({ data }: { data: CountryFundingDetail }) {
 
   return (
     <div className="fdp-panel fdp-panel-right">
-      {/* Aid Allocation — stat grid */}
       <div className="fdp-section-label">AID ALLOCATION</div>
       <div className="fdp-stat-grid">
-        <StatWithSparkline label="AID/CAP" value={`$${data.aidPerCapita}`}
-          sparkData={data.aidReceivedTimeSeries} alert={data.aidGapPercent > 50} seed={seed + 1} />
-        <StatWithSparkline label="NEED/CAP" value={`$${data.modeledNeedPerCapita}`}
-          sparkData={modeledNeedSeries} seed={seed + 2} />
-        <StatWithSparkline label="GAP" value={`${data.aidGapPercent}%`}
-          sparkData={gapSignal} sparkColor="rgba(255,160,60,0.4)"
-          alert={data.aidGapPercent > 40} seed={seed + 3} />
-        <StatWithSparkline label="DELAY" value={`${data.responseDelayDays}d`}
+        <StatWithField label="AID" value={`$${data.aidPerCapita}`}
+          fieldData={data.aidReceivedTimeSeries} alert={data.aidGapPercent > 50} seed={seed + 1} />
+        <StatWithField label="NEED" value={`$${data.modeledNeedPerCapita}`}
+          fieldData={modeledNeedSeries} seed={seed + 2} />
+        <StatWithField label="GAP" value={`${data.aidGapPercent}%`}
+          fieldData={gapSignal} alert={data.aidGapPercent > 40} seed={seed + 3} />
+        <StatWithField label="DELAY" value={`${data.responseDelayDays}d`}
           alert={data.responseDelayDays > 7} seed={seed + 4} />
       </div>
 
       <div className="fdp-divider" />
 
-      {/* Aid vs Need — signal line chart */}
-      <div className="fdp-section-label">AID RECEIVED / MODELED NEED</div>
+      {/* AID / NEED — overlapping density field */}
+      <div className="fdp-section-label">AID / NEED TELEMETRY</div>
       <div className="fdp-chart-container">
-        <SignalLineChart
-          series={[data.aidReceivedTimeSeries, modeledNeedSeries, gapSignal.map(v => v * 0.5)]}
-          width={CW} height={85}
-          colors={['rgba(255,255,255,0.55)', 'rgba(255,100,80,0.4)', 'rgba(255,180,60,0.15)']}
+        <DensityField
+          signals={[data.aidReceivedTimeSeries, modeledNeedSeries, gapSignal.map(v => v * 0.5)]}
+          width={W} height={85}
+          colors={['rgba(255,255,255,0.45)', 'rgba(255,100,80,0.35)', 'rgba(255,180,60,0.15)']}
           seed={seed + 10}
+          particlesPerSignal={200}
+          dispersion={0.16}
+          showGuide
         />
       </div>
 
       <div className="fdp-divider" />
 
-      {/* Aid Gap Particle Field */}
-      <div className="fdp-section-label">AID DISPERSION FIELD</div>
+      {/* GAP DISPERSION — pure particle dispersion */}
+      <div className="fdp-section-label">GAP DISPERSION</div>
       <div className="fdp-chart-container">
-        <ParticleField
+        <DispersionField
           data={gapSignal}
-          width={CW} height={65}
+          width={W} height={68}
           seed={seed + 20}
-          color={data.aidGapPercent > 50 ? 'rgba(255,160,60,0.5)' : 'rgba(255,255,255,0.4)'}
-          particleCount={130}
-          showSecondary={data.aidReceivedTimeSeries}
+          color={data.aidGapPercent > 50 ? 'rgba(255,160,60,0.45)' : 'rgba(255,255,255,0.35)'}
+          count={320}
+          layers={4}
+          secondaryData={data.aidReceivedTimeSeries}
         />
       </div>
 
       <div className="fdp-divider" />
 
-      {/* Response Metrics */}
-      <div className="fdp-section-label">RESPONSE METRICS</div>
+      {/* RESPONSE METRICS */}
+      <div className="fdp-section-label">RESPONSE</div>
       <div className="fdp-stat-grid fdp-stat-grid-2">
-        <StatWithSparkline label="RESPONSE" value={`${data.avgResponseTimeHours}h`}
+        <StatWithField label="TIME" value={`${data.avgResponseTimeHours}h`}
           alert={data.avgResponseTimeHours > 72} seed={seed + 30} />
-        <StatWithSparkline label="INFRA." value={`${data.infrastructureIndex}`}
+        <StatWithField label="INFRA" value={`${data.infrastructureIndex}`}
           seed={seed + 31} />
       </div>
       <div className="fdp-stat-grid fdp-stat-grid-2">
-        <StatWithSparkline label="HEALTH" value={`${data.healthcareCapacity}`}
+        <StatWithField label="HEALTH" value={`${data.healthcareCapacity}`}
           seed={seed + 32} />
-        <StatWithSparkline label="EARLY WARN." value={`${data.earlyWarningCoverage}%`}
+        <StatWithField label="WARN" value={`${data.earlyWarningCoverage}%`}
           seed={seed + 33} />
       </div>
 
       <div className="fdp-divider" />
 
-      {/* Response noise band */}
-      <div className="fdp-section-label">RESPONSE SIGNAL</div>
+      {/* RESPONSE SIGNAL DUST */}
+      <div className="fdp-section-label">RESPONSE DUST</div>
       <div className="fdp-chart-container">
-        <NoiseBand
+        <SignalDust
           data={data.aidReceivedTimeSeries}
-          width={CW} height={18}
-          color={data.aidGapPercent > 50 ? 'rgba(255,160,60,0.3)' : 'rgba(255,255,255,0.25)'}
+          width={W} height={22}
+          color={data.aidGapPercent > 50 ? 'rgba(255,160,60,0.25)' : 'rgba(255,255,255,0.2)'}
           seed={seed + 35}
+          count={130}
         />
       </div>
 
       <div className="fdp-divider" />
 
-      {/* Disaster Event Timeline */}
-      <div className="fdp-section-label">EVENT TIMELINE</div>
+      {/* EVENT SCATTER — events as density clusters */}
+      <div className="fdp-section-label">EVENT FIELD</div>
       <div className="fdp-chart-container">
-        <SignalDotTimeline
+        <EventScatter
           events={data.majorEvents}
-          width={CW} height={44}
+          width={W} height={52}
           seed={seed + 40}
         />
       </div>
 
       <div className="fdp-divider" />
 
-      {/* Risk Distribution */}
-      <div className="fdp-section-label">RISK DISTRIBUTION</div>
+      {/* RISK DENSITY DISTRIBUTION */}
+      <div className="fdp-section-label">RISK DENSITY</div>
       <div className="fdp-chart-container">
-        <SignalHistogram
+        <DensityDistribution
           data={data.riskDistribution}
-          width={CW} height={46}
-          color={data.riskExposure > 0.6 ? 'rgba(255,160,60,0.45)' : 'rgba(255,255,255,0.35)'}
+          width={W} height={48}
+          color={data.riskExposure > 0.6 ? 'rgba(255,160,60,0.4)' : 'rgba(255,255,255,0.3)'}
           seed={seed + 50}
           secondaryData={data.fundingDistribution}
+          count={220}
         />
       </div>
 
-      {/* Historical Underfunding area */}
       {data.yearsUnderfunded > 0 && (
         <>
           <div className="fdp-divider" />
-          <div className="fdp-section-label">UNDERFUNDING SIGNAL</div>
+          <div className="fdp-section-label">UNDERFUNDING</div>
           <div className="fdp-chart-container">
-            <SignalAreaChart
+            <DispersionField
               data={gapSignal}
-              width={CW} height={44}
-              color="rgba(255,160,60,0.45)"
+              width={W} height={40}
               seed={seed + 60}
+              color="rgba(255,160,60,0.4)"
+              count={180}
+              layers={3}
             />
           </div>
         </>
@@ -302,7 +309,7 @@ function RightPanel({ data }: { data: CountryFundingDetail }) {
   )
 }
 
-// ─── Main Panel Container ────────────────────────────────────────────────
+// ─── Container ───────────────────────────────────────────────────────────
 
 interface FundingDisparityPanelsProps {
   selectedCountry: string | null
@@ -313,9 +320,7 @@ export default function FundingDisparityPanels({ selectedCountry }: FundingDispa
     () => (selectedCountry ? getCountryFundingDetail(selectedCountry) : null),
     [selectedCountry]
   )
-
   if (!data) return null
-
   return (
     <div className="fdp-container">
       <LeftPanel data={data} />
