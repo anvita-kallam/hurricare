@@ -76,7 +76,7 @@ function CardBorder({ position, isSelected }: {
   position: [number, number, number]
   isSelected: boolean
 }) {
-  const ref = useRef<THREE.Mesh>(null)
+  const ref = useRef<THREE.LineSegments>(null)
   const baseY = position[1]
 
   useFrame(({ clock }) => {
