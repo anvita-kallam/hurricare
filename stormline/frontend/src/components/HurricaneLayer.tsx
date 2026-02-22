@@ -194,17 +194,15 @@ function AnimatedPoint({ position, color, visible }: { position: [number, number
 
 function HtmlTooltip({ hurricane, position }: { hurricane: any; position: THREE.Vector3 }) {
   return (
-    <mesh position={position}>
-      <Html center>
-        <div className="bg-black bg-opacity-80 text-white p-2 rounded text-xs whitespace-nowrap pointer-events-none font-exo">
-          <div className="font-bold font-orbitron">{hurricane.name}</div>
-          <div>Year: {hurricane.year}</div>
-          <div>Category: {hurricane.max_category}</div>
-          <div>Affected: {hurricane.estimated_population_affected.toLocaleString()}</div>
-          <div>{hurricane.affected_countries.join(', ')}</div>
-        </div>
-      </Html>
-    </mesh>
+    <Html position={position} center distanceFactor={1}>
+      <div className="bg-black bg-opacity-80 text-white p-2 rounded text-xs whitespace-nowrap pointer-events-none font-exo">
+        <div className="font-bold font-orbitron">{hurricane.name}</div>
+        <div>Year: {hurricane.year}</div>
+        <div>Category: {hurricane.max_category}</div>
+        <div>Affected: {hurricane.estimated_population_affected.toLocaleString()}</div>
+        <div>{hurricane.affected_countries.join(', ')}</div>
+      </div>
+    </Html>
   )
 }
 
