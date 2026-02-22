@@ -1,4 +1,4 @@
-from fastapi import FastAPI
+from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 from typing import Optional
 from datetime import date
@@ -11,7 +11,13 @@ app = FastAPI(title="HurriCare API", version="1.0.0")
 # CORS middleware
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["http://localhost:5173", "http://localhost:3000"],
+    allow_origins=[
+        "http://localhost:5173",
+        "http://localhost:3000",
+        "http://127.0.0.1:5173",
+        "http://127.0.0.1:5174",
+        "http://127.0.0.1:5175",
+    ],
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
@@ -78,6 +84,109 @@ def root():
 def get_hurricanes():
     """Get all hurricanes."""
     return hurricanes_data
+
+
+@app.get("/hurricanes/match")
+def find_matching_hurricane(region: str, category: int, direction: Optional[str] = None):
+    """Find the hurricane that most closely matches the given region, category, and optional direction."""
+    hurricanes = hurricanes_data
+    region_lower = region.lower().strip() if region else ""
+
+    scored_hurricanes = []
+    for h in hurricanes:
+        score = 0
+        category_diff = abs(h.get("max_category", 0) - category)
+        if category_diff == 0:
+            score += 100
+        elif category_diff == 1:
+            score += 50
+        elif category_diff == 2:
+            score += 25
+
+        countries_lower = [c.lower() for c in h.get("affected_countries", [])]
+        region_found = False
+        for country in countries_lower:
+            if region_lower and region_lower == country:
+                score += 100
+                region_found = True
+                break
+            if region_lower and (region_lower in country or country in region_lower):
+                score += 50
+                region_found = True
+                break
+
+        region_aliases = {
+            "us": ["united states", "usa"],
+            "usa": ["united states", "us"],
+            "united states": ["us", "usa"],
+            "caribbean": ["jamaica", "bahamas", "cuba", "haiti", "dominican republic", "puerto rico"],
+            "gulf coast": ["united states", "mexico"],
+            "east coast": ["united states"],
+            "philippines": ["philippines"],
+            "china": ["china", "hong kong", "taiwan"],
+            "japan": ["japan"],
+            "india": ["india", "bangladesh", "sri lanka"],
+        }
+        if not region_found and region_lower:
+            for alias, countries in region_aliases.items():
+                if region_lower == alias.lower():
+                    for country in countries_lower:
+                        if country in countries:
+                            score += 75
+                            region_found = True
+                            break
+                    if region_found:
+                        break
+
+        direction_match = False
+        if direction:
+            direction_lower = direction.lower().strip()
+            track = h.get("track", [])
+            if len(track) >= 2:
+                start_idx = max(0, len(track) // 5)
+                end_idx = min(len(track) - 1, len(track) - len(track) // 5)
+                if end_idx > start_idx:
+                    start_point = track[start_idx]
+                    end_point = track[end_idx]
+                    lat_diff = end_point.get("lat", 0) - start_point.get("lat", 0)
+                    lon_diff = end_point.get("lon", 0) - start_point.get("lon", 0)
+                    abs_lat, abs_lon = abs(lat_diff), abs(lon_diff)
+                    hurricane_direction = None
+                    if abs_lat > abs_lon:
+                        hurricane_direction = "north" if lat_diff > 0 else "south"
+                    else:
+                        hurricane_direction = "east" if lon_diff > 0 else "west"
+                    if hurricane_direction and direction_lower == hurricane_direction:
+                        score += 50
+                        direction_match = True
+                    elif hurricane_direction:
+                        opposite_map = {"north": "south", "south": "north", "east": "west", "west": "east"}
+                        if direction_lower == opposite_map.get(hurricane_direction):
+                            score += 25
+
+        year_bonus = max(0, (h.get("year", 2000) - 2000) * 0.5)
+        score += year_bonus
+
+        scored_hurricanes.append({
+            "hurricane": h,
+            "score": score,
+            "category_match": category_diff == 0,
+            "region_match": region_found,
+            "direction_match": direction_match
+        })
+
+    scored_hurricanes.sort(key=lambda x: x["score"], reverse=True)
+    if not scored_hurricanes:
+        return {"error": "No hurricanes found"}
+
+    best = scored_hurricanes[0]
+    return {
+        "match": best["hurricane"],
+        "score": best["score"],
+        "category_match": best["category_match"],
+        "region_match": best["region_match"],
+        "alternatives": [s["hurricane"] for s in scored_hurricanes[1:4]]
+    }
 
 
 @app.get("/coverage")
@@ -411,6 +520,27 @@ def get_real_world_plan(hurricane_id: str):
         "objective_scores": None,
         "explanation": None,
     }
+
+
+# Voice personal account — hard-coded scripts + ElevenLabs TTS (called when cinematic starts)
+@app.get("/voice-account/{hurricane_id}")
+def get_voice_account(hurricane_id: str):
+    """
+    Return pre-written personal account (script + audio) for this hurricane.
+    Uses hard-coded 10-second scripts and ElevenLabs for TTS.
+    """
+    hurricane = next((h for h in hurricanes_data if h.get("id") == hurricane_id), None)
+    if not hurricane:
+        raise HTTPException(status_code=404, detail="Hurricane not found")
+
+    from voice_service import generate_voice_account
+    result = generate_voice_account(hurricane_id)
+
+    from fastapi.responses import JSONResponse
+    return JSONResponse(
+        content=result,
+        headers={"Cache-Control": "no-store, no-cache, must-revalidate", "Pragma": "no-cache"},
+    )
 
 
 @app.post("/simulation/mismatch-analysis")

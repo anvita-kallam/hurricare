@@ -1,4 +1,7 @@
 import { Suspense, useEffect, useRef, useMemo } from 'react'
+import axios from 'axios'
+
+const API_BASE = 'http://localhost:8000'
 import { Canvas, useThree, useFrame } from '@react-three/fiber'
 import { Stars, useTexture } from '@react-three/drei'
 import * as THREE from 'three'
@@ -193,13 +196,34 @@ export default function CinematicIntro({
   
   const { state, start, stop } = useCinematicController(durationHours, onComplete, 10)
   const hasStartedRef = useRef(false)
-  
+  const voicePlayedRef = useRef(false)
+
   useEffect(() => {
     if (!hasStartedRef.current) {
       hasStartedRef.current = true
       start()
     }
   }, [start])
+
+  // Play personal account voiceover when animation is playing
+  useEffect(() => {
+    if (state.phase !== 'playing' || !state.isPlaying || voicePlayedRef.current) return
+    voicePlayedRef.current = true
+    const playVoice = async () => {
+      try {
+        const { data } = await axios.get(`${API_BASE}/voice-account/${hurricane.id}?t=${Date.now()}`, {
+          headers: { 'Cache-Control': 'no-cache', Pragma: 'no-cache' },
+        })
+        if (data?.audio_base64) {
+          const audio = new Audio(`data:audio/mpeg;base64,${data.audio_base64}`)
+          await audio.play()
+        }
+      } catch (e) {
+        console.warn('Could not play voice account:', e)
+      }
+    }
+    playVoice()
+  }, [state.phase, state.isPlaying, hurricane.id])
   
   // Auto-exit after 10 seconds
   useEffect(() => {
