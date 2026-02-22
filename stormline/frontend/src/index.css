@@ -4,22 +4,22 @@
 
 body {
   margin: 0;
-  font-family: 'Exo 2', 'Orbitron', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  font-family: 'Rajdhani', 'DM Mono', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   background: #000000;
   color: #ffffff;
 }
 
-/* Futuristic font classes */
+/* Rajdhani for UI headers/labels */
 h1, h2, h3, h4, h5, h6, .font-futuristic {
-  font-family: 'Orbitron', 'Exo 2', sans-serif;
+  font-family: 'Rajdhani', sans-serif;
   font-weight: 700;
   letter-spacing: 0.05em;
 }
 
 button, .font-button {
-  font-family: 'Orbitron', 'Exo 2', sans-serif;
+  font-family: 'Rajdhani', sans-serif;
   font-weight: 600;
   letter-spacing: 0.03em;
 }
@@ -28,79 +28,39 @@ button, .font-button {
   width: 100vw;
   height: 100vh;
   overflow: hidden;
-  background: radial-gradient(ellipse at center, #1a1a2e 0%, #000000 100%);
+  background: #050505;
   position: relative;
 }
 
-/* Space background with stars */
-#root::before {
-  content: '';
-  position: absolute;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  background-image: 
-    radial-gradient(2px 2px at 20% 30%, white, transparent),
-    radial-gradient(2px 2px at 60% 70%, white, transparent),
-    radial-gradient(1px 1px at 50% 50%, white, transparent),
-    radial-gradient(1px 1px at 80% 10%, white, transparent),
-    radial-gradient(2px 2px at 90% 60%, white, transparent),
-    radial-gradient(1px 1px at 33% 80%, white, transparent),
-    radial-gradient(2px 2px at 10% 40%, white, transparent),
-    radial-gradient(1px 1px at 70% 20%, white, transparent);
-  background-repeat: repeat;
-  background-size: 200px 200px;
-  opacity: 0.8;
-  animation: sparkle 20s linear infinite;
-  pointer-events: none;
-  z-index: 0;
-}
-
-@keyframes sparkle {
-  0%, 100% { opacity: 0.8; }
-  50% { opacity: 1.0; }
-}
-
-/* Glowing effects */
+/* No neon/cyan glow — subtle white-only highlights (5-10% opacity) */
 .glow {
-  box-shadow: 0 0 10px rgba(59, 130, 246, 0.5),
-              0 0 20px rgba(59, 130, 246, 0.3),
-              0 0 30px rgba(59, 130, 246, 0.2);
+  box-shadow: 0 0 8px rgba(255, 255, 255, 0.06);
 }
 
 .glow-cyan {
-  box-shadow: 0 0 10px rgba(6, 182, 212, 0.5),
-              0 0 20px rgba(6, 182, 212, 0.3),
-              0 0 30px rgba(6, 182, 212, 0.2);
+  box-shadow: 0 0 6px rgba(255, 255, 255, 0.05);
 }
 
 .glow-purple {
-  box-shadow: 0 0 10px rgba(168, 85, 247, 0.5),
-              0 0 20px rgba(168, 85, 247, 0.3),
-              0 0 30px rgba(168, 85, 247, 0.2);
+  box-shadow: 0 0 6px rgba(255, 255, 255, 0.04);
 }
 
 .glow-green {
-  box-shadow: 0 0 10px rgba(34, 197, 94, 0.5),
-              0 0 20px rgba(34, 197, 94, 0.3),
-              0 0 30px rgba(34, 197, 94, 0.2);
+  box-shadow: 0 0 6px rgba(255, 255, 255, 0.04);
 }
 
 .glow-orange {
-  box-shadow: 0 0 10px rgba(249, 115, 22, 0.5),
-              0 0 20px rgba(249, 115, 22, 0.3),
-              0 0 30px rgba(249, 115, 22, 0.2);
+  box-shadow: 0 0 6px rgba(255, 255, 255, 0.04);
+}
+
+.glow-red {
+  box-shadow: 0 0 6px rgba(255, 255, 255, 0.04);
 }
 
 .text-glow {
-  text-shadow: 0 0 10px rgba(59, 130, 246, 0.8),
-               0 0 20px rgba(59, 130, 246, 0.6),
-               0 0 30px rgba(59, 130, 246, 0.4);
+  text-shadow: none;
 }
 
 .text-glow-cyan {
-  text-shadow: 0 0 10px rgba(6, 182, 212, 0.8),
-               0 0 20px rgba(6, 182, 212, 0.6),
-               0 0 30px rgba(6, 182, 212, 0.4);
+  text-shadow: none;
 }
