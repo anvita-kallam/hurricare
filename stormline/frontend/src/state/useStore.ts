@@ -83,7 +83,8 @@ interface Store {
     realPlan: any
     mismatchAnalysis: any
   } | null
-  
+  postSimulationMapMode: boolean
+
   setHurricanes: (hurricanes: Hurricane[]) => void
   setSelectedHurricane: (hurricane: Hurricane | null) => void
   setProjects: (projects: Project[]) => void
@@ -99,6 +100,7 @@ interface Store {
   setNarrativePopup: (popup: NarrativePopup | null) => void
   setShowComparisonPage: (show: boolean) => void
   setComparisonData: (data: { userPlan: any; mlPlan: any; realPlan: any; mismatchAnalysis: any } | null) => void
+  setPostSimulationMapMode: (mode: boolean) => void
 }
 
 export const useStore = create<Store>((set) => ({
@@ -117,7 +119,8 @@ export const useStore = create<Store>((set) => ({
   narrativePopup: null,
   showComparisonPage: false,
   comparisonData: null,
-  
+  postSimulationMapMode: false,
+
   setHurricanes: (hurricanes) => set({ hurricanes }),
   setSelectedHurricane: (hurricane) => set({ selectedHurricane: hurricane }),
   setProjects: (projects) => set({ projects }),
@@ -133,4 +136,5 @@ export const useStore = create<Store>((set) => ({
   setNarrativePopup: (narrativePopup) => set({ narrativePopup }),
   setShowComparisonPage: (showComparisonPage) => set({ showComparisonPage }),
   setComparisonData: (comparisonData) => set({ comparisonData }),
+  setPostSimulationMapMode: (postSimulationMapMode) => set({ postSimulationMapMode }),
 }))
