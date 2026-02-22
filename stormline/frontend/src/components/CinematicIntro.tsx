@@ -685,7 +685,7 @@ export default function CinematicIntro({
             boxShadow: '0 4px 30px rgba(0,0,0,0.5), inset 0 1px 0 rgba(255,255,255,0.04)',
           }}
         >
-          <TypewriterText text="Regional Severity" emphasis="soft" delayMs={100} className="text-white/30 font-rajdhani text-[9px] tracking-[0.2em] uppercase" />
+          <TypewriterText text="Regional Severity" emphasis="soft" delayMs={100} className="text-white/65 font-rajdhani text-sm tracking-[0.2em] uppercase" />
           <div style={{ height: 1, background: 'rgba(255,255,255,0.04)', margin: '4px 0' }} />
           <SeverityMiniChart data={regionSeverityData} />
         </div>
@@ -706,14 +706,14 @@ export default function CinematicIntro({
             boxShadow: '0 4px 30px rgba(0,0,0,0.5), inset 0 1px 0 rgba(255,255,255,0.04)',
           }}
         >
-          <TypewriterText text="Impact Overview" emphasis="soft" delayMs={300} className="text-white/30 font-rajdhani text-[9px] tracking-[0.2em] uppercase" />
+          <TypewriterText text="Impact Overview" emphasis="soft" delayMs={300} className="text-white/65 font-rajdhani text-sm tracking-[0.2em] uppercase" />
           <div style={{ height: 1, background: 'rgba(255,255,255,0.04)', margin: '4px 0' }} />
           <div className="grid grid-cols-2 gap-x-6 gap-y-2">
             <div>
               <div className="text-white/85 font-mono text-sm font-medium">
                 <CountUpText value={hurricane.estimated_population_affected} delayMs={500} duration={1500} />
               </div>
-              <div className="text-white/25 font-rajdhani text-[8px] tracking-[0.15em] uppercase">
+              <div className="text-white/60 font-rajdhani text-sm tracking-[0.15em] uppercase">
                 People Affected
               </div>
             </div>
@@ -721,7 +721,7 @@ export default function CinematicIntro({
               <div className="text-white/85 font-mono text-sm font-medium">
                 {totalPeopleInNeed.toLocaleString()}
               </div>
-              <div className="text-white/25 font-rajdhani text-[8px] tracking-[0.15em] uppercase">
+              <div className="text-white/60 font-rajdhani text-sm tracking-[0.15em] uppercase">
                 People in Need
               </div>
             </div>
@@ -729,7 +729,7 @@ export default function CinematicIntro({
               <div className="text-white/85 font-mono text-sm font-medium">
                 {hurricane.affected_countries.length}
               </div>
-              <div className="text-white/25 font-rajdhani text-[8px] tracking-[0.15em] uppercase">
+              <div className="text-white/60 font-rajdhani text-sm tracking-[0.15em] uppercase">
                 Countries
               </div>
             </div>
@@ -737,7 +737,7 @@ export default function CinematicIntro({
               <div className="text-white/85 font-mono text-sm font-medium">
                 {totalBudget > 0 ? formatBudget(totalBudget) : 'N/A'}
               </div>
-              <div className="text-white/25 font-rajdhani text-[8px] tracking-[0.15em] uppercase">
+              <div className="text-white/60 font-rajdhani text-sm tracking-[0.15em] uppercase">
                 Relief Budget
               </div>
             </div>
@@ -777,7 +777,7 @@ export default function CinematicIntro({
             boxShadow: '0 4px 30px rgba(0,0,0,0.5), inset 0 1px 0 rgba(255,255,255,0.04)',
           }}
         >
-          <div className="text-white/30 font-rajdhani text-[9px] tracking-[0.2em] uppercase mb-2">
+          <div className="text-white/65 font-rajdhani text-sm tracking-[0.2em] uppercase mb-2">
             Current Position
           </div>
           <div style={{ height: 1, background: 'rgba(255,255,255,0.04)', marginBottom: 8 }} />

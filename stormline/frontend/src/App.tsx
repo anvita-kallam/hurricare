@@ -60,8 +60,10 @@ function App() {
   const [loading, setLoading] = useState(true)
   const [gameStarted, setGameStarted] = useState(false)
   const [showWelcomePopup, setShowWelcomePopup] = useState(false)
+  const welcomeShownRef = useRef(false) // Ensure welcome popup shows only ONCE
   const [pendingHurricane, setPendingHurricane] = useState<string | null>(null)
   const [showMatcher, setShowMatcher] = useState(false)
+  const [dashboardInitializing, setDashboardInitializing] = useState(false)
 
   const sidebarRef = useRef<HTMLDivElement>(null)
 
@@ -99,11 +101,12 @@ function App() {
   }, [selectedHurricane, postSimulationMapMode])
 
   // When showComparisonPage becomes true, transition to sim-complete phase
+  // But ONLY if we're in pre-sim phase (not during game-flow, where results are inline)
   useEffect(() => {
-    if (showComparisonPage) {
+    if (showComparisonPage && gamePhase === 'pre-sim') {
       setGamePhase('sim-complete')
     }
-  }, [showComparisonPage, setGamePhase])
+  }, [showComparisonPage, gamePhase, setGamePhase])
 
   // When game phase resets to pre-sim, reset comparison page
   useEffect(() => {
@@ -239,9 +242,12 @@ function App() {
   const handleDashboardOption = (option: 'browse' | 'disparity') => {
     if (option === 'browse') {
       // Enter the main globe view with hurricane paths
-      // No matcher popup on initial entry — deferred to HUD search bar
       setGameStarted(true)
-      setShowWelcomePopup(true)
+      // Only show welcome popup ONCE on first entry — never again
+      if (!welcomeShownRef.current) {
+        welcomeShownRef.current = true
+        setShowWelcomePopup(true)
+      }
     } else if (option === 'disparity') {
       setShowFundingDisparity(true)
     }
@@ -249,14 +255,12 @@ function App() {
 
   const handleMatcherMatch = (hurricaneId: string) => {
     setShowMatcher(false)
-    setGameStarted(true)
-    setShowWelcomePopup(true)
+    // Do NOT show welcome popup when using search — it was already shown on browse entry
   }
 
   const handleMatcherSkip = () => {
     setShowMatcher(false)
-    setGameStarted(true)
-    setShowWelcomePopup(true)
+    // Do NOT show welcome popup on skip — it was already shown on browse entry
   }
 
   const handleCloseFundingDisparity = () => {
@@ -271,7 +275,6 @@ function App() {
 
   const handleReturnToMenu = () => {
     // Clear all selections and return to the menu
-    // Always reload data to ensure clean state when returning
     setSelectedHurricane(null)
     setPostSimulationMapMode(false)
     setShowWelcomePopup(false)
@@ -286,11 +289,23 @@ function App() {
     setMapPhase('globe')
     setShowMatcher(false)
     setShowFundingDisparity(false)
+    // Trigger the initializing animation on dashboard re-entry
+    setDashboardInitializing(true)
     // Return to dashboard - use minimal delay to ensure clean unmount/remount
     setTimeout(() => {
       setGameStarted(false)
+      // Clear initializing after dashboard has time to show it
+      setTimeout(() => setDashboardInitializing(false), 2500)
     }, 50)
   }
+
+  // Film grain + vignette overlays (always present for cinematic feel)
+  const postProcessingOverlays = (
+    <>
+      <div className="film-grain" />
+      <div className="vignette-overlay" />
+    </>
+  )
 
   // Dashboard entry screen — always ensure visible and responsive
   if (!gameStarted && !showFundingDisparity) {
@@ -300,20 +315,23 @@ function App() {
         <Dashboard3D
           onSelectOption={handleDashboardOption}
           onEnter={() => {}}
-          isLoading={loading || hurricanes.length === 0}
+          isLoading={loading || hurricanes.length === 0 || dashboardInitializing}
         />
+        {postProcessingOverlays}
       </>
     )
   }
 
   // Funding disparity globe
   if (showFundingDisparity) {
-    // During close transition: show black screen while Canvas disposes
     if (disparityClosing) {
       return <div className="fixed inset-0 bg-[#020408]" />
     }
     return (
-      <FundingDisparityGlobe onClose={handleCloseFundingDisparity} />
+      <>
+        <FundingDisparityGlobe onClose={handleCloseFundingDisparity} />
+        {postProcessingOverlays}
+      </>
     )
   }
 
@@ -348,6 +366,7 @@ function App() {
 
         {/* Single "Begin Game" button — ONLY UI element */}
         <BeginGameOverlay />
+        {postProcessingOverlays}
       </>
     )
   }
@@ -364,8 +383,9 @@ function App() {
           <PostSimulationMap transitionPhase="active" />
         </div>
 
-        {/* Immersive panel overlay — blurs/dims background, shows ONE panel */}
+        {/* Immersive panel overlay — blurs/dims background, shows panels */}
         <ImmersivePanelOverlay />
+        {postProcessingOverlays}
       </>
     )
   }
@@ -416,72 +436,71 @@ function App() {
         }}
       >
         {/* Header — near-black bg, hairline white border */}
-        <header className="bg-black/90 border-b border-white/[0.08] p-4 relative z-10">
+        <header className="bg-black/90 border-b border-white/[0.12] p-4 relative z-10">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-4">
               <button
                 onClick={handleReturnToMenu}
-                className="text-3xl font-bold text-white font-rajdhani tracking-wider hover:text-white/80 hover:opacity-75 transition-all duration-300 cursor-pointer"
+                className="text-4xl font-bold text-white font-rajdhani tracking-wider hover:text-white/80 hover:opacity-75 transition-all duration-300 cursor-pointer"
                 title="Return to menu"
               >
                 HurriCare
               </button>
               {postSimulationMapMode && (
-                <div className="flex items-center gap-2 px-3 py-1 rounded bg-white/[0.05] border border-white/[0.08]">
-                  <div className="w-1.5 h-1.5 rounded-full bg-red-400/80" />
-                  <span className="text-xs font-rajdhani text-white/50 tracking-wider uppercase">Analysis Mode</span>
+                <div className="flex items-center gap-2 px-3 py-1.5 rounded bg-white/[0.07] border border-white/[0.12]">
+                  <div className="w-2 h-2 rounded-full bg-red-400/80" />
+                  <span className="text-sm font-rajdhani text-white/70 tracking-wider uppercase">Analysis Mode</span>
                 </div>
               )}
               {/* Integrated HUD search bar — deferred search trigger */}
               {!postSimulationMapMode && (
                 <button
                   onClick={() => setShowMatcher(true)}
-                  className="flex items-center gap-2 px-3 py-1.5 rounded bg-white/[0.04] hover:bg-white/[0.08] border border-white/[0.06] hover:border-white/[0.12] transition-all duration-300 group ml-2"
+                  className="flex items-center gap-2 px-4 py-2 rounded bg-white/[0.06] hover:bg-white/[0.1] border border-white/[0.08] hover:border-white/[0.15] transition-all duration-300 group ml-2"
                 >
-                  <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="text-white/30 group-hover:text-white/50 transition">
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="text-white/50 group-hover:text-white/70 transition">
                     <circle cx="11" cy="11" r="8" />
                     <path d="m21 21-4.35-4.35" />
                   </svg>
-                  <span className="text-[10px] font-mono text-white/25 group-hover:text-white/40 tracking-[0.15em] transition uppercase">
+                  <span className="text-sm font-mono text-white/50 group-hover:text-white/70 tracking-[0.15em] transition uppercase">
                     SEARCH HURRICANES
                   </span>
-                  <span className="text-[8px] font-mono text-white/15 tracking-wider ml-1">/</span>
                 </button>
               )}
             </div>
             <div className="flex items-center gap-4">
               {!postSimulationMapMode && (
-                <label className="flex items-center gap-2 cursor-pointer text-white/60 hover:text-white/80 transition">
+                <label className="flex items-center gap-2 cursor-pointer text-white/80 hover:text-white transition">
                   <input
                     type="checkbox"
                     checked={autoSpin}
                     onChange={(e) => setAutoSpin(e.target.checked)}
                     className="w-4 h-4 accent-white/50"
                   />
-                  <span className="text-sm font-rajdhani">Auto-rotate Globe</span>
+                  <span className="text-base font-rajdhani">Auto-rotate Globe</span>
                 </label>
               )}
-              <label className="flex items-center gap-2 cursor-pointer text-white/60 hover:text-white/80 transition">
+              <label className="flex items-center gap-2 cursor-pointer text-white/80 hover:text-white transition">
                 <input
                   type="checkbox"
                   checked={showSeverityOverlay}
                   onChange={toggleSeverityOverlay}
                   className="w-4 h-4 accent-white/50"
                 />
-                <span className="text-sm font-rajdhani">Severity Overlay</span>
+                <span className="text-base font-rajdhani">Severity Overlay</span>
               </label>
-              <label className="flex items-center gap-2 cursor-pointer text-white/60 hover:text-white/80 transition">
+              <label className="flex items-center gap-2 cursor-pointer text-white/80 hover:text-white transition">
                 <input
                   type="checkbox"
                   checked={showCoverageOverlay}
                   onChange={toggleCoverageOverlay}
                   className="w-4 h-4 accent-white/50"
                 />
-                <span className="text-sm font-rajdhani">Coverage Overlay</span>
+                <span className="text-base font-rajdhani">Coverage Overlay</span>
               </label>
               <button
                 onClick={() => setLeaderboardOpen(true)}
-                className="px-3 py-1.5 rounded bg-white/[0.08] hover:bg-white/[0.15] text-white/70 text-sm font-semibold font-rajdhani transition border border-white/[0.08]"
+                className="px-4 py-2 rounded bg-white/[0.1] hover:bg-white/[0.18] text-white/90 text-base font-semibold font-rajdhani transition border border-white/[0.1]"
               >
                 Daily Leaderboard
               </button>
@@ -498,13 +517,13 @@ function App() {
         {/* Main Content */}
         <div className="flex-1 flex overflow-hidden relative z-10">
           {/* Left Sidebar — Hurricane Selection */}
-          <div ref={sidebarRef} className="w-64 bg-black/80 border-r border-white/[0.08] p-4 overflow-hidden flex flex-col">
+          <div ref={sidebarRef} className="w-72 bg-black/80 border-r border-white/[0.1] p-4 overflow-hidden flex flex-col">
             <div className="flex items-center justify-between mb-4 flex-shrink-0">
-              <h2 className="text-xl font-bold text-white/90 font-rajdhani">Historical Hurricanes</h2>
+              <h2 className="text-2xl font-bold text-white font-rajdhani">Historical Hurricanes</h2>
               {selectedHurricane && (
                 <button
                   onClick={handleClearSelection}
-                  className="text-xs px-2 py-1 rounded bg-white/[0.08] hover:bg-white/[0.15] border border-white/[0.1] text-white/50 font-rajdhani transition"
+                  className="text-sm px-3 py-1.5 rounded bg-white/[0.1] hover:bg-white/[0.18] border border-white/[0.12] text-white/70 font-rajdhani transition"
                   title="Clear Selection"
                 >
                   Clear
@@ -518,15 +537,15 @@ function App() {
                   onClick={() => handleHurricaneSelect(hurricane.id)}
                   className={`w-full text-left p-3 rounded border transition-all duration-300 font-rajdhani ${
                     selectedHurricane?.id === hurricane.id
-                      ? 'border-white/25 bg-white/10 text-white'
-                      : 'border-white/[0.08] bg-black/40 text-white/60 hover:border-white/[0.15] hover:bg-white/[0.05] hover:text-white/80'
+                      ? 'border-white/30 bg-white/12 text-white'
+                      : 'border-white/[0.1] bg-black/40 text-white/80 hover:border-white/[0.18] hover:bg-white/[0.07] hover:text-white'
                   }`}
                 >
-                  <div className="font-semibold">{hurricane.name}</div>
-                  <div className="text-sm text-white/40 font-mono">
+                  <div className="font-semibold text-lg">{hurricane.name}</div>
+                  <div className="text-base text-white/60 font-mono">
                     {hurricane.year} &bull; Category {hurricane.max_category}
                   </div>
-                  <div className="text-xs text-white/30 mt-1 font-mono">
+                  <div className="text-sm text-white/50 mt-1 font-mono">
                     {hurricane.estimated_population_affected.toLocaleString()} affected
                   </div>
                 </button>
@@ -534,14 +553,14 @@ function App() {
             </div>
 
             {selectedHurricane && (
-              <div className="mt-4 p-3 bg-white/[0.05] border border-white/[0.08] rounded flex-shrink-0">
-                <h3 className="font-semibold mb-2 text-white/70 font-rajdhani">Selected Scenario</h3>
-                <div className="text-sm space-y-1 text-white/50">
-                  <div><span className="font-medium text-white/60 font-rajdhani">Name:</span> <span className="font-mono">{selectedHurricane.name}</span></div>
-                  <div><span className="font-medium text-white/60 font-rajdhani">Year:</span> <span className="font-mono">{selectedHurricane.year}</span></div>
-                  <div><span className="font-medium text-white/60 font-rajdhani">Max Category:</span> <span className="font-mono">{selectedHurricane.max_category}</span></div>
-                  <div><span className="font-medium text-white/60 font-rajdhani">Affected:</span> <span className="font-mono">{selectedHurricane.affected_countries.join(', ')}</span></div>
-                  <div><span className="font-medium text-white/60 font-rajdhani">Population:</span> <span className="font-mono">{selectedHurricane.estimated_population_affected.toLocaleString()}</span></div>
+              <div className="mt-4 p-4 bg-white/[0.07] border border-white/[0.1] rounded flex-shrink-0">
+                <h3 className="font-semibold text-lg mb-2 text-white/90 font-rajdhani">Selected Scenario</h3>
+                <div className="text-base space-y-1.5 text-white/70">
+                  <div><span className="font-medium text-white/80 font-rajdhani">Name:</span> <span className="font-mono">{selectedHurricane.name}</span></div>
+                  <div><span className="font-medium text-white/80 font-rajdhani">Year:</span> <span className="font-mono">{selectedHurricane.year}</span></div>
+                  <div><span className="font-medium text-white/80 font-rajdhani">Max Category:</span> <span className="font-mono">{selectedHurricane.max_category}</span></div>
+                  <div><span className="font-medium text-white/80 font-rajdhani">Affected:</span> <span className="font-mono">{selectedHurricane.affected_countries.join(', ')}</span></div>
+                  <div><span className="font-medium text-white/80 font-rajdhani">Population:</span> <span className="font-mono">{selectedHurricane.estimated_population_affected.toLocaleString()}</span></div>
                 </div>
               </div>
             )}
@@ -577,13 +596,14 @@ function App() {
           </div>
 
           {/* Right Sidebar - Game Panel */}
-          <div className="w-96 bg-black/70 backdrop-blur-sm border-l border-white/[0.08] flex flex-col relative">
+          <div className="w-96 bg-black/70 backdrop-blur-sm border-l border-white/[0.1] flex flex-col relative">
             <div className="flex-1 overflow-hidden p-4">
               <SimulationEngine onStartSimulation={handleStartSimulation} />
             </div>
           </div>
         </div>
       </div>
+      {postProcessingOverlays}
     </>
   )
 }

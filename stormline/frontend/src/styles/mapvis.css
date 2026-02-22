@@ -279,9 +279,9 @@ canvas {
 
 .fdp-stat-label {
   font-family: 'Rajdhani', sans-serif;
-  font-size: 0.45rem;
+  font-size: 0.5rem;
   font-weight: 600;
-  color: rgba(255, 255, 255, 0.18);
+  color: rgba(255, 255, 255, 0.55);
   letter-spacing: 0.14em;
   text-transform: uppercase;
 }
@@ -296,13 +296,13 @@ canvas {
   font-family: 'DM Mono', monospace;
   font-size: 0.85rem;
   font-weight: 500;
-  color: rgba(255, 255, 255, 0.75);
+  color: rgba(255, 255, 255, 0.92);
   line-height: 1;
 }
 
 .fdp-stat-unit {
   font-size: 0.55rem;
-  color: rgba(255, 255, 255, 0.25);
+  color: rgba(255, 255, 255, 0.5);
   margin-left: 1px;
 }
 
