@@ -157,11 +157,11 @@ export function CompactBarCluster({ data, height = 120 }: {
           )
         })}
       </div>
-      {/* X labels */}
+      {/* X labels — full names with smart overflow */}
       <div className="flex justify-between mt-1">
         {data.map((d, i) => (
-          <div key={i} className="flex-1 text-center">
-            <span className="text-white/20 font-mono text-[8px] truncate block">{d.label.slice(0, 6)}</span>
+          <div key={i} className="flex-1 text-center overflow-hidden">
+            <span className="text-white/25 font-rajdhani text-[7px] tracking-wide block truncate" title={d.label}>{d.label}</span>
           </div>
         ))}
       </div>
@@ -272,11 +272,11 @@ export function ContourSurface({ regions, colorFn, height = 140 }: {
         className="w-full h-full transition-opacity duration-1000"
         style={{ opacity: animated ? 1 : 0, imageRendering: 'auto' }}
       />
-      {/* Region labels overlaid */}
+      {/* Region labels overlaid — full names */}
       <div className="absolute bottom-0 left-0 right-0 flex">
         {regions.map((r, i) => (
-          <div key={i} className="flex-1 text-center pb-1">
-            <span className="text-white/25 font-mono text-[7px]">{r.name.slice(0, 8)}</span>
+          <div key={i} className="flex-1 text-center pb-1 overflow-hidden">
+            <span className="text-white/30 font-rajdhani text-[7px] tracking-wide truncate block" title={r.name}>{r.name}</span>
           </div>
         ))}
       </div>

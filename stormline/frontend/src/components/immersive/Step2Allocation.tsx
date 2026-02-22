@@ -364,11 +364,18 @@ function SeverityHeightMap({ data, totalBudget, activeIndex }: {
         ctx.strokeRect(tileLeft - 1, baseY - sevHeight - 1, tileRight - tileLeft + 2, sevHeight + 2)
       }
 
-      // Region label below
+      // Region label below — smart truncation based on tile width
       ctx.fillStyle = isActive ? 'rgba(255,255,255,0.9)' : 'rgba(255,255,255,0.5)'
       ctx.font = `${isActive ? 'bold ' : ''}10px Rajdhani`
       ctx.textAlign = 'center'
-      const label = d.region.length > 10 ? d.region.slice(0, 10) + '..' : d.region
+      let label = d.region
+      const maxLabelW = tileW - 4
+      if (ctx.measureText(label).width > maxLabelW) {
+        while (label.length > 4 && ctx.measureText(label + '..').width > maxLabelW) {
+          label = label.slice(0, -1)
+        }
+        label += '..'
+      }
       ctx.fillText(label, tileMid, baseY + 14)
 
       // Severity value on top
@@ -695,16 +702,21 @@ export default function Step2Allocation() {
             <span className="text-lg">&#9666;</span>
           </button>
 
-          {/* Region card */}
+          {/* Region card — FDP-style glass panel */}
           <div
             key={currentRegion}
-            className={`flex-1 rounded border bg-white/[0.03] border-white/[0.1] overflow-hidden ${slideClass}`}
+            className={`flex-1 overflow-hidden ${slideClass}`}
             style={{
               animation: slideDir ? undefined : 'none',
+              background: 'linear-gradient(180deg, rgba(0,0,2,0.85) 0%, rgba(0,0,4,0.9) 50%, rgba(0,0,3,0.85) 100%)',
+              border: '1px solid rgba(255,255,255,0.06)',
+              backgroundImage: 'radial-gradient(circle, rgba(255,255,255,0.012) 0.5px, transparent 0.5px)',
+              backgroundSize: '10px 10px',
+              boxShadow: '0 4px 30px rgba(0,0,0,0.5), inset 0 1px 0 rgba(255,255,255,0.04)',
             }}
           >
             {/* Region header */}
-            <div className="px-4 py-3 border-b border-white/[0.06] flex items-center justify-between bg-white/[0.02]">
+            <div className="px-4 py-3 flex items-center justify-between" style={{ borderBottom: '1px solid rgba(255,255,255,0.04)', background: 'rgba(255,255,255,0.015)' }}>
               <div className="flex items-center gap-3">
                 <div
                   className="w-3 h-3 rounded-full shrink-0"
@@ -795,7 +807,7 @@ export default function Step2Allocation() {
         </div>
       </div>
 
-      {/* Inline keyframe styles for slide animations */}
+      {/* Inline keyframe styles for slide animations + FDP slider styling */}
       <style>{`
         @keyframes slideInRight {
           from { transform: translateX(40px); opacity: 0.3; }
@@ -810,6 +822,29 @@ export default function Step2Allocation() {
         }
         .animate-slide-in-left {
           animation: slideInLeft 0.3s ease-out;
+        }
+        input[type="range"]::-webkit-slider-thumb {
+          -webkit-appearance: none;
+          width: 14px;
+          height: 14px;
+          border-radius: 50%;
+          background: radial-gradient(circle at 40% 35%, rgba(255,255,255,0.95), rgba(180,200,220,0.8));
+          box-shadow: 0 0 6px rgba(100,180,230,0.4), 0 1px 3px rgba(0,0,0,0.5);
+          cursor: pointer;
+          border: 1px solid rgba(255,255,255,0.1);
+          transition: box-shadow 0.15s;
+        }
+        input[type="range"]::-webkit-slider-thumb:hover {
+          box-shadow: 0 0 12px rgba(100,180,230,0.6), 0 2px 6px rgba(0,0,0,0.5);
+        }
+        input[type="range"]::-moz-range-thumb {
+          width: 14px;
+          height: 14px;
+          border-radius: 50%;
+          background: radial-gradient(circle at 40% 35%, rgba(255,255,255,0.95), rgba(180,200,220,0.8));
+          box-shadow: 0 0 6px rgba(100,180,230,0.4), 0 1px 3px rgba(0,0,0,0.5);
+          cursor: pointer;
+          border: 1px solid rgba(255,255,255,0.1);
         }
       `}</style>
     </div>

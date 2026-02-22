@@ -20,6 +20,7 @@ import {
   PerspectiveGrid,
   StatReadout,
 } from '../mapvis/charts/ChartPrimitives'
+import AffectedAreaHeightMap from '../shared/AffectedAreaHeightMap'
 
 function formatBudget(n: number): string {
   if (n >= 1e9) return `$${(n / 1e9).toFixed(1)}B`
@@ -215,7 +216,7 @@ export default function Step4Results() {
           <div style={{ marginBottom: 2 }}>
             <SegmentedHorizontalBars
               bars={regionData.slice(0, 6).map((r: any) => ({
-                label: r.region.slice(0, 6).toUpperCase(),
+                label: r.region.toUpperCase(),
                 value: Math.round(r.userCoverage * 100),
                 max: 100,
               }))}
@@ -289,8 +290,10 @@ export default function Step4Results() {
             <ThinVerticalBars
               data={budgetSeries.length > 1 ? budgetSeries : [0, 100]}
               width={W}
-              height={48}
+              height={60}
               seed={seed + 50}
+              labels={regionData.map((r: any) => r.region)}
+              unit="Budget ($)"
             />
           </div>
 
@@ -311,6 +314,45 @@ export default function Step4Results() {
           </div>
         </div>
       </div>
+
+      {/* 2.5D Coverage Comparison Terrain */}
+      {regionData.length > 0 && (
+        <div style={{
+          background: 'linear-gradient(180deg, rgba(0,0,2,0.85) 0%, rgba(0,0,4,0.9) 50%, rgba(0,0,3,0.85) 100%)',
+          border: '1px solid rgba(255,255,255,0.04)',
+          padding: '14px 16px 10px',
+          backgroundImage: 'radial-gradient(circle, rgba(255,255,255,0.02) 0.5px, transparent 0.5px)',
+          backgroundSize: '12px 12px',
+        }}>
+          <div className="flex items-center justify-between mb-2">
+            <div style={{ fontFamily: "'Rajdhani', sans-serif", fontSize: '0.5rem', fontWeight: 600, color: 'rgba(255,255,255,0.2)', letterSpacing: '0.18em', textTransform: 'uppercase' as const }}>
+              YOUR PLAN vs ML IDEAL — COVERAGE TERRAIN
+            </div>
+            <div className="flex items-center gap-3">
+              <div className="flex items-center gap-1">
+                <div className="w-2 h-2 rounded-sm" style={{ background: 'rgba(100,180,230,0.6)' }} />
+                <span className="text-white/30 font-mono text-[7px]">Your Plan</span>
+              </div>
+              <div className="flex items-center gap-1">
+                <div className="w-2 h-2 rounded-sm" style={{ background: 'rgba(136,85,170,0.6)' }} />
+                <span className="text-white/30 font-mono text-[7px]">ML Ideal</span>
+              </div>
+            </div>
+          </div>
+          <AffectedAreaHeightMap
+            data={regionData.map((r: any) => ({
+              region: r.region,
+              severity: Math.max(r.userCoverage, r.mlCoverage, 0.1),
+              metric: r.userCoverage,
+              metricB: r.mlCoverage,
+              valueLabel: `${Math.round(r.userCoverage * 100)}%`,
+            }))}
+            width={600}
+            height={200}
+            theme="coverage"
+          />
+        </div>
+      )}
 
       {/* Anchored insight */}
       <div className="text-center border-t border-white/[0.06] pt-4">

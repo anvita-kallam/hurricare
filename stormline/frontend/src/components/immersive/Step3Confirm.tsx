@@ -18,6 +18,7 @@ import {
   SegmentedHorizontalBars,
   ThinVerticalBars,
 } from '../mapvis/charts/ChartPrimitives'
+import AffectedAreaHeightMap from '../shared/AffectedAreaHeightMap'
 
 const API_BASE = 'http://localhost:8000'
 
@@ -390,11 +391,28 @@ export default function Step3Confirm({ onPipelineComplete }: Step3ConfirmProps) 
       .sort(([, a], [, b]) => (b || 0) - (a || 0))
       .slice(0, 6)
       .map(([region, amount]) => ({
-        label: region.slice(0, 6).toUpperCase(),
+        label: region.toUpperCase(),
         value: Math.round(((amount || 0) / gameTotalBudget) * 100),
         max: 100,
       }))
   }, [gameAllocations, gameTotalBudget])
+
+  // Build 2.5D height map data from allocations + coverage
+  const heightMapData = useMemo(() => {
+    if (!selectedHurricane) return []
+    return Object.entries(gameAllocations)
+      .filter(([, amount]) => (amount || 0) > 0)
+      .sort(([, a], [, b]) => (b || 0) - (a || 0))
+      .map(([region, amount]) => {
+        const cov = coverage.find(c => c.hurricane_id === selectedHurricane.id && c.admin1 === region)
+        return {
+          region,
+          severity: cov ? Math.min(cov.severity_index / 10, 1) : 0.5,
+          metric: gameTotalBudget > 0 ? (amount || 0) / gameTotalBudget : 0,
+          valueLabel: formatBudget(amount || 0),
+        }
+      })
+  }, [selectedHurricane, gameAllocations, coverage, gameTotalBudget])
 
   const allocValues = useMemo(() => {
     return Object.values(gameAllocations).filter(v => (v || 0) > 0).sort((a, b) => (b || 0) - (a || 0))
@@ -488,6 +506,27 @@ export default function Step3Confirm({ onPipelineComplete }: Step3ConfirmProps) 
           ))}
         </div>
       </div>
+
+      {/* 2.5D Allocation Terrain */}
+      {heightMapData.length > 0 && (
+        <div className="max-w-lg mx-auto" style={{
+          background: 'linear-gradient(180deg, rgba(0,0,2,0.85) 0%, rgba(0,0,4,0.9) 50%, rgba(0,0,3,0.85) 100%)',
+          border: '1px solid rgba(255,255,255,0.04)',
+          padding: '10px 12px 6px',
+          backgroundImage: 'radial-gradient(circle, rgba(255,255,255,0.02) 0.5px, transparent 0.5px)',
+          backgroundSize: '12px 12px',
+        }}>
+          <div style={{ fontFamily: "'Rajdhani', sans-serif", fontSize: '0.5rem', fontWeight: 600, color: 'rgba(255,255,255,0.2)', letterSpacing: '0.18em', textTransform: 'uppercase' as const, marginBottom: 6 }}>
+            YOUR ALLOCATION MAP
+          </div>
+          <AffectedAreaHeightMap
+            data={heightMapData}
+            width={480}
+            height={180}
+            theme="severity"
+          />
+        </div>
+      )}
 
       {/* Run button */}
       <div className="text-center">
