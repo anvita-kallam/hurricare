@@ -3,6 +3,7 @@ import axios from 'axios'
 import { useStore } from '../state/useStore'
 import NarrativePopup from './NarrativePopup'
 import LocalizedAffectedMap from './LocalizedAffectedMap'
+import { resolveRegion } from '../utils/regionRegistry'
 
 const API_BASE = 'http://localhost:8000'
 
@@ -333,17 +334,35 @@ export default function SimulationEngine({ onStartSimulation }: SimulationEngine
       setPipelineStage('idle')
       setPipelineProgress(0)
 
-      if (error.response?.status === 400) {
+      const errorMessage = error.response?.data?.detail?.message
+        || error.response?.data?.detail
+        || error.message
+        || 'Failed to process plan. Please try again.'
+
+      // Guard against "unknown region" blocking the user
+      const isRegionError = typeof errorMessage === 'string'
+        && (errorMessage.toLowerCase().includes('unknown region')
+            || errorMessage.toLowerCase().includes('region not found')
+            || errorMessage.toLowerCase().includes('invalid region'))
+
+      if (isRegionError) {
+        console.warn('[SimulationEngine] Region mismatch error caught:', errorMessage)
+        setValidation({
+          valid: false,
+          errors: ['Region mapping issue detected. Some regions may not have full data. Try adjusting allocations.'],
+          warnings: ['The backend does not recognize some region names. Check console for details.']
+        })
+      } else if (error.response?.status === 400) {
         const detail = error.response.data.detail
         setValidation({
           valid: false,
-          errors: detail?.errors || [detail?.message || 'Validation failed'],
+          errors: detail?.errors || [typeof detail === 'string' ? detail : 'Validation failed'],
           warnings: detail?.warnings || []
         })
       } else {
         setValidation({
           valid: false,
-          errors: ['Failed to process plan. Please try again.'],
+          errors: [typeof errorMessage === 'string' ? errorMessage : 'Failed to process plan. Please try again.'],
           warnings: []
         })
       }
