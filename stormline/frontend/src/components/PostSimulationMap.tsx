@@ -731,42 +731,7 @@ export default function PostSimulationMap({ transitionPhase }: PostSimulationMap
         />
       </Canvas>
 
-      {/* Mode indicator */}
-      <div className="absolute top-4 left-4 pointer-events-none">
-        <div className="bg-black/80 border border-white/10 rounded px-3 py-2">
-          <div className="text-white/50 font-rajdhani text-xs tracking-widest uppercase">Analysis Mode</div>
-          <div className="text-white/80 font-rajdhani font-semibold text-sm mt-0.5">
-            {selectedHurricane.name} ({selectedHurricane.year})
-          </div>
-        </div>
-      </div>
-
-      {/* Legend */}
-      <div className="absolute bottom-4 left-4 bg-black/80 border border-white/10 rounded-lg p-3 max-w-[200px] pointer-events-none">
-        <div className="text-white/60 font-rajdhani font-semibold text-xs mb-2 tracking-wide uppercase">Region Status</div>
-        <div className="space-y-1.5 text-xs">
-          <div className="flex items-center gap-2">
-            <div className="w-4 h-2.5 rounded-sm" style={{ backgroundColor: '#8b2020' }} />
-            <span className="text-white/50 font-rajdhani">Impacted (High)</span>
-          </div>
-          <div className="flex items-center gap-2">
-            <div className="w-4 h-2.5 rounded-sm" style={{ backgroundColor: '#5a2020' }} />
-            <span className="text-white/50 font-rajdhani">Impacted (Moderate)</span>
-          </div>
-          <div className="flex items-center gap-2">
-            <div className="w-4 h-2.5 rounded-sm" style={{ backgroundColor: '#0c1e3a' }} />
-            <span className="text-white/50 font-rajdhani">Support / Context</span>
-          </div>
-        </div>
-        <div className="mt-2.5 pt-2.5 border-t border-white/8 text-xs text-white/30 font-mono">
-          {affectedRegions.length} regions &bull; Scroll to zoom
-        </div>
-      </div>
-
-      {/* Hint for interaction */}
-      <div className="absolute bottom-4 right-4 bg-black/60 border border-white/8 rounded px-3 py-1.5 pointer-events-none">
-        <span className="text-white/30 font-rajdhani text-xs">Drag to rotate &bull; Scroll to zoom &bull; Hover nodes for details</span>
-      </div>
+      {/* Clean map only — no overlays. The immersive panel system provides all UI. */}
     </div>
   )
 }
