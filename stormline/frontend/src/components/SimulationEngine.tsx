@@ -433,7 +433,7 @@ export default function SimulationEngine({ onStartSimulation }: SimulationEngine
       ml_generating: 'Generating ML-optimized allocation',
       real_loading: 'Loading historical response data',
       analyzing: 'Running mismatch analysis',
-      complete: 'Analysis complete — entering command center',
+      complete: 'Analysis complete — entering results',
     }
 
     return (
