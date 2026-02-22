@@ -1,4 +1,5 @@
 import { useState, useEffect, useRef, useCallback } from 'react'
+import { Canvas } from '@react-three/fiber'
 import GlobeScene from './mapvis/GlobeScene'
 import '../styles/mapvis.css'
 
@@ -54,7 +55,8 @@ export default function MapVisGlobe({
 }: MapVisGlobeProps) {
   const [selected, setSelected] = useState<string | null>(null)
   const [blurring, setBlurring] = useState(false)
-  const [hoverEnabled, setHoverEnabled] = useState(true)
+  // Hover is disabled by default everywhere except in funding disparity mode
+  const hoverEnabled = false
   const blurTimeout = useRef<ReturnType<typeof setTimeout> | null>(null)
 
   useEffect(() => {
@@ -78,14 +80,9 @@ export default function MapVisGlobe({
       {selected && <div className="zoom-vignette" />}
 
       <div className={`globe-container${blurring ? ' motion-blur' : ''}`}>
-        <button
-          className="hover-toggle-btn"
-          onClick={() => setHoverEnabled(!hoverEnabled)}
-          title={hoverEnabled ? 'Disable hover elevation' : 'Enable hover elevation'}
-        >
-          Hover: {hoverEnabled ? 'On' : 'Off'}
-        </button>
-        <GlobeScene selected={selected} onSelect={handleSelect} hoverEnabled={hoverEnabled} />
+        <Canvas camera={{ position: [0, 0, 2.9], fov: 50 }} dpr={[1, 2]}>
+          <GlobeScene selected={selected} onSelect={handleSelect} hoverEnabled={hoverEnabled} />
+        </Canvas>
       </div>
 
       <CountryPanel name={selected} onBack={handleBack} />

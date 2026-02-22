@@ -1,5 +1,5 @@
 import { useRef, useEffect } from 'react'
-import { Canvas, useFrame, useThree } from '@react-three/fiber'
+import { useFrame, useThree } from '@react-three/fiber'
 import { OrbitControls } from '@react-three/drei'
 import * as THREE from 'three'
 import GlobeShell from './GlobeShell'
@@ -8,6 +8,7 @@ import PostProcessing from './PostProcessing'
 import Starfield from './Starfield'
 import HurricaneLayer from '../HurricaneLayer'
 import { COUNTRY_POLYGONS } from '../../data/countries'
+import { getFundingDisparity, disparityToColor } from '../../data/fundingDisparity'
 
 const latLonToVec3 = (lat: number, lon: number, r: number) => {
   const phi = (90 - lat) * (Math.PI / 180)
@@ -137,49 +138,74 @@ function CameraRig({ selected }: { selected: string | null }) {
   )
 }
 
-function GlobeGroup({ onSelect, selected, groupRef, mouseLocal, hoverEnabled = true }: { onSelect: (name: string) => void, selected: string | null, groupRef: React.MutableRefObject<THREE.Group | null>, mouseLocal: React.MutableRefObject<THREE.Vector3 | null>, hoverEnabled?: boolean }) {
+function GlobeGroup({ onSelect, selected, groupRef, mouseLocal, hoverEnabled = true, fundingDisparityMode = false }: { onSelect: (name: string) => void, selected: string | null, groupRef: React.MutableRefObject<THREE.Group | null>, mouseLocal: React.MutableRefObject<THREE.Vector3 | null>, hoverEnabled?: boolean, fundingDisparityMode?: boolean }) {
   return (
     <group ref={groupRef}>
       <GlobeShell />
-      {COUNTRY_POLYGONS.map((country) => (
-        <CountryMesh
-          key={country.name}
-          country={country}
-          radius={1}
-          selected={selected === country.name}
-          globalSelected={selected !== null}
-          mouseOnGlobe={mouseLocal}
-          onSelect={onSelect}
-          hoverEnabled={hoverEnabled}
-        />
-      ))}
-      <HurricaneLayer />
+      {COUNTRY_POLYGONS.map((country) => {
+        let countryColor = country.color
+        if (fundingDisparityMode) {
+          // Override color with funding disparity gradient
+          const disparity = getFundingDisparity(country.name)
+          countryColor = disparityToColor(disparity)
+        }
+        return (
+          <CountryMesh
+            key={country.name}
+            country={{ ...country, color: countryColor }}
+            radius={1}
+            selected={selected === country.name}
+            globalSelected={selected !== null}
+            mouseOnGlobe={mouseLocal}
+            onSelect={onSelect}
+            hoverEnabled={hoverEnabled}
+          />
+        )
+      })}
+      {!fundingDisparityMode && <HurricaneLayer />}
     </group>
   )
 }
 
 interface GlobeSceneProps {
-  selected: string | null
-  onSelect: (name: string) => void
+  selectedCountry?: string | null
+  onCountrySelect?: (name: string) => void
   hoverEnabled?: boolean
+  fundingDisparityMode?: boolean
+  // Legacy props for backward compatibility
+  selected?: string | null
+  onSelect?: (name: string) => void
 }
 
-export default function GlobeScene({ selected, onSelect, hoverEnabled = true }: GlobeSceneProps) {
+export default function GlobeScene({ selectedCountry, onCountrySelect, hoverEnabled = true, fundingDisparityMode = false, selected, onSelect }: GlobeSceneProps) {
   const groupRef = useRef<THREE.Group>(null)
   const mouseLocal = useRef<THREE.Vector3 | null>(null)
 
+  // Support both new and legacy prop names
+  const activeSelected = selectedCountry ?? selected ?? null
+  const handleSelect = onCountrySelect ?? onSelect ?? (() => {})
+
+  const { camera, gl } = useThree()
+
+  // Set up camera and lighting when in funding disparity mode
+  useEffect(() => {
+    if (fundingDisparityMode) {
+      camera.position.set(0, 0, 2.5)
+    }
+  }, [fundingDisparityMode, camera])
+
   return (
-    <Canvas camera={{ position: [0, 0, 2.9], fov: 50 }} dpr={[1, 2]}>
+    <>
       <color attach="background" args={['#000000']} />
       <ambientLight intensity={0.05} />
       <pointLight position={[0, 0, 4]} intensity={0.25} color="#2244ff" distance={10} />
       <pointLight position={[-3, 1, 2]} intensity={0.15} color="#9900ff" distance={12} />
       <pointLight position={[3, -1, 2]} intensity={0.1} color="#0055ff" distance={12} />
-      <GlobeGroup selected={selected} onSelect={onSelect} groupRef={groupRef} mouseLocal={mouseLocal} hoverEnabled={hoverEnabled} />
+      <GlobeGroup selected={activeSelected} onSelect={handleSelect} groupRef={groupRef} mouseLocal={mouseLocal} hoverEnabled={hoverEnabled} fundingDisparityMode={fundingDisparityMode} />
       <MouseTracker groupRef={groupRef} mouseLocal={mouseLocal} />
       <Starfield />
-      <PostProcessing selected={!!selected} />
-      <CameraRig selected={selected} />
-    </Canvas>
+      <PostProcessing selected={!!activeSelected} />
+      <CameraRig selected={activeSelected} />
+    </>
   )
 }
