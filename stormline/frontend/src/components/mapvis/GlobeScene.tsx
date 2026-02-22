@@ -137,7 +137,7 @@ function CameraRig({ selected }: { selected: string | null }) {
   )
 }
 
-function GlobeGroup({ onSelect, selected, groupRef, mouseLocal, hoverEnabled = false, fundingDisparityMode = false }: { onSelect: (name: string) => void, selected: string | null, groupRef: React.MutableRefObject<THREE.Group | null>, mouseLocal: React.MutableRefObject<THREE.Vector3 | null>, hoverEnabled?: boolean, fundingDisparityMode?: boolean }) {
+function GlobeGroup({ onSelect, selected, groupRef, mouseLocal, hoverEnabled = false, fundingDisparityMode = false, onHurricaneClick }: { onSelect: (name: string) => void, selected: string | null, groupRef: React.MutableRefObject<THREE.Group | null>, mouseLocal: React.MutableRefObject<THREE.Vector3 | null>, hoverEnabled?: boolean, fundingDisparityMode?: boolean, onHurricaneClick?: (hurricaneId: string) => void }) {
   return (
     <group ref={groupRef}>
       <GlobeShell />
@@ -160,7 +160,7 @@ function GlobeGroup({ onSelect, selected, groupRef, mouseLocal, hoverEnabled = f
           />
         )
       })}
-      {!fundingDisparityMode && <HurricaneLayer />}
+      {!fundingDisparityMode && <HurricaneLayer onHurricaneClick={onHurricaneClick} />}
     </group>
   )
 }
@@ -172,9 +172,10 @@ interface GlobeSceneProps {
   fundingDisparityMode?: boolean
   selected?: string | null
   onSelect?: (name: string) => void
+  onHurricaneClick?: (hurricaneId: string) => void
 }
 
-export default function GlobeScene({ selectedCountry, onCountrySelect, hoverEnabled = false, fundingDisparityMode = false, selected, onSelect }: GlobeSceneProps) {
+export default function GlobeScene({ selectedCountry, onCountrySelect, hoverEnabled = false, fundingDisparityMode = false, selected, onSelect, onHurricaneClick }: GlobeSceneProps) {
   const groupRef = useRef<THREE.Group>(null)
   const mouseLocal = useRef<THREE.Vector3 | null>(null)
 
@@ -197,7 +198,7 @@ export default function GlobeScene({ selectedCountry, onCountrySelect, hoverEnab
       <pointLight position={[0, 0, 4]} intensity={0.2} color="#2244ff" distance={10} />
       <pointLight position={[-3, 1, 2]} intensity={0.12} color="#9900ff" distance={12} />
       <pointLight position={[3, -1, 2]} intensity={0.08} color="#0055ff" distance={12} />
-      <GlobeGroup selected={activeSelected} onSelect={handleSelect} groupRef={groupRef} mouseLocal={mouseLocal} hoverEnabled={hoverEnabled} fundingDisparityMode={fundingDisparityMode} />
+      <GlobeGroup selected={activeSelected} onSelect={handleSelect} groupRef={groupRef} mouseLocal={mouseLocal} hoverEnabled={hoverEnabled} fundingDisparityMode={fundingDisparityMode} onHurricaneClick={onHurricaneClick} />
       <MouseTracker groupRef={groupRef} mouseLocal={mouseLocal} />
       {/* PostProcessing is now fully static — no selection prop */}
       <PostProcessing />

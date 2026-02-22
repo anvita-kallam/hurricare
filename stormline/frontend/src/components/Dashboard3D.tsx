@@ -10,7 +10,7 @@ import { playButtonPress } from '../audio/SoundEngine'
 /* ─── Option definitions ──────────────────────────────────────────────────── */
 
 interface DashboardOption {
-  id: 'search' | 'browse' | 'disparity'
+  id: 'browse' | 'disparity'
   title: string
   subtitle: string
   tag: string
@@ -20,17 +20,9 @@ interface DashboardOption {
 
 const options: DashboardOption[] = [
   {
-    id: 'search',
-    title: 'SEARCH',
-    subtitle: 'Find Specific Hurricanes',
-    tag: 'REGION',
-    color: '#4488ff',
-    statusText: 'READY',
-  },
-  {
     id: 'browse',
     title: 'BROWSE',
-    subtitle: 'Explore Historical Events',
+    subtitle: 'Explore Historical Events & Tracks',
     tag: 'MODEL',
     color: '#44ccaa',
     statusText: 'ACTIVE',
@@ -45,17 +37,15 @@ const options: DashboardOption[] = [
   },
 ]
 
-const VARIANT_MAP: Record<string, 'search' | 'browse' | 'heatmap'> = {
-  search: 'search',
+const VARIANT_MAP: Record<string, 'browse' | 'heatmap'> = {
   browse: 'browse',
   disparity: 'heatmap',
 }
 
 // Tighter spacing to reduce perspective distortion at edges
 const GLOBE_POSITIONS: [number, number, number][] = [
-  [-2.4, 0, 0],
-  [0, 0, 0],
-  [2.4, 0, 0],
+  [-1.2, 0, 0],
+  [1.2, 0, 0],
 ]
 
 /* ─── Background grid shader ──────────────────────────────────────────────── */
@@ -304,14 +294,14 @@ function ThreeScene({
   zooming,
   onZoomComplete,
 }: {
-  onSelect: (id: 'search' | 'browse' | 'disparity') => void
+  onSelect: (id: 'browse' | 'disparity') => void
   zoomTarget: [number, number, number] | null
   zooming: boolean
   onZoomComplete: () => void
 }) {
-  const [selectedId, setSelectedId] = useState<'search' | 'browse' | 'disparity' | null>(null)
+  const [selectedId, setSelectedId] = useState<'browse' | 'disparity' | null>(null)
 
-  const handleSelect = (id: 'search' | 'browse' | 'disparity') => {
+  const handleSelect = (id: 'browse' | 'disparity') => {
     if (zooming) return
     setSelectedId(id)
     onSelect(id)
@@ -534,7 +524,7 @@ function HorizontalScanBars() {
 
 interface Dashboard3DProps {
   onEnter: () => void
-  onSelectOption: (option: 'search' | 'browse' | 'disparity') => void
+  onSelectOption: (option: 'browse' | 'disparity') => void
   isLoading: boolean
 }
 
@@ -544,7 +534,7 @@ export default function Dashboard3D({ onSelectOption, isLoading }: Dashboard3DPr
   const [zoomTarget, setZoomTarget] = useState<[number, number, number] | null>(null)
   const [fadeOpacity, setFadeOpacity] = useState(0)
   const [uiVisible, setUiVisible] = useState(true)
-  const pendingOption = useRef<'search' | 'browse' | 'disparity' | null>(null)
+  const pendingOption = useRef<'browse' | 'disparity' | null>(null)
   const [systemTime, setSystemTime] = useState('')
   const [scanlinePos, setScanlinePos] = useState(0)
   const [frameCount, setFrameCount] = useState(0)
@@ -581,7 +571,7 @@ export default function Dashboard3D({ onSelectOption, isLoading }: Dashboard3DPr
   }, [])
 
   const handleSelect = useCallback(
-    (id: 'search' | 'browse' | 'disparity') => {
+    (id: 'browse' | 'disparity') => {
       if (zooming) return
       pendingOption.current = id
       const idx = options.findIndex((o) => o.id === id)
