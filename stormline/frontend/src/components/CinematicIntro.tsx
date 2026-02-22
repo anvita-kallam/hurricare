@@ -1,4 +1,4 @@
-import { Suspense, useEffect, useRef, useMemo } from 'react'
+import { Suspense, useEffect, useRef, useMemo, useCallback } from 'react'
 import axios from 'axios'
 
 const API_BASE = 'http://localhost:8000'
@@ -151,9 +151,18 @@ export default function CinematicIntro({
 }: CinematicIntroProps) {
   const durationHours = useMemo(() => hurricane.track.length * 6, [hurricane.track])
 
-  const { state, start, stop } = useCinematicController(durationHours, onComplete, 10)
+  const { state, start, stop } = useCinematicController(durationHours, 10)
   const hasStartedRef = useRef(false)
   const voicePlayedRef = useRef(false)
+  const completedRef = useRef(false)
+
+  // Safe onComplete wrapper — ensures it fires exactly once
+  const safeComplete = useCallback(() => {
+    if (!completedRef.current) {
+      completedRef.current = true
+      onComplete()
+    }
+  }, [onComplete])
 
   useEffect(() => {
     if (!hasStartedRef.current) {
@@ -162,7 +171,8 @@ export default function CinematicIntro({
     }
   }, [start])
 
-  // Play personal account voiceover when animation is playing
+  // Play personal account voiceover when animation is playing.
+  // Audio keeps playing even after cinematic ends (no cleanup needed).
   useEffect(() => {
     if (state.phase !== 'playing' || !state.isPlaying || voicePlayedRef.current) return
     voicePlayedRef.current = true
@@ -181,21 +191,17 @@ export default function CinematicIntro({
     }
     playVoice()
   }, [state.phase, state.isPlaying, hurricane.id])
-  
-  // Auto-exit after 10 seconds
+
+  // Single completion handler: fires when controller reaches 'complete' phase
   useEffect(() => {
-    if (state.isPlaying && state.phase === 'playing') {
-      const timer = setTimeout(() => {
-        stop()
-        setTimeout(() => onComplete(), 100)
-      }, 10000)
-      return () => clearTimeout(timer)
+    if (state.phase === 'complete' && !state.isPlaying) {
+      safeComplete()
     }
-  }, [state.isPlaying, state.phase, stop, onComplete])
+  }, [state.phase, state.isPlaying, safeComplete])
 
   const handleExitAnimation = () => {
     stop()
-    setTimeout(() => onComplete(), 100)
+    // safeComplete will be triggered by the useEffect above when phase becomes 'complete'
   }
 
   const currentStormPosition = useMemo(() => {
@@ -243,14 +249,12 @@ export default function CinematicIntro({
     return 1
   }, [state.phase, state.progress])
 
-  useEffect(() => {
-    if (state.phase === 'complete' && !state.isPlaying) {
-      const timer = setTimeout(() => onComplete(), 50)
-      return () => clearTimeout(timer)
-    }
-  }, [state.phase, state.isPlaying, onComplete])
-
-  if (!state.isPlaying && state.phase === 'complete') return null
+  // Keep rendering black backdrop when complete — prevents black screen flash.
+  // Parent unmounts this component when isCinematicPlaying becomes false,
+  // which happens in the same render as the main layout becoming visible.
+  if (!state.isPlaying && state.phase === 'complete') {
+    return <div className="fixed inset-0 z-50 bg-black" />
+  }
 
   return (
     <div className="fixed inset-0 z-50 bg-black" style={{
