@@ -11,7 +11,7 @@ import axios from 'axios'
 import { useStore } from '../../state/useStore'
 import { resolveRegion } from '../../utils/regionRegistry'
 import TypewriterText from '../TypewriterText'
-import { playButtonPress, playHover, playConfirmClick, playCountTick } from '../../audio/SoundEngine'
+import { playButtonPress, playHover } from '../../audio/SoundEngine'
 
 const API_BASE = 'http://localhost:8000'
 

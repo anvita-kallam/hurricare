@@ -15,10 +15,8 @@ import { useStore } from './state/useStore'
 import axios from 'axios'
 import { ImpactEvent } from './hooks/useCinematicController'
 import AmbientProvider from './audio/AmbientProvider'
-import { useWheelSound } from './hooks/useScrollSound'
-import { useScrollSound } from './hooks/useScrollSound'
 import { useGlobalClickSounds } from './hooks/useGlobalClickSounds'
-import { playFocusShift, playHover, playButtonPress, playPanelSlide, playConfirmClick } from './audio/SoundEngine'
+import { playHover, playButtonPress } from './audio/SoundEngine'
 import TypewriterText from './components/TypewriterText'
 
 const API_BASE = 'http://localhost:8000'
@@ -65,12 +63,7 @@ function App() {
   const [pendingHurricane, setPendingHurricane] = useState<string | null>(null)
   const [showMatcher, setShowMatcher] = useState(false)
 
-  // Sound: wheel-based scroll sounds (global, for non-scroll containers)
-  useWheelSound(true)
-
-  // Scroll sounds for the sidebar
   const sidebarRef = useRef<HTMLDivElement>(null)
-  useScrollSound(sidebarRef, true)
 
   // Sound: satisfying click on every button/interactive element
   useGlobalClickSounds(true)
@@ -184,7 +177,6 @@ function App() {
       setPostSimulationMapMode(false)
       setMapPhase('globe')
       setGamePhase('pre-sim')
-      playConfirmClick()
     } else {
       const hurricane = hurricanes.find(h => h.id === hurricaneId)
       if (hurricane) {
@@ -193,7 +185,6 @@ function App() {
         setCinematicCompleted(false)
         setPostSimulationMapMode(false)
         setMapPhase('globe')
-        playFocusShift()
       }
     }
   }

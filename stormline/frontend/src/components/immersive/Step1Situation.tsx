@@ -10,7 +10,7 @@
 import { useMemo, useRef, useEffect } from 'react'
 import { useStore } from '../../state/useStore'
 import TypewriterText, { CountUpText } from '../TypewriterText'
-import { playTonalSweep } from '../../audio/SoundEngine'
+// Sound removed — only hover/click sounds kept
 
 function formatBudget(n: number): string {
   if (n >= 1e9) return `$${(n / 1e9).toFixed(1)}B`
@@ -194,7 +194,7 @@ export default function Step1Situation() {
             emphasis="normal"
             delayMs={800}
             charIntervalMs={18}
-            onComplete={() => playTonalSweep()}
+            onComplete={() => {}}
           />
         </div>
       </div>

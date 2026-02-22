@@ -5,7 +5,7 @@ import { Effect } from 'postprocessing'
 import * as THREE from 'three'
 import MiniGlobePreview from './MiniGlobePreview'
 import TypewriterText from './TypewriterText'
-import { playButtonPress, playFocusShift, playTonalSweep, playMagneticTick, playPanelSlide } from '../audio/SoundEngine'
+import { playButtonPress } from '../audio/SoundEngine'
 
 /* ─── Option definitions ──────────────────────────────────────────────────── */
 
@@ -553,10 +553,6 @@ export default function Dashboard3D({ onSelectOption, isLoading }: Dashboard3DPr
     if (!isLoading) {
       setTimeout(() => {
         setShowUI(true)
-        // Sound: magnetic ticks as HUD elements lock in
-        playMagneticTick()
-        setTimeout(() => playMagneticTick(), 120)
-        setTimeout(() => playMagneticTick(), 250)
       }, 600)
     }
   }, [isLoading])
@@ -593,9 +589,7 @@ export default function Dashboard3D({ onSelectOption, isLoading }: Dashboard3DPr
       setZooming(true)
       setUiVisible(false)
 
-      // Sound: button press + tonal sweep for zoom
       playButtonPress()
-      setTimeout(() => playTonalSweep(), 150)
 
       // Begin fade overlay
       setTimeout(() => setFadeOpacity(1), 1000)

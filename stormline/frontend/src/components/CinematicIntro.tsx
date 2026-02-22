@@ -10,7 +10,7 @@ import ImpactCallout from './ImpactCallout'
 import CinematicGlobe from './CinematicGlobe'
 import { Hurricane, useStore } from '../state/useStore'
 import TypewriterText, { CountUpText } from './TypewriterText'
-import { playPanelSlide, playPanelSettle, playRipple, playTonalSweep, playPulse } from '../audio/SoundEngine'
+// Sound removed — only hover/click sounds kept
 
 function latLonToVector3(lat: number, lon: number, radius: number = 1): THREE.Vector3 {
   const phi = (90 - lat) * (Math.PI / 180)
@@ -412,18 +412,10 @@ export default function CinematicIntro({
     return () => clearTimeout(timeout)
   }, [stop, safeComplete])
 
-  // Sound: tonal sweep + panel sounds on phase transitions
+  // Track phase transitions (sounds removed)
   const lastPhaseRef = useRef(state.phase)
   useEffect(() => {
     if (state.phase !== lastPhaseRef.current) {
-      if (state.phase === 'playing') {
-        playTonalSweep()
-        setTimeout(() => playPanelSlide(), 400)
-        setTimeout(() => playPanelSettle(), 800)
-      }
-      if (state.phase === 'fadeOut') {
-        playRipple()
-      }
       lastPhaseRef.current = state.phase
     }
   }, [state.phase])
@@ -485,12 +477,8 @@ export default function CinematicIntro({
     return impactEvents.filter(event => Math.abs(event.time_hours - state.currentTime) < 2)
   }, [impactEvents, state.currentTime])
 
-  // Sound: pulse on impact events appearing
   const lastEventCountRef = useRef(0)
   useEffect(() => {
-    if (visibleEvents.length > lastEventCountRef.current) {
-      playPulse()
-    }
     lastEventCountRef.current = visibleEvents.length
   }, [visibleEvents.length])
 

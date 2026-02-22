@@ -18,7 +18,7 @@
  */
 
 import { useEffect, useState, useRef, useMemo, createElement } from 'react'
-import { playTypeClick } from '../audio/SoundEngine'
+import { playTypeSoft } from '../audio/SoundEngine'
 
 interface TypewriterTextProps {
   text: string
@@ -77,10 +77,10 @@ export default function TypewriterText({
     intervalRef.current = setTimeout(() => {
       if (!mountedRef.current) return
 
-      // Play typing sound for non-whitespace characters
-      const char = text[revealedCount]
-      if (char && char !== ' ' && char !== '\n') {
-        playTypeClick(emphasis)
+      // Play extremely subtle blip every ~3rd non-space character
+      const nextChar = text[revealedCount]
+      if (nextChar && nextChar !== ' ' && revealedCount % 3 === 0) {
+        playTypeSoft(emphasis)
       }
 
       setRevealedCount(prev => prev + 1)
@@ -197,17 +197,8 @@ export function CountUpText({
 
       setDisplayValue(current)
 
-      // Play tick sound at intervals (not every frame)
-      const tickInterval = Math.max(50, duration / 20)
-      if (elapsed - lastTickRef.current > tickInterval && progress < 1) {
-        lastTickRef.current = elapsed
-        playTypeClick('soft')
-      }
-
       if (progress < 1) {
         rafRef.current = requestAnimationFrame(animate)
-      } else {
-        playTypeClick(emphasis)
       }
     }
 
