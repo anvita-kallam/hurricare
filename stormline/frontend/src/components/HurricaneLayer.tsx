@@ -3,27 +3,18 @@ import { useStore } from '../state/useStore'
 import * as THREE from 'three'
 import { Html } from '@react-three/drei'
 
-// Extended color palette for unique storm colors (monochrome grey shades)
-const stormColors = [
-  '#b3b3b3', '#999999', '#8c8c8c', '#808080', '#737373',
-  '#666666', '#a6a6a6', '#595959', '#949494', '#7a7a7a',
-  '#9e9e9e', '#6b6b6b', '#878787', '#616161', '#8f8f8f',
-  '#707070', '#ababab', '#858585', '#787878', '#5c5c5c',
-  '#969696', '#8a8a8a', '#686868', '#a0a0a0', '#757575',
-  '#919191', '#5f5f5f', '#828282', '#6d6d6d', '#7d7d7d',
-  '#9c9c9c', '#636363', '#a3a3a3', '#565656', '#949494',
-  '#737373', '#878787', '#adadad', '#6b6b6b', '#8c8c8c',
-  '#7a7a7a', '#9e9e9e', '#616161', '#a8a8a8', '#707070',
-  '#919191', '#808080', '#5c5c5c', '#999999', '#757575',
-]
+// Saffir-Simpson category colors (muted for dark background)
+const categoryColors: Record<number, string> = {
+  0: '#6BAED6',  // Tropical depression / storm — muted blue
+  1: '#FFE066',  // Cat 1 — warm yellow
+  2: '#FFAB40',  // Cat 2 — amber
+  3: '#FF6D00',  // Cat 3 — deep orange
+  4: '#FF3D00',  // Cat 4 — red-orange
+  5: '#D50000',  // Cat 5 — dark red
+}
 
-function getStormColor(hurricaneId: string): string {
-  let hash = 0
-  for (let i = 0; i < hurricaneId.length; i++) {
-    hash = hurricaneId.charCodeAt(i) + ((hash << 5) - hash)
-  }
-  const colorIndex = Math.abs(hash) % stormColors.length
-  return stormColors[colorIndex]
+function getCategoryColor(category: number): string {
+  return categoryColors[Math.min(Math.max(category, 0), 5)] || categoryColors[0]
 }
 
 // Hurricane paths at ~1.06 radius (above country meshes at ~1.035)
@@ -50,18 +41,12 @@ function HurricanePath({ hurricane, isSelected, onHurricaneClick }: { hurricane:
     return new THREE.TubeGeometry(curve, 64, radius, 8, false)
   }, [curve, isSelected])
 
-  const baseColor = getStormColor(hurricane.id)
+  const baseColor = getCategoryColor(hurricane.max_category ?? 0)
 
-  // Convert to greyscale for unselected hurricanes
+  // Dim unselected hurricanes but keep color
   const color = useMemo(() => {
-    if (isSelected) return baseColor
-    const hex = baseColor.replace('#', '')
-    const r = parseInt(hex.substr(0, 2), 16)
-    const g = parseInt(hex.substr(2, 2), 16)
-    const b = parseInt(hex.substr(4, 2), 16)
-    const grey = Math.round(0.299 * r + 0.587 * g + 0.114 * b)
-    return `#${grey.toString(16).padStart(2, '0')}${grey.toString(16).padStart(2, '0')}${grey.toString(16).padStart(2, '0')}`
-  }, [baseColor, isSelected])
+    return baseColor
+  }, [baseColor])
 
   return (
     <group>
@@ -89,7 +74,7 @@ function HurricanePath({ hurricane, isSelected, onHurricaneClick }: { hurricane:
         <meshBasicMaterial
           color={hovered ? '#FFFFFF' : color}
           transparent
-          opacity={hovered || isSelected ? 1 : 0.6}
+          opacity={hovered || isSelected ? 1 : 0.5}
           depthTest={true}
           depthWrite={false}
         />

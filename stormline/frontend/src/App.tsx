@@ -356,17 +356,12 @@ function App() {
   }
 
   // ═══════════════════════════════════════════════════════════════════════════
-  // PHASE B — Post-Simulation: map-only + "Begin Game" button
+  // PHASE B — Post-Simulation: "Begin Game" button (no 3D map)
   // ═══════════════════════════════════════════════════════════════════════════
   if (gamePhase === 'sim-complete') {
     return (
       <>
         <AmbientProvider />
-        {/* Full-screen post-simulation map — ONLY visual */}
-        <div className="fixed inset-0 z-0 bg-black">
-          <PostSimulationMap transitionPhase="active" />
-        </div>
-
         {/* Single "Begin Game" button — ONLY UI element */}
         <BeginGameOverlay />
       </>
@@ -374,18 +369,13 @@ function App() {
   }
 
   // ═══════════════════════════════════════════════════════════════════════════
-  // GAME FLOW — Immersive step-by-step panels over blurred map
+  // GAME FLOW — Immersive step-by-step panels (2D graphs only)
   // ═══════════════════════════════════════════════════════════════════════════
   if (gamePhase === 'game-flow') {
     return (
       <>
         <AmbientProvider />
-        {/* Background map — visible behind the blur */}
-        <div className="fixed inset-0 z-0 bg-black">
-          <PostSimulationMap transitionPhase="active" />
-        </div>
-
-        {/* Immersive panel overlay — blurs/dims background, shows ONE panel */}
+        {/* Immersive panel overlay — shows ONE panel at a time */}
         <ImmersivePanelOverlay />
       </>
     )
