@@ -5,7 +5,6 @@ import * as THREE from 'three'
 import GlobeShell from './GlobeShell'
 import CountryMesh from './CountryMesh'
 import PostProcessing from './PostProcessing'
-import Starfield from './Starfield'
 import HurricaneLayer from '../HurricaneLayer'
 import { COUNTRY_POLYGONS } from '../../data/countries'
 import { getFundingDisparity, disparityToColor } from '../../data/fundingDisparity'
@@ -142,7 +141,7 @@ function GlobeGroup({ onSelect, selected, groupRef, mouseLocal, hoverEnabled = f
   return (
     <group ref={groupRef}>
       <GlobeShell />
-      {COUNTRY_POLYGONS.map((country) => {
+      {COUNTRY_POLYGONS.map((country, idx) => {
         let countryColor = country.color
         if (fundingDisparityMode) {
           const disparity = getFundingDisparity(country.name)
@@ -150,7 +149,7 @@ function GlobeGroup({ onSelect, selected, groupRef, mouseLocal, hoverEnabled = f
         }
         return (
           <CountryMesh
-            key={country.name}
+            key={`${country.name}-${idx}`}
             country={{ ...country, color: countryColor }}
             radius={1}
             selected={selected === country.name}
@@ -200,7 +199,6 @@ export default function GlobeScene({ selectedCountry, onCountrySelect, hoverEnab
       <pointLight position={[3, -1, 2]} intensity={0.08} color="#0055ff" distance={12} />
       <GlobeGroup selected={activeSelected} onSelect={handleSelect} groupRef={groupRef} mouseLocal={mouseLocal} hoverEnabled={hoverEnabled} fundingDisparityMode={fundingDisparityMode} />
       <MouseTracker groupRef={groupRef} mouseLocal={mouseLocal} />
-      <Starfield />
       {/* PostProcessing is now fully static — no selection prop */}
       <PostProcessing />
       <CameraRig selected={activeSelected} />
