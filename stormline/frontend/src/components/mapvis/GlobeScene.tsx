@@ -5,7 +5,6 @@ import * as THREE from 'three'
 import GlobeShell from './GlobeShell'
 import CountryMesh from './CountryMesh'
 import PostProcessing from './PostProcessing'
-import Starfield from './Starfield'
 import HurricaneLayer from '../HurricaneLayer'
 import { COUNTRY_POLYGONS } from '../../data/countries'
 import { getFundingDisparity, disparityToColor } from '../../data/fundingDisparity'
@@ -138,20 +137,19 @@ function CameraRig({ selected }: { selected: string | null }) {
   )
 }
 
-function GlobeGroup({ onSelect, selected, groupRef, mouseLocal, hoverEnabled = true, fundingDisparityMode = false }: { onSelect: (name: string) => void, selected: string | null, groupRef: React.MutableRefObject<THREE.Group | null>, mouseLocal: React.MutableRefObject<THREE.Vector3 | null>, hoverEnabled?: boolean, fundingDisparityMode?: boolean }) {
+function GlobeGroup({ onSelect, selected, groupRef, mouseLocal, hoverEnabled = false, fundingDisparityMode = false }: { onSelect: (name: string) => void, selected: string | null, groupRef: React.MutableRefObject<THREE.Group | null>, mouseLocal: React.MutableRefObject<THREE.Vector3 | null>, hoverEnabled?: boolean, fundingDisparityMode?: boolean }) {
   return (
     <group ref={groupRef}>
       <GlobeShell />
-      {COUNTRY_POLYGONS.map((country) => {
+      {COUNTRY_POLYGONS.map((country, idx) => {
         let countryColor = country.color
         if (fundingDisparityMode) {
-          // Override color with funding disparity gradient
           const disparity = getFundingDisparity(country.name)
           countryColor = disparityToColor(disparity)
         }
         return (
           <CountryMesh
-            key={country.name}
+            key={`${country.name}-${idx}`}
             country={{ ...country, color: countryColor }}
             radius={1}
             selected={selected === country.name}
@@ -172,22 +170,19 @@ interface GlobeSceneProps {
   onCountrySelect?: (name: string) => void
   hoverEnabled?: boolean
   fundingDisparityMode?: boolean
-  // Legacy props for backward compatibility
   selected?: string | null
   onSelect?: (name: string) => void
 }
 
-export default function GlobeScene({ selectedCountry, onCountrySelect, hoverEnabled = true, fundingDisparityMode = false, selected, onSelect }: GlobeSceneProps) {
+export default function GlobeScene({ selectedCountry, onCountrySelect, hoverEnabled = false, fundingDisparityMode = false, selected, onSelect }: GlobeSceneProps) {
   const groupRef = useRef<THREE.Group>(null)
   const mouseLocal = useRef<THREE.Vector3 | null>(null)
 
-  // Support both new and legacy prop names
   const activeSelected = selectedCountry ?? selected ?? null
   const handleSelect = onCountrySelect ?? onSelect ?? (() => {})
 
-  const { camera, gl } = useThree()
+  const { camera } = useThree()
 
-  // Set up camera and lighting when in funding disparity mode
   useEffect(() => {
     if (fundingDisparityMode) {
       camera.position.set(0, 0, 2.5)
@@ -197,14 +192,15 @@ export default function GlobeScene({ selectedCountry, onCountrySelect, hoverEnab
   return (
     <>
       <color attach="background" args={['#000000']} />
+      {/* Static lighting — no dynamic intensity tied to selection */}
       <ambientLight intensity={0.05} />
-      <pointLight position={[0, 0, 4]} intensity={0.25} color="#2244ff" distance={10} />
-      <pointLight position={[-3, 1, 2]} intensity={0.15} color="#9900ff" distance={12} />
-      <pointLight position={[3, -1, 2]} intensity={0.1} color="#0055ff" distance={12} />
+      <pointLight position={[0, 0, 4]} intensity={0.2} color="#2244ff" distance={10} />
+      <pointLight position={[-3, 1, 2]} intensity={0.12} color="#9900ff" distance={12} />
+      <pointLight position={[3, -1, 2]} intensity={0.08} color="#0055ff" distance={12} />
       <GlobeGroup selected={activeSelected} onSelect={handleSelect} groupRef={groupRef} mouseLocal={mouseLocal} hoverEnabled={hoverEnabled} fundingDisparityMode={fundingDisparityMode} />
       <MouseTracker groupRef={groupRef} mouseLocal={mouseLocal} />
-      <Starfield />
-      <PostProcessing selected={!!activeSelected} />
+      {/* PostProcessing is now fully static — no selection prop */}
+      <PostProcessing />
       <CameraRig selected={activeSelected} />
     </>
   )

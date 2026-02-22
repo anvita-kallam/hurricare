@@ -40,14 +40,14 @@ function App() {
     showComparisonPage,
     setShowComparisonPage,
   } = useStore()
-  
+
   const [loading, setLoading] = useState(true)
   const [gameStarted, setGameStarted] = useState(false)
   const [showWelcomePopup, setShowWelcomePopup] = useState(false)
   const [pendingHurricane, setPendingHurricane] = useState<string | null>(null)
   const [showMatcher, setShowMatcher] = useState(false)
   const [showFundingDisparity, setShowFundingDisparity] = useState(false)
-  
+
   useEffect(() => {
     const fetchHurricanes = async () => {
       try {
@@ -57,41 +57,35 @@ function App() {
         ])
         setHurricanes(hurricanesRes.data)
         setCoverage(coverageRes.data)
-        console.log('Loaded hurricanes:', hurricanesRes.data.length)
-        console.log('Loaded coverage data:', coverageRes.data.length)
       } catch (error) {
         console.error('Error fetching data:', error)
       } finally {
         setLoading(false)
       }
     }
-    
+
     fetchHurricanes()
   }, [setHurricanes, setCoverage])
-  
-  // Generate impact events for a hurricane (synthetic but realistic)
+
   const generateImpactEvents = (hurricane: any): ImpactEvent[] => {
     const events: ImpactEvent[] = []
     const track = hurricane.track || []
-    
+
     if (track.length === 0) return events
-    
-    // Generate events at key points along the track
+
     const eventIndices = [
       Math.floor(track.length * 0.2),
       Math.floor(track.length * 0.4),
       Math.floor(track.length * 0.6),
       Math.floor(track.length * 0.8),
     ]
-    
+
     eventIndices.forEach((idx, i) => {
       if (idx >= track.length) return
       const point = track[idx]
-      const timeHours = idx * 6 // Roughly 6 hours per track point
-      
-      // Get region name from affected countries or use generic
+      const timeHours = idx * 6
       const regionName = hurricane.affected_countries?.[0] || 'Affected Region'
-      
+
       events.push({
         time_hours: timeHours,
         location: {
@@ -106,41 +100,34 @@ function App() {
         }
       })
     })
-    
+
     return events
   }
-  
+
   const handleHurricaneSelect = (hurricaneId: string) => {
-    // If clicking the same hurricane, deselect it
     if (selectedHurricane?.id === hurricaneId) {
       setSelectedHurricane(null)
       setCinematicPlaying(false)
       setPendingHurricane(null)
       setCinematicCompleted(false)
-      console.log('Deselected hurricane')
     } else {
       const hurricane = hurricanes.find(h => h.id === hurricaneId)
       if (hurricane) {
-        // Immediately select the hurricane (for zoom and colored path)
         setSelectedHurricane(hurricane)
         setPendingHurricane(hurricaneId)
         setCinematicCompleted(false)
       }
     }
   }
-  
+
   const handleCinematicComplete = useCallback(() => {
-    console.log('handleCinematicComplete called, pendingHurricane:', pendingHurricane)
-    // FORCE exit cinematic mode IMMEDIATELY - this is critical
     setCinematicPlaying(false)
-    setCinematicCompleted(true) // Mark cinematic as completed so we skip "Start Simulation" screen
-    
+    setCinematicCompleted(true)
+
     if (pendingHurricane) {
       const hurricane = hurricanes.find(h => h.id === pendingHurricane)
-      // Set selected hurricane immediately so gameplay can begin
       setSelectedHurricane(hurricane || null)
       setPendingHurricane(null)
-      // Trigger narrative popup after a short delay to allow UI to update
       if (hurricane) {
         setTimeout(() => {
           setNarrativePopup({
@@ -152,7 +139,7 @@ function App() {
       }
     }
   }, [pendingHurricane, hurricanes, setNarrativePopup])
-  
+
   const handleClearSelection = () => {
     setSelectedHurricane(null)
   }
@@ -180,8 +167,8 @@ function App() {
   const handleCloseFundingDisparity = () => {
     setShowFundingDisparity(false)
   }
-  
-  // Show dashboard until game is started or funding disparity mode is selected
+
+  // Dashboard entry screen
   if (!gameStarted && !showFundingDisparity) {
     return (
       <>
@@ -200,22 +187,21 @@ function App() {
     )
   }
 
-  // Show funding disparity globe
+  // Funding disparity globe
   if (showFundingDisparity) {
     return (
       <FundingDisparityGlobe onClose={handleCloseFundingDisparity} />
     )
   }
-  
-  // Get hurricane for cinematic if pending
-  const cinematicHurricane = pendingHurricane 
+
+  const cinematicHurricane = pendingHurricane
     ? hurricanes.find(h => h.id === pendingHurricane)
     : null
-  
+
   const cinematicImpactEvents = cinematicHurricane
     ? (cinematicHurricane.impact_events || generateImpactEvents(cinematicHurricane))
     : []
-  
+
   const handleStartSimulation = () => {
     if (selectedHurricane) {
       setPendingHurricane(selectedHurricane.id)
@@ -223,7 +209,7 @@ function App() {
       setCinematicCompleted(false)
     }
   }
-  
+
   return (
     <>
       {/* Cinematic Intro */}
@@ -234,8 +220,8 @@ function App() {
           onComplete={handleCinematicComplete}
         />
       )}
-      
-      {/* Welcome Narrative Pop-up */}
+
+      {/* Welcome Narrative */}
       {showWelcomePopup && !isCinematicPlaying && (
         <NarrativePopup
           title="Welcome to HurriCare"
@@ -245,14 +231,14 @@ function App() {
           autoClose={0}
         />
       )}
-      
-      {/* Show Comparison Page if active */}
+
+      {/* Comparison Page */}
       {showComparisonPage ? (
         <ComparisonPage />
       ) : (
-        <div 
-          className="w-screen h-screen flex flex-col bg-black relative" 
-          style={{ 
+        <div
+          className="w-screen h-screen flex flex-col bg-black relative"
+          style={{
             zIndex: 1,
             pointerEvents: isCinematicPlaying ? 'none' : 'auto',
             opacity: isCinematicPlaying ? 0 : 1,
@@ -260,43 +246,43 @@ function App() {
             display: isCinematicPlaying ? 'none' : 'flex'
           }}
         >
-      {/* Header */}
-      <header className="bg-black/80 backdrop-blur-sm border-b border-cyan-500/30 p-4 glow-cyan relative z-10">
+      {/* Header — near-black bg, hairline white border, no cyan/neon glow */}
+      <header className="bg-black/90 border-b border-white/[0.08] p-4 relative z-10">
         <div className="flex items-center justify-between">
           <div>
-            <h1 className="text-3xl font-bold text-glow-cyan font-orbitron">HurriCare</h1>
+            <h1 className="text-3xl font-bold text-white font-rajdhani tracking-wider">HurriCare</h1>
           </div>
           <div className="flex items-center gap-4">
-            <label className="flex items-center gap-2 cursor-pointer text-cyan-200 hover:text-cyan-100 transition">
+            <label className="flex items-center gap-2 cursor-pointer text-white/60 hover:text-white/80 transition">
               <input
                 type="checkbox"
                 checked={autoSpin}
                 onChange={(e) => setAutoSpin(e.target.checked)}
-                className="w-4 h-4 accent-cyan-500"
+                className="w-4 h-4 accent-white/50"
               />
-              <span className="text-sm">Auto-rotate Globe</span>
+              <span className="text-sm font-rajdhani">Auto-rotate Globe</span>
             </label>
-            <label className="flex items-center gap-2 cursor-pointer text-cyan-200 hover:text-cyan-100 transition">
+            <label className="flex items-center gap-2 cursor-pointer text-white/60 hover:text-white/80 transition">
               <input
                 type="checkbox"
                 checked={showSeverityOverlay}
                 onChange={toggleSeverityOverlay}
-                className="w-4 h-4 accent-cyan-500"
+                className="w-4 h-4 accent-white/50"
               />
-              <span className="text-sm">Severity Overlay</span>
+              <span className="text-sm font-rajdhani">Severity Overlay</span>
             </label>
-            <label className="flex items-center gap-2 cursor-pointer text-cyan-200 hover:text-cyan-100 transition">
+            <label className="flex items-center gap-2 cursor-pointer text-white/60 hover:text-white/80 transition">
               <input
                 type="checkbox"
                 checked={showCoverageOverlay}
                 onChange={toggleCoverageOverlay}
-                className="w-4 h-4 accent-cyan-500"
+                className="w-4 h-4 accent-white/50"
               />
-              <span className="text-sm">Coverage Overlay</span>
+              <span className="text-sm font-rajdhani">Coverage Overlay</span>
             </label>
             <button
               onClick={() => setLeaderboardOpen(true)}
-              className="px-3 py-1.5 rounded bg-cyan-600/80 hover:bg-cyan-600 text-cyan-100 text-sm font-semibold font-orbitron transition"
+              className="px-3 py-1.5 rounded bg-white/[0.08] hover:bg-white/[0.15] text-white/70 text-sm font-semibold font-rajdhani transition border border-white/[0.08]"
             >
               Daily Leaderboard
             </button>
@@ -309,17 +295,17 @@ function App() {
         onClose={() => setLeaderboardOpen(false)}
         lastScore={lastSimulationScore}
       />
-      
+
       {/* Main Content */}
       <div className="flex-1 flex overflow-hidden relative z-10">
-        {/* Left Sidebar - Hurricane Selection */}
-        <div className="w-64 bg-black/70 backdrop-blur-sm border-r border-cyan-500/30 p-4 overflow-y-auto glow-cyan">
+        {/* Left Sidebar — Hurricane Selection */}
+        <div className="w-64 bg-black/80 border-r border-white/[0.08] p-4 overflow-y-auto">
           <div className="flex items-center justify-between mb-4">
-            <h2 className="text-xl font-bold text-glow-cyan font-orbitron">Historical Hurricanes</h2>
+            <h2 className="text-xl font-bold text-white/90 font-rajdhani">Historical Hurricanes</h2>
             {selectedHurricane && (
               <button
                 onClick={handleClearSelection}
-                className="text-xs px-2 py-1 rounded bg-red-500/20 hover:bg-red-500/30 border border-red-500/50 text-red-300 font-exo transition"
+                className="text-xs px-2 py-1 rounded bg-white/[0.08] hover:bg-white/[0.15] border border-white/[0.1] text-white/50 font-rajdhani transition"
                 title="Clear Selection"
               >
                 Clear
@@ -331,38 +317,38 @@ function App() {
               <button
                 key={hurricane.id}
                 onClick={() => handleHurricaneSelect(hurricane.id)}
-                className={`w-full text-left p-3 rounded border-2 transition-all duration-300 font-exo ${
+                className={`w-full text-left p-3 rounded border transition-all duration-300 font-rajdhani ${
                   selectedHurricane?.id === hurricane.id
-                    ? 'border-cyan-400 bg-cyan-500/20 glow-cyan text-cyan-100'
-                    : 'border-cyan-500/30 bg-black/40 text-cyan-200 hover:border-cyan-400 hover:bg-cyan-500/10 hover:glow-cyan'
+                    ? 'border-white/25 bg-white/10 text-white'
+                    : 'border-white/[0.08] bg-black/40 text-white/60 hover:border-white/[0.15] hover:bg-white/[0.05] hover:text-white/80'
                 }`}
               >
                 <div className="font-semibold">{hurricane.name}</div>
-                <div className="text-sm text-cyan-300/80">
-                  {hurricane.year} • Category {hurricane.max_category}
+                <div className="text-sm text-white/40 font-mono">
+                  {hurricane.year} &bull; Category {hurricane.max_category}
                 </div>
-                <div className="text-xs text-cyan-400/60 mt-1">
+                <div className="text-xs text-white/30 mt-1 font-mono">
                   {hurricane.estimated_population_affected.toLocaleString()} affected
                 </div>
               </button>
             ))}
           </div>
-          
+
           {selectedHurricane && (
-            <div className="mt-6 p-3 bg-cyan-500/10 border border-cyan-500/30 rounded glow-cyan">
-              <h3 className="font-semibold mb-2 text-cyan-200 font-orbitron">Selected Scenario</h3>
-              <div className="text-sm space-y-1 text-cyan-300/90">
-                <div><span className="font-medium text-cyan-200">Name:</span> {selectedHurricane.name}</div>
-                <div><span className="font-medium text-cyan-200">Year:</span> {selectedHurricane.year}</div>
-                <div><span className="font-medium text-cyan-200">Max Category:</span> {selectedHurricane.max_category}</div>
-                <div><span className="font-medium text-cyan-200">Affected Countries:</span> {selectedHurricane.affected_countries.join(', ')}</div>
-                <div><span className="font-medium text-cyan-200">Population Affected:</span> {selectedHurricane.estimated_population_affected.toLocaleString()}</div>
+            <div className="mt-6 p-3 bg-white/[0.05] border border-white/[0.08] rounded">
+              <h3 className="font-semibold mb-2 text-white/70 font-rajdhani">Selected Scenario</h3>
+              <div className="text-sm space-y-1 text-white/50">
+                <div><span className="font-medium text-white/60 font-rajdhani">Name:</span> <span className="font-mono">{selectedHurricane.name}</span></div>
+                <div><span className="font-medium text-white/60 font-rajdhani">Year:</span> <span className="font-mono">{selectedHurricane.year}</span></div>
+                <div><span className="font-medium text-white/60 font-rajdhani">Max Category:</span> <span className="font-mono">{selectedHurricane.max_category}</span></div>
+                <div><span className="font-medium text-white/60 font-rajdhani">Affected:</span> <span className="font-mono">{selectedHurricane.affected_countries.join(', ')}</span></div>
+                <div><span className="font-medium text-white/60 font-rajdhani">Population:</span> <span className="font-mono">{selectedHurricane.estimated_population_affected.toLocaleString()}</span></div>
               </div>
             </div>
           )}
         </div>
-        
-        {/* Center - Globe */}
+
+        {/* Center — Globe */}
         <div className="flex-1 relative">
           <MapVisGlobe
             selectedHurricane={selectedHurricane}
@@ -371,9 +357,9 @@ function App() {
           />
           <CoverageChoropleth />
         </div>
-        
-        {/* Right Sidebar - Game Panel */}
-        <div className="w-96 bg-black/70 backdrop-blur-sm border-l border-cyan-500/30 flex flex-col glow-cyan">
+
+        {/* Right Sidebar — Game Panel */}
+        <div className="w-96 bg-black/80 border-l border-white/[0.08] flex flex-col">
           <div className="flex-1 overflow-hidden p-4">
             <SimulationEngine onStartSimulation={handleStartSimulation} />
           </div>

@@ -47,8 +47,13 @@ const sphereSubdivide = (v0: THREE.Vector3, v1: THREE.Vector3, v2: THREE.Vector3
   sphereSubdivide(m01, m02, m12, R, depth - 1, positions, indices)
 }
 
-const buildCountryGeometry = (points: [number, number][], radius: number, countryName: string) => {
-  const R = radius + 0.032
+// Explicit radius constants for layering
+const COUNTRY_SURFACE_R = 1.035 // Country fills ~1.03-1.04
+const BORDER_LINE_R = 1.038    // Borders slightly above country fill
+const BORDER_TUBE_R = 1.039    // Selected border tube above line borders
+
+const buildCountryGeometry = (points: [number, number][], _radius: number, countryName: string) => {
+  const R = COUNTRY_SURFACE_R
   const shape2D = points.map(([lon, lat]) => new THREE.Vector2(lon, lat))
   const tris = THREE.ShapeUtils.triangulateShape(shape2D, [])
   const verts = points.map(([lon, lat]) => latLonToVec3(lat, lon, R))
@@ -66,15 +71,15 @@ const buildCountryGeometry = (points: [number, number][], radius: number, countr
   return geo
 }
 
-const buildBorderTube = (points: [number, number][], radius: number) => {
-  const R = radius + 0.033
+const buildBorderTube = (points: [number, number][]) => {
+  const R = BORDER_TUBE_R
   const pts = points.map(([lon, lat]) => latLonToVec3(lat, lon, R))
   const curve = new THREE.CatmullRomCurve3(pts, true, 'catmullrom', 0.5)
   const segments = Math.min(pts.length * 2, 500)
   return new THREE.TubeGeometry(curve, segments, 0.006, 5, true)
 }
 
-export default function CountryMesh({ country, radius, selected, globalSelected, onSelect, mouseOnGlobe, hoverEnabled = true }: CountryMeshProps) {
+export default function CountryMesh({ country, radius, selected, globalSelected, onSelect, mouseOnGlobe, hoverEnabled = false }: CountryMeshProps) {
   const meshRef = useRef<THREE.Mesh>(null)
   const borderRef = useRef<THREE.LineLoop>(null)
   const tubeRef = useRef<THREE.Mesh>(null)
@@ -85,14 +90,14 @@ export default function CountryMesh({ country, radius, selected, globalSelected,
   )
 
   const borderGeoThin = useMemo(() => {
-    const pts = country.points.map(([lon, lat]) => latLonToVec3(lat, lon, radius + 0.031))
+    const pts = country.points.map(([lon, lat]) => latLonToVec3(lat, lon, BORDER_LINE_R))
     return new THREE.BufferGeometry().setFromPoints(pts)
-  }, [country.points, radius])
+  }, [country.points])
 
   const borderTube = useMemo(
-    () => selected ? buildBorderTube(country.points, radius) : null,
+    () => selected ? buildBorderTube(country.points) : null,
     // eslint-disable-next-line react-hooks/exhaustive-deps
-    [selected && country.points, radius]
+    [selected && country.points]
   )
 
   const centroid = useMemo(() => {
@@ -106,18 +111,17 @@ export default function CountryMesh({ country, radius, selected, globalSelected,
   useFrame(() => {
     if (!meshRef.current) return
 
-    let target = 1.01
+    // Default: no elevation
+    let target = 1.0
 
-    if (!globalSelected) {
-      let boost = 0
-      if (hoverEnabled && mouseOnGlobe.current) {
-        const dot = centroid.dot(mouseOnGlobe.current)
-        const d = (1 - dot) / 2
-        boost = Math.exp(-d * 4) * 0.196
-      }
-      target = 1.01 + boost
+    if (hoverEnabled && !globalSelected && mouseOnGlobe.current) {
+      // Only in funding disparity mode: subtle highlight (no breathing/pulsing)
+      const dot = centroid.dot(mouseOnGlobe.current)
+      const d = (1 - dot) / 2
+      const boost = Math.exp(-d * 4) * 0.03
+      target = 1.0 + boost
     } else if (selected) {
-      target = 1.03
+      target = 1.02
     }
 
     const cur = meshRef.current.scale.x
@@ -127,14 +131,18 @@ export default function CountryMesh({ country, radius, selected, globalSelected,
     if (tubeRef.current) tubeRef.current.scale.set(next, next, next)
   })
 
+  // Use the country color directly (funding disparity overrides in GlobeScene)
+  const fillColor = selected ? '#0e2f7a' : country.color
+
   return (
     <>
+      {/* Country fill — renderOrder 10 */}
       <mesh ref={meshRef} geometry={geometry}
         onClick={(e) => { e.stopPropagation(); onSelect(country.name) }}
         renderOrder={10}
       >
         <meshBasicMaterial
-          color={selected ? '#0e2f7a' : '#0d2060'}
+          color={fillColor}
           transparent
           opacity={selected ? 0.92 : 0.88}
           side={THREE.DoubleSide}
@@ -142,17 +150,19 @@ export default function CountryMesh({ country, radius, selected, globalSelected,
           depthTest={true}
           toneMapped={false}
           polygonOffset={true}
-          polygonOffsetFactor={1}
-          polygonOffsetUnits={1}
+          polygonOffsetFactor={2}
+          polygonOffsetUnits={2}
         />
       </mesh>
 
+      {/* Borders — renderOrder 11-12 (above fill, below hurricane paths) */}
       {selected && borderTube ? (
-        <mesh ref={tubeRef} geometry={borderTube} renderOrder={11}>
+        <mesh ref={tubeRef} geometry={borderTube} renderOrder={12}>
           <meshBasicMaterial
             color="#ffffff"
             transparent opacity={0.95}
             depthWrite={false}
+            depthTest={true}
             toneMapped={false}
           />
         </mesh>
@@ -162,6 +172,7 @@ export default function CountryMesh({ country, radius, selected, globalSelected,
             color="#ffffff"
             transparent opacity={0.55}
             depthWrite={false}
+            depthTest={true}
             toneMapped={false}
           />
         </lineLoop>
