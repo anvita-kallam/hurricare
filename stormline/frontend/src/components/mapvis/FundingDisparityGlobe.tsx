@@ -12,26 +12,26 @@ function CountryStatsPanel({ name, onClose }: { name: string | null; onClose: ()
   return (
     <div className="country-panel">
       <button className="back-btn" onClick={onClose}>← Globe</button>
-      <h1 className="country-name">{name}</h1>
+      <h1 className="country-name" style={{ fontFamily: 'Rajdhani, sans-serif' }}>{name}</h1>
       <div className="stats-grid">
         <div className="stat">
-          <span className="stat-val">{stats.preparednessScore}%</span>
-          <span className="stat-lbl">Preparedness Score</span>
+          <span className="stat-val" style={{ fontFamily: 'DM Mono, monospace' }}>{stats.preparednessScore}%</span>
+          <span className="stat-lbl" style={{ fontFamily: 'Rajdhani, sans-serif' }}>Preparedness Score</span>
         </div>
         <div className="stat">
-          <span className="stat-val">{stats.fundingRating}/5</span>
-          <span className="stat-lbl">Funding Rating</span>
+          <span className="stat-val" style={{ fontFamily: 'DM Mono, monospace' }}>{stats.fundingRating}/5</span>
+          <span className="stat-lbl" style={{ fontFamily: 'Rajdhani, sans-serif' }}>Funding Rating</span>
         </div>
         <div className="stat">
-          <span className="stat-val">{stats.disparityLevel}</span>
-          <span className="stat-lbl">Status</span>
+          <span className="stat-val" style={{ fontFamily: 'DM Mono, monospace' }}>{stats.disparityLevel}</span>
+          <span className="stat-lbl" style={{ fontFamily: 'Rajdhani, sans-serif' }}>Status</span>
         </div>
         <div className="stat" style={{ color: stats.color }}>
-          <span className="stat-val" style={{ color: stats.color }}>●</span>
-          <span className="stat-lbl">Disparity Index</span>
+          <span className="stat-val" style={{ color: stats.color, fontFamily: 'DM Mono, monospace' }}>●</span>
+          <span className="stat-lbl" style={{ fontFamily: 'Rajdhani, sans-serif' }}>Disparity Index</span>
         </div>
       </div>
-      <div className="mt-6 p-4 bg-black/50 rounded text-cyan-200 text-sm font-exo border border-cyan-500/30">
+      <div className="mt-6 p-4 bg-black/50 rounded text-white/70 text-sm font-rajdhani border border-white/10">
         <p>
           {stats.disparityLevel === 'Well-Funded'
             ? 'This country has strong disaster preparedness infrastructure and adequate funding for humanitarian response.'
@@ -88,18 +88,15 @@ export default function FundingDisparityGlobe({ onClose }: FundingDisparityGlobe
       {onClose && !selectedCountry && (
         <button
           onClick={onClose}
-          className="absolute top-8 left-8 px-6 py-3 rounded-lg bg-red-600/80 hover:bg-red-600 text-white font-bold font-orbitron text-lg transition glow-red z-50"
-          style={{
-            boxShadow: '0 0 20px rgba(220, 38, 38, 0.5)'
-          }}
+          className="absolute top-8 left-8 px-6 py-3 rounded-lg bg-white/10 hover:bg-white/20 text-white font-bold font-rajdhani text-lg transition border border-white/10 z-50"
         >
           ← Back to Dashboard
         </button>
       )}
 
       {!selectedCountry && (
-        <div className="absolute bottom-8 left-8 text-cyan-300 font-exo text-sm max-w-xs">
-          <p className="mb-2 font-bold">Global Funding Disparity Analysis</p>
+        <div className="absolute bottom-8 left-8 text-white/50 font-rajdhani text-sm max-w-xs">
+          <p className="mb-2 font-bold text-white/70">Global Funding Disparity Analysis</p>
           <p>Click on countries to view detailed preparedness and funding statistics. Green indicates well-funded nations, red indicates severe underfunding.</p>
         </div>
       )}
