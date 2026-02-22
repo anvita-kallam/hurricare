@@ -1,9 +1,13 @@
+import { useState, useEffect } from 'react'
+import axios from 'axios'
 import { useStore } from '../state/useStore'
 import { 
   FundingVsNeedHeatmap, 
   SeverityVsFundingScatter, 
   RegionalHeatmap 
 } from './DataVisualizations'
+
+const API_BASE = 'http://localhost:8000'
 
 export default function ComparisonPage() {
   const { 
@@ -13,6 +17,15 @@ export default function ComparisonPage() {
     setShowComparisonPage,
     comparisonData 
   } = useStore()
+  
+  const [apiKey, setApiKey] = useState<string>(() => {
+    // Load from localStorage
+    return localStorage.getItem('gemini_api_key') || ''
+  })
+  const [showApiKeyInput, setShowApiKeyInput] = useState(!apiKey)
+  const [geminiInsights, setGeminiInsights] = useState<string | null>(null)
+  const [isGenerating, setIsGenerating] = useState(false)
+  const [generationError, setGenerationError] = useState<string | null>(null)
 
   if (!comparisonData || !comparisonData.mlPlan || !comparisonData.realPlan) {
     return (
@@ -29,6 +42,52 @@ export default function ComparisonPage() {
     setSelectedHurricane(null)
   }
 
+  const handleSaveApiKey = () => {
+    if (apiKey.trim()) {
+      localStorage.setItem('gemini_api_key', apiKey.trim())
+      setShowApiKeyInput(false)
+    }
+  }
+
+  const handleGenerateInsights = async () => {
+    if (!apiKey.trim()) {
+      alert('Please enter your Gemini API key first')
+      setShowApiKeyInput(true)
+      return
+    }
+
+    if (!comparisonData || !comparisonData.mlPlan || !comparisonData.realPlan) {
+      alert('Comparison data is missing')
+      return
+    }
+
+    setIsGenerating(true)
+    setGenerationError(null)
+    
+    try {
+      const response = await axios.post(`${API_BASE}/simulation/generate-insights`, {
+        api_key: apiKey.trim(),
+        hurricane_name: selectedHurricane?.name || 'Unknown',
+        hurricane_year: selectedHurricane?.year || 'Unknown',
+        ml_plan: comparisonData.mlPlan,
+        real_plan: comparisonData.realPlan,
+        user_plan: comparisonData.userPlan,
+        mismatch_analysis: comparisonData.mismatchAnalysis
+      })
+      
+      if (response.data.error) {
+        setGenerationError(response.data.error)
+      } else {
+        setGeminiInsights(response.data.insights)
+      }
+    } catch (error: any) {
+      console.error('Error generating insights:', error)
+      setGenerationError(error.response?.data?.error || error.message || 'Failed to generate insights')
+    } finally {
+      setIsGenerating(false)
+    }
+  }
+
   return (
     <div className="w-screen h-screen bg-black overflow-y-auto">
       {/* Header */}
@@ -40,12 +99,40 @@ export default function ComparisonPage() {
               Comparison Dashboard: {selectedHurricane?.name} ({selectedHurricane?.year})
             </div>
           </div>
-          <button
-            onClick={handleBackToGame}
-            className="px-4 py-2 bg-cyan-600 text-white rounded hover:bg-cyan-700 glow-cyan transition-all font-semibold font-orbitron"
-          >
-            Back to Game
-          </button>
+          <div className="flex items-center gap-4">
+            {/* API Key Input */}
+            {showApiKeyInput ? (
+              <div className="flex items-center gap-2">
+                <input
+                  type="password"
+                  value={apiKey}
+                  onChange={(e) => setApiKey(e.target.value)}
+                  placeholder="Gemini API Key"
+                  className="px-3 py-2 bg-black/60 border border-cyan-500/50 rounded text-cyan-100 text-sm font-exo focus:outline-none focus:border-cyan-400"
+                  onKeyPress={(e) => e.key === 'Enter' && handleSaveApiKey()}
+                />
+                <button
+                  onClick={handleSaveApiKey}
+                  className="px-3 py-2 bg-cyan-600 text-white rounded hover:bg-cyan-700 text-sm font-orbitron"
+                >
+                  Save
+                </button>
+              </div>
+            ) : (
+              <button
+                onClick={() => setShowApiKeyInput(true)}
+                className="px-3 py-2 text-cyan-300 hover:text-cyan-100 text-sm font-exo border border-cyan-500/30 rounded hover:border-cyan-500/50"
+              >
+                {apiKey ? 'Change API Key' : 'Enter API Key'}
+              </button>
+            )}
+            <button
+              onClick={handleBackToGame}
+              className="px-4 py-2 bg-cyan-600 text-white rounded hover:bg-cyan-700 glow-cyan transition-all font-semibold font-orbitron"
+            >
+              Back to Game
+            </button>
+          </div>
         </div>
       </div>
 
@@ -319,10 +406,48 @@ export default function ComparisonPage() {
           </div>
         )}
 
-        {/* Mismatch Analysis */}
+        {/* AI-Generated Insights */}
+        <div className="bg-gradient-to-r from-purple-500/10 to-pink-500/10 border border-purple-500/30 p-6 rounded">
+          <div className="flex justify-between items-center mb-4">
+            <div className="font-semibold text-purple-200 font-orbitron text-xl">AI-Generated Insights (Gemini)</div>
+            <button
+              onClick={handleGenerateInsights}
+              disabled={isGenerating || !apiKey.trim()}
+              className="px-4 py-2 bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-500 hover:to-pink-500 text-white rounded font-semibold font-orbitron transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+            >
+              {isGenerating ? 'Generating...' : 'Generate Insights'}
+            </button>
+          </div>
+          
+          {!apiKey.trim() && (
+            <div className="text-yellow-300 text-sm font-exo mb-4 p-3 bg-yellow-500/10 border border-yellow-500/30 rounded">
+              Please enter your Gemini API key in the header to generate AI-powered insights.
+            </div>
+          )}
+          
+          {generationError && (
+            <div className="text-red-300 text-sm font-exo mb-4 p-3 bg-red-500/10 border border-red-500/30 rounded">
+              Error: {generationError}
+            </div>
+          )}
+          
+          {geminiInsights && (
+            <div className="text-purple-100 font-exo leading-relaxed whitespace-pre-line bg-black/40 p-6 rounded border border-purple-500/20">
+              {geminiInsights}
+            </div>
+          )}
+          
+          {!geminiInsights && !isGenerating && (
+            <div className="text-purple-300/70 text-sm font-exo italic">
+              Click "Generate Insights" to create AI-powered analysis tailored for UN representatives.
+            </div>
+          )}
+        </div>
+
+        {/* Mismatch Analysis (Fallback) */}
         {mismatchAnalysis && (
           <div className="bg-purple-500/10 border border-purple-500/30 p-6 rounded">
-            <div className="font-semibold mb-4 text-purple-200 font-orbitron text-xl">Key Insights & Actionable Recommendations</div>
+            <div className="font-semibold mb-4 text-purple-200 font-orbitron text-xl">Key Insights & Actionable Recommendations (Pre-Generated)</div>
             <div className="text-sm text-purple-200/90 mb-6 font-exo leading-relaxed bg-purple-500/10 border border-purple-500/20 p-4 rounded">
               <p className="mb-3">
                 <strong className="text-purple-100">How to Use These Insights:</strong> The analysis below synthesizes patterns across 

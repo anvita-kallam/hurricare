@@ -448,6 +448,105 @@ def get_mismatch_analysis(ideal_plan: dict, real_plan: dict):
     return analysis
 
 
+@app.post("/simulation/generate-insights")
+def generate_gemini_insights(request: dict):
+    """Generate AI-powered insights using Google Gemini for UN representatives."""
+    try:
+        import google.generativeai as genai
+        
+        api_key = request.get("api_key")
+        if not api_key:
+            return {"error": "API key is required"}
+        
+        # Configure Gemini
+        genai.configure(api_key=api_key)
+        model = genai.GenerativeModel('gemini-pro')
+        
+        # Extract data from request
+        hurricane_name = request.get("hurricane_name", "Unknown")
+        hurricane_year = request.get("hurricane_year", "Unknown")
+        ml_plan = request.get("ml_plan", {})
+        real_plan = request.get("real_plan", {})
+        user_plan = request.get("user_plan")
+        mismatch_analysis = request.get("mismatch_analysis", {})
+        
+        # Prepare data summary for Gemini
+        ideal_budget = ml_plan.get("total_budget", 0)
+        real_budget = real_plan.get("total_budget", 0)
+        budget_gap = ideal_budget - real_budget
+        
+        ideal_people = sum(
+            a.get("coverage_estimate", {}).get("people_covered", 0) 
+            for a in ml_plan.get("allocations", [])
+        )
+        real_people = sum(
+            a.get("coverage_estimate", {}).get("people_covered", 0) 
+            for a in real_plan.get("allocations", [])
+        )
+        people_gap = ideal_people - real_people
+        
+        # Build regional comparison
+        regional_data = []
+        for real_alloc in real_plan.get("allocations", []):
+            region = real_alloc.get("region", "Unknown")
+            ideal_alloc = next(
+                (a for a in ml_plan.get("allocations", []) if a.get("region") == region),
+                None
+            )
+            if ideal_alloc:
+                regional_data.append({
+                    "region": region,
+                    "ideal_budget": ideal_alloc.get("budget", 0),
+                    "real_budget": real_alloc.get("budget", 0),
+                    "ideal_coverage": ideal_alloc.get("coverage_estimate", {}).get("coverage_ratio", 0) * 100,
+                    "real_coverage": real_alloc.get("coverage_estimate", {}).get("coverage_ratio", 0) * 100,
+                })
+        
+        # Build prompt for Gemini
+        prompt = f"""You are an expert humanitarian analyst providing insights to a UN representative about crisis intervention strategies. Analyze the following data about {hurricane_name} ({hurricane_year}) and provide comprehensive, actionable insights.
+
+CRISIS CONTEXT:
+- Hurricane: {hurricane_name} ({hurricane_year})
+- Ideal Plan Budget: ${ideal_budget:,.0f}
+- Real-World Budget: ${real_budget:,.0f}
+- Budget Gap: ${budget_gap:,.0f} ({((budget_gap/real_budget)*100) if real_budget > 0 else 0:.1f}%)
+- Ideal People Covered: {ideal_people:,.0f}
+- Real People Covered: {real_people:,.0f}
+- People Coverage Gap: {people_gap:,.0f}
+
+REGIONAL ALLOCATION COMPARISON:
+{chr(10).join([f"- {r['region']}: Ideal ${r['ideal_budget']:,.0f} ({r['ideal_coverage']:.1f}% coverage) vs Real ${r['real_budget']:,.0f} ({r['real_coverage']:.1f}% coverage)" for r in regional_data[:10]])}
+
+UNDERFUNDED REGIONS:
+{chr(10).join([f"- {r.get('region', 'Unknown')}: Gap of ${r.get('ideal_budget', 0) - r.get('actual_budget', 0):,.0f}" for r in mismatch_analysis.get('overlooked_regions', [])[:5]])}
+
+Please provide:
+1. A comprehensive executive summary explaining the key differences between ideal and real-world responses
+2. Analysis of the most critical funding gaps and their human impact
+3. Specific recommendations for UN representatives on:
+   - Advocacy and resource mobilization strategies
+   - Coordination mechanisms that need strengthening
+   - Operational preparedness improvements
+   - Policy reforms that could address systemic issues
+4. Actionable next steps for future crisis intervention
+
+Write in a professional, diplomatic tone suitable for UN briefings. Focus on learning opportunities and evidence-based recommendations rather than criticism. Be specific about numbers and regions where relevant. Keep the total response to approximately 800-1200 words, structured with clear sections."""
+
+        # Generate insights
+        response = model.generate_content(prompt)
+        insights_text = response.text
+        
+        return {
+            "insights": insights_text,
+            "generated_at": date.today().isoformat()
+        }
+        
+    except ImportError:
+        return {"error": "google-generativeai package not installed. Run: pip install google-generativeai"}
+    except Exception as e:
+        return {"error": f"Error generating insights: {str(e)}"}
+
+
 def _plan_to_dict(plan) -> dict:
     """Convert SimulationPlan to dict for JSON serialization."""
     return {
