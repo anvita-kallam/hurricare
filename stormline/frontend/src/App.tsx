@@ -17,6 +17,7 @@ import { ImpactEvent } from './hooks/useCinematicController'
 import AmbientProvider from './audio/AmbientProvider'
 import { useWheelSound } from './hooks/useScrollSound'
 import { useScrollSound } from './hooks/useScrollSound'
+import { useGlobalClickSounds } from './hooks/useGlobalClickSounds'
 import { playFocusShift, playHover, playButtonPress, playPanelSlide, playConfirmClick } from './audio/SoundEngine'
 import TypewriterText from './components/TypewriterText'
 
@@ -70,6 +71,9 @@ function App() {
   // Scroll sounds for the sidebar
   const sidebarRef = useRef<HTMLDivElement>(null)
   useScrollSound(sidebarRef, true)
+
+  // Sound: satisfying click on every button/interactive element
+  useGlobalClickSounds(true)
   const [showFundingDisparity, setShowFundingDisparity] = useState(false)
   const [disparityClosing, setDisparityClosing] = useState(false)
   // Map transition: 'globe' | 'fading-out' | 'flat-entering' | 'flat'

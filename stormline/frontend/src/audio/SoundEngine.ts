@@ -5,7 +5,7 @@
  * Designed for Igloo Inc / museum-grade multisensory UI.
  *
  * Sound categories:
- *  - Typing: Futuristic digital blips (sine + triangle sweeps)
+ *  - Typing: Smooth Cherry MX Brown mechanical keyboard clacks
  *  - Ambient: Ultra-low continuous drone (felt more than heard)
  *  - UI: Panel slides, magnetic ticks, confirmation clicks
  *  - Scroll: Fabric/friction micro-sounds tied to scroll velocity
@@ -115,49 +115,50 @@ export function stopAmbient(): void {
   }, 2000)
 }
 
-// ─── Typing Sounds (Futuristic Digital Blips) ──────────────────────────────
+// ─── Typing Sounds (Smooth Cherry MX Brown) ────────────────────────────────
 
 export function playTypeClick(emphasis: 'normal' | 'headline' | 'metric' | 'soft' = 'normal'): void {
   const c = getCtx()
   const master = getMaster()
   const now = c.currentTime
 
-  const volumeMap = { headline: 0.18, metric: 0.15, normal: 0.09, soft: 0.04 }
+  const volumeMap = { headline: 0.16, metric: 0.13, normal: 0.08, soft: 0.03 }
   const vol = volumeMap[emphasis]
 
-  // Randomized pitch for variety — higher range for sci-fi feel
-  const basePitch = 1200 + (Math.random() - 0.5) * 400
-  const timingJitter = Math.random() * 0.002
+  // Natural pitch variation for brown switches
+  const basePitch = 1550 + (Math.random() - 0.5) * 250
+  const timingJitter = Math.random() * 0.001
 
-  // Primary blip — short sine tone with quick upward sweep
-  const osc = c.createOscillator()
-  osc.type = 'sine'
-  osc.frequency.setValueAtTime(basePitch, now + timingJitter)
-  osc.frequency.exponentialRampToValueAtTime(basePitch * 1.3, now + timingJitter + 0.025)
+  // Main clack — smooth sine wave with gentle attack
+  const mainOsc = c.createOscillator()
+  mainOsc.type = 'sine'
+  mainOsc.frequency.setValueAtTime(basePitch, now + timingJitter)
+  mainOsc.frequency.exponentialRampToValueAtTime(basePitch * 0.82, now + timingJitter + 0.045)
 
-  const blipGain = c.createGain()
-  blipGain.gain.setValueAtTime(vol, now + timingJitter)
-  blipGain.gain.exponentialRampToValueAtTime(0.001, now + timingJitter + 0.05)
+  const mainGain = c.createGain()
+  mainGain.gain.setValueAtTime(0, now + timingJitter)
+  mainGain.gain.linearRampToValueAtTime(vol, now + timingJitter + 0.006) // Soft attack
+  mainGain.gain.exponentialRampToValueAtTime(0.001, now + timingJitter + 0.09) // Natural decay
 
-  osc.connect(blipGain)
-  blipGain.connect(master)
-  osc.start(now + timingJitter)
-  osc.stop(now + timingJitter + 0.06)
+  mainOsc.connect(mainGain)
+  mainGain.connect(master)
+  mainOsc.start(now + timingJitter)
+  mainOsc.stop(now + timingJitter + 0.12)
 
-  // Secondary harmonic — adds digital character
-  const harmonic = c.createOscillator()
-  harmonic.type = 'triangle'
-  harmonic.frequency.setValueAtTime(basePitch * 2, now + timingJitter)
-  harmonic.frequency.exponentialRampToValueAtTime(basePitch * 2.5, now + timingJitter + 0.02)
+  // Tactile overtone — subtle mechanical character without harshness
+  const tactileOsc = c.createOscillator()
+  tactileOsc.type = 'sine'
+  tactileOsc.frequency.setValueAtTime(basePitch * 2.3, now + timingJitter)
 
-  const harmonicGain = c.createGain()
-  harmonicGain.gain.setValueAtTime(vol * 0.2, now + timingJitter)
-  harmonicGain.gain.exponentialRampToValueAtTime(0.001, now + timingJitter + 0.03)
+  const tactileGain = c.createGain()
+  tactileGain.gain.setValueAtTime(0, now + timingJitter)
+  tactileGain.gain.linearRampToValueAtTime(vol * 0.12, now + timingJitter + 0.003)
+  tactileGain.gain.exponentialRampToValueAtTime(0.001, now + timingJitter + 0.06)
 
-  harmonic.connect(harmonicGain)
-  harmonicGain.connect(master)
-  harmonic.start(now + timingJitter)
-  harmonic.stop(now + timingJitter + 0.04)
+  tactileOsc.connect(tactileGain)
+  tactileGain.connect(master)
+  tactileOsc.start(now + timingJitter)
+  tactileOsc.stop(now + timingJitter + 0.09)
 }
 
 // ─── UI Micro-Sounds ───────────────────────────────────────────────────────
