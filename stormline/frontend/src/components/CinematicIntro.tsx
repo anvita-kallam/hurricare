@@ -498,10 +498,22 @@ export default function CinematicIntro({
         })
         if (data?.audio_base64) {
           const audio = new Audio(`data:audio/mpeg;base64,${data.audio_base64}`)
-          await audio.play()
+          // Add audio to DOM for proper browser handling
+          audio.style.display = 'none'
+          document.body.appendChild(audio)
+
+          // Properly handle the play promise
+          audio.play().catch(err => {
+            console.warn('Could not play voice account:', err)
+          })
+
+          // Clean up after playing
+          audio.onended = () => {
+            document.body.removeChild(audio)
+          }
         }
       } catch (e) {
-        console.warn('Could not play voice account:', e)
+        console.warn('Could not fetch voice account:', e)
       }
     }
     playVoice()
