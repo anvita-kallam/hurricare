@@ -13,18 +13,33 @@ interface ComparisonHeatmapsProps {
   selectedHurricane: any
 }
 
-// Generate color based on value
-function getColor(value: number, maxValue: number, type: 'crisis' | 'funding') {
+// Generate color based on value — muted heatmap colors
+function getColor(value: number, max: number, type: 'crisis' | 'funding') {
+  const t = max > 0 ? Math.min(value / max, 1) : 0
   if (type === 'crisis') {
-    // Greyscale gradient for crisis/severity
-    const intensity = Math.min(value / maxValue, 1)
-    const v = Math.floor(30 + (200 - 30) * intensity)
-    return `rgb(${v}, ${v}, ${v})`
+    // Low severity = muted green, mid = muted amber, high = muted red
+    if (t < 0.33) {
+      const s = t / 0.33
+      return `rgb(${Math.floor(40 + s * 40)}, ${Math.floor(80 + s * 40)}, ${Math.floor(40 + s * 10)})`
+    } else if (t < 0.66) {
+      const s = (t - 0.33) / 0.33
+      return `rgb(${Math.floor(80 + s * 80)}, ${Math.floor(120 - s * 40)}, ${Math.floor(50 - s * 20)})`
+    } else {
+      const s = (t - 0.66) / 0.34
+      return `rgb(${Math.floor(160 + s * 40)}, ${Math.floor(80 - s * 40)}, ${Math.floor(30 + s * 10)})`
+    }
   } else {
-    // Greyscale gradient for funding
-    const intensity = Math.min(value / maxValue, 1)
-    const v = Math.floor(25 + (180 - 25) * intensity)
-    return `rgb(${v}, ${v}, ${v})`
+    // Funding: low = dark muted, mid = muted amber, high = muted teal
+    if (t < 0.33) {
+      const s = t / 0.33
+      return `rgb(${Math.floor(30 + s * 30)}, ${Math.floor(30 + s * 40)}, ${Math.floor(30 + s * 30)})`
+    } else if (t < 0.66) {
+      const s = (t - 0.33) / 0.33
+      return `rgb(${Math.floor(60 + s * 60)}, ${Math.floor(70 + s * 40)}, ${Math.floor(60 - s * 20)})`
+    } else {
+      const s = (t - 0.66) / 0.34
+      return `rgb(${Math.floor(120 - s * 40)}, ${Math.floor(110 + s * 40)}, ${Math.floor(40 + s * 80)})`
+    }
   }
 }
 

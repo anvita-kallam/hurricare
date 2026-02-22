@@ -1,7 +1,7 @@
 import { useState } from 'react'
 import axios from 'axios'
 import { useStore } from '../state/useStore'
-import { playSliderStretch } from '../audio/SoundEngine'
+// Slider audio removed — sliders must be silent
 
 const API_BASE = 'http://localhost:8000'
 
@@ -102,7 +102,6 @@ export default function HurricaneMatcher({ onMatchFound, onSkip }: HurricaneMatc
               value={category}
               onChange={(e) => {
                 setCategory(parseInt(e.target.value))
-                playSliderStretch()
               }}
               className="w-full h-2 bg-white/[0.04] rounded-lg appearance-none cursor-pointer accent-white/60"
             />

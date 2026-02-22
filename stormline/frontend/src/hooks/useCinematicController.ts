@@ -36,7 +36,7 @@ export function useCinematicController(
 ) {
   const FADE_IN_MS = 500
   const PLAY_MS = fixedDurationSeconds * 1000
-  const FADE_OUT_MS = 1000
+  const FADE_OUT_MS = 2500 // Extended to allow typewriter text to complete
   const TOTAL_MS = FADE_IN_MS + PLAY_MS + FADE_OUT_MS
 
   const [state, setState] = useState<CinematicState>({

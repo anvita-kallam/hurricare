@@ -119,10 +119,27 @@ export default function OverlayLayer() {
           lon: trackPoint.lon + severityLonOffset
         }
         
-        const greyIntensity = Math.floor(100 + severity * 155)
+        // Muted severity colors: low=green, mid=amber, high=red
+        let sevR: number, sevG: number, sevB: number
+        if (severity < 0.33) {
+          const s = severity / 0.33
+          sevR = Math.floor(40 + s * 40)
+          sevG = Math.floor(80 + s * 40)
+          sevB = Math.floor(40 + s * 10)
+        } else if (severity < 0.66) {
+          const s = (severity - 0.33) / 0.33
+          sevR = Math.floor(80 + s * 80)
+          sevG = Math.floor(120 - s * 40)
+          sevB = Math.floor(50 - s * 20)
+        } else {
+          const s = (severity - 0.66) / 0.34
+          sevR = Math.floor(160 + s * 40)
+          sevG = Math.floor(80 - s * 40)
+          sevB = Math.floor(30 + s * 10)
+        }
         overlays.push({
           ...severityCoords,
-          color: `rgb(${greyIntensity}, ${greyIntensity}, ${greyIntensity})`,
+          color: `rgb(${sevR}, ${sevG}, ${sevB})`,
           opacity: 0.5 + (severity * 0.4),
           type: 'severity',
           admin1: cov.admin1
@@ -142,10 +159,27 @@ export default function OverlayLayer() {
           lon: trackPoint.lon + coverageLonOffset
         }
         
-        const covGreyIntensity = Math.floor(100 + coverageRatio * 155)
+        // Muted coverage colors: low=red (bad), mid=amber, high=green (good)
+        let covR: number, covG: number, covB: number
+        if (coverageRatio < 0.33) {
+          const s = coverageRatio / 0.33
+          covR = Math.floor(160 - s * 80)
+          covG = Math.floor(40 + s * 40)
+          covB = Math.floor(40 - s * 10)
+        } else if (coverageRatio < 0.66) {
+          const s = (coverageRatio - 0.33) / 0.33
+          covR = Math.floor(80 + s * 80)
+          covG = Math.floor(80 + s * 40)
+          covB = Math.floor(30 + s * 20)
+        } else {
+          const s = (coverageRatio - 0.66) / 0.34
+          covR = Math.floor(160 - s * 100)
+          covG = Math.floor(120 + s * 20)
+          covB = Math.floor(50 + s * 10)
+        }
         overlays.push({
           ...coverageCoords,
-          color: `rgb(${covGreyIntensity}, ${covGreyIntensity}, ${covGreyIntensity})`,
+          color: `rgb(${covR}, ${covG}, ${covB})`,
           opacity: 0.5 + (coverageRatio * 0.4),
           type: 'coverage',
           admin1: cov.admin1

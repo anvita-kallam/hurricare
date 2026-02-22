@@ -45,30 +45,30 @@ export default function TrackPointCallout({
       }}
     >
       <div
-        className="bg-black/80 backdrop-blur-sm border border-cyan-500/50 rounded-lg p-2 min-w-[180px] max-w-[220px]"
+        className="bg-black/80 backdrop-blur-sm border border-white/[0.15] rounded-lg p-2 min-w-[180px] max-w-[220px]"
         style={{
-          boxShadow: '0 0 20px rgba(6, 182, 212, 0.4)',
+          boxShadow: '0 0 20px rgba(255, 255, 255, 0.1)',
           transform: 'scale(0.7)'
         }}
       >
         <div className="space-y-1">
           <div className="flex items-center justify-between">
-            <span className="text-xs text-cyan-300 font-exo">Wind Speed</span>
-            <span className="text-sm font-bold text-white font-orbitron">
+            <span className="text-xs text-white/50 font-rajdhani">Wind Speed</span>
+            <span className="text-sm font-bold text-white font-mono">
               {Math.round(windSpeed)} mph
             </span>
           </div>
-          
+
           {category > 0 && (
             <div className="flex items-center justify-between">
-              <span className="text-xs text-cyan-300 font-exo">Category</span>
-              <span className="text-sm font-bold text-red-400 font-orbitron">
+              <span className="text-xs text-white/50 font-rajdhani">Category</span>
+              <span className="text-sm font-bold text-white/70 font-mono">
                 Cat {category}
               </span>
             </div>
           )}
-          
-          <div className="flex items-center justify-between text-xs text-cyan-400/70 font-exo">
+
+          <div className="flex items-center justify-between text-xs text-white/30 font-rajdhani">
             <span>{formatLatLon(lat)}</span>
             <span>{formatLatLon(lon)}</span>
           </div>

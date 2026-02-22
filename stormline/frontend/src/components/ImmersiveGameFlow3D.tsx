@@ -1,6 +1,6 @@
 import { useRef, useEffect, useState, useMemo } from 'react'
 import { Canvas, useFrame, useThree } from '@react-three/fiber'
-import { EffectComposer, Vignette } from '@react-three/postprocessing'
+
 import * as THREE from 'three'
 
 /**
@@ -76,15 +76,13 @@ function ThreeScene() {
     <>
       <color attach="background" args={['#020408']} />
       <ambientLight intensity={0.04} />
-      <pointLight position={[0, 2, 5]} intensity={0.12} color="#2244ff" distance={14} />
-      <pointLight position={[-4, 1, 3]} intensity={0.08} color="#9900ff" distance={14} />
-      <pointLight position={[4, -1, 3]} intensity={0.06} color="#0055ff" distance={14} />
+      <pointLight position={[0, 2, 5]} intensity={0.12} color="#ffffff" distance={14} />
+      <pointLight position={[-4, 1, 3]} intensity={0.08} color="#cccccc" distance={14} />
+      <pointLight position={[4, -1, 3]} intensity={0.06} color="#aaaaaa" distance={14} />
 
       <BackgroundGrid />
 
-      <EffectComposer>
-        <Vignette offset={0.3} darkness={0.6} />
-      </EffectComposer>
+      {/* Removed Vignette — forbidden by design standards */}
     </>
   )
 }

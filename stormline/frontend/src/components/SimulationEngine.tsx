@@ -4,7 +4,7 @@ import { useStore } from '../state/useStore'
 import NarrativePopup from './NarrativePopup'
 import LocalizedAffectedMap from './LocalizedAffectedMap'
 import { resolveRegion } from '../utils/regionRegistry'
-import { playSliderStretch } from '../audio/SoundEngine'
+// Slider audio removed — sliders must be silent
 
 const API_BASE = 'http://localhost:8000'
 
@@ -533,7 +533,7 @@ export default function SimulationEngine({ onStartSimulation }: SimulationEngine
             </div>
             <div className="text-right">
               <div className="text-white/50 font-mono text-xs">${getTotalAllocated().toLocaleString()}</div>
-              <div className={`font-mono text-[10px] ${getRemainingBudget() < 0 ? 'text-[#cc5566]' : 'text-white/25'}`}>
+              <div className={`font-mono text-[10px] ${getRemainingBudget() < 0 ? 'text-white/50' : 'text-white/25'}`}>
                 {getRemainingBudget() >= 0 ? `$${getRemainingBudget().toLocaleString()} remaining` : 'Over budget'}
               </div>
             </div>
@@ -545,7 +545,7 @@ export default function SimulationEngine({ onStartSimulation }: SimulationEngine
               className="h-full rounded-full transition-all duration-300"
               style={{
                 width: `${Math.min((getTotalAllocated() / totalBudget) * 100, 100)}%`,
-                backgroundColor: getRemainingBudget() < 0 ? '#cc5566' : 'rgba(255,255,255,0.2)',
+                backgroundColor: getRemainingBudget() < 0 ? 'rgba(255,255,255,0.4)' : 'rgba(255,255,255,0.2)',
               }}
             />
           </div>
@@ -590,7 +590,7 @@ export default function SimulationEngine({ onStartSimulation }: SimulationEngine
                         className="w-1.5 h-1.5 rounded-full"
                         style={{
                           backgroundColor: cov?.severity_index
-                            ? cov.severity_index > 5 ? '#cc4444' : cov.severity_index > 3 ? '#ccaa44' : '#44aa77'
+                            ? cov.severity_index > 5 ? 'rgba(255,255,255,0.6)' : cov.severity_index > 3 ? 'rgba(255,255,255,0.35)' : 'rgba(255,255,255,0.15)'
                             : 'rgba(255,255,255,0.15)',
                         }}
                       />
@@ -631,7 +631,6 @@ export default function SimulationEngine({ onStartSimulation }: SimulationEngine
                               value={currentAlloc}
                               onChange={(e) => {
                                 handleClusterAllocationChange(region, cluster, Number(e.target.value))
-                                playSliderStretch()
                               }}
                               className="w-full h-1 appearance-none bg-white/[0.04] rounded-full cursor-pointer"
                               style={{
@@ -656,12 +655,12 @@ export default function SimulationEngine({ onStartSimulation }: SimulationEngine
         {validation && (
           <div className="mt-3 space-y-1.5">
             {validation.errors.length > 0 && (
-              <div className="bg-[#cc5566]/10 border border-[#cc5566]/20 p-2 rounded text-[10px] text-[#cc5566]/80 font-mono">
+              <div className="bg-white/[0.04] border border-white/[0.08] p-2 rounded text-[10px] text-white/40 font-mono">
                 {validation.errors.map((e, i) => <div key={i}>{e}</div>)}
               </div>
             )}
             {validation.warnings.length > 0 && (
-              <div className="bg-[#ccaa44]/10 border border-[#ccaa44]/20 p-2 rounded text-[10px] text-[#ccaa44]/80 font-mono">
+              <div className="bg-white/[0.03] border border-white/[0.06] p-2 rounded text-[10px] text-white/30 font-mono">
                 {validation.warnings.map((w, i) => <div key={i}>{w}</div>)}
               </div>
             )}

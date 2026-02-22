@@ -54,20 +54,20 @@ export default function FundingDisparityGlobe({ onClose }: FundingDisparityGlobe
           <div className="font-bold text-white/80 font-rajdhani mb-3 text-sm">Funding Disparity Legend</div>
           <div className="space-y-2">
             <div className="flex items-center gap-2">
-              <div className="w-6 h-4 rounded" style={{ background: 'rgba(120,220,120,0.8)' }} />
-              <span className="text-xs text-white/60 font-exo">Well-Funded</span>
+              <div className="w-6 h-4 rounded" style={{ background: 'rgba(255,255,255,0.2)' }} />
+              <span className="text-xs text-white/60 font-rajdhani">Well-Funded</span>
             </div>
             <div className="flex items-center gap-2">
-              <div className="w-6 h-4 rounded" style={{ background: 'rgba(255,220,100,0.8)' }} />
-              <span className="text-xs text-white/60 font-exo">Moderate Funding</span>
+              <div className="w-6 h-4 rounded" style={{ background: 'rgba(255,255,255,0.4)' }} />
+              <span className="text-xs text-white/60 font-rajdhani">Moderate Funding</span>
             </div>
             <div className="flex items-center gap-2">
-              <div className="w-6 h-4 rounded" style={{ background: 'rgba(255,160,60,0.8)' }} />
-              <span className="text-xs text-white/60 font-exo">Under-Resourced</span>
+              <div className="w-6 h-4 rounded" style={{ background: 'rgba(255,255,255,0.6)' }} />
+              <span className="text-xs text-white/60 font-rajdhani">Under-Resourced</span>
             </div>
             <div className="flex items-center gap-2">
-              <div className="w-6 h-4 rounded" style={{ background: 'rgba(255,100,80,0.8)' }} />
-              <span className="text-xs text-white/60 font-exo">Critically Under-Resourced</span>
+              <div className="w-6 h-4 rounded" style={{ background: 'rgba(255,255,255,0.8)' }} />
+              <span className="text-xs text-white/60 font-rajdhani">Critically Under-Resourced</span>
             </div>
           </div>
         </div>

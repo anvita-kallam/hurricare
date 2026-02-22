@@ -1,7 +1,7 @@
 import { useState, useEffect, useMemo } from 'react'
 import { useStore } from '../state/useStore'
 import axios from 'axios'
-import { playSliderStretch } from '../audio/SoundEngine'
+// Slider audio removed — sliders must be silent
 
 const API_BASE = 'http://localhost:8000'
 
@@ -70,7 +70,7 @@ export default function AllocationPanel() {
     return (
       <div className="bg-black/40 backdrop-blur-sm rounded-lg border border-white/[0.06] p-4">
         <h2 className="text-xl font-bold mb-4 font-rajdhani">Allocation Simulator</h2>
-        <p className="text-cyan-300/80 font-rajdhani">Select a hurricane to begin simulation</p>
+        <p className="text-white/40 font-rajdhani">Select a hurricane to begin simulation</p>
       </div>
     )
   }
@@ -78,7 +78,7 @@ export default function AllocationPanel() {
   return (
     <div className="bg-black/40 backdrop-blur-sm rounded-lg border border-white/[0.06] p-4 h-full flex flex-col">
       <h2 className="text-xl font-bold mb-4 font-rajdhani">Allocation Simulator</h2>
-      <div className="text-sm text-cyan-300/80 mb-4 font-rajdhani">
+      <div className="text-sm text-white/40 mb-4 font-rajdhani">
         Adjust budget allocations per region and simulate impact
       </div>
       
@@ -92,16 +92,16 @@ export default function AllocationPanel() {
             <div key={region} className="border border-white/[0.06] rounded p-3 bg-black/40 backdrop-blur-sm">
               <div className="flex justify-between items-center mb-2">
                 <div>
-                  <div className="font-semibold text-cyan-200">{region}</div>
+                  <div className="font-semibold text-white/60">{region}</div>
                   {cov && (
-                    <div className="text-xs text-cyan-300/70">
+                    <div className="text-xs text-white/50/70">
                       Current: ${cov.pooled_fund_budget.toLocaleString()} • 
                       Need: ${cov.estimated_need_budget.toLocaleString()} • 
                       Coverage: {(cov.coverage_ratio * 100).toFixed(1)}%
                     </div>
                   )}
                 </div>
-                <div className="text-sm font-medium text-cyan-200">
+                <div className="text-sm font-medium text-white/60">
                   ${currentBudget.toLocaleString()}
                 </div>
               </div>
@@ -113,11 +113,10 @@ export default function AllocationPanel() {
                 value={currentBudget}
                 onChange={(e) => {
                   handleAllocationChange(region, parseFloat(e.target.value))
-                  playSliderStretch()
                 }}
-                className="w-full accent-cyan-500"
+                className="w-full accent-white"
               />
-              <div className="flex justify-between text-xs text-cyan-400/60 mt-1">
+              <div className="flex justify-between text-xs text-white/30 mt-1">
                 <span>$0</span>
                 <span>${maxBudget.toLocaleString()}</span>
               </div>
@@ -129,7 +128,7 @@ export default function AllocationPanel() {
       <button
         onClick={runSimulation}
         disabled={loading}
-        className="w-full bg-cyan-600 text-white py-2 px-4 rounded hover:bg-cyan-700 disabled:bg-gray-600 disabled:text-gray-400 transition-all font-semibold font-rajdhani"
+        className="w-full bg-white/20 text-white py-2 px-4 rounded hover:bg-white/30 disabled:bg-white/[0.06] disabled:text-white/20 transition-all font-semibold font-rajdhani"
       >
         {loading ? 'Running Simulation...' : 'Run Simulation'}
       </button>
@@ -149,15 +148,15 @@ export default function AllocationPanel() {
           {simulationResult.hard_priorities && (
             <div className="pb-2 border-b border-white/[0.06]">
               <div className="font-semibold text-white/40 mb-1">Hard Priorities (Non-negotiable):</div>
-              <div className="text-xs space-y-1 pl-2 text-cyan-200">
+              <div className="text-xs space-y-1 pl-2 text-white/60">
                 <div>
-                  <span className="font-medium text-cyan-300">Lives Saved:</span> {Math.round(simulationResult.hard_priorities.lives_saved).toLocaleString()}
+                  <span className="font-medium text-white/50">Lives Saved:</span> {Math.round(simulationResult.hard_priorities.lives_saved).toLocaleString()}
                 </div>
                 <div>
-                  <span className="font-medium text-cyan-300">Suffering Reduced:</span> {Math.round(simulationResult.hard_priorities.suffering_reduced).toLocaleString()} people
+                  <span className="font-medium text-white/50">Suffering Reduced:</span> {Math.round(simulationResult.hard_priorities.suffering_reduced).toLocaleString()} people
                 </div>
                 <div>
-                  <span className="font-medium text-cyan-300">Vulnerable Protected:</span> {Math.round(simulationResult.hard_priorities.vulnerable_protected).toLocaleString()} people
+                  <span className="font-medium text-white/50">Vulnerable Protected:</span> {Math.round(simulationResult.hard_priorities.vulnerable_protected).toLocaleString()} people
                 </div>
               </div>
             </div>
@@ -167,12 +166,12 @@ export default function AllocationPanel() {
           {simulationResult.soft_priorities && (
             <div className="pb-2 border-b border-white/[0.06]">
               <div className="font-semibold text-white/40 mb-1">Soft Priorities (Trade-offs):</div>
-              <div className="text-xs space-y-1 pl-2 text-cyan-200">
+              <div className="text-xs space-y-1 pl-2 text-white/60">
                 <div>
-                  <span className="font-medium text-cyan-300">Economic Loss Reduction:</span> ${Math.round(simulationResult.soft_priorities.economic_loss_reduction).toLocaleString()}
+                  <span className="font-medium text-white/50">Economic Loss Reduction:</span> ${Math.round(simulationResult.soft_priorities.economic_loss_reduction).toLocaleString()}
                 </div>
                 <div>
-                  <span className="font-medium text-cyan-300">Resource Efficiency:</span> {simulationResult.soft_priorities.resource_efficiency.toFixed(2)}
+                  <span className="font-medium text-white/50">Resource Efficiency:</span> {simulationResult.soft_priorities.resource_efficiency.toFixed(2)}
                 </div>
               </div>
             </div>
@@ -182,14 +181,14 @@ export default function AllocationPanel() {
           {simulationResult.constraints && (
             <div className="pb-2 border-b border-white/[0.06]">
               <div className="font-semibold text-white/40 mb-1">Constraints (Penalties):</div>
-              <div className="text-xs space-y-1 pl-2 text-cyan-200">
+              <div className="text-xs space-y-1 pl-2 text-white/60">
                 <div>
-                  <span className="font-medium text-cyan-300">Logistics Penalty:</span> {(simulationResult.constraints.logistics_penalty * 100).toFixed(1)}%
+                  <span className="font-medium text-white/50">Logistics Penalty:</span> {(simulationResult.constraints.logistics_penalty * 100).toFixed(1)}%
                 </div>
                 <div>
-                  <span className="font-medium text-cyan-300">Access/Security Penalty:</span> {(simulationResult.constraints.access_penalty * 100).toFixed(1)}%
+                  <span className="font-medium text-white/50">Access/Security Penalty:</span> {(simulationResult.constraints.access_penalty * 100).toFixed(1)}%
                 </div>
-                <div className="font-semibold text-cyan-200">
+                <div className="font-semibold text-white/60">
                   <span className="font-medium">Total Constraint Impact:</span> {(simulationResult.constraints.total_penalty * 100).toFixed(1)}%
                 </div>
               </div>
@@ -198,10 +197,10 @@ export default function AllocationPanel() {
           
           {/* Unmet Need */}
           <div className="pb-2 border-b border-white/[0.06]">
-            <div className="font-semibold text-cyan-300 mb-1">Critical Metrics:</div>
-            <div className="text-xs space-y-1 pl-2 text-cyan-200">
+            <div className="font-semibold text-white/50 mb-1">Critical Metrics:</div>
+            <div className="text-xs space-y-1 pl-2 text-white/60">
               <div>
-                <span className="font-medium text-cyan-300">Unmet Need:</span> {Math.round(simulationResult.unmet_need).toLocaleString()} people
+                <span className="font-medium text-white/50">Unmet Need:</span> {Math.round(simulationResult.unmet_need).toLocaleString()} people
               </div>
             </div>
           </div>
@@ -209,8 +208,8 @@ export default function AllocationPanel() {
           {/* Comparison */}
           {simulationResult.comparison && (
             <div>
-              <div className="font-semibold mb-1 text-cyan-200">Comparison to Current Allocation:</div>
-              <div className="text-xs space-y-1 pl-2 text-cyan-200">
+              <div className="font-semibold mb-1 text-white/60">Comparison to Current Allocation:</div>
+              <div className="text-xs space-y-1 pl-2 text-white/60">
                 <div>
                   Current: {Math.round(simulationResult.comparison.current_lives_covered).toLocaleString()} lives saved
                 </div>

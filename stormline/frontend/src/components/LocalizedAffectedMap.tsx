@@ -145,10 +145,10 @@ function AffectedRegionMesh({
 
   if (geometries.length === 0) return null
 
-  // Color: orange → red based on intensity
-  const hue = (1 - intensity) * 30 / 360
-  const color = new THREE.Color().setHSL(hue, 0.9, 0.4)
-  const emissiveColor = new THREE.Color().setHSL(hue, 1, 0.3)
+  // Color: monochrome grey based on intensity
+  const lum = 0.25 + intensity * 0.45
+  const color = new THREE.Color(lum, lum, lum)
+  const emissiveColor = new THREE.Color(lum * 0.4, lum * 0.4, lum * 0.4)
 
   return (
     <group ref={meshRef} scale={[1, 0.01, 1]}>
@@ -224,8 +224,8 @@ function NeighborRegionMesh({
       {geometries.map(({ geo }, i) => (
         <mesh key={i} geometry={geo}>
           <meshPhongMaterial
-            color="#0a1525"
-            emissive="#050c18"
+            color="#0a0a0e"
+            emissive="#050508"
             emissiveIntensity={0.3}
             transparent
             opacity={0.7}
@@ -273,25 +273,25 @@ function Scene({
 
   return (
     <>
-      <color attach="background" args={['#020810']} />
-      <fog attach="fog" args={['#020810', extent * 0.8, extent * 2.5]} />
+      <color attach="background" args={['#020204']} />
+      <fog attach="fog" args={['#020204', extent * 0.8, extent * 2.5]} />
 
       {/* Lighting */}
-      <ambientLight intensity={0.15} color="#8090b0" />
+      <ambientLight intensity={0.15} color="#888888" />
       <directionalLight position={[5, 12, 7]} intensity={0.5} color="#ffffff" />
-      <pointLight position={[-4, 6, -4]} intensity={0.25} color="#ff6b35" />
-      <pointLight position={[4, 4, 4]} intensity={0.15} color="#3355ff" />
+      <pointLight position={[-4, 6, -4]} intensity={0.25} color="#cccccc" />
+      <pointLight position={[4, 4, 4]} intensity={0.15} color="#aaaaaa" />
 
       {/* Strategy grid */}
       <gridHelper
-        args={[gridSize * 2, gridSize * 4, '#0a1a3a', '#061228']}
+        args={[gridSize * 2, gridSize * 4, '#0a0a0a', '#060606']}
         position={[0, -0.005, 0]}
       />
 
       {/* Dark base plane */}
       <mesh position={[0, -0.02, 0]} rotation={[-Math.PI / 2, 0, 0]}>
         <planeGeometry args={[gridSize * 3, gridSize * 3]} />
-        <meshPhongMaterial color="#020a18" side={THREE.DoubleSide} />
+        <meshPhongMaterial color="#020202" side={THREE.DoubleSide} />
       </mesh>
 
       {/* Neighbor countries (flat, dark, for context) */}
@@ -381,19 +381,19 @@ export default function LocalizedAffectedMap({
           <div className="text-white/70 font-rajdhani font-semibold mb-3">Impact Severity</div>
           <div className="space-y-2 text-xs">
             <div className="flex items-center gap-2">
-              <div className="w-6 h-3 rounded" style={{ backgroundColor: '#cc2200' }} />
+              <div className="w-6 h-3 rounded" style={{ backgroundColor: 'rgba(160, 60, 60, 0.8)' }} />
               <span className="text-white/60 font-rajdhani">Critical (0.8-1.0)</span>
             </div>
             <div className="flex items-center gap-2">
-              <div className="w-6 h-3 rounded" style={{ backgroundColor: '#cc5500' }} />
+              <div className="w-6 h-3 rounded" style={{ backgroundColor: 'rgba(180, 120, 40, 0.8)' }} />
               <span className="text-white/60 font-rajdhani">Severe (0.6-0.8)</span>
             </div>
             <div className="flex items-center gap-2">
-              <div className="w-6 h-3 rounded" style={{ backgroundColor: '#cc8800' }} />
+              <div className="w-6 h-3 rounded" style={{ backgroundColor: 'rgba(160, 150, 50, 0.8)' }} />
               <span className="text-white/60 font-rajdhani">Moderate (0.4-0.6)</span>
             </div>
             <div className="flex items-center gap-2">
-              <div className="w-6 h-3 rounded" style={{ backgroundColor: '#ccaa00' }} />
+              <div className="w-6 h-3 rounded" style={{ backgroundColor: 'rgba(60, 120, 60, 0.8)' }} />
               <span className="text-white/60 font-rajdhani">Low (0.2-0.4)</span>
             </div>
           </div>
@@ -408,8 +408,8 @@ export default function LocalizedAffectedMap({
           <div className="space-y-2">
             {affectedRegions.map(region => {
               const val = impactIntensity[region] || 0
-              const hue = (1 - val) * 30 / 360
-              const col = new THREE.Color().setHSL(hue, 0.9, 0.4)
+              const lum = 0.25 + val * 0.45
+              const col = new THREE.Color(lum, lum, lum)
               return (
                 <div key={region} className="flex items-center justify-between text-xs">
                   <span className="text-white/60 font-rajdhani">{region}</span>

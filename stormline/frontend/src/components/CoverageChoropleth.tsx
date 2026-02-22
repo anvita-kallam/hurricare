@@ -17,18 +17,18 @@ export default function CoverageChoropleth() {
     <div className="absolute top-4 right-4 bg-black/80 backdrop-blur-sm border border-white/[0.06] p-3 rounded z-10">
       <div className="text-sm font-semibold mb-2 font-rajdhani">Overlay Active</div>
       {showSeverityOverlay && (
-        <div className="text-xs mb-1 text-cyan-200">
+        <div className="text-xs mb-1 text-white/60">
           <span className="inline-block w-3 h-3 bg-white mr-1 rounded"></span>
           Severity Index
         </div>
       )}
       {showCoverageOverlay && (
-        <div className="text-xs text-cyan-200">
+        <div className="text-xs text-white/60">
           <span className="inline-block w-3 h-3 bg-white/60 mr-1 rounded"></span>
           Coverage Ratio
         </div>
       )}
-      <div className="text-xs text-cyan-300/70 mt-2">
+      <div className="text-xs text-white/35 mt-2">
         {selectedHurricane ? `Showing: ${selectedHurricane.name}` : 'All hurricanes'}
       </div>
     </div>

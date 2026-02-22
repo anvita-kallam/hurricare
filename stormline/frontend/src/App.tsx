@@ -70,6 +70,8 @@ function App() {
   const [loading, setLoading] = useState(true)
   const [gameStarted, setGameStarted] = useState(false)
   const [showWelcomePopup, setShowWelcomePopup] = useState(false)
+  const welcomeShownRef = useRef(false)
+  const [dashboardInitializing, setDashboardInitializing] = useState(false)
   const [pendingHurricane, setPendingHurricane] = useState<string | null>(null)
   const [showMatcher, setShowMatcher] = useState(false)
 
@@ -249,9 +251,12 @@ function App() {
   const handleDashboardOption = (option: 'browse' | 'disparity') => {
     if (option === 'browse') {
       // Enter the main globe view with hurricane paths
-      // No matcher popup on initial entry — deferred to HUD search bar
       setGameStarted(true)
-      setShowWelcomePopup(true)
+      // Only show welcome popup ONCE per session
+      if (!welcomeShownRef.current) {
+        welcomeShownRef.current = true
+        setShowWelcomePopup(true)
+      }
     } else if (option === 'disparity') {
       setShowFundingDisparity(true)
     }
@@ -260,13 +265,13 @@ function App() {
   const handleMatcherMatch = (hurricaneId: string) => {
     setShowMatcher(false)
     setGameStarted(true)
-    setShowWelcomePopup(true)
+    // Do NOT re-show welcome popup on matcher close
   }
 
   const handleMatcherSkip = () => {
     setShowMatcher(false)
     setGameStarted(true)
-    setShowWelcomePopup(true)
+    // Do NOT re-show welcome popup on matcher close
   }
 
   const handleCloseFundingDisparity = () => {
@@ -281,7 +286,6 @@ function App() {
 
   const handleReturnToMenu = () => {
     // Clear all selections and return to the menu
-    // Always reload data to ensure clean state when returning
     setSelectedHurricane(null)
     setPostSimulationMapMode(false)
     setShowWelcomePopup(false)
@@ -296,9 +300,16 @@ function App() {
     setMapPhase('globe')
     setShowMatcher(false)
     setShowFundingDisparity(false)
+    welcomeShownRef.current = false
+    // Show initializing state when returning to dashboard
+    setDashboardInitializing(true)
     // Return to dashboard - use minimal delay to ensure clean unmount/remount
     setTimeout(() => {
       setGameStarted(false)
+      // Clear initializing after dashboard mounts and shows init animation
+      setTimeout(() => {
+        setDashboardInitializing(false)
+      }, 1800) // Match the Dashboard3D init animation duration
     }, 50)
   }
 
@@ -310,7 +321,7 @@ function App() {
         <Dashboard3D
           onSelectOption={handleDashboardOption}
           onEnter={() => {}}
-          isLoading={loading || hurricanes.length === 0}
+          isLoading={loading || hurricanes.length === 0 || dashboardInitializing}
         />
       </>
     )

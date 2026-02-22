@@ -807,8 +807,8 @@ export default function Dashboard3D({ onSelectOption, isLoading }: Dashboard3DPr
         {/* ─── Globe labels + HUD accents ────────────────────── */}
         {showUI && !isLoading && (
           <div className="px-12 mb-6">
-            {/* Globe option labels */}
-            <div className="flex justify-around">
+            {/* Globe option labels — centered to match 3D globe positions */}
+            <div className="flex justify-center gap-[12vw]">
               {options.map((option, i) => (
                 <div key={option.id} className="text-center w-56 dashboard-option-fade" style={{ animationDelay: `${i * 0.12}s` }}>
                   {/* Tag label */}

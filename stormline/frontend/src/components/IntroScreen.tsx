@@ -31,7 +31,7 @@ export default function IntroScreen({ onEnter, isLoading }: IntroScreenProps) {
       {/* Galaxy Background */}
       <div className="absolute inset-0 overflow-hidden">
         {/* Deep space gradient */}
-        <div className="absolute inset-0 bg-gradient-to-b from-purple-900/20 via-black to-cyan-900/20" />
+        <div className="absolute inset-0 bg-gradient-to-b from-white/[0.03] via-black to-white/[0.02]" />
         
         {/* Animated stars layer 1 - White stars */}
         <div className="absolute inset-0" style={{
@@ -94,7 +94,7 @@ export default function IntroScreen({ onEnter, isLoading }: IntroScreenProps) {
           </h1>
           
           {/* Subtitle */}
-          <p className="text-2xl text-cyan-300 font-rajdhani mb-12" style={{ opacity: 1 }}>
+          <p className="text-2xl text-white/50 font-rajdhani mb-12" style={{ opacity: 1 }}>
             Humanitarian Response Simulation
           </p>
 
@@ -105,9 +105,9 @@ export default function IntroScreen({ onEnter, isLoading }: IntroScreenProps) {
                 {loadingText}{dots}
               </div>
               <div className="flex justify-center">
-                <div className="w-64 h-1 bg-cyan-500/20 rounded-full overflow-hidden">
-                  <div 
-                    className="h-full bg-gradient-to-r from-cyan-500 to-purple-500 animate-pulse"
+                <div className="w-64 h-1 bg-white/[0.08] rounded-full overflow-hidden">
+                  <div
+                    className="h-full bg-white/30 animate-pulse"
                     style={{ width: '60%' }}
                   />
                 </div>
@@ -116,7 +116,7 @@ export default function IntroScreen({ onEnter, isLoading }: IntroScreenProps) {
           ) : showButton ? (
             <button
               onClick={onEnter}
-              className="px-12 py-4 text-2xl font-rajdhani font-bold text-black bg-gradient-to-r from-cyan-400 to-purple-500 rounded-lg hover:from-cyan-300 hover:to-purple-400 transition-all duration-300 transform hover:scale-110 animate-pulse"
+              className="px-12 py-4 text-2xl font-rajdhani font-bold text-black bg-white/80 rounded-lg hover:bg-white/90 transition-all duration-300 transform hover:scale-110 animate-pulse"
             >
               ENTER GAME
             </button>

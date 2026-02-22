@@ -36,10 +36,10 @@ interface AffectedAreaHeightMapProps {
 
 const THEME_COLORS = {
   severity: {
-    high: [200, 200, 200],
-    mid: [140, 140, 140],
-    low: [80, 80, 80],
-    accent: [180, 180, 180],
+    high: [160, 60, 60],     // muted red
+    mid: [160, 130, 50],     // muted amber
+    low: [60, 120, 60],      // muted green
+    accent: [140, 100, 50],  // muted gold accent
   },
   coverage: {
     high: [180, 180, 180],

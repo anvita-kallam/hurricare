@@ -16,7 +16,7 @@ export default function FlaggedProjects() {
     <div className="bg-black/40 backdrop-blur-sm rounded-lg border border-white/[0.06] p-4 h-full flex flex-col">
       <h2 className="text-xl font-bold mb-4 font-rajdhani">Flagged Projects</h2>
       
-      <div className="mb-4 text-sm text-cyan-300/80">
+      <div className="mb-4 text-sm text-white/40">
         Found {filtered.length} flagged projects
         {selectedHurricane && ` for ${selectedHurricane.name}`}
       </div>
@@ -49,7 +49,7 @@ export default function FlaggedProjects() {
         )}
         
         {filtered.length === 0 && (
-          <div className="text-cyan-400/60 text-center py-8">
+          <div className="text-white/30 text-center py-8">
             No flagged projects found
           </div>
         )}
@@ -65,19 +65,19 @@ function FlaggedProjectCard({ project }: { project: FlaggedProject }) {
         ? 'border-white/[0.08] bg-white/[0.04]'
         : 'border-white/[0.06] bg-white/[0.03]'
     }`}>
-      <div className="font-semibold text-sm mb-1 text-cyan-200">{project.project_id}</div>
-      <div className="text-xs text-cyan-300/80 mb-2">
+      <div className="font-semibold text-sm mb-1 text-white/60">{project.project_id}</div>
+      <div className="text-xs text-white/40 mb-2">
         {project.cluster} • {project.admin1}, {project.country}
       </div>
-      <div className="text-xs mb-2 text-cyan-200">
+      <div className="text-xs mb-2 text-white/60">
         <span className="font-medium">Budget:</span> ${project.budget_usd.toLocaleString()} • 
         <span className="font-medium"> Beneficiaries:</span> {project.beneficiaries.toLocaleString()} • 
         <span className="font-medium"> $/Beneficiary:</span> ${project.budget_per_beneficiary.toFixed(2)}
       </div>
-      <div className="text-xs text-cyan-300/70 italic">
+      <div className="text-xs text-white/35 italic">
         {project.explanation}
       </div>
-      <div className="text-xs text-cyan-400/60 mt-1">
+      <div className="text-xs text-white/30 mt-1">
         Z-score: {project.z_score.toFixed(2)}
       </div>
     </div>

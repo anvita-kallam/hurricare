@@ -162,12 +162,10 @@ function AffectedRegionMesh({
 
   if (geometries.length === 0) return null
 
-  // Red-weighted color based on severity
-  const r = 0.35 + severity * 0.55
-  const g = 0.06 + (1 - severity) * 0.08
-  const b = 0.08 + (1 - severity) * 0.06
-  const color = new THREE.Color(r, g, b)
-  const emissive = new THREE.Color(r * 0.5, g * 0.15, b * 0.1)
+  // Monochrome grey based on severity
+  const lum = 0.25 + severity * 0.45
+  const color = new THREE.Color(lum, lum, lum)
+  const emissive = new THREE.Color(lum * 0.4, lum * 0.4, lum * 0.4)
 
   return (
     <group ref={meshRef} scale={[1, 0.01, 1]}>
@@ -194,7 +192,7 @@ function AffectedRegionMesh({
                 itemSize={3}
               />
             </bufferGeometry>
-            <lineBasicMaterial color="#ff4444" transparent opacity={0.5} />
+            <lineBasicMaterial color="#ffffff" transparent opacity={0.5} />
           </line>
         </group>
       ))}
@@ -277,8 +275,8 @@ function SupportRegionMesh({
         <group key={i}>
           <mesh geometry={geo}>
             <meshPhongMaterial
-              color="#0c1e3a"
-              emissive="#061430"
+              color="#0c0c0e"
+              emissive="#060608"
               emissiveIntensity={0.4}
               shininess={15}
               transparent
@@ -295,7 +293,7 @@ function SupportRegionMesh({
                 itemSize={3}
               />
             </bufferGeometry>
-            <lineBasicMaterial color="#1a3a6a" transparent opacity={0.35} />
+            <lineBasicMaterial color="#1a1a1e" transparent opacity={0.35} />
           </line>
         </group>
       ))}
@@ -332,7 +330,7 @@ function SignalNode({
     }
   })
 
-  const ringColor = coverageRatio > 0.5 ? '#3388cc' : '#cc3333'
+  const ringColor = coverageRatio > 0.5 ? '#aaaaaa' : '#666666'
 
   return (
     <group position={[position[0], height, position[1]]}>
@@ -340,7 +338,7 @@ function SignalNode({
       <mesh>
         <circleGeometry args={[nodeSize * 0.3, 24]} />
         <meshBasicMaterial
-          color={coverageRatio > 0.5 ? '#4499dd' : '#dd4444'}
+          color={coverageRatio > 0.5 ? '#bbbbbb' : '#777777'}
           transparent
           opacity={0.9}
           side={THREE.DoubleSide}
@@ -416,10 +414,10 @@ function SignalNode({
           </div>
           {hovered && (
             <div style={{ marginTop: '4px' }}>
-              <div style={{ color: 'rgba(255,120,120,0.9)', fontSize: '10px', fontFamily: 'DM Mono, monospace' }}>
+              <div style={{ color: 'rgba(255,255,255,0.7)', fontSize: '10px', fontFamily: 'DM Mono, monospace' }}>
                 Severity: {(severity * 10).toFixed(1)}
               </div>
-              <div style={{ color: 'rgba(120,180,255,0.9)', fontSize: '10px', fontFamily: 'DM Mono, monospace' }}>
+              <div style={{ color: 'rgba(255,255,255,0.5)', fontSize: '10px', fontFamily: 'DM Mono, monospace' }}>
                 Coverage: {(coverageRatio * 100).toFixed(1)}%
               </div>
               <div style={{ color: 'rgba(255,255,255,0.6)', fontSize: '10px', fontFamily: 'DM Mono, monospace' }}>
@@ -502,7 +500,7 @@ function ConnectionLines({
               />
             </bufferGeometry>
             <lineBasicMaterial
-              color="#3366aa"
+              color="#888888"
               transparent
               opacity={line.opacity}
             />
@@ -596,25 +594,25 @@ function MapScene({
 
   return (
     <>
-      <color attach="background" args={['#020810']} />
-      <fog attach="fog" args={['#020810', extent * 1.0, extent * 3.0]} />
+      <color attach="background" args={['#020204']} />
+      <fog attach="fog" args={['#020204', extent * 1.0, extent * 3.0]} />
 
       {/* Lighting - subdued, tactical */}
-      <ambientLight intensity={0.12} color="#8090b0" />
+      <ambientLight intensity={0.12} color="#888888" />
       <directionalLight position={[5, 15, 7]} intensity={0.4} color="#ffffff" />
-      <pointLight position={[-4, 8, -4]} intensity={0.15} color="#cc4422" />
-      <pointLight position={[4, 6, 4]} intensity={0.12} color="#2244aa" />
+      <pointLight position={[-4, 8, -4]} intensity={0.15} color="#cccccc" />
+      <pointLight position={[4, 6, 4]} intensity={0.12} color="#aaaaaa" />
 
       {/* Strategy grid - subtle tactical overlay */}
       <gridHelper
-        args={[gridSize * 2, gridSize * 4, '#0a1a3a', '#061228']}
+        args={[gridSize * 2, gridSize * 4, '#0a0a0a', '#060606']}
         position={[0, -0.005, 0]}
       />
 
       {/* Dark base plane */}
       <mesh position={[0, -0.02, 0]} rotation={[-Math.PI / 2, 0, 0]}>
         <planeGeometry args={[gridSize * 3, gridSize * 3]} />
-        <meshPhongMaterial color="#020a18" side={THREE.DoubleSide} />
+        <meshPhongMaterial color="#020202" side={THREE.DoubleSide} />
       </mesh>
 
       {/* Surrounding / support regions (blue-weighted, flat) */}
