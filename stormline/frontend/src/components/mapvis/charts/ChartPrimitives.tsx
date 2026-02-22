@@ -309,33 +309,70 @@ interface ThinVerticalBarsProps {
   height: number
   seed?: number
   accentThreshold?: number
+  /** Optional bar labels (shown below each bar) */
+  labels?: string[]
+  /** Optional Y-axis unit label */
+  unit?: string
 }
 
 export function ThinVerticalBars({
   data, width, height, seed = 5,
   accentThreshold = 0.65,
+  labels,
+  unit,
 }: ThinVerticalBarsProps) {
   const id = `tvb-${seed}`
   const maxVal = Math.max(...data) || 1
+  const hasLabels = labels && labels.length > 0
+  const labelH = hasLabels ? 14 : 0
+  const plotH = height - labelH - 2
   const gap = width / data.length
-  const barW = Math.max(1, gap * 0.5)
+  const barW = Math.max(1, gap * 0.55)
 
   return (
     <svg width={width} height={height} className="block">
       <FadeMask id={id} />
       <g mask={`url(#${id}-m)`}>
-        <line x1="0" y1={height - 1} x2={width} y2={height - 1}
+        <line x1="0" y1={plotH} x2={width} y2={plotH}
           stroke="rgba(255,255,255,0.04)" strokeWidth="0.3" />
         {data.map((v, i) => {
           const norm = v / maxVal
-          const h = norm * (height - 4)
+          const h = norm * (plotH - 4)
           const x = i * gap + gap / 2 - barW / 2
           const accent = norm > accentThreshold
           return (
-            <rect key={i} x={x} y={height - h - 1} width={barW} height={h}
-              fill={accent ? 'rgba(255,180,60,0.45)' : 'rgba(255,255,255,0.18)'} />
+            <g key={i}>
+              <rect x={x} y={plotH - h} width={barW} height={h}
+                fill={accent ? 'rgba(255,180,60,0.45)' : 'rgba(255,255,255,0.18)'} />
+              {/* Value on top */}
+              {norm > 0.3 && (
+                <text x={i * gap + gap / 2} y={plotH - h - 2}
+                  textAnchor="middle" fill="rgba(255,255,255,0.3)"
+                  fontSize="5.5" fontFamily="'DM Mono', monospace">
+                  {v >= 1e6 ? `${(v / 1e6).toFixed(1)}M` : v >= 1e3 ? `${(v / 1e3).toFixed(0)}K` : v.toFixed(0)}
+                </text>
+              )}
+              {/* Label below bar */}
+              {hasLabels && labels[i] && (
+                <text x={i * gap + gap / 2} y={plotH + 10}
+                  textAnchor="middle" fill="rgba(255,255,255,0.25)"
+                  fontSize="6" fontFamily="'Rajdhani', sans-serif" fontWeight="600"
+                  letterSpacing="0.05em">
+                  {labels[i].length > Math.floor(gap / 4.5)
+                    ? labels[i].slice(0, Math.floor(gap / 4.5)) + '..'
+                    : labels[i]}
+                </text>
+              )}
+            </g>
           )
         })}
+        {/* Unit label */}
+        {unit && (
+          <text x={2} y={8} fill="rgba(255,255,255,0.15)"
+            fontSize="6" fontFamily="'DM Mono', monospace">
+            {unit}
+          </text>
+        )}
       </g>
     </svg>
   )
@@ -487,8 +524,8 @@ export function SegmentedHorizontalBars({
   bars, width, height,
 }: SegmentedHorizontalBarsProps) {
   const barH = Math.min(7, (height - 4) / bars.length - 4)
-  const labelW = 34
-  const valW = 22
+  const labelW = 56  // wider for full region names
+  const valW = 28
   const barAreaW = width - labelW - valW - 4
 
   return (
@@ -500,9 +537,10 @@ export function SegmentedHorizontalBars({
         const high = norm > 0.7
         return (
           <g key={i}>
-            <text x={0} y={y + barH * 0.85}
-              fill="rgba(255,255,255,0.2)" fontSize="6"
-              fontFamily="'Rajdhani', sans-serif" fontWeight="600" letterSpacing="0.1em">
+            <text x={labelW - 3} y={y + barH * 0.85}
+              textAnchor="end"
+              fill="rgba(255,255,255,0.25)" fontSize="6.5"
+              fontFamily="'Rajdhani', sans-serif" fontWeight="600" letterSpacing="0.08em">
               {bar.label}
             </text>
             <rect x={labelW} y={y} width={barAreaW} height={barH}
@@ -515,7 +553,7 @@ export function SegmentedHorizontalBars({
                 stroke="rgba(255,255,255,0.04)" strokeWidth="0.3" />
             ))}
             <text x={labelW + barAreaW + 3} y={y + barH * 0.85}
-              fill="rgba(255,255,255,0.3)" fontSize="6"
+              fill="rgba(255,255,255,0.35)" fontSize="6"
               fontFamily="'DM Mono', monospace">
               {bar.value}
             </text>
