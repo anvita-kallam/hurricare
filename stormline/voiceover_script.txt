@@ -1,19 +1,21 @@
-Every year, disasters displace millions of people. And in the hours after a crisis begins, a small number of coordinators sit in rooms making decisions that will shape outcomes for entire regions.
+Every year, disasters displace tens of millions of people. In the critical hours after a crisis begins, a small number of coordinators make decisions that shape outcomes for entire regions — allocating billions in relief across competing needs, with almost no time to deliberate.
 
-They work with incomplete data, fragmented reports, and institutional memory that lives in the heads of people who may not be in the room. The stakes are enormous. The margin for error is almost nonexistent. And yet, there is no shared environment where these decisions can be practiced before they have to be made for real.
+They work from fragmented data, secondhand reports, and institutional memory that lives in the heads of people who may not be in the room. There is no shared environment to test these decisions. No way to rehearse. When outcomes fall short, the same patterns repeat — not because people failed, but because the system never gave them a chance to practice.
 
-This is the gap HurriCare was built to address.
+This is the problem HurriCare was built to address.
 
-Not as a forecasting tool. Not as an automation layer. But as decision infrastructure — a place where the people responsible for crisis response can rehearse the hardest choices they will ever face, using the full weight of historical data.
+HurriCare turns historical disasters into decision-rehearsal environments. Every past crisis — its severity, its geography, its funding gaps — becomes a scenario that teams can study, replay, and learn from, without anyone being in harm's way.
 
-Every past disaster carries lessons. But those lessons are buried — scattered across after-action reports, funding records, severity assessments, and the personal experience of coordinators who have since moved on. HurriCare brings that history into a single analytical backbone, transforming decades of crisis data into something that can be studied, explored, and learned from — without anyone being in harm's way.
+At the core is a centralized data platform unifying decades of humanitarian records into a single analytical backbone: severity assessments, population impacts, funding allocations, and coverage outcomes, all connected. From that foundation, teams allocate resources across real scenarios, then immediately see how their choices compare to machine-learning-optimized plans and actual historical responses.
 
-The result is a kind of institutional memory that does not depend on any one person. New coordinators can develop judgment that previously took years of field experience. Seasoned teams can pressure-test their assumptions against patterns they may have never noticed. And funding gaps — the kind that quietly determine who receives aid and who does not — become impossible to overlook.
+That comparison is where the real learning happens. Not a score. Not a grade. A mirror — showing coordinators where their instincts align with the data, and where invisible gaps persist. Funding shortfalls that no single report would reveal. Regional blind spots that repeat across decades.
 
-At every step, the system is designed to support human judgment, not replace it. The people in the room remain the decision-makers. What changes is what they can see, what they have practiced, and how prepared they are when the call comes.
+The result is institutional memory that does not depend on any one person. New coordinators develop judgment that previously required years of field experience. Seasoned teams discover patterns they never noticed. And the decisions that matter most — the ones made under pressure, in real time — are no longer being made for the first time.
 
-This matters beyond any single disaster. The same infrastructure that helps a team prepare for a hurricane can support cross-agency coordination, anticipatory planning, and long-term resilience strategies for institutions whose mandate is global stability.
+At every step, the system supports human judgment rather than replacing it. What changes is what decision-makers can see, what they have practiced, and how prepared they are when the call comes.
 
-Because the real cost of crisis response is not measured in systems or data. It is measured in the decisions that were never rehearsed — and the outcomes that did not have to happen.
+This extends beyond any single disaster. The same infrastructure can support cross-agency coordination, anticipatory planning, and long-term resilience strategies — for any institution whose mandate is preparedness, stability, or peace.
+
+Because the real cost of crisis response is not measured in systems or data. It is measured in the decisions that were never rehearsed, and the outcomes that did not have to happen.
 
 HurriCare exists so that the next time a crisis demands impossible choices, the people making them have already practiced.
