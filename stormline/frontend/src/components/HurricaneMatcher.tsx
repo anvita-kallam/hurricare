@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import axios from 'axios'
 import { useStore } from '../state/useStore'
+import { playSliderStretch } from '../audio/SoundEngine'
 
 const API_BASE = 'http://localhost:8000'
 
@@ -99,7 +100,10 @@ export default function HurricaneMatcher({ onMatchFound, onSkip }: HurricaneMatc
               min="1"
               max="5"
               value={category}
-              onChange={(e) => setCategory(parseInt(e.target.value))}
+              onChange={(e) => {
+                setCategory(parseInt(e.target.value))
+                playSliderStretch()
+              }}
               className="w-full h-2 bg-cyan-500/20 rounded-lg appearance-none cursor-pointer accent-cyan-500"
             />
             <div className="flex justify-between text-xs text-cyan-400 mt-1 font-exo">

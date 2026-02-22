@@ -29,7 +29,7 @@ function getStormColor(hurricaneId: string): string {
 // Hurricane paths at ~1.06 radius (above country meshes at ~1.035)
 const PATH_ELEVATION = 1.06
 
-function HurricanePath({ hurricane, isSelected }: { hurricane: any; isSelected: boolean }) {
+function HurricanePath({ hurricane, isSelected, onHurricaneClick }: { hurricane: any; isSelected: boolean; onHurricaneClick?: (hurricaneId: string) => void }) {
   const [hovered, setHovered] = useState(false)
 
   const curve = useMemo(() => {
@@ -83,6 +83,7 @@ function HurricanePath({ hurricane, isSelected }: { hurricane: any; isSelected: 
         geometry={geometry}
         onPointerOver={() => setHovered(true)}
         onPointerOut={() => setHovered(false)}
+        onClick={() => onHurricaneClick?.(hurricane.id)}
         renderOrder={15}
       >
         <meshBasicMaterial
@@ -142,7 +143,11 @@ function HtmlTooltip({ hurricane, position }: { hurricane: any; position: THREE.
   )
 }
 
-export default function HurricaneLayer() {
+interface HurricaneLayerProps {
+  onHurricaneClick?: (hurricaneId: string) => void
+}
+
+export default function HurricaneLayer({ onHurricaneClick }: HurricaneLayerProps) {
   const { hurricanes, selectedHurricane } = useStore()
 
   return (
@@ -152,6 +157,7 @@ export default function HurricaneLayer() {
           key={hurricane.id}
           hurricane={hurricane}
           isSelected={selectedHurricane?.id === hurricane.id}
+          onHurricaneClick={onHurricaneClick}
         />
       ))}
     </group>

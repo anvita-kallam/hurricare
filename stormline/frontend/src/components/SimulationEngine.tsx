@@ -4,6 +4,7 @@ import { useStore } from '../state/useStore'
 import NarrativePopup from './NarrativePopup'
 import LocalizedAffectedMap from './LocalizedAffectedMap'
 import { resolveRegion } from '../utils/regionRegistry'
+import { playSliderStretch } from '../audio/SoundEngine'
 
 const API_BASE = 'http://localhost:8000'
 
@@ -628,7 +629,10 @@ export default function SimulationEngine({ onStartSimulation }: SimulationEngine
                               max={sliderMax}
                               step={Math.max(1000, Math.floor(sliderMax / 200))}
                               value={currentAlloc}
-                              onChange={(e) => handleClusterAllocationChange(region, cluster, Number(e.target.value))}
+                              onChange={(e) => {
+                                handleClusterAllocationChange(region, cluster, Number(e.target.value))
+                                playSliderStretch()
+                              }}
                               className="w-full h-1 appearance-none bg-white/[0.04] rounded-full cursor-pointer"
                               style={{
                                 background: `linear-gradient(to right, rgba(255,255,255,0.15) 0%, rgba(255,255,255,0.15) ${fillPct}%, rgba(255,255,255,0.04) ${fillPct}%, rgba(255,255,255,0.04) 100%)`,

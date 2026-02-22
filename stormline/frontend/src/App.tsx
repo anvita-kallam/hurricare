@@ -236,9 +236,9 @@ function App() {
     setComparisonData(null)
   }
 
-  const handleDashboardOption = (option: 'search' | 'browse' | 'disparity') => {
-    if (option === 'search' || option === 'browse') {
-      // Merge search + browse: both enter the main globe view directly
+  const handleDashboardOption = (option: 'browse' | 'disparity') => {
+    if (option === 'browse') {
+      // Enter the main globe view with hurricane paths
       // No matcher popup on initial entry — deferred to HUD search bar
       setGameStarted(true)
       setShowWelcomePopup(true)
@@ -269,7 +269,30 @@ function App() {
     }, 100)
   }
 
-  // Dashboard entry screen
+  const handleReturnToMenu = () => {
+    // Clear all selections and return to the menu
+    // Always reload data to ensure clean state when returning
+    setSelectedHurricane(null)
+    setPostSimulationMapMode(false)
+    setShowWelcomePopup(false)
+    setCinematicPlaying(false)
+    setCinematicCompleted(false)
+    setShowComparisonPage(false)
+    setGamePhase('pre-sim')
+    setGameFlowStep(1)
+    setGameAllocations({})
+    setGameClusterAllocations({})
+    setComparisonData(null)
+    setMapPhase('globe')
+    setShowMatcher(false)
+    setShowFundingDisparity(false)
+    // Return to dashboard - use minimal delay to ensure clean unmount/remount
+    setTimeout(() => {
+      setGameStarted(false)
+    }, 50)
+  }
+
+  // Dashboard entry screen — always ensure visible and responsive
   if (!gameStarted && !showFundingDisparity) {
     return (
       <>
@@ -277,7 +300,7 @@ function App() {
         <Dashboard3D
           onSelectOption={handleDashboardOption}
           onEnter={() => {}}
-          isLoading={loading}
+          isLoading={loading || hurricanes.length === 0}
         />
       </>
     )
@@ -396,7 +419,13 @@ function App() {
         <header className="bg-black/90 border-b border-white/[0.08] p-4 relative z-10">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-4">
-              <h1 className="text-3xl font-bold text-white font-rajdhani tracking-wider">HurriCare</h1>
+              <button
+                onClick={handleReturnToMenu}
+                className="text-3xl font-bold text-white font-rajdhani tracking-wider hover:text-white/80 hover:opacity-75 transition-all duration-300 cursor-pointer"
+                title="Return to menu"
+              >
+                HurriCare
+              </button>
               {postSimulationMapMode && (
                 <div className="flex items-center gap-2 px-3 py-1 rounded bg-white/[0.05] border border-white/[0.08]">
                   <div className="w-1.5 h-1.5 rounded-full bg-red-400/80" />
@@ -469,8 +498,8 @@ function App() {
         {/* Main Content */}
         <div className="flex-1 flex overflow-hidden relative z-10">
           {/* Left Sidebar — Hurricane Selection */}
-          <div ref={sidebarRef} className="w-64 bg-black/80 border-r border-white/[0.08] p-4 overflow-y-auto">
-            <div className="flex items-center justify-between mb-4">
+          <div ref={sidebarRef} className="w-64 bg-black/80 border-r border-white/[0.08] p-4 overflow-hidden flex flex-col">
+            <div className="flex items-center justify-between mb-4 flex-shrink-0">
               <h2 className="text-xl font-bold text-white/90 font-rajdhani">Historical Hurricanes</h2>
               {selectedHurricane && (
                 <button
@@ -482,7 +511,7 @@ function App() {
                 </button>
               )}
             </div>
-            <div className="space-y-2">
+            <div className="flex-1 overflow-y-auto space-y-2 pr-2 scrollbar-thin scrollbar-thumb-white/20 scrollbar-track-transparent hover:scrollbar-thumb-white/40">
               {hurricanes.map((hurricane) => (
                 <button
                   key={hurricane.id}
@@ -505,7 +534,7 @@ function App() {
             </div>
 
             {selectedHurricane && (
-              <div className="mt-6 p-3 bg-white/[0.05] border border-white/[0.08] rounded">
+              <div className="mt-4 p-3 bg-white/[0.05] border border-white/[0.08] rounded flex-shrink-0">
                 <h3 className="font-semibold mb-2 text-white/70 font-rajdhani">Selected Scenario</h3>
                 <div className="text-sm space-y-1 text-white/50">
                   <div><span className="font-medium text-white/60 font-rajdhani">Name:</span> <span className="font-mono">{selectedHurricane.name}</span></div>
@@ -533,6 +562,7 @@ function App() {
                   selectedHurricane={selectedHurricane}
                   autoSpin={autoSpin}
                   onCountrySelect={(country) => console.log('Selected country:', country)}
+                  onHurricaneSelect={handleHurricaneSelect}
                 />
                 <CoverageChoropleth />
               </div>
