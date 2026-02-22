@@ -36,7 +36,7 @@ function formatBudget(n: number): string {
   return `$${n.toLocaleString()}`
 }
 
-/** Mini wind speed chart drawn on canvas */
+/** Mini wind speed chart — FDP-style with labeled axes, area fill, glow */
 function WindSpeedChart({ track, progress }: {
   track: Array<{ lat: number; lon: number; wind: number }>
   progress: number
@@ -49,110 +49,134 @@ function WindSpeedChart({ track, progress }: {
     const ctx = canvas.getContext('2d')
     if (!ctx) return
 
-    const w = canvas.width
-    const h = canvas.height
-    ctx.clearRect(0, 0, w, h)
+    const dpr = window.devicePixelRatio || 1
+    const logicalW = 280
+    const logicalH = 100
+    canvas.width = logicalW * dpr
+    canvas.height = logicalH * dpr
+    ctx.scale(dpr, dpr)
+    canvas.style.width = `${logicalW}px`
+    canvas.style.height = `${logicalH}px`
 
+    ctx.clearRect(0, 0, logicalW, logicalH)
     if (track.length === 0) return
 
     const maxWind = Math.max(...track.map(p => p.wind), 1)
     const currentIdx = Math.min(Math.floor(progress * track.length), track.length - 1)
+    const padL = 32, padR = 8, padT = 18, padB = 16
+    const plotW = logicalW - padL - padR
+    const plotH = logicalH - padT - padB
 
-    // Background grid
-    ctx.strokeStyle = 'rgba(255,255,255,0.05)'
-    ctx.lineWidth = 0.5
-    for (let i = 1; i < 4; i++) {
-      const y = (h - 15) * (i / 4) + 15
-      ctx.beginPath()
-      ctx.moveTo(0, y)
-      ctx.lineTo(w, y)
-      ctx.stroke()
-    }
+    // Y-axis labels
+    ctx.fillStyle = 'rgba(255,255,255,0.25)'
+    ctx.font = '7px DM Mono, monospace'
+    ctx.textAlign = 'right'
+    ctx.textBaseline = 'middle'
+    ;[0, 0.25, 0.5, 0.75, 1].forEach(r => {
+      const y = padT + plotH * (1 - r)
+      ctx.fillText(`${Math.round(maxWind * r)}`, padL - 4, y)
+      ctx.strokeStyle = 'rgba(255,255,255,0.03)'
+      ctx.lineWidth = 0.5
+      ctx.beginPath(); ctx.moveTo(padL, y); ctx.lineTo(logicalW - padR, y); ctx.stroke()
+    })
+
+    // Axis labels
+    ctx.fillStyle = 'rgba(255,255,255,0.2)'
+    ctx.font = '7px DM Mono, monospace'
+    ctx.textAlign = 'center'
+    ctx.textBaseline = 'top'
+    ctx.fillText('Track Progress', logicalW / 2, logicalH - 11)
+    ctx.save()
+    ctx.translate(7, padT + plotH / 2)
+    ctx.rotate(-Math.PI / 2)
+    ctx.fillText('mph', 0, 0)
+    ctx.restore()
 
     // Category thresholds
-    const categories = [
-      { wind: 74, label: 'Cat 1', color: 'rgba(255,200,50,0.3)' },
-      { wind: 111, label: 'Cat 3', color: 'rgba(255,120,50,0.3)' },
-      { wind: 157, label: 'Cat 5', color: 'rgba(255,50,50,0.3)' },
+    const cats = [
+      { wind: 74, label: 'Cat 1', c: 'rgba(255,200,50,' },
+      { wind: 96, label: 'Cat 2', c: 'rgba(255,170,50,' },
+      { wind: 111, label: 'Cat 3', c: 'rgba(255,120,50,' },
+      { wind: 130, label: 'Cat 4', c: 'rgba(255,80,50,' },
+      { wind: 157, label: 'Cat 5', c: 'rgba(255,50,50,' },
     ]
-    categories.forEach(cat => {
-      if (cat.wind <= maxWind) {
-        const y = h - (cat.wind / maxWind) * (h - 20) - 5
-        ctx.strokeStyle = cat.color
-        ctx.setLineDash([3, 3])
-        ctx.beginPath()
-        ctx.moveTo(0, y)
-        ctx.lineTo(w, y)
-        ctx.stroke()
-        ctx.setLineDash([])
-        ctx.fillStyle = cat.color.replace('0.3', '0.5')
-        ctx.font = '7px DM Mono'
-        ctx.textAlign = 'right'
-        ctx.fillText(cat.label, w - 2, y - 2)
+    cats.forEach(cat => {
+      if (cat.wind <= maxWind * 1.1) {
+        const y = padT + plotH * (1 - cat.wind / maxWind)
+        if (y > padT && y < padT + plotH) {
+          ctx.strokeStyle = `${cat.c}0.2)`; ctx.setLineDash([3, 3]); ctx.lineWidth = 0.6
+          ctx.beginPath(); ctx.moveTo(padL, y); ctx.lineTo(logicalW - padR, y); ctx.stroke()
+          ctx.setLineDash([])
+          ctx.fillStyle = `${cat.c}0.55)`; ctx.font = '7px DM Mono, monospace'
+          ctx.textAlign = 'right'; ctx.textBaseline = 'bottom'
+          ctx.fillText(cat.label, logicalW - padR, y - 1)
+        }
       }
     })
 
-    // Full track path (dim)
-    ctx.beginPath()
-    ctx.strokeStyle = 'rgba(255, 100, 100, 0.15)'
-    ctx.lineWidth = 1
+    // Area fill (dim)
+    ctx.beginPath(); ctx.moveTo(padL, padT + plotH)
     track.forEach((p, i) => {
-      const x = (i / track.length) * w
-      const y = h - (p.wind / maxWind) * (h - 20) - 5
-      if (i === 0) ctx.moveTo(x, y)
-      else ctx.lineTo(x, y)
+      ctx.lineTo(padL + (i / (track.length - 1)) * plotW, padT + plotH * (1 - p.wind / maxWind))
+    })
+    ctx.lineTo(padL + plotW, padT + plotH); ctx.closePath()
+    const aG = ctx.createLinearGradient(0, padT, 0, padT + plotH)
+    aG.addColorStop(0, 'rgba(255,80,80,0.06)'); aG.addColorStop(1, 'rgba(255,80,80,0.01)')
+    ctx.fillStyle = aG; ctx.fill()
+
+    // Full path (dim)
+    ctx.beginPath(); ctx.strokeStyle = 'rgba(255,100,100,0.12)'; ctx.lineWidth = 1
+    track.forEach((p, i) => {
+      const x = padL + (i / (track.length - 1)) * plotW
+      const y = padT + plotH * (1 - p.wind / maxWind)
+      i === 0 ? ctx.moveTo(x, y) : ctx.lineTo(x, y)
     })
     ctx.stroke()
 
-    // Progress path (bright)
-    ctx.beginPath()
-    ctx.strokeStyle = 'rgba(255, 100, 100, 0.8)'
-    ctx.lineWidth = 2
+    // Progress area fill
+    ctx.beginPath(); ctx.moveTo(padL, padT + plotH)
     for (let i = 0; i <= currentIdx; i++) {
-      const x = (i / track.length) * w
-      const y = h - (track[i].wind / maxWind) * (h - 20) - 5
-      if (i === 0) ctx.moveTo(x, y)
-      else ctx.lineTo(x, y)
+      ctx.lineTo(padL + (i / (track.length - 1)) * plotW, padT + plotH * (1 - track[i].wind / maxWind))
+    }
+    ctx.lineTo(padL + (currentIdx / (track.length - 1)) * plotW, padT + plotH)
+    ctx.closePath()
+    const pG = ctx.createLinearGradient(0, padT, 0, padT + plotH)
+    pG.addColorStop(0, 'rgba(255,80,80,0.18)'); pG.addColorStop(1, 'rgba(255,80,80,0.02)')
+    ctx.fillStyle = pG; ctx.fill()
+
+    // Progress path (bright)
+    ctx.beginPath(); ctx.strokeStyle = 'rgba(255,100,100,0.85)'; ctx.lineWidth = 2
+    for (let i = 0; i <= currentIdx; i++) {
+      const x = padL + (i / (track.length - 1)) * plotW
+      const y = padT + plotH * (1 - track[i].wind / maxWind)
+      i === 0 ? ctx.moveTo(x, y) : ctx.lineTo(x, y)
     }
     ctx.stroke()
 
     // Current point glow
     if (currentIdx > 0 && currentIdx < track.length) {
-      const cx = (currentIdx / track.length) * w
-      const cy = h - (track[currentIdx].wind / maxWind) * (h - 20) - 5
-      const grad = ctx.createRadialGradient(cx, cy, 0, cx, cy, 8)
-      grad.addColorStop(0, 'rgba(255, 100, 100, 0.8)')
-      grad.addColorStop(1, 'rgba(255, 100, 100, 0)')
-      ctx.fillStyle = grad
-      ctx.fillRect(cx - 8, cy - 8, 16, 16)
-      ctx.beginPath()
-      ctx.arc(cx, cy, 3, 0, Math.PI * 2)
-      ctx.fillStyle = '#ff6b6b'
-      ctx.fill()
+      const cx = padL + (currentIdx / (track.length - 1)) * plotW
+      const cy = padT + plotH * (1 - track[currentIdx].wind / maxWind)
+      const g = ctx.createRadialGradient(cx, cy, 0, cx, cy, 10)
+      g.addColorStop(0, 'rgba(255,100,100,0.7)'); g.addColorStop(0.5, 'rgba(255,100,100,0.15)'); g.addColorStop(1, 'rgba(255,100,100,0)')
+      ctx.fillStyle = g; ctx.fillRect(cx - 10, cy - 10, 20, 20)
+      ctx.beginPath(); ctx.arc(cx, cy, 3, 0, Math.PI * 2)
+      ctx.fillStyle = '#ff6b6b'; ctx.fill()
     }
 
-    // Label
-    ctx.fillStyle = 'rgba(255,255,255,0.5)'
-    ctx.font = '9px Rajdhani'
-    ctx.textAlign = 'left'
-    ctx.fillText('WIND SPEED', 4, 10)
-    ctx.textAlign = 'right'
-    ctx.fillStyle = 'rgba(255,255,255,0.8)'
-    ctx.font = '10px DM Mono'
-    ctx.fillText(`${Math.round(track[currentIdx].wind)} mph`, w - 4, 10)
+    // Header
+    ctx.fillStyle = 'rgba(255,255,255,0.2)'; ctx.font = '600 8px Rajdhani, sans-serif'
+    ctx.textAlign = 'left'; ctx.textBaseline = 'top'
+    ctx.fillText('WIND SPEED', padL, 3)
+    ctx.textAlign = 'right'; ctx.fillStyle = 'rgba(255,255,255,0.85)'
+    ctx.font = 'bold 11px DM Mono, monospace'
+    ctx.fillText(`${Math.round(track[currentIdx].wind)} mph`, logicalW - padR, 2)
   }, [track, progress])
 
-  return (
-    <canvas
-      ref={canvasRef}
-      width={220}
-      height={70}
-      style={{ imageRendering: 'auto' }}
-    />
-  )
+  return <canvas ref={canvasRef} style={{ imageRendering: 'auto', width: 280, height: 100 }} />
 }
 
-/** Mini severity bar chart for regions */
+/** Mini severity bar chart — FDP-style with full labels, 3D depth, axis */
 function SeverityMiniChart({ data }: {
   data: Array<{ region: string; severity: number; peopleInNeed: number }>
 }) {
@@ -164,68 +188,111 @@ function SeverityMiniChart({ data }: {
     const ctx = canvas.getContext('2d')
     if (!ctx) return
 
-    const w = canvas.width
-    const h = canvas.height
-    ctx.clearRect(0, 0, w, h)
+    const dpr = window.devicePixelRatio || 1
+    const logicalW = 260
+    const rowH = 15
+    const padT = 14
+    const padB = 14
+    const logicalH = padT + data.length * rowH + padB
+    canvas.width = logicalW * dpr
+    canvas.height = logicalH * dpr
+    ctx.scale(dpr, dpr)
+    canvas.style.width = `${logicalW}px`
+    canvas.style.height = `${logicalH}px`
 
+    ctx.clearRect(0, 0, logicalW, logicalH)
     if (data.length === 0) return
 
-    const barH = Math.max(8, (h - 10) / data.length - 4)
+    const labelW = 80  // wide enough for full region names
+    const barStart = labelW + 6
+    const barMaxW = logicalW - barStart - 50 // leave room for value
     const maxNeed = Math.max(...data.map(d => d.peopleInNeed), 1)
 
-    data.forEach((d, i) => {
-      const y = 2 + i * (barH + 3)
-      const barW = Math.max(4, (d.peopleInNeed / maxNeed) * (w - 60))
+    // Header
+    ctx.fillStyle = 'rgba(255,255,255,0.2)'
+    ctx.font = '600 8px Rajdhani, sans-serif'
+    ctx.textAlign = 'left'
+    ctx.textBaseline = 'top'
+    ctx.fillText('REGION', 2, 2)
+    ctx.fillText('PEOPLE IN NEED', barStart, 2)
 
-      // Severity color
+    data.forEach((d, i) => {
+      const y = padT + i * rowH
+      const barH = 9
+      const barW = Math.max(4, (d.peopleInNeed / maxNeed) * barMaxW)
+
       const color = d.severity > 0.7
         ? 'rgba(200, 60, 60,'
         : d.severity > 0.4
           ? 'rgba(200, 160, 60,'
           : 'rgba(60, 160, 100,'
 
-      // Bar with 3D extrusion
+      // 3D depth
       const depth = 3
-      // Right face
       ctx.fillStyle = `${color} 0.2)`
       ctx.beginPath()
-      ctx.moveTo(50 + barW, y + barH)
-      ctx.lineTo(50 + barW + depth, y + barH - depth)
-      ctx.lineTo(50 + barW + depth, y - depth)
-      ctx.lineTo(50 + barW, y)
+      ctx.moveTo(barStart + barW, y + barH)
+      ctx.lineTo(barStart + barW + depth, y + barH - depth)
+      ctx.lineTo(barStart + barW + depth, y - depth)
+      ctx.lineTo(barStart + barW, y)
       ctx.closePath()
       ctx.fill()
-      // Top face
       ctx.fillStyle = `${color} 0.4)`
       ctx.beginPath()
-      ctx.moveTo(50, y)
-      ctx.lineTo(50 + depth, y - depth)
-      ctx.lineTo(50 + barW + depth, y - depth)
-      ctx.lineTo(50 + barW, y)
+      ctx.moveTo(barStart, y)
+      ctx.lineTo(barStart + depth, y - depth)
+      ctx.lineTo(barStart + barW + depth, y - depth)
+      ctx.lineTo(barStart + barW, y)
       ctx.closePath()
       ctx.fill()
-      // Front face
-      ctx.fillStyle = `${color} 0.7)`
-      ctx.fillRect(50, y, barW, barH)
+      // Front face gradient
+      const bGrad = ctx.createLinearGradient(barStart, y, barStart + barW, y)
+      bGrad.addColorStop(0, `${color} 0.4)`)
+      bGrad.addColorStop(1, `${color} 0.8)`)
+      ctx.fillStyle = bGrad
+      ctx.fillRect(barStart, y, barW, barH)
 
-      // Region label
-      ctx.fillStyle = 'rgba(255,255,255,0.5)'
-      ctx.font = '8px Rajdhani'
+      // Full region label — no truncation
+      ctx.fillStyle = 'rgba(255,255,255,0.6)'
+      ctx.font = '9px Rajdhani, sans-serif'
       ctx.textAlign = 'right'
       ctx.textBaseline = 'middle'
-      ctx.fillText(
-        d.region.length > 8 ? d.region.slice(0, 8) + '..' : d.region,
-        46, y + barH / 2
-      )
+      // Measure and only truncate if truly necessary
+      let label = d.region
+      if (ctx.measureText(label).width > labelW - 4) {
+        while (label.length > 4 && ctx.measureText(label + '..').width > labelW - 4) {
+          label = label.slice(0, -1)
+        }
+        label += '..'
+      }
+      ctx.fillText(label, labelW, y + barH / 2)
+
+      // Severity score
+      ctx.fillStyle = `${color} 0.9)`
+      ctx.font = 'bold 8px DM Mono, monospace'
+      ctx.textAlign = 'left'
+      ctx.textBaseline = 'middle'
+      ctx.fillText(`${(d.severity * 10).toFixed(1)}`, barStart + barW + depth + 4, y + barH / 2)
+
+      // People in need value
+      ctx.fillStyle = 'rgba(255,255,255,0.3)'
+      ctx.font = '7px DM Mono, monospace'
+      const needStr = d.peopleInNeed >= 1e6 ? `${(d.peopleInNeed / 1e6).toFixed(1)}M` : d.peopleInNeed >= 1e3 ? `${(d.peopleInNeed / 1e3).toFixed(0)}K` : `${d.peopleInNeed}`
+      ctx.fillText(needStr, barStart + barW + depth + 24, y + barH / 2)
     })
+
+    // X-axis label
+    ctx.fillStyle = 'rgba(255,255,255,0.15)'
+    ctx.font = '7px DM Mono, monospace'
+    ctx.textAlign = 'center'
+    ctx.textBaseline = 'bottom'
+    ctx.fillText('Severity Index (0-10)', logicalW / 2, logicalH - 2)
   }, [data])
 
   return (
     <canvas
       ref={canvasRef}
-      width={180}
-      height={Math.min(data.length * 14 + 10, 100)}
-      style={{ imageRendering: 'auto' }}
+      style={{ imageRendering: 'auto', width: 260, height: 14 + data.length * 15 + 14 }}
     />
   )
 }
@@ -503,9 +570,9 @@ export default function CinematicIntro({
     return 1
   }, [state.phase, state.progress])
 
-  // Keep rendering black backdrop when complete
+  // When complete, render nothing — parent unmounts via setCinematicPlaying(false)
   if (!state.isPlaying && state.phase === 'complete') {
-    return <div className="fixed inset-0 z-50 bg-black" />
+    return null
   }
 
   return (
@@ -603,62 +670,74 @@ export default function CinematicIntro({
 
       {/* ═══ Floating Data Panels (3D graphs around the animation) ═══ */}
 
-      {/* Left panel: Regional Severity 3D mini-chart */}
+      {/* Left panel: Regional Severity — FDP glass panel */}
       {state.phase === 'playing' && state.isPlaying && regionSeverityData.length > 0 && (
         <div
-          className="absolute left-8 bg-black/70 backdrop-blur-sm border border-white/10 rounded-lg p-3 space-y-2"
+          className="absolute left-8 backdrop-blur-xl p-4 space-y-2"
           style={{
             zIndex: 150,
-            top: '45%',
+            top: '42%',
             animation: 'cinematic-panel-in 0.6s ease-out forwards',
+            background: 'linear-gradient(180deg, rgba(0,0,2,0.88) 0%, rgba(0,0,4,0.92) 50%, rgba(0,0,3,0.88) 100%)',
+            border: '1px solid rgba(255,255,255,0.06)',
+            backgroundImage: 'radial-gradient(circle, rgba(255,255,255,0.015) 0.5px, transparent 0.5px)',
+            backgroundSize: '10px 10px',
+            boxShadow: '0 4px 30px rgba(0,0,0,0.5), inset 0 1px 0 rgba(255,255,255,0.04)',
           }}
         >
-          <TypewriterText text="Regional Severity" emphasis="soft" delayMs={100} className="text-white/50 font-rajdhani text-[9px] tracking-widest uppercase" />
+          <TypewriterText text="Regional Severity" emphasis="soft" delayMs={100} className="text-white/30 font-rajdhani text-[9px] tracking-[0.2em] uppercase" />
+          <div style={{ height: 1, background: 'rgba(255,255,255,0.04)', margin: '4px 0' }} />
           <SeverityMiniChart data={regionSeverityData} />
         </div>
       )}
 
-      {/* Bottom left: Population & Budget stats */}
+      {/* Bottom left: Impact stats — FDP glass panel */}
       {state.phase === 'playing' && state.isPlaying && (
         <div
-          className="absolute left-8 bottom-8 bg-black/70 backdrop-blur-sm border border-white/10 rounded-lg p-3 space-y-2"
+          className="absolute left-8 bottom-8 backdrop-blur-xl p-4 space-y-2"
           style={{
             zIndex: 150,
             animation: 'cinematic-panel-in 0.6s ease-out 0.2s forwards',
             opacity: 0,
+            background: 'linear-gradient(180deg, rgba(0,0,2,0.88) 0%, rgba(0,0,4,0.92) 50%, rgba(0,0,3,0.88) 100%)',
+            border: '1px solid rgba(255,255,255,0.06)',
+            backgroundImage: 'radial-gradient(circle, rgba(255,255,255,0.015) 0.5px, transparent 0.5px)',
+            backgroundSize: '10px 10px',
+            boxShadow: '0 4px 30px rgba(0,0,0,0.5), inset 0 1px 0 rgba(255,255,255,0.04)',
           }}
         >
-          <TypewriterText text="Impact Overview" emphasis="soft" delayMs={300} className="text-white/50 font-rajdhani text-[9px] tracking-widest uppercase" />
-          <div className="grid grid-cols-2 gap-x-4 gap-y-1">
+          <TypewriterText text="Impact Overview" emphasis="soft" delayMs={300} className="text-white/30 font-rajdhani text-[9px] tracking-[0.2em] uppercase" />
+          <div style={{ height: 1, background: 'rgba(255,255,255,0.04)', margin: '4px 0' }} />
+          <div className="grid grid-cols-2 gap-x-6 gap-y-2">
             <div>
-              <div className="text-white/80 font-mono text-sm">
+              <div className="text-white/85 font-mono text-sm font-medium">
                 <CountUpText value={hurricane.estimated_population_affected} delayMs={500} duration={1500} />
               </div>
-              <div className="text-white/30 font-rajdhani text-[8px] tracking-wider uppercase">
+              <div className="text-white/25 font-rajdhani text-[8px] tracking-[0.15em] uppercase">
                 People Affected
               </div>
             </div>
             <div>
-              <div className="text-white/80 font-mono text-sm">
+              <div className="text-white/85 font-mono text-sm font-medium">
                 {totalPeopleInNeed.toLocaleString()}
               </div>
-              <div className="text-white/30 font-rajdhani text-[8px] tracking-wider uppercase">
+              <div className="text-white/25 font-rajdhani text-[8px] tracking-[0.15em] uppercase">
                 People in Need
               </div>
             </div>
             <div>
-              <div className="text-white/80 font-mono text-sm">
+              <div className="text-white/85 font-mono text-sm font-medium">
                 {hurricane.affected_countries.length}
               </div>
-              <div className="text-white/30 font-rajdhani text-[8px] tracking-wider uppercase">
+              <div className="text-white/25 font-rajdhani text-[8px] tracking-[0.15em] uppercase">
                 Countries
               </div>
             </div>
             <div>
-              <div className="text-white/80 font-mono text-sm">
+              <div className="text-white/85 font-mono text-sm font-medium">
                 {totalBudget > 0 ? formatBudget(totalBudget) : 'N/A'}
               </div>
-              <div className="text-white/30 font-rajdhani text-[8px] tracking-wider uppercase">
+              <div className="text-white/25 font-rajdhani text-[8px] tracking-[0.15em] uppercase">
                 Relief Budget
               </div>
             </div>
@@ -666,51 +745,77 @@ export default function CinematicIntro({
         </div>
       )}
 
-      {/* Bottom center: Wind speed chart */}
+      {/* Bottom center: Wind speed — FDP glass panel */}
       {state.phase === 'playing' && state.isPlaying && hurricane.track.length > 1 && (
         <div
-          className="absolute bottom-8 left-1/2 -translate-x-1/2 bg-black/70 backdrop-blur-sm border border-white/10 rounded-lg p-3"
+          className="absolute bottom-8 left-1/2 -translate-x-1/2 backdrop-blur-xl p-4"
           style={{
             zIndex: 150,
             animation: 'cinematic-panel-in 0.6s ease-out 0.4s forwards',
             opacity: 0,
+            background: 'linear-gradient(180deg, rgba(0,0,2,0.88) 0%, rgba(0,0,4,0.92) 50%, rgba(0,0,3,0.88) 100%)',
+            border: '1px solid rgba(255,255,255,0.06)',
+            backgroundImage: 'radial-gradient(circle, rgba(255,255,255,0.015) 0.5px, transparent 0.5px)',
+            backgroundSize: '10px 10px',
+            boxShadow: '0 4px 30px rgba(0,0,0,0.5), inset 0 1px 0 rgba(255,255,255,0.04)',
           }}
         >
           <WindSpeedChart track={hurricane.track} progress={state.progress} />
         </div>
       )}
 
-      {/* Right panel: Track point info */}
+      {/* Right panel: Track info — FDP glass panel */}
       {state.phase === 'playing' && state.isPlaying && currentTrackPoint && (
         <div
-          className="absolute bottom-8 right-8 bg-black/70 backdrop-blur-sm border border-white/10 rounded-lg p-4 min-w-[220px] max-w-[280px]"
-          style={{ zIndex: 200 }}
+          className="absolute bottom-8 right-8 backdrop-blur-xl p-4 min-w-[230px] max-w-[280px]"
+          style={{
+            zIndex: 200,
+            background: 'linear-gradient(180deg, rgba(0,0,2,0.88) 0%, rgba(0,0,4,0.92) 50%, rgba(0,0,3,0.88) 100%)',
+            border: '1px solid rgba(255,255,255,0.06)',
+            backgroundImage: 'radial-gradient(circle, rgba(255,255,255,0.015) 0.5px, transparent 0.5px)',
+            backgroundSize: '10px 10px',
+            boxShadow: '0 4px 30px rgba(0,0,0,0.5), inset 0 1px 0 rgba(255,255,255,0.04)',
+          }}
         >
-          <div className="text-white/50 font-rajdhani text-[9px] tracking-widest uppercase mb-2">
+          <div className="text-white/30 font-rajdhani text-[9px] tracking-[0.2em] uppercase mb-2">
             Current Position
           </div>
+          <div style={{ height: 1, background: 'rgba(255,255,255,0.04)', marginBottom: 8 }} />
           <div className="space-y-2">
             <div className="flex items-center justify-between">
-              <span className="text-sm text-white/50 font-rajdhani">Wind Speed</span>
-              <span className="text-lg font-bold text-white font-mono">{Math.round(currentTrackPoint.wind)} mph</span>
+              <span className="text-sm text-white/40 font-rajdhani tracking-wider">Wind Speed</span>
+              <span className="text-lg font-bold text-white/90 font-mono">{Math.round(currentTrackPoint.wind)} <span className="text-xs font-normal text-white/40">mph</span></span>
             </div>
             {currentTrackPoint.category > 0 && (
               <div className="flex items-center justify-between">
-                <span className="text-sm text-white/50 font-rajdhani">Category</span>
-                <span className="text-lg font-bold text-red-400 font-mono">Cat {currentTrackPoint.category}</span>
+                <span className="text-sm text-white/40 font-rajdhani tracking-wider">Category</span>
+                <span className="text-lg font-bold font-mono" style={{ color: currentTrackPoint.category >= 4 ? '#ff6060' : currentTrackPoint.category >= 2 ? '#ffaa60' : '#60cc90' }}>
+                  Cat {currentTrackPoint.category}
+                </span>
               </div>
             )}
-            {/* Mini intensity bar */}
-            <div className="w-full h-1.5 bg-white/[0.06] rounded-full overflow-hidden">
+            {/* Intensity label */}
+            <div className="flex items-center justify-between text-[9px] text-white/25 font-rajdhani tracking-[0.15em] uppercase">
+              <span>Intensity</span>
+              <span className="font-mono text-white/40">{(stormIntensity * 100).toFixed(0)}%</span>
+            </div>
+            {/* Intensity bar */}
+            <div className="w-full h-2 bg-white/[0.04] rounded-full overflow-hidden">
               <div
                 className="h-full rounded-full transition-all duration-300"
                 style={{
                   width: `${stormIntensity * 100}%`,
-                  backgroundColor: stormIntensity > 0.8 ? '#ff4444' : stormIntensity > 0.5 ? '#ffaa44' : '#44cc77',
+                  background: stormIntensity > 0.8
+                    ? 'linear-gradient(90deg, #cc3333, #ff4444)'
+                    : stormIntensity > 0.5
+                      ? 'linear-gradient(90deg, #cc8833, #ffaa44)'
+                      : 'linear-gradient(90deg, #33aa66, #44cc77)',
+                  boxShadow: stormIntensity > 0.5 ? '0 0 8px rgba(255,100,80,0.3)' : 'none',
                 }}
               />
             </div>
-            <div className="flex items-center justify-between text-xs text-white/40 font-mono pt-2 border-t border-white/10">
+            <div style={{ height: 1, background: 'rgba(255,255,255,0.04)', margin: '6px 0' }} />
+            <div className="flex items-center justify-between text-xs text-white/35 font-mono">
               <span>{formatLatLon(currentTrackPoint.lat)}</span>
               <span>{formatLatLon(currentTrackPoint.lon, false)}</span>
             </div>

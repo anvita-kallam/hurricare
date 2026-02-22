@@ -20,6 +20,7 @@ import {
   SegmentedHorizontalBars,
   StatReadout,
 } from '../mapvis/charts/ChartPrimitives'
+import AffectedAreaHeightMap from '../shared/AffectedAreaHeightMap'
 
 function formatBudget(n: number): string {
   if (n >= 1e9) return `$${(n / 1e9).toFixed(1)}B`
@@ -211,8 +212,10 @@ export default function Step5Summary() {
             <ThinVerticalBars
               data={deltaSeries.length > 1 ? deltaSeries : [0, 100]}
               width={W}
-              height={48}
+              height={60}
               seed={seed + 30}
+              labels={deltaData.map(d => d.region)}
+              unit="Budget Gap ($)"
             />
           </div>
         </div>
@@ -289,7 +292,7 @@ export default function Step5Summary() {
                 .sort((a, b) => Math.abs(b.delta) - Math.abs(a.delta))
                 .slice(0, 5)
                 .map(d => ({
-                  label: d.region.slice(0, 6).toUpperCase(),
+                  label: d.region.toUpperCase(),
                   value: Math.round(Math.abs(d.coverageGap) * 100),
                   max: 100,
                 }))}
@@ -302,13 +305,47 @@ export default function Step5Summary() {
             <>
               <div style={{ height: 1, background: 'rgba(255,255,255,0.04)', margin: '6px 0', flexShrink: 0 }} />
               <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '4px 8px' }}>
-                <StatReadout label="TOP GAP" value={mostUnderfunded.region.slice(0, 8)} alert />
+                <StatReadout label="TOP GAP" value={mostUnderfunded.region} alert />
                 <StatReadout label="AMOUNT" value={formatBudget(Math.abs(mostUnderfunded.delta))} alert />
               </div>
             </>
           )}
         </div>
       </div>
+
+      {/* 2.5D Delta Gap Terrain */}
+      {deltaData.length > 0 && (
+        <div style={{
+          background: 'linear-gradient(180deg, rgba(0,0,2,0.85) 0%, rgba(0,0,4,0.9) 50%, rgba(0,0,3,0.85) 100%)',
+          border: '1px solid rgba(255,255,255,0.04)',
+          padding: '14px 16px 10px',
+          backgroundImage: 'radial-gradient(circle, rgba(255,255,255,0.02) 0.5px, transparent 0.5px)',
+          backgroundSize: '12px 12px',
+        }}>
+          <div className="flex items-center justify-between mb-2">
+            <div style={{ fontFamily: "'Rajdhani', sans-serif", fontSize: '0.5rem', fontWeight: 600, color: 'rgba(255,255,255,0.2)', letterSpacing: '0.18em', textTransform: 'uppercase' as const }}>
+              COVERAGE GAP TERRAIN — ML IDEAL vs HISTORICAL
+            </div>
+            <div className="flex items-center gap-3">
+              <div className="flex items-center gap-1">
+                <div className="w-2 h-2 rounded-sm" style={{ background: 'rgba(255,160,60,0.6)' }} />
+                <span className="text-white/30 font-mono text-[7px]">Gap</span>
+              </div>
+            </div>
+          </div>
+          <AffectedAreaHeightMap
+            data={deltaData.map(d => ({
+              region: d.region,
+              severity: d.severity,
+              metric: Math.abs(d.coverageGap),
+              valueLabel: `${d.coverageGap > 0 ? '+' : ''}${Math.round(d.coverageGap * 100)}%`,
+            }))}
+            width={600}
+            height={200}
+            theme="delta"
+          />
+        </div>
+      )}
 
       {/* Concise insights */}
       <div className="space-y-3 pt-2 border-t border-white/[0.06]">
