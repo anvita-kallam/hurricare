@@ -1,10 +1,11 @@
-import { Suspense, useEffect, useRef, useMemo } from 'react'
+import React, { Suspense, useEffect, useRef, useMemo } from 'react'
 import { Canvas, useThree, useFrame } from '@react-three/fiber'
-import { Stars, useTexture } from '@react-three/drei'
+import { Stars } from '@react-three/drei'
 import * as THREE from 'three'
 import { useCinematicController, ImpactEvent } from '../hooks/useCinematicController'
 import HurricaneSpiral from './HurricaneSpiral'
 import ImpactCallout from './ImpactCallout'
+import CinematicGlobe from './CinematicGlobe'
 import { Hurricane } from '../state/useStore'
 
 // Helper to convert lat/lon to 3D
@@ -24,18 +25,6 @@ function formatLatLon(coord: number, isLat: boolean = true) {
   const min = Math.floor((abs - deg) * 60)
   const dir = coord >= 0 ? (isLat ? 'N' : 'E') : (isLat ? 'S' : 'W')
   return `${deg}°${min}'${dir}`
-}
-
-// Earth component
-function Earth() {
-  const earthTexture = useTexture('https://raw.githubusercontent.com/mrdoob/three.js/dev/examples/textures/land_ocean_ice_cloud_2048.jpg')
-  
-  return (
-    <mesh>
-      <sphereGeometry args={[1, 64, 64]} />
-      <meshStandardMaterial map={earthTexture} />
-    </mesh>
-  )
 }
 
 // Camera controller for cinematic mode
@@ -162,16 +151,16 @@ function HurricaneTrail({
   }, [track, progress, currentPosition])
   
   if (!trailGeometry) return null
-  
-  return (
-    <line geometry={trailGeometry}>
-      <lineBasicMaterial
-        color={new THREE.Color(1.0, 0.8, 0.2)}
-        transparent
-        opacity={0.7}
-        linewidth={4}
-      />
-    </line>
+
+  return React.createElement(
+    'line' as any,
+    { geometry: trailGeometry },
+    React.createElement('lineBasicMaterial', {
+      color: new THREE.Color(1.0, 0.8, 0.2),
+      transparent: true,
+      opacity: 0.7,
+      linewidth: 4
+    })
   )
 }
 
@@ -333,10 +322,10 @@ export default function CinematicIntro({
         <Suspense fallback={null}>
           <ambientLight intensity={0.3} />
           <directionalLight position={[5, 5, 5]} intensity={0.5} />
-          
+
           <Stars radius={300} depth={50} count={5000} factor={4} />
-          
-          <Earth />
+
+          <CinematicGlobe />
           
           {(state.phase === 'playing' || state.phase === 'fadeIn') && state.isPlaying && (
             <>

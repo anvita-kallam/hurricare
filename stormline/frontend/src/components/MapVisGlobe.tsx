@@ -48,9 +48,9 @@ function CountryPanel({ name, onBack }: { name: string | null, onBack: () => voi
 }
 
 export default function MapVisGlobe({
-  _selectedHurricane,
+  selectedHurricane,
   onCountrySelect,
-  _autoSpin = false
+  autoSpin = false
 }: MapVisGlobeProps) {
   const [selected, setSelected] = useState<string | null>(null)
   const [blurring, setBlurring] = useState(false)
