@@ -18,6 +18,8 @@ export function useGlobalClickSounds(enabled: boolean = true) {
       // Also trigger on clickable divs/spans with role="button"
       const isClickable = target.getAttribute('role') === 'button' || target.closest('[role="button"]')
       // Or elements with click handlers (heuristic: inputs, selects, etc)
+      // Exclude range inputs (sliders) — they must be silent
+      if (target.tagName === 'INPUT' && (target as HTMLInputElement).type === 'range') return
       const isFormElement = ['INPUT', 'SELECT', 'TEXTAREA'].includes(target.tagName)
       // Check for custom interactive classes
       const isInteractive = target.classList.contains('clickable') ||

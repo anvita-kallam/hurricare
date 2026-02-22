@@ -771,7 +771,7 @@ export default function Dashboard3D({ onSelectOption, isLoading }: Dashboard3DPr
               emphasis="soft"
               delayMs={400}
               charIntervalMs={15}
-              className="text-[9px] font-mono text-white/20 tracking-[0.3em] uppercase"
+              className="text-sm font-mono text-white/50 tracking-[0.3em] uppercase"
             />
             <div className="w-6 h-[1px] bg-white/10" />
           </div>
@@ -795,7 +795,7 @@ export default function Dashboard3D({ onSelectOption, isLoading }: Dashboard3DPr
                 emphasis="soft"
                 delayMs={1600}
                 charIntervalMs={20}
-                className="text-[11px] font-rajdhani text-white/30 tracking-[0.25em] uppercase"
+                className="text-base font-rajdhani text-white/60 tracking-[0.25em] uppercase"
               />
             </div>
             <div className="w-3 h-[1px] bg-white/8" />
@@ -807,42 +807,44 @@ export default function Dashboard3D({ onSelectOption, isLoading }: Dashboard3DPr
 
         {/* ─── Globe labels + HUD accents ────────────────────── */}
         {showUI && !isLoading && (
-          <div className="px-12 mb-6">
-            {/* Globe option labels */}
-            <div className="flex justify-around">
-              {options.map((option, i) => (
-                <div key={option.id} className="text-center w-56 dashboard-option-fade" style={{ animationDelay: `${i * 0.12}s` }}>
-                  {/* Tag label */}
-                  <div className="flex items-center justify-center gap-2 mb-1">
-                    <div className="w-4 h-[1px]" style={{ background: option.color, opacity: 0.3 }} />
-                    <span className="text-[8px] font-mono tracking-[0.25em] uppercase" style={{ color: option.color, opacity: 0.5 }}>
-                      {option.tag}
-                    </span>
-                    <div className="w-4 h-[1px]" style={{ background: option.color, opacity: 0.3 }} />
-                  </div>
+          <div className="mb-6">
+            {/* Globe option labels — centered grid matching 3D globe positions */}
+            <div className="flex justify-center">
+              <div className="flex" style={{ width: '60%', maxWidth: '700px' }}>
+                {options.map((option, i) => (
+                  <div key={option.id} className="flex-1 text-center dashboard-option-fade" style={{ animationDelay: `${i * 0.12}s` }}>
+                    {/* Tag label */}
+                    <div className="flex items-center justify-center gap-2 mb-1">
+                      <div className="w-4 h-[1px]" style={{ background: option.color, opacity: 0.4 }} />
+                      <span className="text-xs font-mono tracking-[0.25em] uppercase" style={{ color: option.color, opacity: 0.7 }}>
+                        {option.tag}
+                      </span>
+                      <div className="w-4 h-[1px]" style={{ background: option.color, opacity: 0.4 }} />
+                    </div>
 
-                  {/* Title */}
-                  <div className="text-base font-rajdhani font-bold text-white/80 tracking-[0.15em]">
-                    {option.title}
-                  </div>
+                    {/* Title */}
+                    <div className="text-xl font-rajdhani font-bold text-white/95 tracking-[0.15em]">
+                      {option.title}
+                    </div>
 
-                  {/* Subtitle */}
-                  <div className="text-[10px] text-white/30 font-rajdhani tracking-wider mt-0.5">
-                    {option.subtitle}
-                  </div>
+                    {/* Subtitle */}
+                    <div className="text-sm text-white/60 font-rajdhani tracking-wider mt-1">
+                      {option.subtitle}
+                    </div>
 
-                  {/* Status indicator */}
-                  <div className="flex items-center justify-center gap-1.5 mt-2">
-                    <div
-                      className="w-1 h-1 rounded-full dashboard-pulse"
-                      style={{ background: option.color, opacity: 0.6 }}
-                    />
-                    <span className="text-[8px] font-mono tracking-[0.2em]" style={{ color: option.color, opacity: 0.4 }}>
-                      {option.statusText}
-                    </span>
+                    {/* Status indicator */}
+                    <div className="flex items-center justify-center gap-1.5 mt-2">
+                      <div
+                        className="w-1.5 h-1.5 rounded-full dashboard-pulse"
+                        style={{ background: option.color, opacity: 0.7 }}
+                      />
+                      <span className="text-xs font-mono tracking-[0.2em]" style={{ color: option.color, opacity: 0.6 }}>
+                        {option.statusText}
+                      </span>
+                    </div>
                   </div>
-                </div>
-              ))}
+                ))}
+              </div>
             </div>
           </div>
         )}
@@ -866,7 +868,7 @@ export default function Dashboard3D({ onSelectOption, isLoading }: Dashboard3DPr
 
           {/* Center prompt */}
           {showUI && (
-            <span className="text-[10px] font-rajdhani text-white/20 tracking-[0.15em] dashboard-prompt-fade">
+            <span className="text-base font-rajdhani text-white/60 tracking-[0.15em] dashboard-prompt-fade">
               <TypewriterText text="SELECT A GLOBE TO BEGIN" emphasis="soft" delayMs={2200} charIntervalMs={40} />
             </span>
           )}
@@ -892,7 +894,7 @@ export default function Dashboard3D({ onSelectOption, isLoading }: Dashboard3DPr
             <div className="flex flex-col items-center gap-3">
               <div className="flex items-center gap-2">
                 <div className="w-1.5 h-1.5 rounded-full bg-white/30 dashboard-pulse" />
-                <span className="text-sm font-mono text-white/30 tracking-[0.3em] uppercase">
+                <span className="text-lg font-mono text-white/70 tracking-[0.3em] uppercase">
                   INITIALIZING
                 </span>
               </div>
