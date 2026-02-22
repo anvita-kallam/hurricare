@@ -6,6 +6,7 @@ import GlobeShell from './GlobeShell'
 import CountryMesh from './CountryMesh'
 import PostProcessing from './PostProcessing'
 import Starfield from './Starfield'
+import HurricaneLayer from '../HurricaneLayer'
 import { COUNTRY_POLYGONS } from '../../data/countries'
 
 const latLonToVec3 = (lat: number, lon: number, r: number) => {
@@ -151,6 +152,7 @@ function GlobeGroup({ onSelect, selected, groupRef, mouseLocal }: { onSelect: (n
           onSelect={onSelect}
         />
       ))}
+      <HurricaneLayer />
     </group>
   )
 }
