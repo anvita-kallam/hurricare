@@ -48,7 +48,7 @@ class DatabricksConnection:
                  server_hostname: str,
                  http_path: str,
                  personal_access_token: str,
-                 catalog: str = "hive_metastore",
+                 catalog: str = "workspace",
                  schema: str = "stormline",
                  warehouse_timeout_seconds: int = 60):
         """
@@ -99,7 +99,7 @@ class DatabricksConnection:
                     sql = sql.replace("?", str(param), 1)
         
         # Add catalog and schema if not specified
-        if "FROM " in sql.upper() and self.schema not in sql.upper():
+        if "FROM " in sql.upper() and self.schema.upper() not in sql.upper():
             # Simple heuristic: add schema to bare table names
             sql = sql.replace(
                 f" FROM ", 
@@ -123,7 +123,7 @@ class DatabricksConnection:
         Polls for completion since this is an async API.
         """
         # Create statement
-        create_url = urljoin(self.api_base_url, "/statements")
+        create_url = f"{self.api_base_url}/sql/statements"
         payload = {
             "statement": sql,
             "warehouse_id": self.http_path.split("/")[-1]  # Extract warehouse ID
@@ -131,29 +131,36 @@ class DatabricksConnection:
         
         response = requests.post(create_url, json=payload, headers=self.headers)
         response.raise_for_status()
-        statement_id = response.json()["statement_id"]
-        
+        data = response.json()
+        statement_id = data["statement_id"]
+
+        # Check if the initial response already has a terminal state
+        state = data.get("status", {}).get("state", "PENDING")
+        if state == "SUCCEEDED":
+            return data
+
         # Poll for completion
-        get_url = urljoin(self.api_base_url, f"/statements/{statement_id}")
+        get_url = f"{self.api_base_url}/sql/statements/{statement_id}"
         start_time = time.time()
-        
+
         while True:
             response = requests.get(get_url, headers=self.headers)
             response.raise_for_status()
             data = response.json()
-            
-            status = data.get("status")
-            if status == "SUCCEEDED":
+
+            state = data.get("status", {}).get("state", "PENDING")
+            if state == "SUCCEEDED":
                 return data
-            elif status == "FAILED":
-                raise Exception(f"Query failed: {data.get('message', 'Unknown error')}")
-            elif status in ("CANCELED", "CLOSED"):
-                raise Exception(f"Query was {status}")
-            
+            elif state == "FAILED":
+                error = data.get("status", {}).get("error", {})
+                raise Exception(f"Query failed: {error.get('message', 'Unknown error')}")
+            elif state in ("CANCELED", "CLOSED"):
+                raise Exception(f"Query was {state}")
+
             # Timeout check
             if time.time() - start_time > self.warehouse_timeout_seconds:
                 raise TimeoutError(f"Query execution exceeded {self.warehouse_timeout_seconds}s")
-            
+
             time.sleep(0.5)
     
     def create_table(self, 

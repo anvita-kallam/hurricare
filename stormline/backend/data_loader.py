@@ -4,6 +4,9 @@ import csv
 from pathlib import Path
 from typing import List, Dict
 import os
+from dotenv import load_dotenv
+
+load_dotenv(Path(__file__).parent / ".env")
 
 
 def load_json_data(file_path: str) -> List[Dict]:
@@ -32,8 +35,21 @@ def load_csv_data(file_path: str) -> List[Dict]:
     return data
 
 
-def initialize_database(data_dir: str = "sample_data") -> duckdb.DuckDBPyConnection:
-    """Initialize DuckDB with sample data."""
+def initialize_database(data_dir: str = "sample_data"):
+    """Initialize database. Uses Databricks if configured, otherwise DuckDB."""
+    # Check for Databricks configuration
+    db_hostname = os.environ.get("DATABRICKS_SERVER_HOSTNAME")
+    db_http_path = os.environ.get("DATABRICKS_HTTP_PATH")
+    db_pat = os.environ.get("DATABRICKS_PAT")
+
+    if db_hostname and db_http_path and db_pat:
+        from databricks_client import DatabricksConnection
+        return DatabricksConnection(
+            server_hostname=db_hostname,
+            http_path=db_http_path,
+            personal_access_token=db_pat,
+        )
+
     conn = duckdb.connect(':memory:')
     
     # Get the directory where this script is located

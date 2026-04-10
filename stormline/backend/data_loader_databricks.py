@@ -66,6 +66,9 @@ def initialize_databricks(
     data_path = script_dir / data_dir
     
     print("Initializing Databricks Delta Lake tables...")
+
+    # Ensure schema exists
+    conn.execute(f"CREATE SCHEMA IF NOT EXISTS {conn.catalog}.{conn.schema}")
     
     # Load hurricanes
     print("\n1. Loading hurricanes...")

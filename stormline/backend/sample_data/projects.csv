@@ -244,3 +244,525 @@ CUB_Food_005,melissa_2025,Cuba,Cuba,Food Security,5000000,181000,True,WFP
 CUB_Shelter_006,melissa_2025,Cuba,Cuba,Shelter,3500000,120000,True,IFRC
 DOM_Protection_007,melissa_2025,Dominican Republic,Dominican Republic,Protection,1800000,25000,True,UNHCR
 JAM_Protection_008,melissa_2025,Jamaica,Jamaica,Protection,2500000,35000,True,UN Women
+MEX_Health_001,hanna_2020,Mexico,Mexico,Health,15790556.0,31581,True,Terre des Hommes - Italy
+MEX_FoodSecurity_001,hanna_2020,Mexico,Mexico,Food Security,15790556.0,31581,True,Save the Children
+MEX_Shelter_001,hanna_2020,Mexico,Mexico,Shelter,14211500.4,28423,False,United Nations Children's Fund
+MEX_WASH_001,hanna_2020,Mexico,Mexico,WASH,11842917.0,23686,True,International Organization for Migration
+MEX_Protection_001,hanna_2020,Mexico,Mexico,Protection,7895278.0,15791,True,Acción Contra el Hambre - Spain
+MEX_Education_001,hanna_2020,Mexico,Mexico,Education,6316222.4,12632,True,Terre des Hommes - Italy
+MEX_Livelihoods_001,hanna_2020,Mexico,Mexico,Livelihoods,5526694.6,11053,False,International Organization for Migration
+MEX_Energy_001,hanna_2020,Mexico,Mexico,Energy,1579055.6,3158,True,International Organization for Migration
+USA_Health_001,hanna_2020,United States,United States,Health,678774.2,1358,False,World Food Programme
+USA_FoodSecurity_001,hanna_2020,United States,United States,Food Security,678774.2,1358,False,International Organization for Migration
+USA_Shelter_001,hanna_2020,United States,United States,Shelter,610896.78,1222,False,Afghanistan Humanitarian Fund
+USA_WASH_001,hanna_2020,United States,United States,WASH,509080.65,1018,False,ACBAR - Agency Coordinating Body for Afghan Relief
+USA_Protection_001,hanna_2020,United States,United States,Protection,339387.1,679,False,The Mentor Initiative
+USA_Education_001,hanna_2020,United States,United States,Education,271509.68,543,False,Danish Refugee Council
+USA_Livelihoods_001,hanna_2020,United States,United States,Livelihoods,237570.97,475,False,Agency for Technical Cooperation and Development
+USA_Energy_001,hanna_2020,United States,United States,Energy,67877.42,136,False,Start Network
+BHS_Health_001,isaias_2020,Bahamas,Bahamas,Health,1383602.0,2767,False,United Nations Children's Fund
+BHS_FoodSecurity_001,isaias_2020,Bahamas,Bahamas,Food Security,1383602.0,2767,False,United Nations Population Fund
+BHS_Shelter_001,isaias_2020,Bahamas,Bahamas,Shelter,1245241.8,2490,False,Yemen Humanitarian Fund
+BHS_WASH_001,isaias_2020,Bahamas,Bahamas,WASH,1037701.5,2075,False,Yemen Humanitarian Fund
+BHS_Protection_001,isaias_2020,Bahamas,Bahamas,Protection,691801.0,1384,False,United Nations Children's Fund
+BHS_Education_001,isaias_2020,Bahamas,Bahamas,Education,553440.8,1107,False,United Nations Children's Fund
+BHS_Livelihoods_001,isaias_2020,Bahamas,Bahamas,Livelihoods,484260.7,969,False,Yemen Humanitarian Fund
+BHS_Energy_001,isaias_2020,Bahamas,Bahamas,Energy,138360.2,277,False,World Health Organization
+DOM_Education_001,isaias_2020,Dominican Republic,Dominican Republic,Education,205226.0,410,True,United Nations Development Programme
+DOM_Shelter_001,isaias_2020,Dominican Republic,Dominican Republic,Shelter,338821.0,678,False,World Health Organization
+DOM_FoodSecurity_001,isaias_2020,Dominican Republic,Dominican Republic,Food Security,514874.0,1030,False,International Organization for Migration
+DOM_FoodSecurity_002,isaias_2020,Dominican Republic,Dominican Republic,Food Security,1440578.0,2881,False,CARITAS
+DOM_WASH_001,isaias_2020,Dominican Republic,Dominican Republic,WASH,373424.0,747,True,World Food Programme
+DOM_Health_001,isaias_2020,Dominican Republic,Dominican Republic,Health,990000.0,1980,False,International Organization for Migration
+DOM_Health_002,isaias_2020,Dominican Republic,Dominican Republic,Health,2319269.0,4639,False,World Health Organization
+DOM_WASH_002,isaias_2020,Dominican Republic,Dominican Republic,WASH,35493.0,71,True,United Nations Development Programme
+DOM_Protection_001,isaias_2020,Dominican Republic,Dominican Republic,Protection,13547745.79,27095,False,Food and Agriculture Organization of the United Nations
+DOM_Livelihoods_001,isaias_2020,Dominican Republic,Dominican Republic,Livelihoods,9483422.05,18967,False,United Nations Development Programme
+DOM_Energy_001,isaias_2020,Dominican Republic,Dominican Republic,Energy,2709549.16,5419,True,United Nations Development Programme
+USA_Health_001,isaias_2020,United States,United States,Health,678774.2,1358,False,The Mentor Initiative
+USA_FoodSecurity_001,isaias_2020,United States,United States,Food Security,678774.2,1358,False,World Food Programme
+USA_Shelter_001,isaias_2020,United States,United States,Shelter,610896.78,1222,False,International Committee of the Red Cross
+USA_WASH_001,isaias_2020,United States,United States,WASH,509080.65,1018,False,Yemen Humanitarian Fund
+USA_Protection_001,isaias_2020,United States,United States,Protection,339387.1,679,False,International Committee of the Red Cross
+USA_Education_001,isaias_2020,United States,United States,Education,271509.68,543,False,International Committee of the Red Cross
+USA_Livelihoods_001,isaias_2020,United States,United States,Livelihoods,237570.97,475,False,ACBAR - Agency Coordinating Body for Afghan Relief
+USA_Energy_001,isaias_2020,United States,United States,Energy,67877.42,136,False,World Food Programme
+BHS_Health_001,laura_2020,Bahamas,Bahamas,Health,1383602.0,2767,False,Yemen Humanitarian Fund
+BHS_FoodSecurity_001,laura_2020,Bahamas,Bahamas,Food Security,1383602.0,2767,False,World Health Organization
+BHS_Shelter_001,laura_2020,Bahamas,Bahamas,Shelter,1245241.8,2490,False,"Azerbaijan, Government of"
+BHS_WASH_001,laura_2020,Bahamas,Bahamas,WASH,1037701.5,2075,False,United Nations Children's Fund
+BHS_Protection_001,laura_2020,Bahamas,Bahamas,Protection,691801.0,1384,False,"Azerbaijan, Government of"
+BHS_Education_001,laura_2020,Bahamas,Bahamas,Education,553440.8,1107,False,United Nations Children's Fund
+BHS_Livelihoods_001,laura_2020,Bahamas,Bahamas,Livelihoods,484260.7,969,False,United Nations Children's Fund
+BHS_Energy_001,laura_2020,Bahamas,Bahamas,Energy,138360.2,277,False,United Nations Population Fund
+CUB_Health_001,laura_2020,Cuba,Cuba,Health,2426487.8,4853,False,International Federation of Red Cross and Red Crescent Societies
+CUB_FoodSecurity_001,laura_2020,Cuba,Cuba,Food Security,2426487.8,4853,False,"Cote d'Ivoire, Government of"
+CUB_Shelter_001,laura_2020,Cuba,Cuba,Shelter,2183839.02,4368,False,Qatar Charity
+CUB_WASH_001,laura_2020,Cuba,Cuba,WASH,1819865.85,3640,False,Qatar Charity
+CUB_Protection_001,laura_2020,Cuba,Cuba,Protection,1213243.9,2426,False,United Nations High Commissioner for Refugees
+CUB_Education_001,laura_2020,Cuba,Cuba,Education,970595.12,1941,False,World Health Organization
+CUB_Livelihoods_001,laura_2020,Cuba,Cuba,Livelihoods,849270.73,1699,False,Qatar Charity
+CUB_Energy_001,laura_2020,Cuba,Cuba,Energy,242648.78,485,False,"Cote d'Ivoire, Government of"
+DOM_Education_001,laura_2020,Dominican Republic,Dominican Republic,Education,205226.0,410,True,United Nations Children's Fund
+DOM_Shelter_001,laura_2020,Dominican Republic,Dominican Republic,Shelter,338821.0,678,False,United Nations Children's Fund
+DOM_FoodSecurity_001,laura_2020,Dominican Republic,Dominican Republic,Food Security,514874.0,1030,True,World Food Programme
+DOM_FoodSecurity_002,laura_2020,Dominican Republic,Dominican Republic,Food Security,1440578.0,2881,False,Food and Agriculture Organization of the United Nations
+DOM_WASH_001,laura_2020,Dominican Republic,Dominican Republic,WASH,373424.0,747,True,World Health Organization
+DOM_Health_001,laura_2020,Dominican Republic,Dominican Republic,Health,990000.0,1980,True,CARITAS
+DOM_Health_002,laura_2020,Dominican Republic,Dominican Republic,Health,2319269.0,4639,True,CARITAS
+DOM_WASH_002,laura_2020,Dominican Republic,Dominican Republic,WASH,35493.0,71,True,Norwegian Refugee Council
+DOM_Protection_001,laura_2020,Dominican Republic,Dominican Republic,Protection,13547745.79,27095,False,International Organization for Migration
+DOM_Livelihoods_001,laura_2020,Dominican Republic,Dominican Republic,Livelihoods,9483422.05,18967,False,World Food Programme
+DOM_Energy_001,laura_2020,Dominican Republic,Dominican Republic,Energy,2709549.16,5419,True,World Food Programme
+MEX_Health_001,laura_2020,Mexico,Mexico,Health,15790556.0,31581,False,United Nations Children's Fund
+MEX_FoodSecurity_001,laura_2020,Mexico,Mexico,Food Security,15790556.0,31581,False,Terre des Hommes - Italy
+MEX_Shelter_001,laura_2020,Mexico,Mexico,Shelter,14211500.4,28423,True,Terre des Hommes - Italy
+MEX_WASH_001,laura_2020,Mexico,Mexico,WASH,11842917.0,23686,False,United Nations Children's Fund
+MEX_Protection_001,laura_2020,Mexico,Mexico,Protection,7895278.0,15791,False,Acción Contra el Hambre - Spain
+MEX_Education_001,laura_2020,Mexico,Mexico,Education,6316222.4,12632,True,Acción Contra el Hambre - Spain
+MEX_Livelihoods_001,laura_2020,Mexico,Mexico,Livelihoods,5526694.6,11053,False,Food and Agriculture Organization of the United Nations
+MEX_Energy_001,laura_2020,Mexico,Mexico,Energy,1579055.6,3158,False,International Organization for Migration
+USA_Health_001,laura_2020,United States,United States,Health,678774.2,1358,False,Start Network
+USA_FoodSecurity_001,laura_2020,United States,United States,Food Security,678774.2,1358,False,World Food Programme
+USA_Shelter_001,laura_2020,United States,United States,Shelter,610896.78,1222,False,United Nations Children's Fund
+USA_WASH_001,laura_2020,United States,United States,WASH,509080.65,1018,False,World Food Programme
+USA_Protection_001,laura_2020,United States,United States,Protection,339387.1,679,False,International Organization for Migration
+USA_Education_001,laura_2020,United States,United States,Education,271509.68,543,False,Agency for Technical Cooperation and Development
+USA_Livelihoods_001,laura_2020,United States,United States,Livelihoods,237570.97,475,False,World Food Programme
+USA_Energy_001,laura_2020,United States,United States,Energy,67877.42,136,False,International Committee of the Red Cross
+HND_FoodSecurity_001,marco_2020,Honduras,Honduras,Food Security,7125891.0,14252,True,Food and Agriculture Organization of the United Nations
+HND_Health_001,marco_2020,Honduras,Honduras,Health,9664494.75,19329,False,World Health Organization
+HND_Shelter_001,marco_2020,Honduras,Honduras,Shelter,8698045.27,17396,False,Save the Children
+HND_WASH_001,marco_2020,Honduras,Honduras,WASH,7248371.06,14497,False,World Food Programme
+HND_Protection_001,marco_2020,Honduras,Honduras,Protection,4832247.38,9664,True,United Nations Population Fund
+HND_Education_001,marco_2020,Honduras,Honduras,Education,3865797.9,7732,False,Food and Agriculture Organization of the United Nations
+HND_Livelihoods_001,marco_2020,Honduras,Honduras,Livelihoods,3382573.16,6765,False,World Food Programme
+HND_Energy_001,marco_2020,Honduras,Honduras,Energy,966449.47,1933,False,Norwegian Refugee Council
+MEX_Health_001,marco_2020,Mexico,Mexico,Health,15790556.0,31581,True,United Nations Children's Fund
+MEX_FoodSecurity_001,marco_2020,Mexico,Mexico,Food Security,15790556.0,31581,False,United Nations Children's Fund
+MEX_Shelter_001,marco_2020,Mexico,Mexico,Shelter,14211500.4,28423,False,International Organization for Migration
+MEX_WASH_001,marco_2020,Mexico,Mexico,WASH,11842917.0,23686,False,Oxfam Intermón Spain
+MEX_Protection_001,marco_2020,Mexico,Mexico,Protection,7895278.0,15791,False,Terre des Hommes - Italy
+MEX_Education_001,marco_2020,Mexico,Mexico,Education,6316222.4,12632,True,Save the Children
+MEX_Livelihoods_001,marco_2020,Mexico,Mexico,Livelihoods,5526694.6,11053,False,International Islamic Relief Organization
+MEX_Energy_001,marco_2020,Mexico,Mexico,Energy,1579055.6,3158,True,Terre des Hommes - Italy
+USA_Health_001,marco_2020,United States,United States,Health,678774.2,1358,False,The Mentor Initiative
+USA_FoodSecurity_001,marco_2020,United States,United States,Food Security,678774.2,1358,False,United Nations Children's Fund
+USA_Shelter_001,marco_2020,United States,United States,Shelter,610896.78,1222,False,International Organization for Migration
+USA_WASH_001,marco_2020,United States,United States,WASH,509080.65,1018,False,Yemen Humanitarian Fund
+USA_Protection_001,marco_2020,United States,United States,Protection,339387.1,679,False,Yemen Humanitarian Fund
+USA_Education_001,marco_2020,United States,United States,Education,271509.68,543,False,World Food Programme
+USA_Livelihoods_001,marco_2020,United States,United States,Livelihoods,237570.97,475,False,The Mentor Initiative
+USA_Energy_001,marco_2020,United States,United States,Energy,67877.42,136,False,International Organization for Migration
+GTM_Health_001,nana_2020,Guatemala,Guatemala,Health,10966548.2,21933,True,United Nations Population Fund
+GTM_FoodSecurity_001,nana_2020,Guatemala,Guatemala,Food Security,10966548.2,21933,False,World Food Programme
+GTM_Shelter_001,nana_2020,Guatemala,Guatemala,Shelter,9869893.38,19740,False,UN Women
+GTM_WASH_001,nana_2020,Guatemala,Guatemala,WASH,8224911.15,16450,False,Medical Teams International
+GTM_Protection_001,nana_2020,Guatemala,Guatemala,Protection,5483274.1,10967,False,UN Women
+GTM_Education_001,nana_2020,Guatemala,Guatemala,Education,4386619.28,8773,False,International Committee of the Red Cross
+GTM_Livelihoods_001,nana_2020,Guatemala,Guatemala,Livelihoods,3838291.87,7677,True,Project Concern International
+GTM_Energy_001,nana_2020,Guatemala,Guatemala,Energy,1096654.82,2193,False,Norwegian Refugee Council
+MEX_Health_001,nana_2020,Mexico,Mexico,Health,15790556.0,31581,True,International Islamic Relief Organization
+MEX_FoodSecurity_001,nana_2020,Mexico,Mexico,Food Security,15790556.0,31581,True,Oxfam Intermón Spain
+MEX_Shelter_001,nana_2020,Mexico,Mexico,Shelter,14211500.4,28423,True,International Organization for Migration
+MEX_WASH_001,nana_2020,Mexico,Mexico,WASH,11842917.0,23686,True,International Islamic Relief Organization
+MEX_Protection_001,nana_2020,Mexico,Mexico,Protection,7895278.0,15791,True,World Food Programme
+MEX_Education_001,nana_2020,Mexico,Mexico,Education,6316222.4,12632,False,World Food Programme
+MEX_Livelihoods_001,nana_2020,Mexico,Mexico,Livelihoods,5526694.6,11053,False,Terre des Hommes - Italy
+MEX_Energy_001,nana_2020,Mexico,Mexico,Energy,1579055.6,3158,False,Save the Children
+BMU_Health_001,paulette_2020,Bermuda,Bermuda,Health,321244.2,642,False,United Nations Children's Fund
+BMU_FoodSecurity_001,paulette_2020,Bermuda,Bermuda,Food Security,321244.2,642,False,United Nations Population Fund
+BMU_Shelter_001,paulette_2020,Bermuda,Bermuda,Shelter,289119.78,578,False,United Nations Children's Fund
+BMU_WASH_001,paulette_2020,Bermuda,Bermuda,WASH,240933.15,482,False,Pan-American Health Organization (World Health Organization)
+BMU_Protection_001,paulette_2020,Bermuda,Bermuda,Protection,160622.1,321,False,United Nations Population Fund
+BMU_Education_001,paulette_2020,Bermuda,Bermuda,Education,128497.68,257,False,United Nations Population Fund
+BMU_Livelihoods_001,paulette_2020,Bermuda,Bermuda,Livelihoods,112435.47,225,False,"Belize, Government of"
+BMU_Energy_001,paulette_2020,Bermuda,Bermuda,Energy,32124.42,64,False,United Nations Children's Fund
+MEX_Health_001,sally_2020,Mexico,Mexico,Health,15790556.0,31581,False,Food and Agriculture Organization of the United Nations
+MEX_FoodSecurity_001,sally_2020,Mexico,Mexico,Food Security,15790556.0,31581,True,International Islamic Relief Organization
+MEX_Shelter_001,sally_2020,Mexico,Mexico,Shelter,14211500.4,28423,True,Acción Contra el Hambre - Spain
+MEX_WASH_001,sally_2020,Mexico,Mexico,WASH,11842917.0,23686,False,Acción Contra el Hambre - Spain
+MEX_Protection_001,sally_2020,Mexico,Mexico,Protection,7895278.0,15791,False,World Food Programme
+MEX_Education_001,sally_2020,Mexico,Mexico,Education,6316222.4,12632,True,Terre des Hommes - Italy
+MEX_Livelihoods_001,sally_2020,Mexico,Mexico,Livelihoods,5526694.6,11053,False,Oxfam Intermón Spain
+MEX_Energy_001,sally_2020,Mexico,Mexico,Energy,1579055.6,3158,True,Terre des Hommes - Italy
+USA_Health_001,sally_2020,United States,United States,Health,678774.2,1358,False,ACBAR - Agency Coordinating Body for Afghan Relief
+USA_FoodSecurity_001,sally_2020,United States,United States,Food Security,678774.2,1358,False,International Organization for Migration
+USA_Shelter_001,sally_2020,United States,United States,Shelter,610896.78,1222,False,The Mentor Initiative
+USA_WASH_001,sally_2020,United States,United States,WASH,509080.65,1018,False,Yemen Humanitarian Fund
+USA_Protection_001,sally_2020,United States,United States,Protection,339387.1,679,False,Afghanistan Humanitarian Fund
+USA_Education_001,sally_2020,United States,United States,Education,271509.68,543,False,Yemen Humanitarian Fund
+USA_Livelihoods_001,sally_2020,United States,United States,Livelihoods,237570.97,475,False,Agency for Technical Cooperation and Development
+USA_Energy_001,sally_2020,United States,United States,Energy,67877.42,136,False,The Mentor Initiative
+CAN_FoodSecurity_001,teddy_2020,Canada,Canada,Food Security,43529876.0,87060,False,French Red Cross
+CAN_Protection_001,teddy_2020,Canada,Canada,Protection,3567833.0,7136,False,World Food Programme
+CAN_Shelter_001,teddy_2020,Canada,Canada,Shelter,5326507.0,10653,False,Danish Refugee Council
+CAN_Protection_002,teddy_2020,Canada,Canada,Protection,1160140.0,2320,False,Action Contre la Faim - Action Against Hunger International
+CAN_Shelter_002,teddy_2020,Canada,Canada,Shelter,2693376.0,5387,False,World Food Programme
+CAN_Health_001,teddy_2020,Canada,Canada,Health,3748249.0,7496,False,World Food Programme
+CAN_Protection_003,teddy_2020,Canada,Canada,Protection,1876025.0,3752,False,Caritas Comité Diocésain de Développement Maroua-Mokolo
+CAN_Education_001,teddy_2020,Canada,Canada,Education,2022162.0,4044,False,Action Contre la Faim - Action Against Hunger International
+CAN_Health_002,teddy_2020,Canada,Canada,Health,13526187.0,27052,False,World Food Programme
+CAN_Education_002,teddy_2020,Canada,Canada,Education,1933314.0,3867,False,World Food Programme
+CAN_WASH_001,teddy_2020,Canada,Canada,WASH,3357699.0,6715,False,French Red Cross
+CAN_Protection_004,teddy_2020,Canada,Canada,Protection,1229346.0,2459,False,French Red Cross
+CAN_WASH_002,teddy_2020,Canada,Canada,WASH,1591864.0,3184,False,Danish Refugee Council
+CAN_Livelihoods_001,teddy_2020,Canada,Canada,Livelihoods,3737528.0,7475,False,Danish Refugee Council
+CAN_Health_003,teddy_2020,Canada,Canada,Health,1828668.0,3657,False,Danish Refugee Council
+CAN_Health_004,teddy_2020,Canada,Canada,Health,542888.0,1086,False,French Red Cross
+CAN_Shelter_003,teddy_2020,Canada,Canada,Shelter,2428155.0,4856,False,Danish Refugee Council
+CAN_Protection_005,teddy_2020,Canada,Canada,Protection,331126.0,662,False,World Food Programme
+CAN_FoodSecurity_002,teddy_2020,Canada,Canada,Food Security,8308198.0,16616,False,French Red Cross
+CAN_Protection_006,teddy_2020,Canada,Canada,Protection,649033.0,1298,False,Danish Refugee Council
+CAN_Energy_001,teddy_2020,Canada,Canada,Energy,80349513.0,160699,False,World Food Programme
+MEX_Health_001,gamma_2020,Mexico,Mexico,Health,15790556.0,31581,True,Acción Contra el Hambre - Spain
+MEX_FoodSecurity_001,gamma_2020,Mexico,Mexico,Food Security,15790556.0,31581,True,Food and Agriculture Organization of the United Nations
+MEX_Shelter_001,gamma_2020,Mexico,Mexico,Shelter,14211500.4,28423,False,International Organization for Migration
+MEX_WASH_001,gamma_2020,Mexico,Mexico,WASH,11842917.0,23686,True,Food and Agriculture Organization of the United Nations
+MEX_Protection_001,gamma_2020,Mexico,Mexico,Protection,7895278.0,15791,True,Save the Children
+MEX_Education_001,gamma_2020,Mexico,Mexico,Education,6316222.4,12632,False,World Food Programme
+MEX_Livelihoods_001,gamma_2020,Mexico,Mexico,Livelihoods,5526694.6,11053,True,International Organization for Migration
+MEX_Energy_001,gamma_2020,Mexico,Mexico,Energy,1579055.6,3158,True,Oxfam Intermón Spain
+MEX_Health_001,delta_2020,Mexico,Mexico,Health,15790556.0,31581,False,Food and Agriculture Organization of the United Nations
+MEX_FoodSecurity_001,delta_2020,Mexico,Mexico,Food Security,15790556.0,31581,True,International Organization for Migration
+MEX_Shelter_001,delta_2020,Mexico,Mexico,Shelter,14211500.4,28423,True,International Organization for Migration
+MEX_WASH_001,delta_2020,Mexico,Mexico,WASH,11842917.0,23686,True,United Nations Children's Fund
+MEX_Protection_001,delta_2020,Mexico,Mexico,Protection,7895278.0,15791,False,Terre des Hommes - Italy
+MEX_Education_001,delta_2020,Mexico,Mexico,Education,6316222.4,12632,False,International Islamic Relief Organization
+MEX_Livelihoods_001,delta_2020,Mexico,Mexico,Livelihoods,5526694.6,11053,False,International Islamic Relief Organization
+MEX_Energy_001,delta_2020,Mexico,Mexico,Energy,1579055.6,3158,False,World Food Programme
+USA_Health_001,delta_2020,United States,United States,Health,678774.2,1358,False,Afghanistan Humanitarian Fund
+USA_FoodSecurity_001,delta_2020,United States,United States,Food Security,678774.2,1358,False,World Food Programme
+USA_Shelter_001,delta_2020,United States,United States,Shelter,610896.78,1222,False,Danish Refugee Council
+USA_WASH_001,delta_2020,United States,United States,WASH,509080.65,1018,False,Danish Refugee Council
+USA_Protection_001,delta_2020,United States,United States,Protection,339387.1,679,False,International Organization for Migration
+USA_Education_001,delta_2020,United States,United States,Education,271509.68,543,False,International Committee of the Red Cross
+USA_Livelihoods_001,delta_2020,United States,United States,Livelihoods,237570.97,475,False,Agency for Technical Cooperation and Development
+USA_Energy_001,delta_2020,United States,United States,Energy,67877.42,136,False,ACBAR - Agency Coordinating Body for Afghan Relief
+CAN_FoodSecurity_001,epsilon_2020,Canada,Canada,Food Security,43529876.0,87060,False,Caritas Comité Diocésain de Développement Maroua-Mokolo
+CAN_Protection_001,epsilon_2020,Canada,Canada,Protection,3567833.0,7136,False,Caritas Comité Diocésain de Développement Maroua-Mokolo
+CAN_Shelter_001,epsilon_2020,Canada,Canada,Shelter,5326507.0,10653,False,Norwegian Refugee Council
+CAN_Protection_002,epsilon_2020,Canada,Canada,Protection,1160140.0,2320,False,French Red Cross
+CAN_Shelter_002,epsilon_2020,Canada,Canada,Shelter,2693376.0,5387,False,Norwegian Refugee Council
+CAN_Health_001,epsilon_2020,Canada,Canada,Health,3748249.0,7496,False,Danish Refugee Council
+CAN_Protection_003,epsilon_2020,Canada,Canada,Protection,1876025.0,3752,False,French Red Cross
+CAN_Education_001,epsilon_2020,Canada,Canada,Education,2022162.0,4044,False,Caritas Comité Diocésain de Développement Maroua-Mokolo
+CAN_Health_002,epsilon_2020,Canada,Canada,Health,13526187.0,27052,False,Caritas Comité Diocésain de Développement Maroua-Mokolo
+CAN_Education_002,epsilon_2020,Canada,Canada,Education,1933314.0,3867,False,Norwegian Refugee Council
+CAN_WASH_001,epsilon_2020,Canada,Canada,WASH,3357699.0,6715,False,Danish Refugee Council
+CAN_Protection_004,epsilon_2020,Canada,Canada,Protection,1229346.0,2459,False,Norwegian Refugee Council
+CAN_WASH_002,epsilon_2020,Canada,Canada,WASH,1591864.0,3184,False,World Food Programme
+CAN_Livelihoods_001,epsilon_2020,Canada,Canada,Livelihoods,3737528.0,7475,False,World Food Programme
+CAN_Health_003,epsilon_2020,Canada,Canada,Health,1828668.0,3657,False,Danish Refugee Council
+CAN_Health_004,epsilon_2020,Canada,Canada,Health,542888.0,1086,False,Action Contre la Faim - Action Against Hunger International
+CAN_Shelter_003,epsilon_2020,Canada,Canada,Shelter,2428155.0,4856,False,Action Contre la Faim - Action Against Hunger International
+CAN_Protection_005,epsilon_2020,Canada,Canada,Protection,331126.0,662,False,World Food Programme
+CAN_FoodSecurity_002,epsilon_2020,Canada,Canada,Food Security,8308198.0,16616,False,World Food Programme
+CAN_Protection_006,epsilon_2020,Canada,Canada,Protection,649033.0,1298,False,Action Contre la Faim - Action Against Hunger International
+CAN_Energy_001,epsilon_2020,Canada,Canada,Energy,80349513.0,160699,False,French Red Cross
+MEX_Health_001,zeta_2020,Mexico,Mexico,Health,15790556.0,31581,True,International Organization for Migration
+MEX_FoodSecurity_001,zeta_2020,Mexico,Mexico,Food Security,15790556.0,31581,False,Oxfam Intermón Spain
+MEX_Shelter_001,zeta_2020,Mexico,Mexico,Shelter,14211500.4,28423,True,International Islamic Relief Organization
+MEX_WASH_001,zeta_2020,Mexico,Mexico,WASH,11842917.0,23686,False,United Nations Children's Fund
+MEX_Protection_001,zeta_2020,Mexico,Mexico,Protection,7895278.0,15791,False,International Organization for Migration
+MEX_Education_001,zeta_2020,Mexico,Mexico,Education,6316222.4,12632,True,International Organization for Migration
+MEX_Livelihoods_001,zeta_2020,Mexico,Mexico,Livelihoods,5526694.6,11053,True,International Organization for Migration
+MEX_Energy_001,zeta_2020,Mexico,Mexico,Energy,1579055.6,3158,False,Terre des Hommes - Italy
+USA_Health_001,zeta_2020,United States,United States,Health,678774.2,1358,False,Yemen Humanitarian Fund
+USA_FoodSecurity_001,zeta_2020,United States,United States,Food Security,678774.2,1358,False,Agency for Technical Cooperation and Development
+USA_Shelter_001,zeta_2020,United States,United States,Shelter,610896.78,1222,False,United Nations Children's Fund
+USA_WASH_001,zeta_2020,United States,United States,WASH,509080.65,1018,False,United Nations Children's Fund
+USA_Protection_001,zeta_2020,United States,United States,Protection,339387.1,679,False,International Organization for Migration
+USA_Education_001,zeta_2020,United States,United States,Education,271509.68,543,False,Yemen Humanitarian Fund
+USA_Livelihoods_001,zeta_2020,United States,United States,Livelihoods,237570.97,475,False,Agency for Technical Cooperation and Development
+USA_Energy_001,zeta_2020,United States,United States,Energy,67877.42,136,False,Agency for Technical Cooperation and Development
+BHS_Health_001,eta_2020,Bahamas,Bahamas,Health,1383602.0,2767,False,"Azerbaijan, Government of"
+BHS_FoodSecurity_001,eta_2020,Bahamas,Bahamas,Food Security,1383602.0,2767,False,United Nations Children's Fund
+BHS_Shelter_001,eta_2020,Bahamas,Bahamas,Shelter,1245241.8,2490,False,Yemen Humanitarian Fund
+BHS_WASH_001,eta_2020,Bahamas,Bahamas,WASH,1037701.5,2075,False,United Nations Children's Fund
+BHS_Protection_001,eta_2020,Bahamas,Bahamas,Protection,691801.0,1384,False,Yemen Humanitarian Fund
+BHS_Education_001,eta_2020,Bahamas,Bahamas,Education,553440.8,1107,False,"Azerbaijan, Government of"
+BHS_Livelihoods_001,eta_2020,Bahamas,Bahamas,Livelihoods,484260.7,969,False,United Nations Population Fund
+BHS_Energy_001,eta_2020,Bahamas,Bahamas,Energy,138360.2,277,False,Yemen Humanitarian Fund
+CUB_Health_001,eta_2020,Cuba,Cuba,Health,2426487.8,4853,False,United Nations Children's Fund
+CUB_FoodSecurity_001,eta_2020,Cuba,Cuba,Food Security,2426487.8,4853,False,United Nations Children's Fund
+CUB_Shelter_001,eta_2020,Cuba,Cuba,Shelter,2183839.02,4368,False,Qatar Charity
+CUB_WASH_001,eta_2020,Cuba,Cuba,WASH,1819865.85,3640,False,International Federation of Red Cross and Red Crescent Societies
+CUB_Protection_001,eta_2020,Cuba,Cuba,Protection,1213243.9,2426,False,"Cote d'Ivoire, Government of"
+CUB_Education_001,eta_2020,Cuba,Cuba,Education,970595.12,1941,False,United Nations Children's Fund
+CUB_Livelihoods_001,eta_2020,Cuba,Cuba,Livelihoods,849270.73,1699,False,United Nations Children's Fund
+CUB_Energy_001,eta_2020,Cuba,Cuba,Energy,242648.78,485,False,"Cote d'Ivoire, Government of"
+HND_FoodSecurity_001,eta_2020,Honduras,Honduras,Food Security,7125891.0,14252,True,United Nations Population Fund
+HND_Health_001,eta_2020,Honduras,Honduras,Health,9664494.75,19329,True,World Food Programme
+HND_Shelter_001,eta_2020,Honduras,Honduras,Shelter,8698045.27,17396,False,United Nations High Commissioner for Refugees
+HND_WASH_001,eta_2020,Honduras,Honduras,WASH,7248371.06,14497,False,United Nations Children's Fund
+HND_Protection_001,eta_2020,Honduras,Honduras,Protection,4832247.38,9664,True,Food and Agriculture Organization of the United Nations
+HND_Education_001,eta_2020,Honduras,Honduras,Education,3865797.9,7732,False,Save the Children
+HND_Livelihoods_001,eta_2020,Honduras,Honduras,Livelihoods,3382573.16,6765,True,Norwegian Refugee Council
+HND_Energy_001,eta_2020,Honduras,Honduras,Energy,966449.47,1933,False,International Committee of the Red Cross
+NIC_Health_001,eta_2020,Nicaragua,Nicaragua,Health,493744.2,987,False,United Nations High Commissioner for Refugees
+NIC_FoodSecurity_001,eta_2020,Nicaragua,Nicaragua,Food Security,493744.2,987,True,Central Emergency Response Fund
+NIC_Shelter_001,eta_2020,Nicaragua,Nicaragua,Shelter,444369.78,889,False,Sudan Humanitarian Fund
+NIC_WASH_001,eta_2020,Nicaragua,Nicaragua,WASH,370308.15,741,False,Central Emergency Response Fund
+NIC_Protection_001,eta_2020,Nicaragua,Nicaragua,Protection,246872.1,494,False,Food and Agriculture Organization of the United Nations
+NIC_Education_001,eta_2020,Nicaragua,Nicaragua,Education,197497.68,395,True,Afghanistan Humanitarian Fund
+NIC_Livelihoods_001,eta_2020,Nicaragua,Nicaragua,Livelihoods,172810.47,346,False,Sudan Humanitarian Fund
+NIC_Energy_001,eta_2020,Nicaragua,Nicaragua,Energy,49374.42,99,False,Nigeria Humanitarian Fund
+USA_Health_001,eta_2020,United States,United States,Health,678774.2,1358,False,Yemen Humanitarian Fund
+USA_FoodSecurity_001,eta_2020,United States,United States,Food Security,678774.2,1358,False,ACBAR - Agency Coordinating Body for Afghan Relief
+USA_Shelter_001,eta_2020,United States,United States,Shelter,610896.78,1222,False,Yemen Humanitarian Fund
+USA_WASH_001,eta_2020,United States,United States,WASH,509080.65,1018,False,Yemen Humanitarian Fund
+USA_Protection_001,eta_2020,United States,United States,Protection,339387.1,679,False,Afghanistan Humanitarian Fund
+USA_Education_001,eta_2020,United States,United States,Education,271509.68,543,False,Start Network
+USA_Livelihoods_001,eta_2020,United States,United States,Livelihoods,237570.97,475,False,Yemen Humanitarian Fund
+USA_Energy_001,eta_2020,United States,United States,Energy,67877.42,136,False,International Committee of the Red Cross
+HND_FoodSecurity_001,iota_2020,Honduras,Honduras,Food Security,7125891.0,14252,False,United Nations Population Fund
+HND_Health_001,iota_2020,Honduras,Honduras,Health,9664494.75,19329,False,United Nations Population Fund
+HND_Shelter_001,iota_2020,Honduras,Honduras,Shelter,8698045.27,17396,False,Save the Children
+HND_WASH_001,iota_2020,Honduras,Honduras,WASH,7248371.06,14497,True,World Food Programme
+HND_Protection_001,iota_2020,Honduras,Honduras,Protection,4832247.38,9664,True,Save the Children
+HND_Education_001,iota_2020,Honduras,Honduras,Education,3865797.9,7732,False,Trocaire
+HND_Livelihoods_001,iota_2020,Honduras,Honduras,Livelihoods,3382573.16,6765,True,International Organization for Migration
+HND_Energy_001,iota_2020,Honduras,Honduras,Energy,966449.47,1933,True,United Nations High Commissioner for Refugees
+NIC_Health_001,iota_2020,Nicaragua,Nicaragua,Health,493744.2,987,False,Sudan Humanitarian Fund
+NIC_FoodSecurity_001,iota_2020,Nicaragua,Nicaragua,Food Security,493744.2,987,True,Food and Agriculture Organization of the United Nations
+NIC_Shelter_001,iota_2020,Nicaragua,Nicaragua,Shelter,444369.78,889,True,Food and Agriculture Organization of the United Nations
+NIC_WASH_001,iota_2020,Nicaragua,Nicaragua,WASH,370308.15,741,False,Syria Cross-border Humanitarian Fund
+NIC_Protection_001,iota_2020,Nicaragua,Nicaragua,Protection,246872.1,494,True,Sudan Humanitarian Fund
+NIC_Education_001,iota_2020,Nicaragua,Nicaragua,Education,197497.68,395,False,Afghanistan Humanitarian Fund
+NIC_Livelihoods_001,iota_2020,Nicaragua,Nicaragua,Livelihoods,172810.47,346,False,Afghanistan Humanitarian Fund
+NIC_Energy_001,iota_2020,Nicaragua,Nicaragua,Energy,49374.42,99,True,Democratic Republic of the Congo Humanitarian Fund
+CUB_Health_001,elsa_2021,Cuba,Cuba,Health,531372.2,1063,False,United Nations High Commissioner for Refugees
+CUB_FoodSecurity_001,elsa_2021,Cuba,Cuba,Food Security,531372.2,1063,False,United Nations High Commissioner for Refugees
+CUB_Shelter_001,elsa_2021,Cuba,Cuba,Shelter,478234.98,956,False,World Food Programme
+CUB_WASH_001,elsa_2021,Cuba,Cuba,WASH,398529.15,797,False,International Organization for Migration
+CUB_Protection_001,elsa_2021,Cuba,Cuba,Protection,265686.1,531,False,Qatar Charity
+CUB_Education_001,elsa_2021,Cuba,Cuba,Education,212548.88,425,False,World Food Programme
+CUB_Livelihoods_001,elsa_2021,Cuba,Cuba,Livelihoods,185980.27,372,False,United Nations High Commissioner for Refugees
+CUB_Energy_001,elsa_2021,Cuba,Cuba,Energy,53137.22,106,False,United Nations High Commissioner for Refugees
+USA_Health_001,elsa_2021,United States,United States,Health,85199.8,170,False,World Food Programme
+USA_FoodSecurity_001,elsa_2021,United States,United States,Food Security,85199.8,170,False,The Mentor Initiative
+USA_Shelter_001,elsa_2021,United States,United States,Shelter,76679.82,153,False,International Committee of the Red Cross
+USA_WASH_001,elsa_2021,United States,United States,WASH,63899.85,128,False,United Nations Humanitarian Air Service
+USA_Protection_001,elsa_2021,United States,United States,Protection,42599.9,85,False,United Nations Children's Fund
+USA_Education_001,elsa_2021,United States,United States,Education,34079.92,68,False,International Committee of the Red Cross
+USA_Livelihoods_001,elsa_2021,United States,United States,Livelihoods,29819.93,60,False,The Mentor Initiative
+USA_Energy_001,elsa_2021,United States,United States,Energy,8519.98,17,False,World Food Programme
+DOM_Health_001,grace_2021,Dominican Republic,Dominican Republic,Health,4255728.6,8511,False,United Nations High Commissioner for Refugees
+DOM_FoodSecurity_001,grace_2021,Dominican Republic,Dominican Republic,Food Security,4255728.6,8511,False,International Organization for Migration
+DOM_Shelter_001,grace_2021,Dominican Republic,Dominican Republic,Shelter,3830155.74,7660,False,Norwegian Refugee Council
+DOM_WASH_001,grace_2021,Dominican Republic,Dominican Republic,WASH,3191796.45,6384,False,United Nations Children's Fund
+DOM_Protection_001,grace_2021,Dominican Republic,Dominican Republic,Protection,2127864.3,4256,False,Food and Agriculture Organization of the United Nations
+DOM_Education_001,grace_2021,Dominican Republic,Dominican Republic,Education,1702291.44,3405,False,International Organization for Migration
+DOM_Livelihoods_001,grace_2021,Dominican Republic,Dominican Republic,Livelihoods,1489505.01,2979,False,Food and Agriculture Organization of the United Nations
+DOM_Energy_001,grace_2021,Dominican Republic,Dominican Republic,Energy,425572.86,851,False,Norwegian Refugee Council
+MEX_Health_001,grace_2021,Mexico,Mexico,Health,24807158.0,49614,False,International Labour Organization
+MEX_FoodSecurity_001,grace_2021,Mexico,Mexico,Food Security,24807158.0,49614,False,"Mauritania, Government of"
+MEX_Shelter_001,grace_2021,Mexico,Mexico,Shelter,22326442.2,44653,False,United Nations Children's Fund
+MEX_WASH_001,grace_2021,Mexico,Mexico,WASH,18605368.5,37211,False,International Labour Organization
+MEX_Protection_001,grace_2021,Mexico,Mexico,Protection,12403579.0,24807,False,International Labour Organization
+MEX_Education_001,grace_2021,Mexico,Mexico,Education,9922863.2,19846,False,United Nations Children's Fund
+MEX_Livelihoods_001,grace_2021,Mexico,Mexico,Livelihoods,8682505.3,17365,False,International Organization for Migration
+MEX_Energy_001,grace_2021,Mexico,Mexico,Energy,2480715.8,4961,False,International Organization for Migration
+USA_Health_001,henri_2021,United States,United States,Health,85199.8,170,False,United Nations Humanitarian Air Service
+USA_FoodSecurity_001,henri_2021,United States,United States,Food Security,85199.8,170,False,The Mentor Initiative
+USA_Shelter_001,henri_2021,United States,United States,Shelter,76679.82,153,False,International Committee of the Red Cross
+USA_WASH_001,henri_2021,United States,United States,WASH,63899.85,128,False,The Mentor Initiative
+USA_Protection_001,henri_2021,United States,United States,Protection,42599.9,85,False,United Nations Humanitarian Air Service
+USA_Education_001,henri_2021,United States,United States,Education,34079.92,68,False,International Committee of the Red Cross
+USA_Livelihoods_001,henri_2021,United States,United States,Livelihoods,29819.93,60,False,World Food Programme
+USA_Energy_001,henri_2021,United States,United States,Energy,8519.98,17,False,Agency for Technical Cooperation and Development
+CAN_WASH_001,larry_2021,Canada,Canada,WASH,6730859.0,13462,False,Office for the Coordination of Humanitarian Affairs
+CAN_Protection_001,larry_2021,Canada,Canada,Protection,18649743.0,37299,False,Danish Refugee Council
+CAN_Education_001,larry_2021,Canada,Canada,Education,6006732.0,12013,False,Danish Refugee Council
+CAN_Health_001,larry_2021,Canada,Canada,Health,18408088.0,36816,False,World Food Programme
+CAN_Health_002,larry_2021,Canada,Canada,Health,8632827.0,17266,False,Médecins du Monde
+CAN_Shelter_001,larry_2021,Canada,Canada,Shelter,3575513.0,7151,False,Danish Refugee Council
+CAN_FoodSecurity_001,larry_2021,Canada,Canada,Food Security,36756331.0,73513,False,United Nations Population Fund
+CAN_Livelihoods_001,larry_2021,Canada,Canada,Livelihoods,1596773.0,3194,False,Action Contre la Faim - Action Against Hunger International
+CAN_Energy_001,larry_2021,Canada,Canada,Energy,105988239.0,211976,False,Médecins du Monde
+MEX_Health_001,nicholas_2021,Mexico,Mexico,Health,24807158.0,49614,False,International Organization for Migration
+MEX_FoodSecurity_001,nicholas_2021,Mexico,Mexico,Food Security,24807158.0,49614,False,International Committee of the Red Cross
+MEX_Shelter_001,nicholas_2021,Mexico,Mexico,Shelter,22326442.2,44653,False,"Mauritania, Government of"
+MEX_WASH_001,nicholas_2021,Mexico,Mexico,WASH,18605368.5,37211,False,International Labour Organization
+MEX_Protection_001,nicholas_2021,Mexico,Mexico,Protection,12403579.0,24807,False,Oxfam
+MEX_Education_001,nicholas_2021,Mexico,Mexico,Education,9922863.2,19846,False,Oxfam
+MEX_Livelihoods_001,nicholas_2021,Mexico,Mexico,Livelihoods,8682505.3,17365,False,Oxfam
+MEX_Energy_001,nicholas_2021,Mexico,Mexico,Energy,2480715.8,4961,False,International Committee of the Red Cross
+USA_Health_001,nicholas_2021,United States,United States,Health,85199.8,170,False,World Food Programme
+USA_FoodSecurity_001,nicholas_2021,United States,United States,Food Security,85199.8,170,False,The Mentor Initiative
+USA_Shelter_001,nicholas_2021,United States,United States,Shelter,76679.82,153,False,United Nations Children's Fund
+USA_WASH_001,nicholas_2021,United States,United States,WASH,63899.85,128,False,United Nations Children's Fund
+USA_Protection_001,nicholas_2021,United States,United States,Protection,42599.9,85,False,United Nations Humanitarian Air Service
+USA_Education_001,nicholas_2021,United States,United States,Education,34079.92,68,False,Agency for Technical Cooperation and Development
+USA_Livelihoods_001,nicholas_2021,United States,United States,Livelihoods,29819.93,60,False,United Nations Humanitarian Air Service
+USA_Energy_001,nicholas_2021,United States,United States,Energy,8519.98,17,False,ACBAR - Agency Coordinating Body for Afghan Relief
+NIC_Health_001,bonnie_2022,Nicaragua,Nicaragua,Health,1005652.8,2011,False,Syrian Arab Republic Humanitarian Fund
+NIC_FoodSecurity_001,bonnie_2022,Nicaragua,Nicaragua,Food Security,1005652.8,2011,False,Ukraine Humanitarian Fund
+NIC_Shelter_001,bonnie_2022,Nicaragua,Nicaragua,Shelter,905087.52,1810,False,Yemen Humanitarian Fund
+NIC_WASH_001,bonnie_2022,Nicaragua,Nicaragua,WASH,754239.6,1508,False,Yemen Humanitarian Fund
+NIC_Protection_001,bonnie_2022,Nicaragua,Nicaragua,Protection,502826.4,1006,False,Ukraine Humanitarian Fund
+NIC_Education_001,bonnie_2022,Nicaragua,Nicaragua,Education,402261.12,805,False,Syrian Arab Republic Humanitarian Fund
+NIC_Livelihoods_001,bonnie_2022,Nicaragua,Nicaragua,Livelihoods,351978.48,704,False,Specially Designated Contributions (OCHA)
+NIC_Energy_001,bonnie_2022,Nicaragua,Nicaragua,Energy,100565.28,201,False,"Burkina Faso (West, Central Africa HF)"
+CAN_Shelter_001,earl_2022,Canada,Canada,Shelter,7584646.0,15169,False,Norwegian Refugee Council
+CAN_Livelihoods_001,earl_2022,Canada,Canada,Livelihoods,1869912.0,3740,False,United Nations Children's Fund
+CAN_Protection_001,earl_2022,Canada,Canada,Protection,13341654.0,26683,False,International Rescue Committee
+CAN_Education_001,earl_2022,Canada,Canada,Education,15011476.0,30023,False,Norwegian Refugee Council
+CAN_FoodSecurity_001,earl_2022,Canada,Canada,Food Security,63771266.0,127543,False,Norwegian Refugee Council
+CAN_Health_001,earl_2022,Canada,Canada,Health,19286598.0,38573,False,Médecins du Monde
+CAN_Health_002,earl_2022,Canada,Canada,Health,5352792.0,10706,False,Action Contre la Faim - Action Against Hunger International
+CAN_WASH_001,earl_2022,Canada,Canada,WASH,2177346.0,4355,False,Action Contre la Faim - Action Against Hunger International
+CAN_Energy_001,earl_2022,Canada,Canada,Energy,73415202.0,146830,False,Norwegian Refugee Council
+GTM_WASH_001,julia_2022,Guatemala,Guatemala,WASH,6365916.0,12732,False,ETH Foundation
+GTM_Health_001,julia_2022,Guatemala,Guatemala,Health,7508377.18,15017,False,International Committee of the Red Cross
+GTM_FoodSecurity_001,julia_2022,Guatemala,Guatemala,Food Security,7508377.18,15017,False,Norwegian Refugee Council
+GTM_Shelter_001,julia_2022,Guatemala,Guatemala,Shelter,6757539.46,13515,False,ETH Foundation
+GTM_Protection_001,julia_2022,Guatemala,Guatemala,Protection,3754188.59,7508,False,International NGOs (Confidential)
+GTM_Education_001,julia_2022,Guatemala,Guatemala,Education,3003350.87,6007,False,Global Communities
+GTM_Livelihoods_001,julia_2022,Guatemala,Guatemala,Livelihoods,2627932.01,5256,False,International Committee of the Red Cross
+GTM_Energy_001,julia_2022,Guatemala,Guatemala,Energy,750837.72,1502,False,Acción Contra el Hambre - Spain
+NIC_Health_001,julia_2022,Nicaragua,Nicaragua,Health,1005652.8,2011,False,Yemen Humanitarian Fund
+NIC_FoodSecurity_001,julia_2022,Nicaragua,Nicaragua,Food Security,1005652.8,2011,False,Yemen Humanitarian Fund
+NIC_Shelter_001,julia_2022,Nicaragua,Nicaragua,Shelter,905087.52,1810,False,Syria Cross-border Humanitarian Fund
+NIC_WASH_001,julia_2022,Nicaragua,Nicaragua,WASH,754239.6,1508,False,Syria Cross-border Humanitarian Fund
+NIC_Protection_001,julia_2022,Nicaragua,Nicaragua,Protection,502826.4,1006,False,Syria Cross-border Humanitarian Fund
+NIC_Education_001,julia_2022,Nicaragua,Nicaragua,Education,402261.12,805,False,Office for the Coordination of Humanitarian Affairs
+NIC_Livelihoods_001,julia_2022,Nicaragua,Nicaragua,Livelihoods,351978.48,704,False,Office for the Coordination of Humanitarian Affairs
+NIC_Energy_001,julia_2022,Nicaragua,Nicaragua,Energy,100565.28,201,False,Yemen Humanitarian Fund
+GTM_WASH_001,lisa_2022,Guatemala,Guatemala,WASH,6365916.0,12732,False,Save the Children
+GTM_Health_001,lisa_2022,Guatemala,Guatemala,Health,7508377.18,15017,False,UN Economic Commission for Latin America
+GTM_FoodSecurity_001,lisa_2022,Guatemala,Guatemala,Food Security,7508377.18,15017,False,Norwegian Refugee Council
+GTM_Shelter_001,lisa_2022,Guatemala,Guatemala,Shelter,6757539.46,13515,False,International NGOs (Confidential)
+GTM_Protection_001,lisa_2022,Guatemala,Guatemala,Protection,3754188.59,7508,False,Acción Contra el Hambre - Spain
+GTM_Education_001,lisa_2022,Guatemala,Guatemala,Education,3003350.87,6007,False,World Vision International
+GTM_Livelihoods_001,lisa_2022,Guatemala,Guatemala,Livelihoods,2627932.01,5256,False,Save the Children
+GTM_Energy_001,lisa_2022,Guatemala,Guatemala,Energy,750837.72,1502,False,Catholic Relief Services
+MEX_Health_001,lisa_2022,Mexico,Mexico,Health,14365221.4,28730,True,International Labour Organization
+MEX_FoodSecurity_001,lisa_2022,Mexico,Mexico,Food Security,14365221.4,28730,False,French Red Cross
+MEX_Shelter_001,lisa_2022,Mexico,Mexico,Shelter,12928699.26,25857,False,United Nations High Commissioner for Refugees
+MEX_WASH_001,lisa_2022,Mexico,Mexico,WASH,10773916.05,21548,False,International Labour Organization
+MEX_Protection_001,lisa_2022,Mexico,Mexico,Protection,7182610.7,14365,False,"Mauritania, Government of"
+MEX_Education_001,lisa_2022,Mexico,Mexico,Education,5746088.56,11492,False,International Labour Organization
+MEX_Livelihoods_001,lisa_2022,Mexico,Mexico,Livelihoods,5027827.49,10056,False,"Mauritania, Government of"
+MEX_Energy_001,lisa_2022,Mexico,Mexico,Energy,1436522.14,2873,False,"Mauritania, Government of"
+BHS_Health_001,nicole_2022,Bahamas,Bahamas,Health,1839903.0,3680,False,United Nations Development Programme
+BHS_FoodSecurity_001,nicole_2022,Bahamas,Bahamas,Food Security,1839903.0,3680,False,Central Emergency Response Fund
+BHS_Shelter_001,nicole_2022,Bahamas,Bahamas,Shelter,1655912.7,3312,False,United Nations Development Programme
+BHS_WASH_001,nicole_2022,Bahamas,Bahamas,WASH,1379927.25,2760,False,Yemen Humanitarian Fund
+BHS_Protection_001,nicole_2022,Bahamas,Bahamas,Protection,919951.5,1840,False,United Nations High Commissioner for Refugees
+BHS_Education_001,nicole_2022,Bahamas,Bahamas,Education,735961.2,1472,True,United Nations Development Programme
+BHS_Livelihoods_001,nicole_2022,Bahamas,Bahamas,Livelihoods,643966.05,1288,False,International Committee of the Red Cross
+BHS_Energy_001,nicole_2022,Bahamas,Bahamas,Energy,183990.3,368,True,United Nations Development Programme
+USA_Health_001,nicole_2022,United States,United States,Health,9609.8,19,False,United Nations Children's Fund
+USA_FoodSecurity_001,nicole_2022,United States,United States,Food Security,9609.8,19,False,United Nations Population Fund
+USA_Shelter_001,nicole_2022,United States,United States,Shelter,8648.82,17,False,Agency for Technical Cooperation and Development
+USA_WASH_001,nicole_2022,United States,United States,WASH,7207.35,14,False,International Committee of the Red Cross
+USA_Protection_001,nicole_2022,United States,United States,Protection,4804.9,10,False,International Committee of the Red Cross
+USA_Education_001,nicole_2022,United States,United States,Education,3843.92,8,False,Afghanistan Humanitarian Fund
+USA_Livelihoods_001,nicole_2022,United States,United States,Livelihoods,3363.43,7,False,World Food Programme
+DOM_Health_001,franklin_2023,Dominican Republic,Dominican Republic,Health,12729928.4,25460,False,Swiss Development Cooperation/Swiss Humanitarian Aid
+DOM_FoodSecurity_001,franklin_2023,Dominican Republic,Dominican Republic,Food Security,12729928.4,25460,False,International Organization for Migration
+DOM_Shelter_001,franklin_2023,Dominican Republic,Dominican Republic,Shelter,11456935.56,22914,False,United Nations High Commissioner for Refugees
+DOM_WASH_001,franklin_2023,Dominican Republic,Dominican Republic,WASH,9547446.3,19095,False,Danish Refugee Council
+DOM_Protection_001,franklin_2023,Dominican Republic,Dominican Republic,Protection,6364964.2,12730,False,Danish Refugee Council
+DOM_Education_001,franklin_2023,Dominican Republic,Dominican Republic,Education,5091971.36,10184,False,United Nations Children's Fund
+DOM_Livelihoods_001,franklin_2023,Dominican Republic,Dominican Republic,Livelihoods,4455474.94,8911,False,King Salman Humanitarian Aid and Relief Center
+DOM_Energy_001,franklin_2023,Dominican Republic,Dominican Republic,Energy,1272992.84,2546,False,Danish Refugee Council
+MEX_Health_001,idalia_2023,Mexico,Mexico,Health,9695193.6,19390,False,World Food Programme
+MEX_FoodSecurity_001,idalia_2023,Mexico,Mexico,Food Security,9695193.6,19390,False,Action Contre la Faim - Action Against Hunger International
+MEX_Shelter_001,idalia_2023,Mexico,Mexico,Shelter,8725674.24,17451,False,United Nations Children's Fund
+MEX_WASH_001,idalia_2023,Mexico,Mexico,WASH,7271395.2,14543,False,United Nations Children's Fund
+MEX_Protection_001,idalia_2023,Mexico,Mexico,Protection,4847596.8,9695,False,International Committee of the Red Cross
+MEX_Education_001,idalia_2023,Mexico,Mexico,Education,3878077.44,7756,False,World Food Programme
+MEX_Livelihoods_001,idalia_2023,Mexico,Mexico,Livelihoods,3393317.76,6787,False,International Committee of the Red Cross
+MEX_Energy_001,idalia_2023,Mexico,Mexico,Energy,969519.36,1939,False,United Nations Children's Fund
+CAN_FoodSecurity_001,lee_2023,Canada,Canada,Food Security,25591901.0,51184,False,Christian Blind Mission
+CAN_Protection_001,lee_2023,Canada,Canada,Protection,17143061.0,34286,False,Médecins du Monde
+CAN_WASH_001,lee_2023,Canada,Canada,WASH,7075201.0,14150,False,United Nations High Commissioner for Refugees
+CAN_Health_001,lee_2023,Canada,Canada,Health,16190445.0,32381,False,United Nations Population Fund
+CAN_Education_001,lee_2023,Canada,Canada,Education,2902050.0,5804,False,World Food Programme
+CAN_Health_002,lee_2023,Canada,Canada,Health,8701647.0,17403,False,World Food Programme
+CAN_Shelter_001,lee_2023,Canada,Canada,Shelter,8354784.0,16710,False,United Nations Children's Fund
+CAN_Livelihoods_001,lee_2023,Canada,Canada,Livelihoods,20932945.44,41866,False,Danish Refugee Council
+CAN_Energy_001,lee_2023,Canada,Canada,Energy,5980841.56,11962,False,Danish Refugee Council
+USA_Health_001,debby_2024,United States,United States,Health,503181.2,1006,False,Central Emergency Response Fund
+USA_FoodSecurity_001,debby_2024,United States,United States,Food Security,503181.2,1006,False,Office for the Coordination of Humanitarian Affairs
+USA_Shelter_001,debby_2024,United States,United States,Shelter,452863.08,906,False,Sudan Humanitarian Fund
+USA_WASH_001,debby_2024,United States,United States,WASH,377385.9,755,True,United Nations Children's Fund
+USA_Protection_001,debby_2024,United States,United States,Protection,251590.6,503,False,Afghanistan Humanitarian Fund
+USA_Education_001,debby_2024,United States,United States,Education,201272.48,403,False,Nigeria Humanitarian Fund
+USA_Livelihoods_001,debby_2024,United States,United States,Livelihoods,176113.42,352,True,Central Emergency Response Fund
+USA_Energy_001,debby_2024,United States,United States,Energy,50318.12,101,False,Afghanistan Humanitarian Fund
+BMU_Health_001,ernesto_2024,Bermuda,Bermuda,Health,839983.0,1680,False,Acción Contra el Hambre - Spain
+BMU_FoodSecurity_001,ernesto_2024,Bermuda,Bermuda,Food Security,839983.0,1680,False,World Vision USA
+BMU_Shelter_001,ernesto_2024,Bermuda,Bermuda,Shelter,755984.7,1512,False,United Nations High Commissioner for Refugees
+BMU_WASH_001,ernesto_2024,Bermuda,Bermuda,WASH,629987.25,1260,False,Centre for the Coordination of Natural Disaster Prevention in Central America
+BMU_Protection_001,ernesto_2024,Bermuda,Bermuda,Protection,419991.5,840,False,International Organization for Migration
+BMU_Education_001,ernesto_2024,Bermuda,Bermuda,Education,335993.2,672,False,Centre for the Coordination of Natural Disaster Prevention in Central America
+BMU_Livelihoods_001,ernesto_2024,Bermuda,Bermuda,Livelihoods,293994.05,588,False,Acción Contra el Hambre - Spain
+BMU_Energy_001,ernesto_2024,Bermuda,Bermuda,Energy,83998.3,168,False,Norwegian Red Cross
+MEX_Health_001,francine_2024,Mexico,Mexico,Health,10643450.6,21287,False,World Food Programme
+MEX_FoodSecurity_001,francine_2024,Mexico,Mexico,Food Security,10643450.6,21287,False,Acción Contra el Hambre - Spain
+MEX_Shelter_001,francine_2024,Mexico,Mexico,Shelter,9579105.54,19158,False,Alliance for International Medical Action
+MEX_WASH_001,francine_2024,Mexico,Mexico,WASH,7982587.95,15965,False,International Labour Organization
+MEX_Protection_001,francine_2024,Mexico,Mexico,Protection,5321725.3,10643,False,Acción Contra el Hambre - Spain
+MEX_Education_001,francine_2024,Mexico,Mexico,Education,4257380.24,8515,False,Acción Contra el Hambre - Spain
+MEX_Livelihoods_001,francine_2024,Mexico,Mexico,Livelihoods,3725207.71,7450,False,World Food Programme
+MEX_Energy_001,francine_2024,Mexico,Mexico,Energy,1064345.06,2129,False,Save the Children
+USA_Health_001,francine_2024,United States,United States,Health,503181.2,1006,True,Afghanistan Humanitarian Fund
+USA_FoodSecurity_001,francine_2024,United States,United States,Food Security,503181.2,1006,False,World Food Programme
+USA_Shelter_001,francine_2024,United States,United States,Shelter,452863.08,906,True,Central Emergency Response Fund
+USA_WASH_001,francine_2024,United States,United States,WASH,377385.9,755,True,Ukraine Humanitarian Fund
+USA_Protection_001,francine_2024,United States,United States,Protection,251590.6,503,False,World Food Programme
+USA_Education_001,francine_2024,United States,United States,Education,201272.48,403,False,United Nations Children's Fund
+USA_Livelihoods_001,francine_2024,United States,United States,Livelihoods,176113.42,352,True,Office for the Coordination of Humanitarian Affairs
+USA_Energy_001,francine_2024,United States,United States,Energy,50318.12,101,False,United Nations Children's Fund
+BHS_Health_001,oscar_2024,Bahamas,Bahamas,Health,291448.8,583,True,Central Emergency Response Fund
+BHS_FoodSecurity_001,oscar_2024,Bahamas,Bahamas,Food Security,291448.8,583,True,Disabled Women Society of Azerbaijan
+BHS_Shelter_001,oscar_2024,Bahamas,Bahamas,Shelter,262303.92,525,False,Central Emergency Response Fund
+BHS_WASH_001,oscar_2024,Bahamas,Bahamas,WASH,218586.6,437,False,United Nations High Commissioner for Refugees
+BHS_Protection_001,oscar_2024,Bahamas,Bahamas,Protection,145724.4,291,False,Central Emergency Response Fund
+BHS_Education_001,oscar_2024,Bahamas,Bahamas,Education,116579.52,233,False,Disabled Women Society of Azerbaijan
+BHS_Livelihoods_001,oscar_2024,Bahamas,Bahamas,Livelihoods,102007.08,204,False,Central Emergency Response Fund
+BHS_Energy_001,oscar_2024,Bahamas,Bahamas,Energy,29144.88,58,False,King Salman Humanitarian Aid and Relief Center
+CUB_Health_001,oscar_2024,Cuba,Cuba,Health,3616423.4,7233,False,Food and Agriculture Organization of the United Nations
+CUB_FoodSecurity_001,oscar_2024,Cuba,Cuba,Food Security,3616423.4,7233,False,Action Contre la Faim - Action Against Hunger International
+CUB_Shelter_001,oscar_2024,Cuba,Cuba,Shelter,3254781.06,6510,False,National NGOs (Confidential)
+CUB_WASH_001,oscar_2024,Cuba,Cuba,WASH,2712317.55,5425,False,International NGOs (Confidential)
+CUB_Protection_001,oscar_2024,Cuba,Cuba,Protection,1808211.7,3616,False,International NGOs (Confidential)
+CUB_Education_001,oscar_2024,Cuba,Cuba,Education,1446569.36,2893,False,World Health Organization
+CUB_Livelihoods_001,oscar_2024,Cuba,Cuba,Livelihoods,1265748.19,2531,False,United Nations High Commissioner for Refugees
+CUB_Energy_001,oscar_2024,Cuba,Cuba,Energy,361642.34,723,False,Action Contre la Faim - Action Against Hunger International
+CUB_Health_001,rafael_2024,Cuba,Cuba,Health,3616423.4,7233,False,National NGOs (Confidential)
+CUB_FoodSecurity_001,rafael_2024,Cuba,Cuba,Food Security,3616423.4,7233,False,World Health Organization
+CUB_Shelter_001,rafael_2024,Cuba,Cuba,Shelter,3254781.06,6510,False,United Nations High Commissioner for Refugees
+CUB_WASH_001,rafael_2024,Cuba,Cuba,WASH,2712317.55,5425,False,Food and Agriculture Organization of the United Nations
+CUB_Protection_001,rafael_2024,Cuba,Cuba,Protection,1808211.7,3616,False,National NGOs (Confidential)
+CUB_Education_001,rafael_2024,Cuba,Cuba,Education,1446569.36,2893,False,Action Contre la Faim - Action Against Hunger International
+CUB_Livelihoods_001,rafael_2024,Cuba,Cuba,Livelihoods,1265748.19,2531,False,United Nations High Commissioner for Refugees
+CUB_Energy_001,rafael_2024,Cuba,Cuba,Energy,361642.34,723,False,Action Contre la Faim - Action Against Hunger International
+USA_Health_001,dexter_2025,United States,United States,Health,43475.6,87,True,Oxford University
+USA_FoodSecurity_001,dexter_2025,United States,United States,Food Security,43475.6,87,False,Danish Refugee Council
+USA_Shelter_001,dexter_2025,United States,United States,Shelter,39128.04,78,False,British Red Cross
+USA_WASH_001,dexter_2025,United States,United States,WASH,32606.7,65,True,International Committee of the Red Cross
+USA_Protection_001,dexter_2025,United States,United States,Protection,21737.8,43,False,Danish Refugee Council
+USA_Education_001,dexter_2025,United States,United States,Education,17390.24,35,False,British Red Cross
+USA_Livelihoods_001,dexter_2025,United States,United States,Livelihoods,15216.46,30,False,International Committee of the Red Cross
+USA_Energy_001,dexter_2025,United States,United States,Energy,4347.56,9,False,Occupied Palestinian Territory Humanitarian Fund
+BHS_Health_001,imelda_2025,Bahamas,Bahamas,Health,10347.2,21,True,"Azerbaijan, Government of"
+BHS_FoodSecurity_001,imelda_2025,Bahamas,Bahamas,Food Security,10347.2,21,False,"Azerbaijan, Government of"
+BHS_Shelter_001,imelda_2025,Bahamas,Bahamas,Shelter,9312.48,19,False,"Azerbaijan, Government of"
+BHS_WASH_001,imelda_2025,Bahamas,Bahamas,WASH,7760.4,16,True,"Azerbaijan, Government of"
+BHS_Protection_001,imelda_2025,Bahamas,Bahamas,Protection,5173.6,10,False,Central Emergency Response Fund
+BHS_Education_001,imelda_2025,Bahamas,Bahamas,Education,4138.88,8,True,Central Emergency Response Fund
+BHS_Livelihoods_001,imelda_2025,Bahamas,Bahamas,Livelihoods,3621.52,7,True,"Azerbaijan, Government of"
+BHS_Energy_001,imelda_2025,Bahamas,Bahamas,Energy,1034.72,2,False,"Azerbaijan, Government of"
+USA_Health_001,imelda_2025,United States,United States,Health,43475.6,87,True,Access to Health Fund
+USA_FoodSecurity_001,imelda_2025,United States,United States,Food Security,43475.6,87,False,Oxford University
+USA_Shelter_001,imelda_2025,United States,United States,Shelter,39128.04,78,True,International Committee of the Red Cross
+USA_WASH_001,imelda_2025,United States,United States,WASH,32606.7,65,True,Mercy Corps
+USA_Protection_001,imelda_2025,United States,United States,Protection,21737.8,43,True,World Food Programme
+USA_Education_001,imelda_2025,United States,United States,Education,17390.24,35,False,Food and Agriculture Organization of the United Nations
+USA_Livelihoods_001,imelda_2025,United States,United States,Livelihoods,15216.46,30,False,World Food Programme
+USA_Energy_001,imelda_2025,United States,United States,Energy,4347.56,9,False,Sudan Humanitarian Fund
