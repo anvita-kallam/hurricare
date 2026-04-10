@@ -92,31 +92,44 @@ def get_hurricanes():
 @app.get("/hurricanes/match")
 def find_matching_hurricane(region: str, category: int, direction: Optional[str] = None):
     """Find the hurricane that most closely matches the given region, category, and optional direction."""
-    global db, sim_engine
-    with db_lock:
-        try:
-            result = db.execute("SELECT * FROM hurricanes")
-            results = result.fetchall()
-            result.close()
-        except Exception as e:
-            print(f"Database error in find_matching_hurricane: {e}, reinitializing...")
-            db = initialize_database()
-            sim_engine = SimulationEngine(db)
-            result = db.execute("SELECT * FROM hurricanes")
-            results = result.fetchall()
-            result.close()
-    
-    hurricanes = []
-    for row in results:
-        hurricanes.append({
-            "id": row[0],
-            "name": row[1],
-            "year": row[2],
-            "max_category": row[3],
-            "track": json.loads(row[4]),
-            "affected_countries": json.loads(row[5]),
-            "estimated_population_affected": row[6]
-        })
+    from vector_search_client import search_similar_hurricanes
+
+    # Build semantic query and try Vector Search first
+    query_text = f"Category {category} hurricane affecting {region}"
+    if direction:
+        query_text += f" moving {direction}"
+
+    vs_results = search_similar_hurricanes(query_text, num_results=10)
+
+    if vs_results:
+        hurricanes = vs_results
+    else:
+        # Fallback: load all hurricanes from DB
+        global db, sim_engine
+        with db_lock:
+            try:
+                result = db.execute("SELECT * FROM hurricanes")
+                results = result.fetchall()
+                result.close()
+            except Exception as e:
+                print(f"Database error in find_matching_hurricane: {e}, reinitializing...")
+                db = initialize_database()
+                sim_engine = SimulationEngine(db)
+                result = db.execute("SELECT * FROM hurricanes")
+                results = result.fetchall()
+                result.close()
+
+        hurricanes = []
+        for row in results:
+            hurricanes.append({
+                "id": row[0],
+                "name": row[1],
+                "year": row[2],
+                "max_category": row[3],
+                "track": json.loads(row[4]),
+                "affected_countries": json.loads(row[5]),
+                "estimated_population_affected": row[6]
+            })
     
     # Normalize region input (case-insensitive, partial matching)
     region_lower = region.lower().strip()
@@ -545,6 +558,14 @@ Write in a professional, diplomatic tone suitable for UN briefings. Focus on lea
         return {"error": "google-generativeai package not installed. Run: pip install google-generativeai"}
     except Exception as e:
         return {"error": f"Error generating insights: {str(e)}"}
+
+
+@app.get("/search/test")
+def test_vector_search(query: str, num_results: int = 5):
+    """Test vector search directly."""
+    from vector_search_client import search_similar_hurricanes
+    results = search_similar_hurricanes(query, num_results)
+    return {"query": query, "num_results": len(results), "results": results}
 
 
 def _plan_to_dict(plan) -> dict:
