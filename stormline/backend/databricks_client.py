@@ -98,22 +98,49 @@ class DatabricksConnection:
                 else:
                     sql = sql.replace("?", str(param), 1)
         
-        # Add catalog and schema if not specified
-        if "FROM " in sql.upper() and self.schema.upper() not in sql.upper():
-            # Simple heuristic: add schema to bare table names
-            sql = sql.replace(
-                f" FROM ", 
-                f" FROM {self.catalog}.{self.schema}.",
-                1
+        # Add catalog.schema prefix to bare table names in FROM and JOIN clauses
+        if self.schema.upper() not in sql.upper():
+            import re
+            prefix = f"{self.catalog}.{self.schema}."
+            # Match FROM/JOIN followed by a bare table name (not already qualified with a dot)
+            sql = re.sub(
+                r'(?i)((?:FROM|JOIN)\s+)([a-zA-Z_]\w*)(?!\s*\.)',
+                lambda m: m.group(1) + prefix + m.group(2),
+                sql
             )
         
         # Execute query
         statement_response = self._execute_query(sql)
         
-        # Parse results
-        columns = [col["name"] for col in statement_response.get("manifest", {}).get("columns", [])]
-        rows = statement_response.get("result", {}).get("data_array", [])
-        
+        # Parse results with auto type coercion (Databricks returns everything as strings)
+        col_meta = statement_response.get("manifest", {}).get("columns", [])
+        columns = [col["name"] for col in col_meta]
+        raw_rows = statement_response.get("result", {}).get("data_array", [])
+
+        rows = []
+        for raw_row in raw_rows:
+            row = []
+            for val in raw_row:
+                if val is None:
+                    row.append(None)
+                elif isinstance(val, str):
+                    # Try to coerce string values to native Python types
+                    low = val.lower()
+                    if low in ("true", "false"):
+                        row.append(low == "true")
+                    else:
+                        try:
+                            # Try int first (covers "123")
+                            if "." not in val and "E" not in val and "e" not in val:
+                                row.append(int(val))
+                            else:
+                                row.append(float(val))
+                        except ValueError:
+                            row.append(val)
+                else:
+                    row.append(val)
+            rows.append(row)
+
         return DatabricksQueryResult(columns, rows)
     
     def _execute_query(self, sql: str) -> Dict:
