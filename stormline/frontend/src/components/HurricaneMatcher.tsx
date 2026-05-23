@@ -28,12 +28,15 @@ export default function HurricaneMatcher({ onMatchFound, onSkip }: HurricaneMatc
     playButtonPress()
     setIsSearching(true)
     try {
-      const params: any = {
+      const params: Record<string, string | number> = {
         region: region.trim(),
-        category: category
+        category: category,
       }
       if (direction) {
         params.direction = direction
+      }
+      if (extraDetails.trim()) {
+        params.extra_details = extraDetails.trim()
       }
 
       const response = await axios.get(`${API_BASE}/hurricanes/match`, { params })
@@ -87,8 +90,8 @@ export default function HurricaneMatcher({ onMatchFound, onSkip }: HurricaneMatc
             Find Matching Hurricane
           </h2>
           <div className="mt-2 mx-auto" style={{ width: '60px', height: '1px', background: 'rgba(255,255,255,0.12)' }} />
-          <p className="font-rajdhani text-sm mt-3 tracking-wide" style={{ color: 'rgba(255,255,255,0.55)' }}>
-            Enter a region and category to find the most similar historical hurricane
+            <p className="font-rajdhani text-sm mt-3 tracking-wide" style={{ color: 'rgba(255,255,255,0.55)' }}>
+            Enter a region and category — we use Databricks Vector Search when configured to find semantically similar historical hurricanes
           </p>
         </div>
 
@@ -188,7 +191,7 @@ export default function HurricaneMatcher({ onMatchFound, onSkip }: HurricaneMatc
               onBlur={(e) => { e.currentTarget.style.borderColor = 'rgba(255,255,255,0.1)' }}
             />
             <p className="font-rajdhani text-xs mt-1 tracking-wide" style={{ color: 'rgba(255,255,255,0.35)' }}>
-              This field does not affect matching — it's for your notes only
+              Describe the scenario in natural language — included in semantic vector search
             </p>
           </div>
 
@@ -278,6 +281,11 @@ export default function HurricaneMatcher({ onMatchFound, onSkip }: HurricaneMatc
                   </div>
                   <div className="text-xs mt-2" style={{ color: 'rgba(255,255,255,0.35)' }}>
                     Match Score: {Math.round(matchResult.score)}
+                    {matchResult.search_method === 'databricks_vector_search' && (
+                      <span className="ml-2" style={{ color: 'rgba(100,160,230,0.7)' }}>
+                        · Vector Search
+                      </span>
+                    )}
                   </div>
                   {extraDetails && (
                     <div className="mt-3 pt-3" style={{ borderTop: '1px solid rgba(255,255,255,0.06)' }}>
