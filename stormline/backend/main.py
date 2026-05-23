@@ -31,13 +31,32 @@ from schemas import (
 from data_loader import initialize_database
 from analysis import get_coverage, get_flagged_projects, simulate_allocation
 from simulation_engine import SimulationEngine
+from hurricane_search import (
+    build_user_search_query,
+    is_vector_search_configured,
+    search_hurricanes_by_user_query,
+)
+
+try:
+    from dotenv import load_dotenv
+    from pathlib import Path as _Path
+    _env_path = _Path(__file__).resolve().parent / ".env"
+    if _env_path.exists():
+        load_dotenv(_env_path)
+except ImportError:
+    pass
 
 app = FastAPI(title="HurriCare API", version="1.0.0")
 
-# CORS middleware
+# CORS middleware — include both localhost and 127.0.0.1 (browsers treat them as different origins)
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["http://localhost:5173", "http://localhost:3000"],
+    allow_origins=[
+        "http://localhost:5173",
+        "http://127.0.0.1:5173",
+        "http://localhost:3000",
+        "http://127.0.0.1:3000",
+    ],
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
@@ -89,9 +108,8 @@ def get_hurricanes():
     return hurricanes
 
 
-@app.get("/hurricanes/match")
-def find_matching_hurricane(region: str, category: int, direction: Optional[str] = None):
-    """Find the hurricane that most closely matches the given region, category, and optional direction."""
+def _load_all_hurricanes() -> List[dict]:
+    """Load hurricane records from the database."""
     global db, sim_engine
     with db_lock:
         try:
@@ -99,13 +117,13 @@ def find_matching_hurricane(region: str, category: int, direction: Optional[str]
             results = result.fetchall()
             result.close()
         except Exception as e:
-            print(f"Database error in find_matching_hurricane: {e}, reinitializing...")
+            print(f"Database error loading hurricanes: {e}, reinitializing...")
             db = initialize_database()
             sim_engine = SimulationEngine(db)
             result = db.execute("SELECT * FROM hurricanes")
             results = result.fetchall()
             result.close()
-    
+
     hurricanes = []
     for row in results:
         hurricanes.append({
@@ -115,18 +133,23 @@ def find_matching_hurricane(region: str, category: int, direction: Optional[str]
             "max_category": row[3],
             "track": json.loads(row[4]),
             "affected_countries": json.loads(row[5]),
-            "estimated_population_affected": row[6]
+            "estimated_population_affected": row[6],
         })
-    
-    # Normalize region input (case-insensitive, partial matching)
+    return hurricanes
+
+
+def _score_hurricanes_by_rules(
+    hurricanes: List[dict],
+    region: str,
+    category: int,
+    direction: Optional[str] = None,
+) -> List[dict]:
+    """Rule-based hurricane scoring (fallback when Vector Search is unavailable)."""
     region_lower = region.lower().strip()
-    
-    # Score each hurricane
     scored_hurricanes = []
+
     for h in hurricanes:
         score = 0
-        
-        # Category match (exact match = 100 points, within 1 = 50 points, within 2 = 25 points)
         category_diff = abs(h["max_category"] - category)
         if category_diff == 0:
             score += 100
@@ -134,30 +157,28 @@ def find_matching_hurricane(region: str, category: int, direction: Optional[str]
             score += 50
         elif category_diff == 2:
             score += 25
-        
-        # Region match (check if region appears in affected countries)
-        # Exact match = 100 points, partial match = 50 points
+
         countries_lower = [c.lower() for c in h["affected_countries"]]
         region_found = False
-        
-        # Check for exact country name match
+
         for country in countries_lower:
             if region_lower == country:
                 score += 100
                 region_found = True
                 break
-            # Check for partial match (region name contains country or vice versa)
             if region_lower in country or country in region_lower:
                 score += 50
                 region_found = True
                 break
-        
-        # Also check common region aliases
+
         region_aliases = {
             "us": ["united states", "usa"],
             "usa": ["united states", "us"],
             "united states": ["us", "usa"],
-            "caribbean": ["jamaica", "bahamas", "cuba", "haiti", "dominican republic", "puerto rico", "barbados", "grenada"],
+            "caribbean": [
+                "jamaica", "bahamas", "cuba", "haiti", "dominican republic",
+                "puerto rico", "barbados", "grenada",
+            ],
             "gulf coast": ["united states", "mexico"],
             "east coast": ["united states"],
             "southeast": ["united states"],
@@ -166,7 +187,7 @@ def find_matching_hurricane(region: str, category: int, direction: Optional[str]
             "japan": ["japan"],
             "india": ["india", "bangladesh", "sri lanka"],
         }
-        
+
         if not region_found:
             for alias, countries in region_aliases.items():
                 if region_lower == alias.lower():
@@ -177,85 +198,139 @@ def find_matching_hurricane(region: str, category: int, direction: Optional[str]
                             break
                     if region_found:
                         break
-        
-        # Direction match (if provided)
+
         direction_match = False
         if direction:
             direction_lower = direction.lower().strip()
             track = h.get("track", [])
             if len(track) >= 2:
-                # Calculate overall direction from first to last significant point
-                # Use first 20% and last 20% of track to determine general direction
                 start_idx = max(0, len(track) // 5)
                 end_idx = min(len(track) - 1, len(track) - len(track) // 5)
-                
+
                 if end_idx > start_idx:
                     start_point = track[start_idx]
                     end_point = track[end_idx]
-                    
-                    # Calculate lat/lon differences
                     lat_diff = end_point["lat"] - start_point["lat"]
                     lon_diff = end_point["lon"] - start_point["lon"]
-                    
-                    # Determine primary direction
-                    # North = positive lat, South = negative lat
-                    # East = positive lon (in Western Hemisphere, negative lon means west)
-                    # For Western Hemisphere: East = less negative/more positive lon, West = more negative lon
                     abs_lat = abs(lat_diff)
                     abs_lon = abs(lon_diff)
-                    
+
                     hurricane_direction = None
                     if abs_lat > abs_lon:
-                        # Primarily north-south movement
-                        if lat_diff > 0:
-                            hurricane_direction = "north"
-                        else:
-                            hurricane_direction = "south"
+                        hurricane_direction = "north" if lat_diff > 0 else "south"
                     else:
-                        # Primarily east-west movement
-                        # In Western Hemisphere, lon is negative, so more negative = west, less negative = east
-                        if lon_diff > 0:
-                            hurricane_direction = "east"
-                        else:
-                            hurricane_direction = "west"
-                    
-                    # Match direction
+                        hurricane_direction = "east" if lon_diff > 0 else "west"
+
                     if hurricane_direction and direction_lower == hurricane_direction:
                         score += 50
                         direction_match = True
-                    # Also check for opposite direction (some hurricanes curve)
                     elif hurricane_direction:
-                        opposite_map = {"north": "south", "south": "north", "east": "west", "west": "east"}
+                        opposite_map = {
+                            "north": "south", "south": "north",
+                            "east": "west", "west": "east",
+                        }
                         if direction_lower == opposite_map.get(hurricane_direction):
-                            score += 25  # Partial match for opposite direction
-        
-        # Prefer more recent hurricanes (add small bonus for recent years)
-        year_bonus = max(0, (h["year"] - 2000) * 0.5)
-        score += year_bonus
-        
+                            score += 25
+
+        score += max(0, (h["year"] - 2000) * 0.5)
+
         scored_hurricanes.append({
             "hurricane": h,
             "score": score,
             "category_match": category_diff == 0,
             "region_match": region_found,
-            "direction_match": direction_match
+            "direction_match": direction_match,
         })
-    
-    # Sort by score (highest first)
+
     scored_hurricanes.sort(key=lambda x: x["score"], reverse=True)
-    
-    if not scored_hurricanes:
+    return scored_hurricanes
+
+
+def _match_response_from_scored(
+    scored: List[dict],
+    *,
+    search_method: str,
+    query_used: Optional[str] = None,
+) -> dict:
+    if not scored:
         return {"error": "No hurricanes found"}
-    
-    best_match = scored_hurricanes[0]
-    
-    return {
-        "match": best_match["hurricane"],
-        "score": best_match["score"],
-        "category_match": best_match["category_match"],
-        "region_match": best_match["region_match"],
-        "alternatives": [s["hurricane"] for s in scored_hurricanes[1:4]]  # Top 3 alternatives
+    best = scored[0]
+    payload = {
+        "match": best["hurricane"],
+        "score": best["score"],
+        "category_match": best["category_match"],
+        "region_match": best["region_match"],
+        "direction_match": best.get("direction_match", False),
+        "alternatives": [s["hurricane"] for s in scored[1:4]],
+        "search_method": search_method,
     }
+    if query_used:
+        payload["query_used"] = query_used
+    return payload
+
+
+@app.get("/hurricanes/match")
+def find_matching_hurricane(
+    region: str,
+    category: int,
+    direction: Optional[str] = None,
+    query: Optional[str] = None,
+    extra_details: Optional[str] = None,
+):
+    """
+    Find the hurricane most similar to user input.
+
+    Uses Databricks Vector Search when configured; otherwise rule-based scoring.
+    """
+    hurricanes = _load_all_hurricanes()
+    if not hurricanes:
+        return {"error": "No hurricanes found"}
+
+    by_id = {h["id"]: h for h in hurricanes}
+    free_text = (query or extra_details or "").strip()
+    search_text = build_user_search_query(region, category, direction, free_text or None)
+
+    # --- Databricks Vector Search (semantic match from user input) ---
+    if is_vector_search_configured():
+        try:
+            vector_hits = search_hurricanes_by_user_query(search_text, num_results=10)
+            if vector_hits:
+                rule_scores = {
+                    s["hurricane"]["id"]: s
+                    for s in _score_hurricanes_by_rules(hurricanes, region, category, direction)
+                }
+                scored = []
+                for hid, vec_score, _raw in vector_hits:
+                    h = by_id.get(hid)
+                    if not h:
+                        continue
+                    rules = rule_scores.get(hid, {})
+                    # Blend semantic similarity with structured rule signals
+                    combined = (vec_score * 100.0) + (rules.get("score", 0) * 0.25)
+                    scored.append({
+                        "hurricane": h,
+                        "score": combined,
+                        "category_match": rules.get("category_match", False),
+                        "region_match": rules.get("region_match", False),
+                        "direction_match": rules.get("direction_match", False),
+                    })
+                if scored:
+                    scored.sort(key=lambda x: x["score"], reverse=True)
+                    return _match_response_from_scored(
+                        scored,
+                        search_method="databricks_vector_search",
+                        query_used=search_text,
+                    )
+        except Exception as e:
+            print(f"Vector search failed, using rule-based match: {e}")
+
+    # --- Rule-based fallback ---
+    scored = _score_hurricanes_by_rules(hurricanes, region, category, direction)
+    return _match_response_from_scored(
+        scored,
+        search_method="rules",
+        query_used=search_text,
+    )
 
 
 @app.get("/projects", response_model=List[Project])
