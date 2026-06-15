@@ -3,7 +3,7 @@ import { useStore } from '../state/useStore'
 import axios from 'axios'
 import { playSliderStretch } from '../audio/SoundEngine'
 
-const API_BASE = 'http://localhost:8000'
+import { API_BASE } from '../config'
 
 export default function AllocationPanel() {
   const { selectedHurricane, coverage } = useStore()

@@ -23,7 +23,7 @@ import AffectedAreaHeightMap from '../shared/AffectedAreaHeightMap'
 import ScrollRevealSection, { ScrollDivider } from '../shared/ScrollRevealSection'
 import { isSandyHurricane, SANDY_COMPARISON_DATA } from '../../data/sandyHardcodedData'
 
-const API_BASE = 'http://localhost:8000'
+import { API_BASE } from '../../config'
 
 function formatBudget(n: number): string {
   if (n >= 1e9) return `$${(n / 1e9).toFixed(1)}B`

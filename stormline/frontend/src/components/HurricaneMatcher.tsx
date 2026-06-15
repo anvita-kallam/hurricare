@@ -3,7 +3,7 @@ import axios from 'axios'
 import { useStore } from '../state/useStore'
 import { playButtonPress, playHover } from '../audio/SoundEngine'
 
-const API_BASE = 'http://localhost:8000'
+import { API_BASE } from '../config'
 
 interface HurricaneMatcherProps {
   onMatchFound: (hurricaneId: string) => void

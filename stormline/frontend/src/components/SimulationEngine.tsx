@@ -6,7 +6,7 @@ import LocalizedAffectedMap from './LocalizedAffectedMap'
 import { resolveRegion } from '../utils/regionRegistry'
 import { playSliderStretch } from '../audio/SoundEngine'
 
-const API_BASE = 'http://localhost:8000'
+import { API_BASE } from '../config'
 
 interface NativeResources {
   shelters: number

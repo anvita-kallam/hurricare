@@ -18,8 +18,7 @@ import AmbientProvider from './audio/AmbientProvider'
 import { useGlobalClickSounds } from './hooks/useGlobalClickSounds'
 import { playHover, playButtonPress } from './audio/SoundEngine'
 import TypewriterText from './components/TypewriterText'
-
-const API_BASE = 'http://localhost:8000'
+import { API_BASE } from './config'
 
 function App() {
   const {

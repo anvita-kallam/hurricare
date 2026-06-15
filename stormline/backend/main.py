@@ -46,17 +46,26 @@ try:
 except ImportError:
     pass
 
-app = FastAPI(title="HurriCare API", version="1.0.0")
+import os
 
-# CORS middleware — include both localhost and 127.0.0.1 (browsers treat them as different origins)
-app.add_middleware(
-    CORSMiddleware,
-    allow_origins=[
+def _cors_origins() -> list[str]:
+    defaults = [
         "http://localhost:5173",
         "http://127.0.0.1:5173",
         "http://localhost:3000",
         "http://127.0.0.1:3000",
-    ],
+    ]
+    extra = os.getenv("CORS_ORIGINS", "")
+    if extra:
+        defaults.extend(origin.strip() for origin in extra.split(",") if origin.strip())
+    return defaults
+
+app = FastAPI(title="HurriCare API", version="1.0.0")
+
+# CORS middleware — include localhost and any production origins from CORS_ORIGINS
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=_cors_origins(),
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],

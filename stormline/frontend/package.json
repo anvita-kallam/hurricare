@@ -6,7 +6,8 @@
   "scripts": {
     "dev": "vite",
     "build": "tsc && vite build",
-    "preview": "vite preview"
+    "preview": "vite preview",
+    "start": "serve -s dist -l ${PORT:-4173}"
   },
   "dependencies": {
     "@react-three/drei": "^9.121.4",
@@ -17,6 +18,7 @@
     "react-dom": "^18.3.1",
     "react-simple-maps": "^3.0.0",
     "recharts": "^3.7.0",
+    "serve": "^14.2.6",
     "three": "^0.170.0",
     "world-geojson": "^3.4.0",
     "zustand": "^4.4.7"

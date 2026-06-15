@@ -14,7 +14,7 @@ import axios from 'axios'
 import { useStore } from '../../state/useStore'
 import TypewriterText from '../TypewriterText'
 
-const API_BASE = 'http://localhost:8000'
+import { API_BASE } from '../../config'
 
 function formatBudget(n: number): string {
   if (n >= 1e9) return `$${(n / 1e9).toFixed(1)}B`

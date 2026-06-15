@@ -1,7 +1,7 @@
 import { Suspense, useEffect, useRef, useMemo, useCallback, createElement } from 'react'
 import axios from 'axios'
 
-const API_BASE = 'http://localhost:8000'
+import { API_BASE } from '../config'
 import { Canvas, useThree, useFrame } from '@react-three/fiber'
 import * as THREE from 'three'
 import { useCinematicController, ImpactEvent } from '../hooks/useCinematicController'
