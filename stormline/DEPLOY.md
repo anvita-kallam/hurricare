@@ -102,8 +102,8 @@ Open `http://localhost:4173`.
 ### Backend build fails during `pip install -r requirements.txt`
 - Railway/Railpack may default to Python 3.12+ with an older pip that corrupts PyPI metadata (`JSONDecodeError`)
 - This repo pins Python **3.11** via `.python-version`, `runtime.txt`, and `RAILPACK_PYTHON_VERSION`
-- `railpack.json` upgrades pip before installing dependencies
-- If it still fails, set this variable on the backend service: `RAILPACK_INSTALL_CMD=pip install --upgrade pip setuptools wheel && pip install --no-cache-dir -r requirements.txt`
+- Do **not** add a custom `railpack.json` install step — it bypasses Railpack's venv setup and causes `pip: command not found`
+- If pip metadata errors persist after redeploying, set on the backend service: `RAILPACK_INSTALL_CMD=python -m pip install --upgrade pip setuptools wheel && python -m pip install --no-cache-dir -r requirements.txt`
 
 ### Frontend build fails with `EBUSY: rmdir '/app/node_modules/.cache'`
 - Do **not** run `npm ci` or `npm install` in the Railway build command — Railpack already installs dependencies
