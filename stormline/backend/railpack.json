@@ -1,0 +1,20 @@
+{
+  "$schema": "https://schema.railpack.com",
+  "steps": {
+    "install": {
+      "commands": [
+        {
+          "cmd": "pip install --upgrade pip setuptools wheel",
+          "customName": "Upgrade pip"
+        },
+        {
+          "cmd": "pip install --no-cache-dir -r requirements.txt",
+          "customName": "Install dependencies"
+        }
+      ]
+    }
+  },
+  "deploy": {
+    "startCommand": "uvicorn main:app --host 0.0.0.0 --port $PORT"
+  }
+}

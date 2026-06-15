@@ -99,6 +99,12 @@ Open `http://localhost:4173`.
 - Ensure `CORS_ORIGINS` on the backend exactly matches your frontend URL (including `https://`)
 - Redeploy backend after changing `CORS_ORIGINS`
 
+### Backend build fails during `pip install -r requirements.txt`
+- Railway/Railpack may default to Python 3.12+ with an older pip that corrupts PyPI metadata (`JSONDecodeError`)
+- This repo pins Python **3.11** via `.python-version`, `runtime.txt`, and `RAILPACK_PYTHON_VERSION`
+- `railpack.json` upgrades pip before installing dependencies
+- If it still fails, set this variable on the backend service: `RAILPACK_INSTALL_CMD=pip install --upgrade pip setuptools wheel && pip install --no-cache-dir -r requirements.txt`
+
 ### Frontend build fails with `EBUSY: rmdir '/app/node_modules/.cache'`
 - Do **not** run `npm ci` or `npm install` in the Railway build command — Railpack already installs dependencies
 - The frontend `railway.toml` should use `buildCommand = "npm run build"` only
