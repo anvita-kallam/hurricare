@@ -50,7 +50,7 @@ Browser → Frontend (static React app)
 
    | Variable | Value |
    |----------|-------|
-   | `VITE_API_URL` | Your backend URL from Step 1 (no trailing slash) |
+   | `VITE_API_URL` | Your **backend** URL from Step 1, e.g. `https://hurricare-production.up.railway.app` (https required; no trailing slash) |
 
 4. Deploy. Railway builds the Vite app and serves `dist/` with `serve`
 5. Copy the frontend public URL
@@ -111,7 +111,8 @@ Open `http://localhost:4173`.
 - The frontend `railway.toml` should use `buildCommand = "npm run build"` only
 
 ### API calls fail / network errors
-- Confirm `VITE_API_URL` is set on the frontend service **before** the build runs
+- Confirm `VITE_API_URL` is set on the frontend service **before** the build runs and points to the **backend** service (not the frontend URL)
+- Use the full URL with scheme: `https://your-backend.up.railway.app` — without `https://`, the browser treats it as a relative path and returns HTML instead of JSON
 - Railway rebuilds when you change variables — trigger a redeploy after updating `VITE_API_URL`
 
 ### Backend build fails on DuckDB/scipy
