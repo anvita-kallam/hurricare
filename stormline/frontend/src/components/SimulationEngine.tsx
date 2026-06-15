@@ -1,12 +1,13 @@
 import { useState, useEffect, useMemo, useRef } from 'react'
 import axios from 'axios'
-import { useStore } from '../state/useStore'
+import { useStore, type Coverage } from '../state/useStore'
 import NarrativePopup from './NarrativePopup'
 import LocalizedAffectedMap from './LocalizedAffectedMap'
 import { resolveRegion } from '../utils/regionRegistry'
 import { playSliderStretch } from '../audio/SoundEngine'
 
 import { API_BASE } from '../config'
+import { ensureArray } from '../utils/apiHelpers'
 
 interface NativeResources {
   shelters: number
@@ -82,7 +83,7 @@ export default function SimulationEngine({ onStartSimulation }: SimulationEngine
   // Get regions from coverage data, falling back to affected_countries
   const regions = useMemo(() => {
     if (!selectedHurricane) return []
-    const fromCoverage = coverage
+    const fromCoverage = ensureArray<Coverage>(coverage)
       .filter(c => c.hurricane_id === selectedHurricane.id)
       .map(c => c.admin1)
       .filter((v, i, a) => a.indexOf(v) === i)

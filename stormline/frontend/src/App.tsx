@@ -19,6 +19,7 @@ import { useGlobalClickSounds } from './hooks/useGlobalClickSounds'
 import { playHover, playButtonPress } from './audio/SoundEngine'
 import TypewriterText from './components/TypewriterText'
 import { API_BASE } from './config'
+import { normalizeCoverage, normalizeHurricanes } from './utils/apiHelpers'
 
 function App() {
   const {
@@ -57,7 +58,9 @@ function App() {
   } = useStore()
 
   const [loading, setLoading] = useState(true)
+  const [apiError, setApiError] = useState<string | null>(null)
   const [gameStarted, setGameStarted] = useState(false)
+  const [browseTransition, setBrowseTransition] = useState(false)
   const [showWelcomePopup, setShowWelcomePopup] = useState(false)
   const welcomeShownRef = useRef(false) // Ensure welcome popup shows only ONCE
   const [pendingHurricane, setPendingHurricane] = useState<string | null>(null)
@@ -118,13 +121,33 @@ function App() {
     const fetchHurricanes = async () => {
       try {
         const [hurricanesRes, coverageRes] = await Promise.all([
-          axios.get(`${API_BASE}/hurricanes`),
-          axios.get(`${API_BASE}/coverage`)
+          axios.get(`${API_BASE}/hurricanes`, { headers: { Accept: 'application/json' } }),
+          axios.get(`${API_BASE}/coverage`, { headers: { Accept: 'application/json' } }),
         ])
-        setHurricanes(hurricanesRes.data)
-        setCoverage(coverageRes.data)
+
+        if (!Array.isArray(hurricanesRes.data)) {
+          throw new Error(
+            `Hurricanes API returned ${typeof hurricanesRes.data} instead of JSON array. Check VITE_API_URL (${API_BASE}).`
+          )
+        }
+        if (!Array.isArray(coverageRes.data)) {
+          throw new Error(
+            `Coverage API returned ${typeof coverageRes.data} instead of JSON array. Check VITE_API_URL (${API_BASE}).`
+          )
+        }
+
+        setHurricanes(normalizeHurricanes(hurricanesRes.data))
+        setCoverage(normalizeCoverage(coverageRes.data))
+        setApiError(null)
       } catch (error) {
         console.error('Error fetching data:', error)
+        setHurricanes([])
+        setCoverage([])
+        setApiError(
+          error instanceof Error
+            ? error.message
+            : 'Could not load hurricane data. Verify the backend is running and VITE_API_URL is set correctly.'
+        )
       } finally {
         setLoading(false)
       }
@@ -240,13 +263,23 @@ function App() {
 
   const handleDashboardOption = (option: 'browse' | 'disparity') => {
     if (option === 'browse') {
-      // Enter the main globe view with hurricane paths
-      setGameStarted(true)
-      // Only show welcome popup ONCE on first entry — never again
-      if (!welcomeShownRef.current) {
-        welcomeShownRef.current = true
-        setShowWelcomePopup(true)
+      if (apiError || hurricanes.length === 0) {
+        setApiError(
+          apiError ||
+            'No hurricane data loaded yet. Confirm the backend is reachable and VITE_API_URL points to it.'
+        )
+        return
       }
+      // Brief transition avoids WebGL context conflict between dashboard and main globe canvases
+      setBrowseTransition(true)
+      setTimeout(() => {
+        setGameStarted(true)
+        setBrowseTransition(false)
+        if (!welcomeShownRef.current) {
+          welcomeShownRef.current = true
+          setShowWelcomePopup(true)
+        }
+      }, 150)
     } else if (option === 'disparity') {
       setShowFundingDisparity(true)
     }
@@ -308,6 +341,9 @@ function App() {
 
   // Dashboard entry screen — always ensure visible and responsive
   if (!gameStarted && !showFundingDisparity) {
+    if (browseTransition) {
+      return <div className="fixed inset-0 bg-[#020408]" />
+    }
     return (
       <>
         <AmbientProvider />
@@ -316,6 +352,11 @@ function App() {
           onEnter={() => {}}
           isLoading={loading || hurricanes.length === 0 || dashboardInitializing}
         />
+        {apiError && (
+          <div className="fixed bottom-6 left-1/2 z-[60] max-w-xl -translate-x-1/2 rounded-md border border-red-400/30 bg-black/85 px-4 py-3 text-sm text-red-200">
+            {apiError}
+          </div>
+        )}
         {postProcessingOverlays}
       </>
     )

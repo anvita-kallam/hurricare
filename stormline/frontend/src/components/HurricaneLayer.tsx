@@ -2,6 +2,7 @@ import { useMemo, useState } from 'react'
 import { useStore } from '../state/useStore'
 import * as THREE from 'three'
 import { Html } from '@react-three/drei'
+import { ensureArray } from '../utils/apiHelpers'
 
 // Extended color palette for unique storm colors
 const stormColors = [
@@ -31,9 +32,11 @@ const PATH_ELEVATION = 1.06
 
 function HurricanePath({ hurricane, isSelected, onHurricaneClick }: { hurricane: any; isSelected: boolean; onHurricaneClick?: (hurricaneId: string) => void }) {
   const [hovered, setHovered] = useState(false)
+  const track = ensureArray<{ lat: number; lon: number; wind?: number }>(hurricane?.track)
 
   const curve = useMemo(() => {
-    const points = hurricane.track.map((point: any) => {
+    if (track.length === 0) return null
+    const points = track.map((point) => {
       const phi = (90 - point.lat) * (Math.PI / 180)
       const theta = (point.lon + 180) * (Math.PI / 180)
       return new THREE.Vector3(
@@ -43,9 +46,10 @@ function HurricanePath({ hurricane, isSelected, onHurricaneClick }: { hurricane:
       )
     })
     return new THREE.CatmullRomCurve3(points, false, 'centripetal')
-  }, [hurricane.track])
+  }, [track])
 
   const geometry = useMemo(() => {
+    if (!curve) return null
     const radius = isSelected ? 0.008 : 0.004
     return new THREE.TubeGeometry(curve, 64, radius, 8, false)
   }, [curve, isSelected])
@@ -62,6 +66,8 @@ function HurricanePath({ hurricane, isSelected, onHurricaneClick }: { hurricane:
     const grey = Math.round(0.299 * r + 0.587 * g + 0.114 * b)
     return `#${grey.toString(16).padStart(2, '0')}${grey.toString(16).padStart(2, '0')}${grey.toString(16).padStart(2, '0')}`
   }, [baseColor, isSelected])
+
+  if (!geometry || !curve) return null
 
   return (
     <group>
@@ -96,7 +102,7 @@ function HurricanePath({ hurricane, isSelected, onHurricaneClick }: { hurricane:
       </mesh>
 
       {/* Static track points — no pulsing/breathing animation */}
-      {(isSelected || hovered) && hurricane.track.map((point: any, index: number) => {
+      {(isSelected || hovered) && track.map((point, index) => {
         const phi = (90 - point.lat) * (Math.PI / 180)
         const theta = (point.lon + 180) * (Math.PI / 180)
         return (
@@ -149,10 +155,12 @@ interface HurricaneLayerProps {
 
 export default function HurricaneLayer({ onHurricaneClick }: HurricaneLayerProps) {
   const { hurricanes, selectedHurricane } = useStore()
+  const visibleHurricanes = ensureArray<typeof hurricanes[number]>(hurricanes)
+    .filter((hurricane) => ensureArray(hurricane.track).length > 0)
 
   return (
     <group>
-      {hurricanes.map((hurricane) => (
+      {visibleHurricanes.map((hurricane) => (
         <HurricanePath
           key={hurricane.id}
           hurricane={hurricane}

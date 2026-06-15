@@ -158,10 +158,12 @@ export const useStore = create<Store>((set) => ({
   isRunningPipeline: false,
   pipelineError: null,
 
-  setHurricanes: (hurricanes) => set({ hurricanes }),
+  setHurricanes: (hurricanes) => set({
+    hurricanes: Array.isArray(hurricanes) ? hurricanes : [],
+  }),
   setSelectedHurricane: (hurricane) => set({ selectedHurricane: hurricane }),
-  setProjects: (projects) => set({ projects }),
-  setCoverage: (coverage) => set({ coverage }),
+  setProjects: (projects) => set({ projects: Array.isArray(projects) ? projects : [] }),
+  setCoverage: (coverage) => set({ coverage: Array.isArray(coverage) ? coverage : [] }),
   setFlaggedProjects: (flaggedProjects) => set({ flaggedProjects }),
   toggleSeverityOverlay: () => set((state) => ({ showSeverityOverlay: !state.showSeverityOverlay })),
   toggleCoverageOverlay: () => set((state) => ({ showCoverageOverlay: !state.showCoverageOverlay })),

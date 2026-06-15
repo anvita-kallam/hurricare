@@ -8,6 +8,7 @@ import PostProcessing from './PostProcessing'
 import HurricaneLayer from '../HurricaneLayer'
 import { COUNTRY_POLYGONS } from '../../data/countries'
 import { getFundingDisparity, disparityToColor } from '../../data/fundingDisparity'
+import { ensureArray } from '../../utils/apiHelpers'
 
 const latLonToVec3 = (lat: number, lon: number, r: number) => {
   const phi = (90 - lat) * (Math.PI / 180)
@@ -78,9 +79,10 @@ function CameraRig({ selected, selectedHurricane }: { selected: string | null; s
   const prevHurricane = useRef<any>(null)
 
   const calculateHurricaneCentroid = (hurricane: any): THREE.Vector3 | null => {
-    if (!hurricane?.track || hurricane.track.length === 0) return null
+    const track = ensureArray<{ lat: number; lon: number }>(hurricane?.track)
+    if (track.length === 0) return null
 
-    const points = hurricane.track.map((point: any) => {
+    const points = track.map((point) => {
       const phi = (90 - point.lat) * (Math.PI / 180)
       const theta = (point.lon + 180) * (Math.PI / 180)
       return new THREE.Vector3(

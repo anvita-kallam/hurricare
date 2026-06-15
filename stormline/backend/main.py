@@ -48,6 +48,21 @@ except ImportError:
 
 import os
 
+def _parse_json_field(value, default=None):
+    """Parse DuckDB JSON columns whether returned as str or native Python types."""
+    if default is None:
+        default = []
+    if value is None:
+        return default
+    if isinstance(value, (list, dict)):
+        return value
+    if isinstance(value, str):
+        try:
+            return json.loads(value)
+        except json.JSONDecodeError:
+            return default
+    return default
+
 def _cors_origins() -> list[str]:
     defaults = [
         "http://localhost:5173",
@@ -110,8 +125,8 @@ def get_hurricanes():
             "name": row[1],
             "year": row[2],
             "max_category": row[3],
-            "track": json.loads(row[4]),
-            "affected_countries": json.loads(row[5]),
+            "track": _parse_json_field(row[4], []),
+            "affected_countries": _parse_json_field(row[5], []),
             "estimated_population_affected": row[6]
         })
     return hurricanes
@@ -140,8 +155,8 @@ def _load_all_hurricanes() -> List[dict]:
             "name": row[1],
             "year": row[2],
             "max_category": row[3],
-            "track": json.loads(row[4]),
-            "affected_countries": json.loads(row[5]),
+            "track": _parse_json_field(row[4], []),
+            "affected_countries": _parse_json_field(row[5], []),
             "estimated_population_affected": row[6],
         })
     return hurricanes
