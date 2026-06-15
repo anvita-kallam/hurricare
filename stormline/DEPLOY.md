@@ -29,7 +29,7 @@ Browser → Frontend (static React app)
 
    | Variable | Required | Description |
    |----------|----------|-------------|
-   | `CORS_ORIGINS` | Yes (after frontend deploy) | Your frontend URL, e.g. `https://hurricare-frontend-production.up.railway.app` |
+   | `CORS_ORIGINS` | Recommended | Frontend URL, e.g. `https://hurricare.up.railway.app` (also accepts `FRONTEND_URL`) |
    | `DATABRICKS_SERVER_HOSTNAME` | No | Databricks SQL warehouse host |
    | `DATABRICKS_HTTP_PATH` | No | SQL warehouse HTTP path |
    | `DATABRICKS_PAT` | No | Databricks personal access token |
@@ -60,8 +60,9 @@ Browser → Frontend (static React app)
 1. Go back to the **backend** service → **Variables**
 2. Set `CORS_ORIGINS` to your frontend URL:
    ```
-   https://hurricare-frontend-production.up.railway.app
+   https://hurricare.up.railway.app
    ```
+   On Railway, `*.up.railway.app` origins are also allowed automatically when `RAILWAY_ENVIRONMENT` is set.
 3. Redeploy the backend so CORS picks up the new origin
 
 ## Step 4: Test

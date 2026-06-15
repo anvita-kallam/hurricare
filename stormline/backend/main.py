@@ -70,21 +70,43 @@ def _cors_origins() -> list[str]:
         "http://localhost:3000",
         "http://127.0.0.1:3000",
     ]
-    extra = os.getenv("CORS_ORIGINS", "")
-    if extra:
-        defaults.extend(origin.strip() for origin in extra.split(",") if origin.strip())
-    return defaults
+    for env_key in ("CORS_ORIGINS", "FRONTEND_URL"):
+        extra = os.getenv(env_key, "")
+        if extra:
+            defaults.extend(origin.strip().rstrip("/") for origin in extra.split(",") if origin.strip())
+    # De-dupe while preserving order
+    seen: set[str] = set()
+    unique: list[str] = []
+    for origin in defaults:
+        if origin not in seen:
+            seen.add(origin)
+            unique.append(origin)
+    return unique
+
+
+def _cors_origin_regex() -> Optional[str]:
+    """Allow sibling Railway services (*.up.railway.app) when deployed on Railway."""
+    if os.getenv("CORS_ALLOW_RAILWAY", "").lower() in {"1", "true", "yes"}:
+        return r"https://.*\.up\.railway\.app"
+    if os.getenv("RAILWAY_ENVIRONMENT"):
+        return r"https://.*\.up\.railway\.app"
+    custom = os.getenv("CORS_ORIGIN_REGEX")
+    return custom or None
 
 app = FastAPI(title="HurriCare API", version="1.0.0")
 
-# CORS middleware — include localhost and any production origins from CORS_ORIGINS
-app.add_middleware(
-    CORSMiddleware,
-    allow_origins=_cors_origins(),
-    allow_credentials=True,
-    allow_methods=["*"],
-    allow_headers=["*"],
-)
+# CORS middleware — localhost, explicit origins, and Railway sibling services
+_cors_kwargs: dict = {
+    "allow_origins": _cors_origins(),
+    "allow_credentials": True,
+    "allow_methods": ["*"],
+    "allow_headers": ["*"],
+}
+_origin_regex = _cors_origin_regex()
+if _origin_regex:
+    _cors_kwargs["allow_origin_regex"] = _origin_regex
+
+app.add_middleware(CORSMiddleware, **_cors_kwargs)
 
 # Initialize database with thread-safe connection
 # DuckDB connections are not thread-safe, so we use a lock
