@@ -99,6 +99,10 @@ Open `http://localhost:4173`.
 - Ensure `CORS_ORIGINS` on the backend exactly matches your frontend URL (including `https://`)
 - Redeploy backend after changing `CORS_ORIGINS`
 
+### Frontend build fails with `EBUSY: rmdir '/app/node_modules/.cache'`
+- Do **not** run `npm ci` or `npm install` in the Railway build command — Railpack already installs dependencies
+- The frontend `railway.toml` should use `buildCommand = "npm run build"` only
+
 ### API calls fail / network errors
 - Confirm `VITE_API_URL` is set on the frontend service **before** the build runs
 - Railway rebuilds when you change variables — trigger a redeploy after updating `VITE_API_URL`

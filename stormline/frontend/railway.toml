@@ -1,6 +1,7 @@
 [build]
 builder = "nixpacks"
-buildCommand = "npm ci && npm run build"
+# Railpack installs deps in a separate step — do not run npm ci here (EBUSY on node_modules/.cache).
+buildCommand = "npm run build"
 
 [deploy]
 startCommand = "npm start"
